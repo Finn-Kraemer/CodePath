@@ -31,6 +31,11 @@ services:
       SPRING_DATASOURCE_USERNAME: codepath
       SPRING_DATASOURCE_PASSWORD: codepath
       JWT_SECRET: change-me-in-production-min-32-chars!!
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       postgres:
         condition: service_healthy
