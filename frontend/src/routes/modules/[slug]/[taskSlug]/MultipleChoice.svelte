@@ -1,24 +1,38 @@
 <script lang="ts">
 	import { auth } from '$lib/auth.svelte';
+	import TaskTimer from '$lib/components/tasks/TaskTimer.svelte';
 
 	let { task, moduleSlug } = $props();
 
 	let selected = $state<number[]>([]);
-	let result = $state<{ correct: boolean; feedback: string } | null>(null);
+	let result = $state<{ correct: boolean; feedback: string; solution?: string } | null>(null);
 	let loading = $state(false);
+	let timerRef = $state<TaskTimer | null>(null);
 
 	async function handleSubmit() {
 		if (selected.length === 0) return;
 		loading = true;
 
 		try {
+			const currentSeconds = timerRef ? timerRef.getSeconds() : (task.timeSpentSeconds || 0);
+			const timeSpentSinceLastSubmit = currentSeconds - (task.timeSpentSeconds || 0);
+
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
-				body: JSON.stringify({ payload: { selected } })
+				body: JSON.stringify({ 
+					payload: { selected },
+					timeSpentSeconds: timeSpentSinceLastSubmit
+				})
 			});
 			const data = await res.json();
-			result = { correct: data.isCorrect, feedback: data.feedback };
+			result = { 
+				correct: data.isCorrect, 
+				feedback: data.feedback,
+				solution: data.correctSolution 
+			};
 			if (data.isCorrect) task.isCompleted = true;
+			task.failedAttempts = data.failedAttempts;
+			task.timeSpentSeconds = currentSeconds;
 		} catch (e) {
 			result = { correct: false, feedback: 'Fehler bei der Verbindung zum Server' };
 		} finally {
@@ -37,9 +51,12 @@
 </script>
 
 <div class="border border-slate-200 bg-white p-10 shadow-sm rounded-none">
-	<h3 class="mb-8 font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase">
-		Prüfungsfrage:
-	</h3>
+	<div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+		<h3 class="font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase">
+			Prüfungsfrage:
+		</h3>
+		<TaskTimer bind:this={timerRef} startTime={task.timeSpentSeconds || 0} />
+	</div>
 
 	<div class="mb-10 space-y-3">
 		{#each task.config.options as option, i (i)}
@@ -78,6 +95,12 @@
 				<span class="text-xl font-bold">{result.correct ? '✓' : '✗'}</span>
 				<div>
 					<span class="font-bold uppercase tracking-widest">{result.correct ? 'Ergebnis:' : 'Hinweis:'}</span> {result.feedback}
+					{#if result.solution}
+						<div class="mt-4 border-t border-rose-200 pt-4 text-rose-800">
+							<p class="mb-1 font-black uppercase tracking-[2px] text-[10px]">Lösungshilfe (nach 3 Versuchen):</p>
+							<p class="font-sans italic">{result.solution}</p>
+						</div>
+					{/if}
 				</div>
 			</div>
 		</div>

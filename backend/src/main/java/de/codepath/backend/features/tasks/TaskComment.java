@@ -1,7 +1,6 @@
 package de.codepath.backend.features.tasks;
 
 import de.codepath.backend.users.User;
-import de.codepath.backend.features.modules.Module;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,9 +9,9 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "practice_submissions")
+@Table(name = "task_comments")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-public class PracticeSubmission {
+public class TaskComment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,23 +25,9 @@ public class PracticeSubmission {
     @JoinColumn(name = "task_id", nullable = false)
     private Task task;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SubmissionStatus status = SubmissionStatus.PENDING;
-
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(name = "submitted_at")
-    private LocalDateTime submittedAt = LocalDateTime.now();
-
-    @Column(name = "reviewed_at")
-    private LocalDateTime reviewedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewer_id")
-    private User reviewer;
-
-    @Column(name = "admin_comment", columnDefinition = "TEXT")
-    private String adminComment;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

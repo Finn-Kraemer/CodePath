@@ -41,11 +41,20 @@ public class TaskService {
 
     private TaskResponse mapToResponse(Task t, User user) {
         String submissionStatus = null;
+        String adminComment = null;
         if (t.getType() == TaskType.PRACTICE) {
-            submissionStatus = practiceSubmissionRepository.findTopByUser_IdAndTask_IdOrderBySubmittedAtDesc(user.getId(), t.getId())
-                    .map(s -> s.getStatus().name())
-                    .orElse("NOT_SUBMITTED");
+            PracticeSubmission sub = practiceSubmissionRepository.findTopByUser_IdAndTask_IdOrderBySubmittedAtDesc(user.getId(), t.getId())
+                    .orElse(null);
+            if (sub != null) {
+                submissionStatus = sub.getStatus().name();
+                adminComment = sub.getAdminComment();
+            } else {
+                submissionStatus = "NOT_SUBMITTED";
+            }
         }
+
+        UserTaskCompletion completion = completionRepository.findByUser_IdAndTask_Id(user.getId(), t.getId())
+                .orElse(null);
 
         return TaskResponse.builder()
                 .id(t.getId())
@@ -57,8 +66,11 @@ public class TaskService {
                 .difficulty(t.getDifficulty().name())
                 .points(t.getPoints())
                 .config(t.getConfig())
-                .isCompleted(completionRepository.existsByUser_IdAndTask_Id(user.getId(), t.getId()))
+                .isCompleted(completion != null && completion.isCompleted())
                 .submissionStatus(submissionStatus)
+                .adminComment(adminComment)
+                .failedAttempts(completion != null ? completion.getFailedAttempts() : 0)
+                .timeSpentSeconds(completion != null ? completion.getTimeSpentSeconds() : 0L)
                 .build();
     }
 }

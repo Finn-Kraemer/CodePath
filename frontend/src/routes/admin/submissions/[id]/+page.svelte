@@ -20,6 +20,8 @@
 
 	let submission = $state<Submission | null>(null);
 	let loading = $state(true);
+	let rejectComment = $state('');
+	let showRejectInput = $state(false);
 
 	async function fetchSubmission() {
 		try {
@@ -50,12 +52,14 @@
 
 	async function reject() {
 		if (!submission) return;
-		if (!confirm('Möchten Sie diese Abgabe wirklich ablehnen? Sie wird gelöscht und der Teilnehmer kann erneut einreichen.')) {
+		if (!rejectComment.trim()) {
+			alert('Bitte geben Sie einen Grund für die Ablehnung an.');
 			return;
 		}
 		try {
 			const res = await auth.apiFetch(`/api/admin/submissions/${submission.id}/reject`, {
-				method: 'DELETE'
+				method: 'DELETE',
+				body: JSON.stringify({ comment: rejectComment })
 			});
 			if (res.ok) {
 				goto('/admin/submissions');
@@ -68,7 +72,7 @@
 	onMount(fetchSubmission);
 </script>
 
-<div class="flex flex-col gap-12">
+<div class="flex flex-col gap-12 pb-24">
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin/submissions"
@@ -121,21 +125,49 @@
 				<PracticeReview content={submission.content} />
 			</div>
 
+			{#if showRejectInput}
+				<div class="bg-red-50 p-8 border-t border-red-100">
+					<h3 class="mb-4 font-sans text-xs font-black text-red-700 uppercase tracking-widest">Korrekturhinweis für den Schüler</h3>
+					<textarea
+						bind:value={rejectComment}
+						placeholder="Beschreiben Sie hier, was der Schüler an seiner Lösung verbessern muss..."
+						class="w-full border border-red-200 p-4 font-sans text-sm focus:outline-none focus:border-red-400 rounded-none mb-4"
+						rows="4"
+					></textarea>
+					<div class="flex justify-end gap-4">
+						<button 
+							onclick={() => showRejectInput = false}
+							class="px-6 py-2 font-mono text-[10px] font-bold text-slate-400 uppercase"
+						>
+							Abbrechen
+						</button>
+						<button 
+							onclick={reject}
+							class="bg-red-700 px-8 py-3 font-mono text-[10px] font-bold text-white uppercase"
+						>
+							Jetzt Ablehnen
+						</button>
+					</div>
+				</div>
+			{/if}
+
 			<!-- Actions -->
-			<div class="bg-slate-50 border-t border-slate-100 p-8 flex justify-end gap-4">
-				<button
-					onclick={reject}
-					class="border border-red-200 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-red-600 uppercase transition-all hover:bg-red-50 rounded-none"
-				>
-					Ablehnen / Zurücksetzen
-				</button>
-				<button
-					onclick={approve}
-					class="bg-teal-700 px-8 py-4 text-[10px] font-bold tracking-[3px] text-white uppercase shadow-md transition-all hover:bg-teal-800 rounded-none"
-				>
-					Validieren & Freigeben
-				</button>
-			</div>
+			{#if !showRejectInput}
+				<div class="bg-slate-50 border-t border-slate-100 p-8 flex justify-end gap-4">
+					<button
+						onclick={() => showRejectInput = true}
+						class="border border-red-200 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-red-600 uppercase transition-all hover:bg-red-50 rounded-none"
+					>
+						Ablehnen & Feedback geben
+					</button>
+					<button
+						onclick={approve}
+						class="bg-teal-700 px-8 py-4 text-[10px] font-bold tracking-[3px] text-white uppercase shadow-md transition-all hover:bg-teal-800 rounded-none"
+					>
+						Validieren & Freigeben
+					</button>
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>

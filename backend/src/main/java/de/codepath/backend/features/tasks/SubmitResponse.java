@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 public class SubmitResponse {
     @JsonProperty("isCorrect")
     private boolean isCorrect;
-    private int pointsAwarded;
-    private String status; // For PRACTICE (PENDING, APPROVED)
+    private Integer pointsAwarded;
+    private String status; // For PRACTICE (PENDING, APPROVED, REJECTED)
     private String feedback;
+    private Integer failedAttempts;
+    private String correctSolution;
 }

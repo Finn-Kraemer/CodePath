@@ -29,36 +29,96 @@ public class TaskSubmissionService {
         Task task = taskRepository.findByModuleIdAndSlug(module.getId(), taskSlug)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
+        // Get or create progress
+        UserTaskCompletion progress = completionRepository.findByUser_IdAndTask_Id(user.getId(), task.getId())
+                .orElseGet(() -> {
+                    UserTaskCompletion c = new UserTaskCompletion();
+                    c.setUser(user);
+                    c.setTask(task);
+                    return c;
+                });
+
+        // Update time spent
+        if (request.getTimeSpentSeconds() != null) {
+            progress.setTimeSpentSeconds(progress.getTimeSpentSeconds() + request.getTimeSpentSeconds());
+        }
+
         boolean isCorrect = validatePayload(task, request.getPayload());
 
         if (isCorrect) {
             if (task.getType() == TaskType.PRACTICE) {
                 return handlePracticeSubmission(task, user, request.getPayload());
             } else {
-                // Award points only if not already completed
-                boolean alreadyDone = completionRepository.existsByUser_IdAndTask_Id(user.getId(), task.getId());
-                if (!alreadyDone) {
-                    saveCompletion(user, task);
+                if (!progress.isCompleted()) {
+                    completeTask(user, task, progress);
                     return SubmitResponse.builder()
                             .isCorrect(true)
-                            .pointsAwarded(task.getPoints())
+                            .pointsAwarded(progress.getPointsAwarded())
+                            .failedAttempts(progress.getFailedAttempts())
                             .feedback("Super! Das war richtig.")
                             .build();
                 } else {
                     return SubmitResponse.builder()
                             .isCorrect(true)
                             .pointsAwarded(0)
+                            .failedAttempts(progress.getFailedAttempts())
                             .feedback("Korrekt! Du hast diese Aufgabe bereits gelöst.")
                             .build();
                 }
             }
         }
 
-        return SubmitResponse.builder()
+        // Handle wrong answer
+        if (!progress.isCompleted()) {
+            progress.setFailedAttempts(progress.getFailedAttempts() + 1);
+            completionRepository.save(progress);
+        }
+
+        SubmitResponse.SubmitResponseBuilder responseBuilder = SubmitResponse.builder()
                 .isCorrect(false)
                 .pointsAwarded(0)
-                .feedback("Leider falsch. Tipp: " + task.getConfig().getOrDefault("hint", "Probiere es noch einmal!"))
-                .build();
+                .failedAttempts(progress.getFailedAttempts())
+                .feedback("Leider falsch. Tipp: " + task.getConfig().getOrDefault("hint", "Probiere es noch einmal!"));
+
+        if (progress.getFailedAttempts() >= 3) {
+            responseBuilder.correctSolution(getSolution(task));
+        }
+
+        return responseBuilder.build();
+    }
+
+    private void completeTask(User user, Task task, UserTaskCompletion progress) {
+        int points = task.getPoints();
+        
+        // Bonus for time (if < 60s and MCQ/Fill)
+        if (progress.getTimeSpentSeconds() < 60 && progress.getFailedAttempts() == 0) {
+            points += 5; // Fixed bonus for speed
+        }
+        
+        // Deduction for solution (if failed 3+ times, but they solved it now? 
+        // Or if they just saw the solution and copied it)
+        if (progress.getFailedAttempts() >= 3) {
+            points = Math.max(1, points / 2);
+        }
+
+        progress.setCompleted(true);
+        progress.setCompletedAt(LocalDateTime.now());
+        progress.setPointsAwarded(points);
+        completionRepository.save(progress);
+
+        user.setTotalPoints(user.getTotalPoints() + points);
+        userRepository.save(user);
+    }
+
+    private String getSolution(Task task) {
+        return switch (task.getType()) {
+            case MULTIPLE_CHOICE -> "Korrekte Antworten: " + task.getConfig().get("correct");
+            case FILL_BLANK -> "Lösung: " + ((List<?>) task.getConfig().get("blanks")).stream()
+                    .map(b -> ((Map<?, ?>) b).get("answer").toString())
+                    .reduce((a, b) -> a + ", " + b).orElse("");
+            case FILL_CODE, CODE -> "Erwartete Ausgabe: " + task.getConfig().get("expectedOutput");
+            case PRACTICE -> "Manuelle Prüfung erforderlich.";
+        };
     }
 
     private boolean validatePayload(Task task, Map<String, Object> payload) {
@@ -151,15 +211,4 @@ public class TaskSubmissionService {
                 .build();
     }
 
-    private void saveCompletion(User user, Task task) {
-        UserTaskCompletion completion = new UserTaskCompletion();
-        completion.setUser(user);
-        completion.setTask(task);
-        completion.setPointsAwarded(task.getPoints());
-        completion.setCompletedAt(LocalDateTime.now());
-        completionRepository.save(completion);
-
-        user.setTotalPoints(user.getTotalPoints() + task.getPoints());
-        userRepository.save(user);
-    }
 }

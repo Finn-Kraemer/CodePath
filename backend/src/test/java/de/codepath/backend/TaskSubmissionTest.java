@@ -66,7 +66,9 @@ public class TaskSubmissionTest {
         task.setConfig(Map.of("correct", List.of(1)));
         taskRepository.save(task);
 
-        SubmitRequest request = new SubmitRequest(Map.of("selected", List.of(1)));
+        SubmitRequest request = SubmitRequest.builder()
+                .payload(Map.of("selected", List.of(1)))
+                .build();
         SubmitResponse response = submissionService.submitTask("test-module", "mc-task", testUser, request);
 
         assertTrue(response.isCorrect());
@@ -85,7 +87,9 @@ public class TaskSubmissionTest {
         task.setConfig(Map.of("correct", List.of(1)));
         taskRepository.save(task);
 
-        SubmitRequest request = new SubmitRequest(Map.of("selected", List.of(0)));
+        SubmitRequest request = SubmitRequest.builder()
+                .payload(Map.of("selected", List.of(0)))
+                .build();
         SubmitResponse response = submissionService.submitTask("test-module", "mc-task-wrong", testUser, request);
 
         assertFalse(response.isCorrect());

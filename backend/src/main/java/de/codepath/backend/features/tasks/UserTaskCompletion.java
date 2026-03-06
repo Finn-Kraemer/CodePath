@@ -25,8 +25,17 @@ public class UserTaskCompletion {
     private Task task;
 
     @Column(name = "completed_at")
-    private LocalDateTime completedAt = LocalDateTime.now();
+    private LocalDateTime completedAt;
 
     @Column(name = "points_awarded", nullable = false)
-    private Integer pointsAwarded;
+    private Integer pointsAwarded = 0;
+
+    @Column(name = "is_completed", nullable = false)
+    private boolean isCompleted = false;
+
+    @Column(name = "failed_attempts", nullable = false)
+    private Integer failedAttempts = 0;
+
+    @Column(name = "time_spent_seconds", nullable = false)
+    private Long timeSpentSeconds = 0L;
 }

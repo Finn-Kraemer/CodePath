@@ -4,6 +4,7 @@ import de.codepath.backend.features.modules.Module;
 import de.codepath.backend.features.modules.ModuleRepository;
 import de.codepath.backend.features.modules.ModuleResponse;
 import de.codepath.backend.features.tasks.*;
+import de.codepath.backend.common.AnnouncementDisplayMode;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
 import de.codepath.backend.users.UserRole;
@@ -31,6 +32,7 @@ public class AdminService {
     private final TaskRepository taskRepository;
     private final UserTaskCompletionRepository completionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final de.codepath.backend.common.GlobalAnnouncementRepository announcementRepository;
 
     @Transactional
     public boolean toggleModule(Long id) {
@@ -71,7 +73,7 @@ public class AdminService {
     }
 
     @Transactional
-    public void rejectSubmission(Long id) {
+    public void rejectSubmission(Long id, String comment) {
         PracticeSubmission submission = submissionRepository.findById(id).orElseThrow();
         
         // If it was already approved, we need to remove the completion and points
@@ -79,26 +81,43 @@ public class AdminService {
             User user = submission.getUser();
             Task task = submission.getTask();
             
-            if (completionRepository.existsByUser_IdAndTask_Id(user.getId(), task.getId())) {
-                UserTaskCompletion completion = completionRepository.findById(new UserTaskCompletionId(user.getId(), task.getId())).orElseThrow();
+            completionRepository.findByUser_IdAndTask_Id(user.getId(), task.getId()).ifPresent(completion -> {
                 user.setTotalPoints(user.getTotalPoints() - completion.getPointsAwarded());
-                completionRepository.delete(completion);
+                completion.setCompleted(false);
+                completion.setPointsAwarded(0);
+                completionRepository.save(completion);
                 userRepository.save(user);
-            }
+            });
         }
         
-        // Delete the submission entirely so the student can submit again
-        submissionRepository.delete(submission);
+        submission.setStatus(SubmissionStatus.REJECTED);
+        submission.setAdminComment(comment);
+        submission.setReviewedAt(LocalDateTime.now());
+        submissionRepository.save(submission);
+    }
+
+    @Transactional
+    public void updateAnnouncement(String content, AnnouncementDisplayMode displayMode, User admin) {
+        de.codepath.backend.common.GlobalAnnouncement announcement = announcementRepository.findFirstByOrderByUpdatedAtDesc()
+                .orElse(new de.codepath.backend.common.GlobalAnnouncement());
+        announcement.setContent(content);
+        announcement.setDisplayMode(displayMode);
+        announcement.setUpdatedAt(LocalDateTime.now());
+        announcement.setUpdatedBy(admin);
+        announcementRepository.save(announcement);
     }
 
     private void saveCompletion(User user, Task task) {
-        if (completionRepository.existsByUser_IdAndTask_Id(user.getId(), task.getId())) return;
+        UserTaskCompletion completion = completionRepository.findByUser_IdAndTask_Id(user.getId(), task.getId())
+                .orElse(new UserTaskCompletion());
+        
+        if (completion.isCompleted()) return;
 
-        UserTaskCompletion completion = new UserTaskCompletion();
         completion.setUser(user);
         completion.setTask(task);
         completion.setPointsAwarded(task.getPoints());
         completion.setCompletedAt(LocalDateTime.now());
+        completion.setCompleted(true);
         completionRepository.save(completion);
 
         user.setTotalPoints(user.getTotalPoints() + task.getPoints());

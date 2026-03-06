@@ -24,8 +24,9 @@ public class TaskResponse {
     
     @JsonProperty("isCompleted")
     private boolean isCompleted;
-    
     private String submissionStatus;
-    
+    private String adminComment;
+    private Integer failedAttempts;
+    private Long timeSpentSeconds;
     private String moduleTitle;
 }

@@ -13,6 +13,7 @@ public interface UserTaskCompletionRepository extends JpaRepository<UserTaskComp
     
     // Explicit naming to avoid ambiguity with @IdClass
     boolean existsByUser_IdAndTask_Id(Long userId, Long taskId);
+    java.util.Optional<UserTaskCompletion> findByUser_IdAndTask_Id(Long userId, Long taskId);
 
     @Query("SELECT u.user.id, COUNT(u) FROM UserTaskCompletion u WHERE u.user.id IN :userIds GROUP BY u.user.id")
     List<Object[]> countTasksByUserIds(@Param("userIds") List<Long> userIds);

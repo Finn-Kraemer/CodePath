@@ -1,5 +1,5 @@
 package de.codepath.backend.features.tasks;
 
 public enum SubmissionStatus {
-    PENDING, APPROVED
+    PENDING, APPROVED, REJECTED
 }

@@ -3,17 +3,22 @@
   import { onMount, onDestroy } from 'svelte';
   import { auth } from '$lib/auth.svelte';
   import PracticeEditor from '$lib/components/editor/PracticeEditor.svelte';
+  import TaskTimer from '$lib/components/tasks/TaskTimer.svelte';
 
   let { task, moduleSlug } = $props();
 
   let editorRef = $state<PracticeEditor | null>(null);
+  let timerRef = $state<TaskTimer | null>(null);
+
   // Initialisiere result basierend auf dem vom Backend gelieferten submissionStatus
-  let result = $derived.by(() => {
+  let result = $state(null);
+  
+  $effect(() => {
     if (task.submissionStatus && task.submissionStatus !== 'NOT_SUBMITTED') {
-      return { status: task.submissionStatus, feedback: '' };
+      result = { status: task.submissionStatus, feedback: '', adminComment: task.adminComment };
     }
-    return null;
   });
+
   let loading = $state(false);
   let error = $state('');
   let pollInterval: any = null;
@@ -28,12 +33,16 @@
     error = '';
     try {
       const editorContent = editorRef.getHTML();
+      const currentSeconds = timerRef ? timerRef.getSeconds() : (task.timeSpentSeconds || 0);
+      const timeSpentSinceLastSubmit = currentSeconds - (task.timeSpentSeconds || 0);
+
       const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
         method: 'POST',
         body: JSON.stringify({ 
           payload: { 
             practiceContent: editorContent 
-          } 
+          },
+          timeSpentSeconds: timeSpentSinceLastSubmit
         })
       });
       
@@ -41,6 +50,7 @@
       if (!res.ok) throw new Error(data.message || 'Fehler beim Einreichen.');
       
       result = { status: data.status, feedback: data.feedback };
+      task.timeSpentSeconds = currentSeconds; // Update local state
       startPolling();
     } catch (e: any) {
       error = e.message || 'Ein technischer Fehler ist aufgetreten.';
@@ -62,9 +72,8 @@
           feedback: 'Aufgabe wurde von der Lehrkraft freigegeben! Gutschrift: +' + task.points + ' Punkte'
         };
         stopPolling();
-      } else if (data.submissionStatus === 'NOT_SUBMITTED') {
-        // Falls der Admin es abgelehnt/gelöscht hat, während wir pollen
-        result = null;
+      } else if (data.submissionStatus === 'NOT_SUBMITTED' || data.submissionStatus === 'REJECTED') {
+        result = { status: data.submissionStatus, feedback: '', adminComment: data.adminComment };
         stopPolling();
       }
     } catch (e) {
@@ -95,9 +104,12 @@
 </script>
 
 <div class="border border-slate-200 bg-white p-10 shadow-sm rounded-none">
-  <h3 class="mb-8 font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase">
-    Praktischer Leistungsnachweis:
-  </h3>
+  <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+    <h3 class="font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase">
+      Praktischer Leistungsnachweis:
+    </h3>
+    <TaskTimer bind:this={timerRef} startTime={task.timeSpentSeconds || 0} />
+  </div>
 
   <div class="mb-10 border-l-4 border-amber-400 bg-amber-50 p-8 font-sans text-sm leading-relaxed text-amber-900 rounded-none shadow-inner">
     <p class="mb-2 font-black uppercase tracking-[2px] text-[10px] text-amber-600">Instruktionen</p>
@@ -123,6 +135,27 @@
     <div class="mb-8 border border-blue-200 bg-blue-50 p-8 flex items-center gap-6 font-sans font-bold text-blue-700 uppercase tracking-widest text-xs rounded-none shadow-sm">
       <div class="h-6 w-6 border-2 border-blue-700 border-t-transparent animate-spin"></div>
       In Prüfung durch Fachdozent...
+    </div>
+  {:else if result?.status === 'REJECTED'}
+    <div class="mb-8 border border-red-200 bg-red-50 p-8 flex flex-col gap-4 font-sans text-red-700 rounded-none shadow-sm">
+      <div class="flex items-center gap-6 font-bold uppercase tracking-widest text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+        Prüfung nicht bestanden: Korrektur erforderlich
+      </div>
+      {#if result.adminComment}
+        <div class="mt-4 border-l-2 border-red-200 pl-6 py-2">
+          <p class="text-[9px] font-black uppercase tracking-widest opacity-60 mb-2">Feedback der Lehrkraft:</p>
+          <p class="font-sans text-sm italic leading-relaxed">{result.adminComment}</p>
+        </div>
+      {/if}
+      <button
+        onclick={() => result = null}
+        class="mt-4 self-start bg-red-700 px-6 py-3 font-mono text-[10px] font-bold tracking-widest text-white uppercase transition-all hover:bg-red-800 rounded-none"
+      >
+        Lösung überarbeiten
+      </button>
     </div>
   {:else}
     <div class="space-y-6">

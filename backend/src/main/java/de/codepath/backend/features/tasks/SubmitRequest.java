@@ -12,4 +12,5 @@ import java.util.Map;
 @NoArgsConstructor
 public class SubmitRequest {
     private Map<String, Object> payload;
+    private Long timeSpentSeconds;
 }

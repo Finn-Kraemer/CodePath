@@ -38,8 +38,17 @@ public class AdminController {
     }
 
     @DeleteMapping("/submissions/{id}/reject")
-    public ResponseEntity<Void> rejectSubmission(@PathVariable("id") Long id) {
-        adminService.rejectSubmission(id);
+    public ResponseEntity<Void> rejectSubmission(@PathVariable("id") Long id, @RequestBody(required = false) Map<String, String> body) {
+        String comment = body != null ? body.get("comment") : null;
+        adminService.rejectSubmission(id, comment);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/announcement")
+    public ResponseEntity<Void> updateAnnouncement(@RequestBody Map<String, String> body) {
+        User admin = userService.getCurrentUser();
+        de.codepath.backend.common.AnnouncementDisplayMode mode = de.codepath.backend.common.AnnouncementDisplayMode.valueOf(body.getOrDefault("displayMode", "HEADER"));
+        adminService.updateAnnouncement(body.get("content"), mode, admin);
         return ResponseEntity.ok().build();
     }
 
