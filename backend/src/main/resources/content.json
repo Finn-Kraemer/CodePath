@@ -914,7 +914,7 @@
       },
       {
         "slug": "d8",
-        "title": "Bau deinen eigenen Computer (auf Papier) 🖥️",
+        "title": "Bau deinen eigenen Computer (auf Papier)",
         "difficulty": "HARD",
         "points": 50,
         "type": "PRACTICE",
@@ -928,7 +928,7 @@
       },
       {
         "slug": "d9",
-        "title": "Die smarte Lampe (AND) 💡",
+        "title": "Die smarte Lampe (AND)",
         "difficulty": "EASY",
         "points": 15,
         "type": "FILL_CODE",
@@ -946,7 +946,7 @@
       },
       {
         "slug": "d10",
-        "title": "Das Alarmsystem (OR) 🚨",
+        "title": "Das Alarmsystem (OR)",
         "difficulty": "EASY",
         "points": 15,
         "type": "FILL_CODE",
@@ -964,7 +964,7 @@
       },
       {
         "slug": "d11",
-        "title": "Die Nachtschaltung (NOT) 🌙",
+        "title": "Die Nachtschaltung (NOT)",
         "difficulty": "EASY",
         "points": 15,
         "type": "FILL_CODE",
@@ -982,7 +982,7 @@
       },
       {
         "slug": "d12",
-        "title": "Die Wahrheitstabelle (AND) 📊",
+        "title": "Die Wahrheitstabelle (AND)",
         "difficulty": "MEDIUM",
         "points": 20,
         "type": "FILL_BLANK",
@@ -997,7 +997,7 @@
       },
       {
         "slug": "d13",
-        "title": "Der Tresor-Code (Kombinierte Logik) 🔐",
+        "title": "Der Tresor-Code (Kombinierte Logik)",
         "difficulty": "MEDIUM",
         "points": 25,
         "type": "FILL_CODE",
@@ -1017,7 +1017,7 @@
       },
       {
         "slug": "d14",
-        "title": "Der Wechselschalter (XOR) ↕️",
+        "title": "Der Wechselschalter (XOR)",
         "difficulty": "HARD",
         "points": 20,
         "type": "FILL_CODE",
@@ -1035,7 +1035,7 @@
       },
       {
         "slug": "d15",
-        "title": "Logik-Designer: Kühlungssystem ❄️",
+        "title": "Logik-Designer: Kühlungssystem",
         "difficulty": "HARD",
         "points": 50,
         "type": "PRACTICE",
