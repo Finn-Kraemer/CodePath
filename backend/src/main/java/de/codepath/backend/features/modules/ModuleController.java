@@ -32,7 +32,7 @@ public class ModuleController {
     @GetMapping("/{slug}")
     public List<TaskResponse> getModuleTasks(@PathVariable("slug") String slug) {
         User user = userService.getCurrentUser();
-        Module module = moduleService.getModuleBySlug(slug);
+        Module module = moduleService.getModuleBySlug(slug, user);
         return taskService.getTasksForModule(module, user);
     }
 

@@ -3,6 +3,8 @@ package de.codepath.backend.features.tasks;
 import de.codepath.backend.features.modules.Module;
 import de.codepath.backend.features.modules.ModuleRepository;
 import de.codepath.backend.users.User;
+import de.codepath.backend.users.UserRole;
+import de.codepath.backend.common.GlobalExceptionHandler.AccessDeniedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +27,14 @@ public class TaskService {
     }
 
     public TaskResponse getTask(String moduleSlug, String taskSlug, User user) {
-        Long moduleId = moduleRepository.findBySlug(moduleSlug)
-                .orElseThrow(() -> new RuntimeException("Module not found"))
-                .getId();
-        Task task = taskRepository.findByModuleIdAndSlug(moduleId, taskSlug)
+        Module module = moduleRepository.findBySlug(moduleSlug)
+                .orElseThrow(() -> new RuntimeException("Module not found"));
+        
+        if (user.getRole() != UserRole.ADMIN && !Boolean.TRUE.equals(module.getIsUnlocked())) {
+            throw new AccessDeniedException("Dieses Modul ist aktuell gesperrt.");
+        }
+
+        Task task = taskRepository.findByModuleIdAndSlug(module.getId(), taskSlug)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         return mapToResponse(task, user);
     }

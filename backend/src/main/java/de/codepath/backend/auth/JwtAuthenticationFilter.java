@@ -64,32 +64,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         try {
             final String finalJwt = jwt;
-            final String username = jwtService.extractUsername(jwt);
-            
+            final String username = jwtService.extractUsername(finalJwt);
+
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                
-                if (jwtService.isTokenValid(finalJwt, userDetails)) {
-                    // Try to extract roles from token
-                    List<?> rolesRaw = jwtService.extractClaim(finalJwt, claims -> claims.get("roles", List.class));
-                    
-                    Collection<? extends GrantedAuthority> authorities;
-                    if (rolesRaw != null && !rolesRaw.isEmpty()) {
-                        // Use roles from JWT
-                        authorities = rolesRaw.stream()
-                                .map(role -> new SimpleGrantedAuthority(role.toString()))
-                                .collect(Collectors.toList());
-                    } else {
-                        // Fallback to database roles if JWT is missing them
-                        authorities = userDetails.getAuthorities();
-                    }
 
+                if (jwtService.isTokenValid(finalJwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
-                            authorities
+                            userDetails.getAuthorities()
                     );
-                    
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }

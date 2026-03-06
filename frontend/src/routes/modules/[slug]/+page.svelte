@@ -22,6 +22,10 @@
 	onMount(async () => {
 		try {
 			const res = await auth.apiFetch(`/api/modules/${slug}`);
+			if (res.status === 403) {
+				import('$app/navigation').then(nav => nav.goto('/modules'));
+				return;
+			}
 			if (!res.ok) throw new Error('Aufgaben konnten nicht geladen werden');
 			tasks = await res.json();
 		} catch (err: any) {
