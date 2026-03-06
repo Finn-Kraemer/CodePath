@@ -6,6 +6,7 @@ import de.codepath.backend.features.tasks.UserTaskCompletionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserTaskCompletionRepository completionRepository;
     private final PracticeSubmissionRepository practiceSubmissionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -52,6 +54,15 @@ public class UserService {
     public void updateDisplayName(User user, String newDisplayName) {
         if (newDisplayName == null || newDisplayName.isBlank()) return;
         user.setDisplayName(newDisplayName);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void changePassword(User user, String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new RuntimeException("Password must be at least 6 characters");
+        }
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 }

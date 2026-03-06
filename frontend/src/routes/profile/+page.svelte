@@ -12,8 +12,11 @@
 
 	let profile = $state<Profile | null>(null);
 	let newDisplayName = $state('');
+	let newPassword = $state('');
+	let confirmPassword = $state('');
 	let loading = $state(true);
 	let saving = $state(false);
+	let changingPassword = $state(false);
 	let error = $state('');
 	let success = $state('');
 
@@ -53,6 +56,38 @@
 		}
 	}
 
+	async function handleChangePassword() {
+		if (newPassword !== confirmPassword) {
+			error = 'Passwörter stimmen nicht überein.';
+			return;
+		}
+		if (newPassword.length < 6) {
+			error = 'Passwort muss mindestens 6 Zeichen lang sein.';
+			return;
+		}
+
+		changingPassword = true;
+		error = '';
+		success = '';
+		try {
+			const res = await auth.apiFetch('/api/users/profile/password', {
+				method: 'PATCH',
+				body: JSON.stringify({ password: newPassword })
+			});
+			if (res.ok) {
+				success = 'Passwort erfolgreich geändert.';
+				newPassword = '';
+				confirmPassword = '';
+			} else {
+				throw new Error();
+			}
+		} catch (e) {
+			error = 'Fehler beim Ändern des Passworts.';
+		} finally {
+			changingPassword = false;
+		}
+	}
+
 	onMount(fetchProfile);
 </script>
 
@@ -80,7 +115,7 @@
 				</div>
 				<div class="border border-slate-200 bg-white p-10 text-center shadow-sm rounded-none">
 					<p class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-						Zertifizierte Aufgaben
+						Abgeschlossene Aufgaben
 					</p>
 					<p class="font-sans text-5xl font-black text-institutional-navy">
 						{profile.completedTasksCount}
@@ -156,6 +191,51 @@
 						class="w-full bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
 					>
 						{saving ? 'Synchronisierung...' : 'Profil-Daten aktualisieren'}
+					</button>
+				</div>
+			</div>
+
+			<!-- Password Security Section -->
+			<div class="border border-slate-200 bg-white p-12 shadow-sm rounded-none">
+				<h2 class="mb-10 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+					Sicherheits-Parameter
+				</h2>
+
+				<div class="space-y-10">
+					<div>
+						<label
+							for="newPassword"
+							class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+							>Neues System-Passwort</label
+						>
+						<input
+							bind:value={newPassword}
+							type="password"
+							id="newPassword"
+							class="w-full border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy outline-none focus:border-institutional-navy rounded-none transition-colors"
+						/>
+					</div>
+
+					<div>
+						<label
+							for="confirmPassword"
+							class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+							>Passwort bestätigen</label
+						>
+						<input
+							bind:value={confirmPassword}
+							type="password"
+							id="confirmPassword"
+							class="w-full border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy outline-none focus:border-institutional-navy rounded-none transition-colors"
+						/>
+					</div>
+
+					<button
+						onclick={handleChangePassword}
+						disabled={changingPassword || !newPassword || !confirmPassword}
+						class="w-full bg-slate-800 py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:bg-slate-900 disabled:opacity-20 rounded-none"
+					>
+						{changingPassword ? 'Aktualisierung...' : 'System-Passwort überschreiben'}
 					</button>
 				</div>
 			</div>

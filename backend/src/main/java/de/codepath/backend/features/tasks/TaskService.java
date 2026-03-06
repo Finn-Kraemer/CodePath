@@ -45,6 +45,7 @@ public class TaskService {
                 .id(t.getId())
                 .slug(t.getSlug())
                 .title(t.getTitle())
+                .story(t.getStory())
                 .description(t.getDescription())
                 .type(t.getType().name())
                 .difficulty(t.getDifficulty().name())

@@ -89,18 +89,23 @@
 								class="text-[11px] font-bold tracking-widest text-slate-600 uppercase transition-colors hover:text-institutional-navy"
 								>Rangliste</a
 							>
+							<a
+								href="/profile"
+								class="text-[11px] font-bold tracking-widest text-slate-600 uppercase transition-colors hover:text-institutional-navy"
+								>Profil</a
+							>
 						</div>
 					{/if}
 				</div>
 
 				<div class="flex items-center gap-4">
 					{#if auth.isAuthenticated}
-						<div class="hidden text-right lg:block">
+						<a href="/profile" class="hidden text-right lg:block hover:opacity-70 transition-opacity">
 							<p class="text-xs font-bold text-institutional-navy">{auth.user?.username}</p>
 							<p class="text-[9px] font-bold tracking-widest text-slate-400 uppercase">
 								{auth.user?.role}
 							</p>
-						</div>
+						</a>
 						{#if auth.user?.role === 'ADMIN'}
 							<a
 								href="/admin"

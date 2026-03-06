@@ -29,4 +29,11 @@ public class UserController {
         userService.updateDisplayName(user, body.get("displayName"));
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/profile/password")
+    public ResponseEntity<Void> changePassword(@RequestBody Map<String, String> body) {
+        User user = userService.getCurrentUser();
+        userService.changePassword(user, body.get("password"));
+        return ResponseEntity.ok().build();
+    }
 }

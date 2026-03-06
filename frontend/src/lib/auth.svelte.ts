@@ -7,40 +7,42 @@ interface User {
 }
 
 class AuthStore {
-	token = $state<string | null>(browser ? localStorage.getItem('token') : null);
+	// We no longer read token from localStorage, it's in a HttpOnly cookie
+	token = $state<string | null>(null);
 	user = $state<User | null>(browser ? JSON.parse(localStorage.getItem('user') || 'null') : null);
 
 	login(token: string, user: User) {
 		this.token = token;
 		this.user = user;
 		if (browser) {
-			localStorage.setItem('token', token);
 			localStorage.setItem('user', JSON.stringify(user));
 		}
 	}
 
-	logout() {
+	async logout() {
 		this.token = null;
 		this.user = null;
 		if (browser) {
-			localStorage.removeItem('token');
 			localStorage.removeItem('user');
+			// Call backend to clear cookie
+			try {
+				await fetch('/api/auth/logout', { method: 'POST' });
+			} catch (e) {
+				console.error('Logout failed', e);
+			}
+			goto('/login');
 		}
 	}
 
 	get isAuthenticated() {
-		return !!this.token;
+		// Since token is in HttpOnly cookie, we use user presence as a proxy for UI state
+		return !!this.user;
 	}
 
 	async apiFetch(url: string, options: RequestInit = {}) {
-		const currentToken = this.token;
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json'
 		};
-
-		if (currentToken) {
-			headers['Authorization'] = `Bearer ${currentToken}`;
-		}
 
 		if (options.headers) {
 			Object.assign(headers, options.headers);
@@ -49,14 +51,12 @@ class AuthStore {
 		const res = await fetch(url, {
 			...options,
 			headers,
-			credentials: 'omit'
+			// Important: credentials 'include' sends cookies
+			credentials: 'include'
 		});
 
 		if (res.status === 401) {
-			this.logout();
-			if (browser) {
-				goto('/login');
-			}
+			await this.logout();
 		}
 
 		return res;

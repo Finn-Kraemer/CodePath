@@ -19,11 +19,12 @@ public abstract class BaseContentModule implements ContentModule {
         return m;
     }
 
-    protected Task createTask(Module m, String slug, String title, String desc, TaskType type, Difficulty diff, int pts, int order, Map<String, Object> config) {
+    protected Task createTask(Module m, String slug, String title, String story, String desc, TaskType type, Difficulty diff, int pts, int order, Map<String, Object> config) {
         Task t = new Task();
         t.setModule(m);
         t.setSlug(slug);
         t.setTitle(title);
+        t.setStory(story);
         t.setDescription(desc);
         t.setType(type);
         t.setDifficulty(diff);

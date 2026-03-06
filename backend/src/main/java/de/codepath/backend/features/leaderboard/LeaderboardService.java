@@ -2,6 +2,7 @@ package de.codepath.backend.features.leaderboard;
 
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
+import de.codepath.backend.users.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,7 +19,8 @@ public class LeaderboardService {
     private final UserRepository userRepository;
 
     public LeaderboardResponse getLeaderboard(User currentUser) {
-        List<User> topUsers = userRepository.findAll(
+        List<User> topUsers = userRepository.findAllByRoleNot(
+                UserRole.ADMIN,
                 PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "totalPoints", "username"))
         ).getContent();
 
@@ -26,12 +28,11 @@ public class LeaderboardService {
                 .mapToObj(i -> mapToEntry(topUsers.get(i), i + 1))
                 .collect(Collectors.toList());
 
-        // Simple rank calculation for current user (this is fine for ~30 students)
-        // In a large system, we'd use a more efficient query
-        List<User> allSorted = userRepository.findAll(Sort.by(Sort.Direction.DESC, "totalPoints", "username"));
+        // Filter out admins for ranking
+        List<User> allStudentsSorted = userRepository.findAllByRoleNot(UserRole.ADMIN, Sort.by(Sort.Direction.DESC, "totalPoints", "username"));
         int rank = 0;
-        for (int i = 0; i < allSorted.size(); i++) {
-            if (allSorted.get(i).getId().equals(currentUser.getId())) {
+        for (int i = 0; i < allStudentsSorted.size(); i++) {
+            if (allStudentsSorted.get(i).getId().equals(currentUser.getId())) {
                 rank = i + 1;
                 break;
             }

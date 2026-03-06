@@ -11,6 +11,7 @@
 	interface Task {
 		slug: string;
 		title: string;
+		story: string;
 		description: string;
 		type: string;
 		difficulty: string;
@@ -102,7 +103,26 @@
 							>Aufgabenstellung</span
 						>
 					</div>
-					{@html task.description}
+					
+					{#if task.story}
+						<div class="mb-8">
+							<p class="mb-2 font-sans text-xs font-black tracking-widest text-institutional-navy uppercase">
+								Kontext:
+							</p>
+							<div class="text-slate-600">
+								{@html task.story}
+							</div>
+						</div>
+					{/if}
+
+					<div class="mb-4">
+						<p class="mb-2 font-sans text-xs font-black tracking-widest text-institutional-navy uppercase">
+							Aufgabenbeschreibung:
+						</p>
+						<div class="text-slate-600">
+							{@html task.description}
+						</div>
+					</div>
 				</div>
 
 				{#if task.type === 'MULTIPLE_CHOICE'}

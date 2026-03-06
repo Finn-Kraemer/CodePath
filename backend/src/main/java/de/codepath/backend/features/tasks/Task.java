@@ -30,6 +30,9 @@ public class Task {
     private String title;
 
     @Column(columnDefinition = "TEXT")
+    private String story;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Enumerated(EnumType.STRING)

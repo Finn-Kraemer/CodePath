@@ -37,23 +37,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+        String jwt = null;
         
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Try to get JWT from cookie
+        if (request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        
+        // Fallback to Authorization header
+        if (jwt == null) {
+            final String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                jwt = authHeader.substring(7);
+            }
+        }
+        
+        if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
         
-        final String jwt = authHeader.substring(7);
         try {
+            final String finalJwt = jwt;
             final String username = jwtService.extractUsername(jwt);
             
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
                 
-                if (jwtService.isTokenValid(jwt, userDetails)) {
+                if (jwtService.isTokenValid(finalJwt, userDetails)) {
                     // Try to extract roles from token
-                    List<?> rolesRaw = jwtService.extractClaim(jwt, claims -> claims.get("roles", List.class));
+                    List<?> rolesRaw = jwtService.extractClaim(finalJwt, claims -> claims.get("roles", List.class));
                     
                     Collection<? extends GrantedAuthority> authorities;
                     if (rolesRaw != null && !rolesRaw.isEmpty()) {

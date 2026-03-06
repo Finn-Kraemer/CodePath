@@ -15,6 +15,7 @@ public class TaskResponse {
     private Long id;
     private String slug;
     private String title;
+    private String story;
     private String description;
     private String type;
     private String difficulty;

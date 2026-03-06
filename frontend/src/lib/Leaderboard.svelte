@@ -39,13 +39,7 @@
 </script>
 
 <div class="border border-slate-200 bg-white shadow-sm rounded-none">
-	<div class="border-b border-slate-200 p-8">
-		<h3 class="font-sans text-[10px] font-black tracking-[4px] text-institutional-navy uppercase">
-			Live Rangliste
-		</h3>
-	</div>
-
-	<div class="p-4">
+	<div class="p-8">
 		{#if data}
 			<div class="space-y-2">
 				{#each data.topThree as entry (entry.username)}

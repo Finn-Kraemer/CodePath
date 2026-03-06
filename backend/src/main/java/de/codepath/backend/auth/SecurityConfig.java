@@ -49,7 +49,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        // Erlaubte Ursprünge: Lokal (Vite) und später die echte Domain
+        config.setAllowedOrigins(List.of(
+            "http://localhost:5173", 
+            "http://localhost:4173",
+            "https://deine-production-domain.de"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

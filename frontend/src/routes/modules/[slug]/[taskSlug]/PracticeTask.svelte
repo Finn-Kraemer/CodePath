@@ -8,11 +8,12 @@
 
   let editorRef = $state<PracticeEditor | null>(null);
   // Initialisiere result basierend auf dem vom Backend gelieferten submissionStatus
-  let result = $state<{ status: string; feedback: string } | null>(
-    task.submissionStatus && task.submissionStatus !== 'NOT_SUBMITTED' 
-      ? { status: task.submissionStatus, feedback: '' } 
-      : null
-  );
+  let result = $derived.by(() => {
+    if (task.submissionStatus && task.submissionStatus !== 'NOT_SUBMITTED') {
+      return { status: task.submissionStatus, feedback: '' };
+    }
+    return null;
+  });
   let loading = $state(false);
   let error = $state('');
   let pollInterval: any = null;
