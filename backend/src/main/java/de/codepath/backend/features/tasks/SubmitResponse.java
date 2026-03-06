@@ -1,5 +1,6 @@
 package de.codepath.backend.features.tasks;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubmitResponse {
+    @JsonProperty("isCorrect")
     private boolean isCorrect;
     private int pointsAwarded;
     private String status; // For PRACTICE (PENDING, APPROVED)

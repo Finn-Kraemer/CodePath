@@ -6,7 +6,6 @@ import de.codepath.backend.users.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,40 +28,21 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setRole(UserRole.STUDENT);
         user.setDisplayName(request.getUsername());
-        
         userRepository.save(user);
 
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPasswordHash())
-                .authorities(user.getRole().name())
-                .build();
-
-        String token = jwtService.generateToken(userDetails);
-        return AuthResponse.builder()
-                .token(token)
-                .username(user.getUsername())
-                .role(user.getRole().name())
-                .build();
+        return createAuthResponse(user);
     }
 
     public AuthResponse login(AuthRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow();
-        
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPasswordHash())
-                .authorities(user.getRole().name())
-                .build();
+        User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+        return createAuthResponse(user);
+    }
 
-        String token = jwtService.generateToken(userDetails);
+    private AuthResponse createAuthResponse(User user) {
+        String token = jwtService.generateToken(user);
         return AuthResponse.builder()
                 .token(token)
                 .username(user.getUsername())

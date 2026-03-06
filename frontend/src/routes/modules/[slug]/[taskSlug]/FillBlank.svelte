@@ -63,7 +63,12 @@
 			class="mb-8 border p-6 font-mono text-xs rounded-none
             {result.correct ? 'border-green-200 bg-green-50 text-green-700' : 'border-rose-200 bg-rose-50 text-rose-700'}"
 		>
-			<span class="font-bold uppercase tracking-widest">{result.correct ? 'Ergebnis:' : 'Hinweis:'}</span> {result.feedback}
+			<div class="flex items-center gap-4">
+				<span class="text-xl font-bold">{result.correct ? '✓' : '✗'}</span>
+				<div>
+					<span class="font-bold uppercase tracking-widest">{result.correct ? 'Ergebnis:' : 'Hinweis:'}</span> {result.feedback}
+				</div>
+			</div>
 		</div>
 	{/if}
 

@@ -1,6 +1,7 @@
 package de.codepath.backend.common;
 
-import de.codepath.backend.common.content.ContentModule;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.codepath.backend.features.modules.Module;
 import de.codepath.backend.features.modules.ModuleRepository;
 import de.codepath.backend.features.tasks.Task;
@@ -12,11 +13,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -29,7 +34,8 @@ public class DataInitializer implements CommandLineRunner {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final List<ContentModule> contentModules;
+    private final ObjectMapper objectMapper;
+    private final ResourceLoader resourceLoader;
 
     @Value("${admin.seed.username:admin}")
     private String adminUsername;
@@ -40,19 +46,9 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        log.info("Starting orchestrated data initialization...");
+        log.info("Starting data initialization...");
         initializeAdminUser();
-        
-        for (ContentModule contentModule : contentModules) {
-            Module def = contentModule.getModuleDefinition();
-            Module persistedModule = persistModule(def);
-            
-            List<Task> tasks = contentModule.getTasks(persistedModule);
-            for (Task task : tasks) {
-                persistTask(task);
-            }
-        }
-        
+        loadContentFromJson();
         log.info("Data initialization completed.");
     }
 
@@ -66,33 +62,77 @@ public class DataInitializer implements CommandLineRunner {
         userRepository.save(admin);
     }
 
-    private Module persistModule(Module m) {
-        Optional<Module> existing = moduleRepository.findBySlug(m.getSlug());
-        if (existing.isPresent()) {
-            Module e = existing.get();
-            e.setTitle(m.getTitle());
-            e.setDescription(m.getDescription());
-            e.setIconEmoji(m.getIconEmoji());
-            e.setSortOrder(m.getSortOrder());
-            return moduleRepository.save(e);
+    private void loadContentFromJson() {
+        try {
+            Resource resource = resourceLoader.getResource("classpath:content.json");
+            if (!resource.exists()) {
+                log.warn("content.json not found in classpath.");
+                return;
+            }
+
+            try (InputStream is = resource.getInputStream()) {
+                List<ModuleDto> modules = objectMapper.readValue(is, new TypeReference<>() {});
+                for (ModuleDto mDto : modules) {
+                    Module module = persistModule(mDto);
+                    if (mDto.getTasks() != null) {
+                        for (TaskDto tDto : mDto.getTasks()) {
+                            persistTask(module, tDto);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to load content from JSON", e);
         }
+    }
+
+    private Module persistModule(ModuleDto dto) {
+        Module m = moduleRepository.findBySlug(dto.getSlug()).orElse(new Module());
+        m.setSlug(dto.getSlug());
+        m.setTitle(dto.getTitle());
+        m.setDescription(dto.getDescription());
+        m.setIconEmoji(dto.getIconEmoji());
+        m.setSortOrder(dto.getSortOrder());
+        m.setIsUnlocked(m.getIsUnlocked() != null ? m.getIsUnlocked() : false);
         return moduleRepository.save(m);
     }
 
-    private void persistTask(Task t) {
-        Optional<Task> existing = taskRepository.findByModuleIdAndSlug(t.getModule().getId(), t.getSlug());
-        if (existing.isPresent()) {
-            Task e = existing.get();
-            e.setTitle(t.getTitle());
-            e.setDescription(t.getDescription());
-            e.setType(t.getType());
-            e.setDifficulty(t.getDifficulty());
-            e.setPoints(t.getPoints());
-            e.setSortOrder(t.getSortOrder());
-            e.setConfig(t.getConfig());
-            taskRepository.save(e);
-            return;
-        }
+    private void persistTask(Module module, TaskDto dto) {
+        Task t = taskRepository.findByModuleIdAndSlug(module.getId(), dto.getSlug()).orElse(new Task());
+        t.setModule(module);
+        t.setSlug(dto.getSlug());
+        t.setTitle(dto.getTitle());
+        t.setStory(dto.getStory());
+        t.setDescription(dto.getDescription());
+        t.setType(dto.getType());
+        t.setDifficulty(dto.getDifficulty());
+        t.setPoints(dto.getPoints());
+        t.setSortOrder(dto.getSortOrder());
+        t.setConfig(dto.getConfig());
         taskRepository.save(t);
+    }
+
+    // Helper DTOs for JSON mapping
+    @lombok.Data
+    private static class ModuleDto {
+        private String slug;
+        private String title;
+        private String description;
+        private String iconEmoji;
+        private Integer sortOrder;
+        private List<TaskDto> tasks;
+    }
+
+    @lombok.Data
+    private static class TaskDto {
+        private String slug;
+        private String title;
+        private String story;
+        private String description;
+        private de.codepath.backend.features.tasks.TaskType type;
+        private de.codepath.backend.features.tasks.Difficulty difficulty;
+        private Integer points;
+        private Integer sortOrder;
+        private Map<String, Object> config;
     }
 }

@@ -125,7 +125,7 @@
 							? 'border-green-200 bg-green-50 text-green-700'
 							: 'border-rose-200 bg-rose-50 text-rose-700'}"
 					>
-						<span class="mb-2 text-xl">{result.correct ? '✓' : '✗'}</span>
+						<span class="mb-2 text-xl font-bold">{result.correct ? '✓' : '✗'}</span>
 						{result.feedback}
 					</div>
 				{:else}
