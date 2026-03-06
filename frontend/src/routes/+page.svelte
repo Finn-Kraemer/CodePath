@@ -19,10 +19,10 @@
 		<div class="container-institutional relative">
 			<div class="max-w-4xl">
 				<h1 class="mb-8 font-sans text-5xl font-extrabold tracking-tight sm:text-7xl">
-					Entdecke die Welt der IT-Berufe
+					Willkommen beim IT-Projekttag
 				</h1>
 				<p class="mb-12 text-xl leading-relaxed text-slate-300">
-					Löse echte Aufgaben, schreibe deinen ersten Code und finde heraus welcher IT-Beruf zu dir passt – in nur einem Schultag.
+					Heute schlüpfst du in die Rollen echter IT-Profis. Von Softwareentwicklung über Netzwerksysteme bis hin zur Datensicherheit – lerne die Praxis kennen, ohne trockene Theorie.
 				</p>
 				<div class="flex flex-wrap gap-6">
 					{#if !auth.isAuthenticated}
@@ -30,20 +30,20 @@
 							href="/login"
 							class="bg-institutional-gold px-10 py-5 text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 rounded-none"
 						>
-							Jetzt einloggen
+							System-Login
 						</a>
 						<a
 							href="/register"
 							class="border-2 border-white/20 px-10 py-5 text-[11px] font-bold tracking-[3px] text-white uppercase transition-all hover:bg-white/10 rounded-none"
 						>
-							Account erstellen
+							Schüler-Account erstellen
 						</a>
 					{:else}
 						<a
 							href="/modules"
 							class="bg-institutional-gold px-10 py-5 text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 rounded-none"
 						>
-							Weiter zu den Modulen
+							Zu den Lernmodulen
 						</a>
 					{/if}
 				</div>
@@ -58,19 +58,19 @@
 				<div class="flex flex-col gap-3">
 					<span class="font-sans text-6xl font-black text-institutional-navy">7</span>
 					<span class="text-[10px] font-bold tracking-[4px] text-slate-400 uppercase"
-						>IT-Berufsfelder</span
+						>Inhaltsmodule</span
 					>
 				</div>
 				<div class="flex flex-col gap-3">
-					<span class="font-sans text-6xl font-black text-institutional-navy">50+</span>
+					<span class="font-sans text-6xl font-black text-institutional-navy">Praxis</span>
 					<span class="text-[10px] font-bold tracking-[4px] text-slate-400 uppercase"
-						>Praxisaufgaben</span
+						>Echter Programmcode</span
 					>
 				</div>
 				<div class="flex flex-col gap-3">
 					<span class="font-sans text-6xl font-black text-institutional-navy">🏆</span>
 					<span class="text-[10px] font-bold tracking-[4px] text-slate-400 uppercase"
-						>Live-Rangliste</span
+						>Live-Wettbewerb</span
 					>
 				</div>
 			</div>
@@ -84,43 +84,42 @@
 				<div class="grid grid-cols-1 items-center gap-20 lg:grid-cols-2">
 					<div>
 						<span class="mb-6 inline-block text-[10px] font-bold tracking-[5px] text-institutional-gold uppercase">
-							Was dich erwartet
+							Ablauf des Tages
 						</span>
 						<h2 class="mb-8 font-sans text-4xl font-extrabold text-institutional-navy">
-							Kein Frontalunterricht – du machst einfach.
+							Die Theorie ist kurz, die Praxis im Fokus.
 						</h2>
 						<p class="mb-10 text-lg leading-relaxed text-slate-500">
-							Schreibe deinen ersten <strong>Python-Code</strong>, knacke eine verschlüsselte Nachricht, entwirf eine Datenbank oder plane ein Schulnetzwerk. Jede Aufgabe bringt dir Punkte – und einen echten Einblick in einen IT-Beruf.
+							Deine Lehrkraft leitet jedes neue Thema kurz ein und schaltet dann das entsprechende Modul auf dieser Plattform frei. Danach bist du gefragt: Du analysierst Probleme, reparierst Skripte und planst IT-Strukturen. Jede erfolgreich gelöste Aufgabe bringt dir Punkte auf der klasseninternen Rangliste.
 						</p>
 						<div class="flex flex-wrap gap-6">
 							<div class="border border-slate-200 bg-slate-50 px-6 py-3 font-mono text-[10px] text-slate-500 uppercase tracking-widest rounded-none">
-								🐍 Programmierung
+								Algorithmen (Python)
 							</div>
 							<div class="border border-slate-200 bg-slate-50 px-6 py-3 font-mono text-[10px] text-slate-500 uppercase tracking-widest rounded-none">
-								🔒 IT-Sicherheit
+								Hardware & Logik
 							</div>
 							<div class="border border-slate-200 bg-slate-50 px-6 py-3 font-mono text-[10px] text-slate-500 uppercase tracking-widest rounded-none">
-								🤖 Künstliche Intelligenz
+								Datenmodellierung (SQL)
 							</div>
 							<div class="border border-slate-200 bg-slate-50 px-6 py-3 font-mono text-[10px] text-slate-500 uppercase tracking-widest rounded-none">
-								🌐 Web-Entwicklung
+								Netzwerktopologien
 							</div>
 							<div class="border border-slate-200 bg-slate-50 px-6 py-3 font-mono text-[10px] text-slate-500 uppercase tracking-widest rounded-none">
-								🗄️ Datenbanken
-							</div>
-							<div class="border border-slate-200 bg-slate-50 px-6 py-3 font-mono text-[10px] text-slate-500 uppercase tracking-widest rounded-none">
-								☁️ Cloud & Netzwerke
+								Kryptografie & Security
 							</div>
 						</div>
 					</div>
 					<div class="grid grid-cols-2 gap-6">
-						<div class="flex flex-col justify-center items-center h-64 border border-slate-100 bg-slate-50 shadow-inner rounded-none gap-3">
-							<span class="text-4xl">💻</span>
-							<span class="text-[10px] font-bold tracking-[3px] text-slate-400 uppercase text-center">Code direkt<br/>im Browser</span>
+						<div class="flex flex-col justify-center items-center h-64 border border-slate-100 bg-slate-50 shadow-inner rounded-none gap-3 p-6">
+							<span class="text-4xl mb-4">💻</span>
+							<span class="text-[10px] font-bold tracking-[3px] text-slate-600 uppercase text-center">Integrierter<br/>Code-Editor</span>
+							<p class="text-xs text-slate-400 text-center mt-2">Du brauchst keine lokale Installation.</p>
 						</div>
-						<div class="mt-12 flex flex-col justify-center items-center h-64 border border-slate-100 bg-slate-50 shadow-inner rounded-none gap-3">
-							<span class="text-4xl">🏆</span>
-							<span class="text-[10px] font-bold tracking-[3px] text-slate-400 uppercase text-center">Punkte sammeln<br/>& gewinnen</span>
+						<div class="mt-12 flex flex-col justify-center items-center h-64 border border-slate-100 bg-slate-50 shadow-inner rounded-none gap-3 p-6">
+							<span class="text-4xl mb-4">📚</span>
+							<span class="text-[10px] font-bold tracking-[3px] text-slate-600 uppercase text-center">Zentrales<br/>Wissens-Wiki</span>
+							<p class="text-xs text-slate-400 text-center mt-2">Lies Konzepte jederzeit nach.</p>
 						</div>
 					</div>
 				</div>
@@ -132,14 +131,15 @@
 	<section class="bg-slate-50 py-32">
 		<div class="container-institutional">
 			<div class="mb-16 text-center">
-				<h2 class="font-sans text-4xl font-extrabold text-institutional-navy">Deine Module heute</h2>
-				<p class="mt-4 text-slate-500 tracking-wide">Deine Lehrkraft schaltet die Module der Reihe nach frei. Los geht's!</p>
+				<h2 class="font-sans text-4xl font-extrabold text-institutional-navy">Einblick in die Themengebiete</h2>
+				<p class="mt-4 text-slate-500 tracking-wide">Ein Querschnitt durch die fundamentalen Disziplinen der Informatik.</p>
 			</div>
 			<div class="mx-auto max-w-4xl space-y-6">
 				{#each [
-					{ emoji: '🐍', title: 'Programmierung', desc: 'Variablen, Schleifen, Funktionen – schreibe deinen ersten Python-Code.' },
-					{ emoji: '🔒', title: 'IT-Sicherheit', desc: 'Knacke Passwörter, erkenne Phishing und baue einen Passwort-Checker.' },
-					{ emoji: '🤖', title: 'Künstliche Intelligenz', desc: 'Wie lernt eine KI? Trainiere deinen eigenen Algorithmus.' }
+					{ emoji: '🐍', title: 'Programmierung', desc: 'Grundlagen der Logik: Bringe Computern bei, Aufgaben automatisiert und fehlerfrei mit Python zu erledigen.' },
+					{ emoji: '🗄️', title: 'Datenbanken', desc: 'Informationsmanagement: Lerne, wie moderne Apps Millionen von Nutzerdaten effizient speichern und abfragen.' },
+					{ emoji: '☁️', title: 'Cloud & Netzwerke', desc: 'Infrastruktur: Finde heraus, wie Datenpakete um die Welt reisen und wie Serverfarmen das Internet am Laufen halten.' },
+					{ emoji: '🔒', title: 'IT-Sicherheit', desc: 'Schutz im digitalen Raum: Analysiere Angriffsvektoren wie Phishing und baue robuste Abwehrmechanismen auf.' }
 				] as mod}
 					<div class="flex items-center justify-between border border-slate-200 bg-white p-8 transition-all hover:border-institutional-gold shadow-sm group rounded-none">
 						<div class="flex items-center gap-6">
@@ -152,10 +152,7 @@
 							</div>
 						</div>
 						<div class="text-right">
-							<span class="block text-[10px] font-bold tracking-[2px] text-slate-400 uppercase">+ weitere Module</span>
-							<span class="text-[10px] font-bold text-institutional-gold uppercase underline tracking-widest mt-1 block group-hover:text-amber-700">
-								{#if !auth.isAuthenticated}Registrieren{:else}Öffnen{/if}
-							</span>
+							<span class="block text-[10px] font-bold tracking-[2px] text-slate-400 uppercase">Modul-Vorschau</span>
 						</div>
 					</div>
 				{/each}
