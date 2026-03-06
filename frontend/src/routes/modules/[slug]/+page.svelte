@@ -17,6 +17,20 @@
 	let loading = $state(true);
 	let error = $state('');
 
+	const difficultyPriority: Record<string, number> = {
+		EASY: 1,
+		MEDIUM: 2,
+		HARD: 3
+	};
+
+	let sortedTasks = $derived(
+		[...tasks].sort((a, b) => {
+			const priorityA = difficultyPriority[a.difficulty] || 99;
+			const priorityB = difficultyPriority[b.difficulty] || 99;
+			return priorityA - priorityB;
+		})
+	);
+
 	const slug = page.params.slug || '';
 
 	onMount(async () => {
@@ -65,7 +79,7 @@
 		</div>
 	{:else}
 		<div class="space-y-4">
-			{#each tasks as task (task.slug)}
+			{#each sortedTasks as task (task.slug)}
 				<a
 					href={`/modules/${slug}/${task.slug}`}
 					class="group flex items-center justify-between border p-8 transition-all rounded-none
