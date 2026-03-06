@@ -10,6 +10,7 @@ Kopieren Sie diesen Inhalt in eine `docker-compose.yml` und führen Sie `docker 
 services:
   postgres:
     image: postgres:17
+    restart: on-failure
     environment:
       POSTGRES_DB: codepath
       POSTGRES_USER: codepath
@@ -22,8 +23,28 @@ services:
       timeout: 5s
       retries: 5
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: on-failure
+    ports:
+      - "8082:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.com
+      PGADMIN_DEFAULT_PASSWORD: secret
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: "10"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_CONFIG_AUTHENTICATION_SOURCES: "['internal']"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_DISABLE_LOGIN_BANNER: "True"
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+    depends_on:
+      - postgres
+
   backend:
     image: ghcr.io/finn-kraemer/codepath-backend:latest
+    restart: on-failure
     ports:
       - "8080:8080"
     environment:
@@ -37,11 +58,11 @@ services:
       timeout: 5s
       retries: 5
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
 
   frontend:
     image: ghcr.io/finn-kraemer/codepath-frontend:latest
+    restart: on-failure
     ports:
       - "80:80"
     depends_on:

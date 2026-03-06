@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:17
+    restart: on-failure
     environment:
       POSTGRES_DB: codepath
       POSTGRES_USER: codepath
@@ -33,7 +34,8 @@ services:
       - postgres
 
   backend:
-    build: ./backend
+    image: ghcr.io/finn-kraemer/codepath-backend:latest
+    restart: on-failure
     ports:
       - "8080:8080"
     environment:
@@ -41,19 +43,17 @@ services:
       SPRING_DATASOURCE_USERNAME: codepath
       SPRING_DATASOURCE_PASSWORD: codepath
       JWT_SECRET: change-me-in-production-min-32-chars!!
-      ADMIN_SEED_USERNAME: admin
-      ADMIN_SEED_PASSWORD: admin123
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
 
   frontend:
-    build: ./frontend
+    image: ghcr.io/finn-kraemer/codepath-frontend:latest
+    restart: on-failure
     ports:
       - "80:80"
     depends_on:
