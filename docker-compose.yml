@@ -33,6 +33,20 @@ services:
     depends_on:
       - postgres
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: on-failure
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "1883:1883"
+      - "15675:15675"
+    command: >
+      bash -c "rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_web_mqtt && rabbitmq-server"
+    environment:
+      RABBITMQ_DEFAULT_USER: codepath
+      RABBITMQ_DEFAULT_PASS: codepath
+
   backend:
     image: ghcr.io/finn-kraemer/codepath-backend:latest
     restart: on-failure
@@ -42,6 +56,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/codepath
       SPRING_DATASOURCE_USERNAME: codepath
       SPRING_DATASOURCE_PASSWORD: codepath
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: codepath
+      SPRING_RABBITMQ_PASSWORD: codepath
       JWT_SECRET: change-me-in-production-min-32-chars!!
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
@@ -50,6 +68,7 @@ services:
       retries: 5
     depends_on:
       - postgres
+      - rabbitmq
 
   frontend:
     image: ghcr.io/finn-kraemer/codepath-frontend:latest

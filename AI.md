@@ -10,6 +10,7 @@ Das Projekt ist als **Monorepo** strukturiert und folgt einer klassischen Client
 - **Backend:** Java 21, Spring Boot 3.5, Spring Security, JWT, Hibernate/JPA.
 - **Frontend:** Svelte 5 (SvelteKit), TypeScript, Tailwind CSS 4.
 - **Datenbank:** PostgreSQL 17.
+- **Message Broker:** RabbitMQ (Spring AMQP) für asynchrone Lastabwicklung.
 - **Infrastruktur:** Docker & Docker Compose.
 - **Besonderheiten:** Pyodide (Python im Browser), TipTap (Rich-Text), Monaco Editor.
 
@@ -31,7 +32,6 @@ Das Backend ist in Java mit Spring Boot realisiert und nutzt eine **Package-by-F
     - `Module` & `Task`: Struktur der Lerninhalte.
     - `UserTaskCompletion`: Speichert Fortschritt, Bearbeitungszeit (`timeSpentSeconds`) und Fehlversuche (`failedAttempts`).
     - `PracticeSubmission`: Speichert die Freitext-Abgaben für manuelle Korrekturen (Status: `PENDING`, `APPROVED`, `REJECTED`).
-    - `TaskComment`: Feedback und Fragen der Schüler zu Aufgaben.
     - `GlobalAnnouncement`: Systemweite Mitteilungen der Lehrkräfte (unterstützt verschiedene Anzeige-Modi).
     - `GeneralFeedback`: Ermöglicht Schülern die Abgabe von allgemeinem Kurs-Feedback.
     - `SystemSetting`: Speichert globale Konfigurationen wie den Status der Feedback-Runde.
@@ -43,7 +43,13 @@ Der zentrale Dienst zur Prüfung von Aufgaben wurde um Fortschritts-Tracking erw
 - **Punkte-Logik:** Bonus-Punkte für Schnelligkeit und Abzug bei Nutzung der Lösungshilfe.
 - **PRACTICE:** Unterstützt nun einen Feedback-Zyklus. Bei `REJECTED` kann ein Admin-Kommentar hinterlegt werden, woraufhin der Schüler seine Lösung überarbeiten kann.
 
-### 4. Dateninitialisierung & Kommunikation
+### 4. Skalierung & Asynchronität (RabbitMQ)
+Um das System vor Überlastung zu schützen (z.B. wenn eine ganze Klasse gleichzeitig Aufgaben abgibt), ist **RabbitMQ** integriert:
+- **Event-Driven:** Speicherintensive Prozesse wie die Freitext-Praxisabgaben (`PracticeSubmissionEvent`) werden nicht synchron in die Datenbank geschrieben, sondern als Event an RabbitMQ (`codepath.practice.submissions`) übergeben.
+- **Consumer:** Der `SubmissionConsumer` arbeitet die Queue asynchron und idempotent im Hintergrund ab.
+- **User Experience:** Das Backend blockiert nicht; der Schüler erhält sofort eine Rückmeldung, dass die Abgabe erfolgreich in Prüfung ist.
+
+### 5. Dateninitialisierung & Kommunikation
 - Beim Systemstart lädt der `DataInitializer` die Datei `content.json`.
 - **Live-Editor (Ankündigungen):** Admins können globale Mitteilungen veröffentlichen. Diese unterstützen Zeilenumbrüche (`\n`) und verschiedene Anzeige-Modi (Header, Info-Seite).
 - **Globales Feedback:** Admins können eine Feedback-Runde starten/stoppen. Schüler können einmalig nach Bestätigung eine Rückmeldung abgeben.
@@ -60,7 +66,6 @@ Das Frontend nutzt die neuesten Features von **Svelte 5** für ein reaktives und
 
 ### 2. Interaktive Komponenten
 - **TaskTimer:** Eine reaktive Komponente, die die Bearbeitungszeit misst und beim Submit mitsendet.
-- **TaskComments:** Ermöglicht die Kommunikation zwischen Schüler und Admin direkt an der Aufgabe.
 - **GlobalAnnouncement Banner:** Integriert in das Hauptlayout zur Echtzeit-Kommunikation.
 - **Feedback-System:** Dedizierte Seiten für Schüler (`/feedback`) mit Einmalsperre und Bestätigungsdialog sowie für Admins (`/admin/feedback`) zur Steuerung und Einsicht.
 - **Monaco Editor:** Bietet eine vollwertige IDE-Erfahrung für Python-Aufgaben inklusive Syntax-Highlighting.

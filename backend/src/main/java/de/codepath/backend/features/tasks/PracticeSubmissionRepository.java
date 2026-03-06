@@ -5,8 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 
-import java.util.Optional;
-
 public interface PracticeSubmissionRepository extends JpaRepository<PracticeSubmission, Long> {
     List<PracticeSubmission> findByStatus(SubmissionStatus status);
     
@@ -14,9 +12,10 @@ public interface PracticeSubmissionRepository extends JpaRepository<PracticeSubm
     List<PracticeSubmission> findByStatusWithDetails(@Param("status") SubmissionStatus status);
     
     List<PracticeSubmission> findByUserId(Long userId);
-    boolean existsByUser_IdAndTask_IdAndStatus(Long userId, Long taskId, SubmissionStatus status);
 
-    Optional<PracticeSubmission> findTopByUser_IdAndTask_IdOrderBySubmittedAtDesc(Long userId, Long taskId);
+    java.util.Optional<PracticeSubmission> findTopByUser_IdAndTask_IdOrderBySubmittedAtDesc(Long userId, Long taskId);
+
+    boolean existsByUser_IdAndTask_IdAndStatus(Long userId, Long taskId, SubmissionStatus status);
 
     long countByUser_IdAndStatus(Long id, SubmissionStatus submissionStatus);
 }

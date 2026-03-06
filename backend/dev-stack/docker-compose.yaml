@@ -30,5 +30,19 @@ services:
     depends_on:
       - postgres
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: on-failure
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "1883:1883"
+      - "15675:15675"
+    command: >
+      bash -c "rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_web_mqtt && rabbitmq-server"
+    environment:
+      RABBITMQ_DEFAULT_USER: codepath
+      RABBITMQ_DEFAULT_PASS: codepath
+
 volumes:
   postgres_data:

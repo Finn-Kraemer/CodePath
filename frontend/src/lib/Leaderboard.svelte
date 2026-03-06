@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
+	import { realtime } from '$lib/mqtt.svelte';
 
 	interface Entry {
 		username: string;
@@ -15,7 +16,6 @@
 	}
 
 	let data = $state<LeaderboardData | null>(null);
-	let pollInterval: any;
 
 	async function fetchLeaderboard() {
 		try {
@@ -28,13 +28,13 @@
 		}
 	}
 
-	onMount(() => {
-		fetchLeaderboard();
-		pollInterval = setInterval(fetchLeaderboard, 10000);
-	});
+	onMount(fetchLeaderboard);
 
-	onDestroy(() => {
-		if (pollInterval) clearInterval(pollInterval);
+	// Reagiere auf Echtzeit-Updates vom MQTT Broker
+	$effect(() => {
+		if (realtime.leaderboardUpdateTrigger > 0) {
+			fetchLeaderboard();
+		}
 	});
 </script>
 

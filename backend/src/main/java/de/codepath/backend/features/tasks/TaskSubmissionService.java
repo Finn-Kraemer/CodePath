@@ -2,6 +2,9 @@ package de.codepath.backend.features.tasks;
 
 import de.codepath.backend.features.modules.Module;
 import de.codepath.backend.features.modules.ModuleRepository;
+import de.codepath.backend.features.tasks.events.PracticeSubmissionEvent;
+import de.codepath.backend.features.tasks.messaging.SubmissionProducer;
+import de.codepath.backend.features.messaging.RealtimeUpdateService;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,8 @@ public class TaskSubmissionService {
     private final PracticeSubmissionRepository practiceSubmissionRepository;
     private final UserRepository userRepository;
     private final ModuleRepository moduleRepository;
+    private final SubmissionProducer submissionProducer;
+    private final RealtimeUpdateService realtimeUpdateService;
 
     @Transactional
     public SubmitResponse submitTask(String moduleSlug, String taskSlug, User user, SubmitRequest request) {
@@ -108,6 +113,9 @@ public class TaskSubmissionService {
 
         user.setTotalPoints(user.getTotalPoints() + points);
         userRepository.save(user);
+        
+        // Push Leaderboard Update
+        realtimeUpdateService.publishLeaderboardUpdate();
     }
 
     private String getSolution(Task task) {
@@ -190,18 +198,17 @@ public class TaskSubmissionService {
                     .build();
         }
 
-        PracticeSubmission submission = new PracticeSubmission();
-        submission.setTask(task);
-        submission.setUser(user);
-        submission.setStatus(SubmissionStatus.PENDING);
-        submission.setSubmittedAt(LocalDateTime.now());
-        
-        // Content from TipTap is sent in practiceContent payload key
+        String content = "";
         if (payload != null && payload.containsKey("practiceContent")) {
-            submission.setContent((String) payload.get("practiceContent"));
+            content = (String) payload.get("practiceContent");
         }
 
-        practiceSubmissionRepository.save(submission);
+        // Sende an RabbitMQ Queue anstatt direkt in die DB zu speichern
+        submissionProducer.sendPracticeSubmission(PracticeSubmissionEvent.builder()
+                .userId(user.getId())
+                .taskId(task.getId())
+                .content(content)
+                .build());
 
         return SubmitResponse.builder()
                 .isCorrect(true)

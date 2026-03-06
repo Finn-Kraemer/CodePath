@@ -5,6 +5,7 @@ import de.codepath.backend.features.modules.ModuleRepository;
 import de.codepath.backend.features.modules.ModuleResponse;
 import de.codepath.backend.features.tasks.*;
 import de.codepath.backend.common.AnnouncementDisplayMode;
+import de.codepath.backend.features.messaging.RealtimeUpdateService;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
 import de.codepath.backend.users.UserRole;
@@ -33,6 +34,7 @@ public class AdminService {
     private final UserTaskCompletionRepository completionRepository;
     private final PasswordEncoder passwordEncoder;
     private final de.codepath.backend.common.GlobalAnnouncementRepository announcementRepository;
+    private final RealtimeUpdateService realtimeUpdateService;
 
     @Transactional
     public boolean toggleModule(Long id) {
@@ -70,6 +72,9 @@ public class AdminService {
         submissionRepository.save(submission);
 
         saveCompletion(submission.getUser(), submission.getTask());
+        
+        // Push Leaderboard Update
+        realtimeUpdateService.publishLeaderboardUpdate();
     }
 
     @Transactional
@@ -88,6 +93,9 @@ public class AdminService {
                 completionRepository.save(completion);
                 userRepository.save(user);
             });
+            
+            // Push Leaderboard Update since points changed
+            realtimeUpdateService.publishLeaderboardUpdate();
         }
         
         submission.setStatus(SubmissionStatus.REJECTED);
@@ -105,6 +113,9 @@ public class AdminService {
         announcement.setUpdatedAt(LocalDateTime.now());
         announcement.setUpdatedBy(admin);
         announcementRepository.save(announcement);
+        
+        // Echtzeit-Push via MQTT
+        realtimeUpdateService.publishAnnouncement(content, displayMode.name());
     }
 
     private void saveCompletion(User user, Task task) {
@@ -219,5 +230,8 @@ public class AdminService {
             saveCompletion(user, task);
         }
         userRepository.save(user);
+        
+        // Push Leaderboard Update
+        realtimeUpdateService.publishLeaderboardUpdate();
     }
 }

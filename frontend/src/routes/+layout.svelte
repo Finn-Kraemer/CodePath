@@ -2,6 +2,7 @@
 	import './layout.css';
 	import { onMount } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
+	import { realtime } from '$lib/mqtt.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 
@@ -25,6 +26,7 @@
 
 	onMount(async () => {
 		if (auth.isAuthenticated) {
+			realtime.connect();
 			try {
 				const res = await auth.apiFetch('/api/common/announcement');
 				if (res.ok) {
@@ -35,6 +37,18 @@
 				}
 			} catch (e) {
 				console.error('Failed to fetch announcement', e);
+			}
+		}
+	});
+
+	// Reactive MQTT updates
+	$effect(() => {
+		if (realtime.lastAnnouncement) {
+			const data = realtime.lastAnnouncement;
+			if (data.content && (data.displayMode === 'HEADER' || data.displayMode === 'BOTH')) {
+				announcement = data;
+			} else {
+				announcement = null;
 			}
 		}
 	});

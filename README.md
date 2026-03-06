@@ -4,7 +4,7 @@ CodePath ist eine interaktive Lernplattform zur IT-Berufsorientierung, die sich 
 
 ## 🚀 Schnelleinstieg
 
-Kopieren Sie diesen Inhalt in eine `docker-compose.yml` und führen Sie `docker compose up` aus:
+Kopieren Sie diesen Inhalt in eine `docker-compose.yml` und führen Sie `docker compose up -d` aus:
 
 ```yaml
 services:
@@ -33,14 +33,23 @@ services:
       PGADMIN_DEFAULT_PASSWORD: secret
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
       PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: "10"
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
-      PGADMIN_CONFIG_AUTHENTICATION_SOURCES: "['internal']"
       PGADMIN_CONFIG_SERVER_MODE: "False"
       PGADMIN_CONFIG_DISABLE_LOGIN_BANNER: "True"
-    volumes:
-      - ./servers.json:/pgadmin4/servers.json
     depends_on:
       - postgres
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: on-failure
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "15675:15675"
+    command: >
+      bash -c "rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_web_mqtt && rabbitmq-server"
+    environment:
+      RABBITMQ_DEFAULT_USER: codepath
+      RABBITMQ_DEFAULT_PASS: codepath
 
   backend:
     image: ghcr.io/finn-kraemer/codepath-backend:latest
@@ -51,6 +60,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/codepath
       SPRING_DATASOURCE_USERNAME: codepath
       SPRING_DATASOURCE_PASSWORD: codepath
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: codepath
+      SPRING_RABBITMQ_PASSWORD: codepath
       JWT_SECRET: change-me-in-production-min-32-chars!!
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
@@ -59,6 +72,7 @@ services:
       retries: 5
     depends_on:
       - postgres
+      - rabbitmq
 
   frontend:
     image: ghcr.io/finn-kraemer/codepath-frontend:latest
@@ -78,6 +92,22 @@ volumes:
 
 ---
 
+## 🛠️ Infrastruktur-Zugang
+
+Für Verwaltung und Debugging stehen folgende Oberflächen zur Verfügung:
+
+### Datenbank (pgAdmin 4)
+- **URL**: [http://localhost:8082](http://localhost:8082)
+- **Login**: `admin@local.com` / `secret`
+- **Verbindung zur DB**: Host: `postgres`, User/Pass/DB: `codepath`
+
+### Message Broker (RabbitMQ)
+- **Management UI**: [http://localhost:15672](http://localhost:15672)
+- **Login**: `codepath` / `codepath`
+- **Features**: MQTT over WebSockets ist auf Port `15675` aktiv.
+
+---
+
 ## 🏗️ Architektur & Tech Stack
 
 CodePath ist als Monorepo organisiert und nutzt moderne Technologien für eine robuste und wartbare Codebasis.
@@ -85,14 +115,14 @@ CodePath ist als Monorepo organisiert und nutzt moderne Technologien für eine r
 ### Backend
 - **Framework:** Spring Boot 3.5.x (Java 21)
 - **Datenbank:** PostgreSQL 17 & Flyway für Migrationen
+- **Messaging:** RabbitMQ (AMQP) für asynchrone Lastabwicklung
+- **Echtzeit:** MQTT für Live-Updates (Leaderboard & Ankündigungen)
 - **Security:** Spring Security mit JWT-basierten Tokens
-- **Testing:** JUnit 5, MockMvc, H2 (für Integrationstests)
-- **Key-Features:** Package-by-Feature Struktur, Lombok, Jakarta Validation
 
 ### Frontend
 - **Framework:** Svelte 5 (SvelteKit) mit Runes (`$state`, `$derived`, etc.)
+- **Echtzeit:** Paho MQTT Client für Push-Benachrichtigungen
 - **Styling:** Tailwind CSS 4
-- **Editor:** TipTap für Rich-Text-Abgaben (Practice Tasks)
 - **Runtime:** Pyodide für die Ausführung von Python-Code im Browser
 
 ---
@@ -126,30 +156,21 @@ Die Plattform ist in verschiedene Module unterteilt, die jeweils einen IT-Bereic
 - Docker
 
 ### Lokaler Start (Entwicklung)
-1.  **Infrastruktur**: `docker compose up postgres`
+1.  **Infrastruktur**: 
+    ```bash
+    cd backend/dev-stack
+    ./start.sh
+    ```
 2.  **Backend**: `cd backend && ./mvnw spring-boot:run`
 3.  **Frontend**: `cd frontend && pnpm install && pnpm dev`
-
-### Konventionen
-- **Backend**: Migrationen in `src/main/resources/db/migration/`. REST-Endpoints unter `/api`.
-- **Frontend**: Formatierung mit `pnpm format` vor jedem Commit. Nutzung von Svelte 5 Runes.
-- **Testing**: Backend-Tests mit `./mvnw test`, Frontend-Checks mit `pnpm check`.
 
 ---
 
 ## 🗃️ Datenmodell (Kernentitäten)
 
 - **User**: Speichert Rollen (`STUDENT`, `ADMIN`) und Gesamtpunkte.
-- **Module & Task**: Definieren die Lerninhalte (hardcoded Initialisierung via `DataInitializer`).
-- **UserTaskCompletion**: Trackt bestandene Aufgaben und vergebene Punkte.
-- **PracticeSubmission**: Speichert HTML-Inhalte der TipTap-Abgaben zur manuellen Korrektur.
-
----
-
-## 🛠️ TipTap Editor (PRACTICE-Aufgaben)
-
-Für komplexe Abgaben nutzt CodePath einen konfigurierten TipTap Editor im Frontend. Er unterstützt:
-- Überschriften, Listen, Fettdruck.
-- Code-Blöcke mit Syntax-Highlighting (Lowlight).
-- Bild-Upload (Base64-Inlining für einfache Handhabung).
-- Automatische Speicherung und Einreichung an das Backend.
+- **Module & Task**: Definieren die Lerninhalte.
+- **UserTaskCompletion**: Trackt Fortschritt, Zeit und Fehlversuche.
+- **PracticeSubmission**: Speichert TipTap-Abgaben (asynchron via RabbitMQ).
+- **GeneralFeedback**: Einmalige Kurs-Rückmeldung der Schüler.
+- **GlobalAnnouncement**: Echtzeit-Mitteilungen der Lehrkräfte.
