@@ -1,53 +1,1052 @@
 [
   {
-    "slug": "programmierung", "title": "Programmierung", "description": "Lerne die Grundlagen der Informatik mit Python – Variablen, Schleifen und Funktionen.", "iconEmoji": "🐍", "sortOrder": 1,
+    "slug": "programmierung",
+    "title": "Programmierung",
+    "description": "Du bist Entwickler bei einem kleinen Startup – und musst heute das Backend retten.",
+    "iconEmoji": "🐍",
+    "sortOrder": 1,
     "tasks": [
-      { "slug": "p1", "title": "Der kaputte Roboter", "difficulty": "EASY", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 1, "story": "<p>Dein Roboter soll \"Hallo Welt\" sagen – aber er schweigt. Schau dir seinen Code an:</p><pre><code>nachricht = \"Hallo Welt\"\nPrint(nachricht)</code></pre>", "description": "<p>Was ist das Problem?</p>", "config": { "options": ["\"nachricht\" ist kein gültiger Variablenname", "\"Print\" muss kleingeschrieben sein: \"print\"", "Der Text braucht keine Anführungszeichen", "Es fehlt ein Semikolon am Ende"], "correct": [1], "hint": "Python achtet streng auf Groß- und Kleinschreibung bei Funktionen." } },
-      { "slug": "p2", "title": "Variablen-Detektiv", "difficulty": "EASY", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 2, "story": "<p>Ein Kollege hat diesen Code geschrieben. Ohne ihn auszuführen: Was gibt <code>print(ergebnis)</code> am Ende aus?</p><pre><code>zahl = 10\nzahl = zahl + 5\nzahl = zahl * 2\nergebnis = zahl - 3\nprint(ergebnis)</code></pre>", "description": "<p>Berechne das Endergebnis im Kopf.</p>", "config": { "options": ["20", "25", "27", "30"], "correct": [2], "hint": "Gehe den Code Zeile für Zeile durch: 10 + 5 = 15, dann 15 * 2 = ..." } },
-      { "slug": "p3", "title": "Lücke im Passwort-Generator", "difficulty": "EASY", "points": 15, "type": "FILL_CODE", "sortOrder": 3, "story": "<p>Du baust einen einfachen Passwort-Generator. Er soll 5 Sternchen ausgeben. Aber die Schleife fehlt noch:</p><pre><code>___ i ___ range(5):\n    print(\"*\")</code></pre>", "description": "<p>Ergänze die Lücken im Code.</p>", "config": { "template": "___ i ___ range(5):\n    print(\"*\")", "blanks": [ {"index": 0, "answer": "for", "caseSensitive": true}, {"index": 1, "answer": "in", "caseSensitive": true} ], "expectedOutput": "*\n*\n*\n*\n*\n", "hint": "Eine Standard-Schleife in Python beginnt mit 'for' und nutzt das Schlüsselwort 'in'." } },
-      { "slug": "p4", "title": "FizzBuzz Klassiker", "difficulty": "MEDIUM", "points": 20, "type": "CODE", "sortOrder": 4, "story": "<p>FizzBuzz ist ein legendärer Coding-Test in Vorstellungsgesprächen. Wenn du das löst, hättest du einen Job bekommen!</p>", "description": "<p>Schreibe Code, der die Zahlen 1–15 ausgibt – aber:<br>- Vielfache von 3 → <code>Fizz</code><br>- Vielfache von 5 → <code>Buzz</code><br>- Vielfache von 3 UND 5 → <code>FizzBuzz</code></p>", "config": { "starterCode": "for i in range(1, 16):\n    # Deine Lösung hier\n    pass", "expectedOutput": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n", "hint": "Nutze i % 3 == 0 um zu prüfen, ob i durch 3 teilbar ist. Wichtig: Prüfe 'FizzBuzz' zuerst!" } },
-      { "slug": "p5", "title": "Bug-Hunt: Die kaputte Funktion", "difficulty": "MEDIUM", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 5, "story": "<p>Dein Kollege hat eine Funktion geschrieben, die den Flächeninhalt eines Rechtecks berechnen soll. Aber sie gibt immer das falsche Ergebnis zurück. Findest du den Bug?</p><pre><code>def flaeche(breite, hoehe):\n    return breite + hoehe\n\nprint(flaeche(4, 5))  # Sollte 20 ausgeben, gibt aber 9 aus</code></pre>", "description": "<p>Was muss geändert werden?</p>", "config": { "options": ["Die Funktion heißt falsch", "Die Parameter sind in der falschen Reihenfolge", "Es muss \"*\" statt \"+\" sein (Fläche = Breite × Höhe)", "return fehlt"], "correct": [2], "hint": "Wie berechnet man mathematisch die Fläche eines Rechtecks?" } },
-      { "slug": "p6", "title": "Countdown-Rakete", "difficulty": "MEDIUM", "points": 15, "type": "FILL_CODE", "sortOrder": 6, "story": "<p>Houston, wir haben ein Problem – der Raketen-Countdown läuft rückwärts... oder doch nicht?</p><pre><code>___ i in range(10, ___, ___):\n    print(i)\nprint(\"🚀 Start!\")</code></pre>", "description": "<p>Ergänze den Code, damit von 10 bis 1 heruntergezählt wird.</p>", "config": { "template": "___ i in range(10, ___, ___):\n    print(i)\nprint(\"🚀 Start!\")", "blanks": [ {"index": 0, "answer": "for", "caseSensitive": true}, {"index": 1, "answer": "0", "caseSensitive": true}, {"index": 2, "answer": "-1", "caseSensitive": true} ], "expectedOutput": "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\n🚀 Start!\n", "hint": "range(Start, Stopp, Schritt). Der Stopp-Wert ist exklusiv!" } },
-      { "slug": "p7", "title": "Schere-Stein-Papier Logik", "difficulty": "HARD", "points": 20, "type": "CODE", "sortOrder": 7, "story": "<p>Du programmierst den Kern eines Schere-Stein-Papier-Spiels. Regeln: <code>\"schere\"</code> schlägt <code>\"papier\"</code>, <code>\"stein\"</code> schlägt <code>\"schere\"</code>, <code>\"papier\"</code> schlägt <code>\"stein\"</code>.</p>", "description": "<p>Schreibe eine Funktion <code>gewinner(spieler, computer)</code>, die den Gewinner (<code>\"spieler\"</code>, <code>\"computer\"</code> oder <code>\"unentschieden\"</code>) zurückgibt.</p>", "config": { "starterCode": "def gewinner(spieler, computer):\n    # Deine Logik hier\n    pass\n\n# Test\nprint(gewinner(\"schere\", \"papier\"))\nprint(gewinner(\"stein\", \"stein\"))\nprint(gewinner(\"papier\", \"schere\"))", "expectedOutput": "spieler\nunentschieden\ncomputer\n", "hint": "Nutze if/elif-Bedingungen. Vergiss das Unentschieden nicht!" } },
-      { "slug": "p8", "title": "Startup-Pitch: Dein erstes Programm", "difficulty": "HARD", "points": 50, "type": "PRACTICE", "sortOrder": 8, "story": "<p>Du hast 5 Minuten, um deine App-Idee einem Investor zu präsentieren!</p>", "description": "<p>Denk dir eine kleine App oder ein Programm aus, das du mit Python bauen würdest. Dann schreibe den Code (oder zumindest den wichtigsten Teil davon).</p>", "config": { "instructions": "Dein Pitch muss enthalten: 1. Was macht deine App? (1-2 Sätze), 2. Wer würde sie nutzen?, 3. Dein Code (Funktion, Schleife oder Bedingung), 4. Beispiel-Ausgabe.", "submissionNote": "Beschreibe deine Idee und füge deinen Code-Entwurf ein." } }
+      {
+        "slug": "p1",
+        "title": "Der kaputte Roboter",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 1,
+        "story": "<p>Dein Roboter soll \"Hallo Welt\" sagen – aber er schweigt. Schau dir seinen Code an:</p><pre><code>nachricht = \"Hallo Welt\"\nPrint(nachricht)</code></pre>",
+        "description": "<p>Was ist das Problem?</p>",
+        "config": {
+          "options": [
+            "nachricht ist kein gültiger Variablenname",
+            "Print muss kleingeschrieben sein: print",
+            "Der Text braucht keine Anführungszeichen",
+            "Es fehlt ein Semikolon am Ende"
+          ],
+          "correct": [1],
+          "hint": "Python achtet streng auf Groß- und Kleinschreibung bei Funktionsnamen."
+        }
+      },
+      {
+        "slug": "p2",
+        "title": "Variablen-Detektiv",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 2,
+        "story": "<p>Ein Kollege hat diesen Code geschrieben. Ohne ihn auszuführen: Was gibt <code>print(ergebnis)</code> am Ende aus?</p><pre><code>zahl = 10\nzahl = zahl + 5\nzahl = zahl * 2\nergebnis = zahl - 3\nprint(ergebnis)</code></pre>",
+        "description": "<p>Berechne das Ergebnis im Kopf.</p>",
+        "config": {
+          "options": ["20", "25", "27", "30"],
+          "correct": [2],
+          "hint": "Gehe den Code Zeile für Zeile durch: 10+5=15, 15*2=30, 30-3=..."
+        }
+      },
+      {
+        "slug": "p3",
+        "title": "Lücke im Passwort-Generator",
+        "difficulty": "EASY",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 3,
+        "story": "<p>Du baust einen einfachen Passwort-Generator. Er soll 5 Sternchen ausgeben. Aber die Schleife fehlt noch:</p>",
+        "description": "<p>Ergänze die Lücken im Code.</p>",
+        "config": {
+          "template": "___ i ___ range(5):\n    print(\"*\")",
+          "blanks": [
+            {"index": 0, "answer": "for", "caseSensitive": true},
+            {"index": 1, "answer": "in", "caseSensitive": true}
+          ],
+          "expectedOutput": "*\n*\n*\n*\n*\n",
+          "hint": "Nutze die Standard-Syntax für eine for-Schleife."
+        }
+      },
+      {
+        "slug": "p4",
+        "title": "FizzBuzz Klassiker",
+        "difficulty": "MEDIUM",
+        "points": 20,
+        "type": "CODE",
+        "sortOrder": 4,
+        "story": "<p>FizzBuzz ist ein legendärer Coding-Test. Schreibe Code, der die Zahlen 1–15 ausgibt – aber: Vielfache von 3 → Fizz, Vielfache von 5 → Buzz, bei beidem → FizzBuzz.</p>",
+        "description": "<p>Implementiere die FizzBuzz-Logik.</p>",
+        "config": {
+          "starterCode": "for i in range(1, 16):\n    pass  # Deine Lösung",
+          "expectedOutput": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n",
+          "hint": "Prüfe zuerst auf FizzBuzz (Teilbarkeit durch 3 UND 5)."
+        }
+      },
+      {
+        "slug": "p5",
+        "title": "Bug-Hunt: Die kaputte Funktion",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 5,
+        "story": "<p>Deine Funktion für den Flächeninhalt gibt falsche Werte zurück:</p><pre><code>def flaeche(breite, hoehe):\n    return breite + hoehe\n\nprint(flaeche(4, 5))  # Gibt 9 aus statt 20</code></pre>",
+        "description": "<p>Findest du den Bug?</p>",
+        "config": {
+          "options": [
+            "Die Funktion heißt falsch",
+            "Die Parameter sind falsch",
+            "Es muss * statt + sein",
+            "return fehlt"
+          ],
+          "correct": [2],
+          "hint": "Wie berechnet man die Fläche eines Rechtecks?"
+        }
+      },
+      {
+        "slug": "p6",
+        "title": "Countdown-Rakete",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 6,
+        "story": "<p>Houston, der Countdown soll rückwärts laufen! Ergänze den Code:</p>",
+        "description": "<p>Fülle die Lücken aus.</p>",
+        "config": {
+          "template": "___ i in range(10, ___, ___):\n    print(i)\nprint(\"🚀 Start!\")",
+          "blanks": [
+            {"index": 0, "answer": "for", "caseSensitive": true},
+            {"index": 1, "answer": "0", "caseSensitive": true},
+            {"index": 2, "answer": "-1", "caseSensitive": true}
+          ],
+          "expectedOutput": "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\n🚀 Start!\n",
+          "hint": "range(start, stop, step). Stop ist exklusiv."
+        }
+      },
+      {
+        "slug": "p7",
+        "title": "Schere-Stein-Papier Logik️",
+        "difficulty": "HARD",
+        "points": 20,
+        "type": "CODE",
+        "sortOrder": 7,
+        "story": "<p>Programmiere die Logik: schere > papier, stein > schere, papier > stein.</p>",
+        "description": "<p>Schreibe die Funktion gewinner(spieler, computer).</p>",
+        "config": {
+          "starterCode": "def gewinner(spieler, computer):\n    pass  # Deine Logik\n\nprint(gewinner(\"schere\", \"papier\"))\nprint(gewinner(\"stein\", \"stein\"))\nprint(gewinner(\"papier\", \"schere\"))",
+          "expectedOutput": "spieler\nunentschieden\ncomputer\n",
+          "hint": "Nutze if/elif/else Bedingungen."
+        }
+      },
+      {
+        "slug": "p8",
+        "title": "Startup-Pitch: Dein erstes Programm",
+        "difficulty": "HARD",
+        "points": 50,
+        "type": "PRACTICE",
+        "sortOrder": 8,
+        "story": "<p>Du hast 5 Minuten, um deine App-Idee einem Investor zu präsentieren!</p>",
+        "description": "<p>Präsentiere deine App-Idee.</p>",
+        "config": {
+          "instructions": "Dein Pitch muss enthalten: 1. Was macht die App? 2. Wer nutzt sie? 3. Dein Code-Kern. 4. Beispiel-Ausgabe.",
+          "submissionNote": "Beschreibe dein Konzept und füge Code-Schnipsel ein."
+        }
+      }
     ]
   },
   {
-    "slug": "digitaltechnik", "title": "Digitaltechnik", "description": "Von 0 und 1 zum Computer. Lerne Binärsystem, Logikgatter und Hardware kennen.", "iconEmoji": "📟", "sortOrder": 2,
+    "slug": "web-entwicklung",
+    "title": "Web-Entwicklung",
+    "description": "Du bist Junior-Entwickler bei einer Webagentur – heute ist dein erster Tag.",
+    "iconEmoji": "🌐",
+    "sortOrder": 2,
     "tasks": [
-      { "slug": "d1", "title": "Die Sprache der Computer", "difficulty": "EASY", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 1, "story": "<p>Ein Computer kennt nur zwei Zustände: <strong>Strom an</strong> (1) und <strong>Strom aus</strong> (0). Mit nur diesen zwei Zuständen speichert er Texte, Bilder, Videos – alles.</p>", "description": "<p>Wie speichert ein Computer den Buchstaben \"A\"?</p>", "config": { "options": ["Als kleines gemaltes Bild", "Als eine bestimmte Folge von Nullen und Einsen (Binärcode)", "Er schreibt es auf die Festplatte"], "correct": [1], "hint": "Alles im Computer wird schlussendlich in Binärzahlen übersetzt." } },
-      { "slug": "d2", "title": "Binär-Rechner", "difficulty": "EASY", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 2, "story": "<p>Im Binärsystem (Basis 2) hat jede Stelle doppelt so viel Wert wie die rechts davon: 1, 2, 4, 8, 16, …</p>", "description": "<p>Was ist die Dezimalzahl für <code>1010</code> (binär)?</p>", "config": { "options": ["10", "8", "5", "1010"], "correct": [0], "hint": "8 + 0 + 2 + 0 = ?" } },
-      { "slug": "d3", "title": "Bit, Byte, Gigabyte", "difficulty": "EASY", "points": 15, "type": "FILL_BLANK", "sortOrder": 3, "story": "<p>Dein neues Handy hat 256 GB Speicher. Aber was bedeutet das genau?</p>", "description": "<p>Fülle die Lücken im Text (Bit, Byte, Kilobyte, Gigabyte).</p>", "config": { "text": "Die kleinste Einheit ist ein ___. 8 davon ergeben ein ___. 1024 Megabyte entsprechen einem ___.", "blanks": ["Bit", "Byte", "Gigabyte"], "hint": "Die Einheiten steigen meist in 1024er Schritten." } }
+      {
+        "slug": "w1",
+        "title": "Die kaputte URL",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 1,
+        "story": "<p>Warum funktioniert diese URL nicht? <code>www.meine-seite.de/shop/artikel</code></p>",
+        "description": "<p>Wähle den Grund aus.</p>",
+        "config": {
+          "options": [
+            "Die URL ist zu lang",
+            "Das Protokoll (https://) fehlt",
+            "Bindestriche sind verboten",
+            "Keine Unterordner erlaubt"
+          ],
+          "correct": [1],
+          "hint": "Browser brauchen ein Protokoll, um zu wissen wie sie kommunizieren sollen."
+        }
+      },
+      {
+        "slug": "w2",
+        "title": "Request oder Response?",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 2,
+        "story": "<p>\"Der Browser fragt: Gib mir die Startseite von YouTube.\" Was ist das?</p>",
+        "description": "<p>Ordne den Begriff zu.</p>",
+        "config": {
+          "options": ["Das ist ein Request", "Das ist eine Response", "Beides gleichzeitig", "Weder noch"],
+          "correct": [0],
+          "hint": "Anfragen werden gestellt, Antworten kommen zurück."
+        }
+      },
+      {
+        "slug": "w3",
+        "title": "HTML-Detektiv: Was wird angezeigt?",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 3,
+        "story": "<p>Was sieht der Nutzer? <code>&lt;h1&gt;Seite&lt;/h1&gt;&lt;!-- Kommentar --&gt;&lt;p&gt;Text&lt;/p&gt;</code></p>",
+        "description": "<p>Wähle die richtige Anzeige.</p>",
+        "config": {
+          "options": [
+            "Alles inklusive Kommentar",
+            "Überschrift und Text, Kommentar ist unsichtbar",
+            "Nur die Überschrift",
+            "Den rohen HTML Code"
+          ],
+          "correct": [1],
+          "hint": "Kommentare sind nur für Entwickler im Quelltext sichtbar."
+        }
+      },
+      {
+        "slug": "w4",
+        "title": "Baue eine Visitenkarte",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_BLANK",
+        "sortOrder": 4,
+        "story": "<p>Ergänze die fehlenden HTML-Tags für die Visitenkarte.</p>",
+        "description": "<p>Fülle die Lücken aus.</p>",
+        "config": {
+          "template": "<!DOCTYPE html>\n<___>\n  <head><title>Max</title></head>\n  <___>\n    <___>Max Mustermann</___>\n    <p>Web-Entwickler</p>\n    <___ href=\"mailto:max@mail.de\">Mail</___>\n  </body>\n</html>",
+          "blanks": ["html", "body", "h1", "h1", "a", "a"],
+          "hint": "h1 ist für Überschriften, a für Links."
+        }
+      },
+      {
+        "slug": "w5",
+        "title": "API-Detektiv: Was kommt zurück?",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 5,
+        "story": "<p>JSON-Antwort: <code>{\"stadt\": \"Berlin\", \"temperatur\": 18}</code>. Wie greifst du in Python darauf zu?</p>",
+        "description": "<p>Wähle den richtigen Code-Zugriff.</p>",
+        "config": {
+          "options": ["data.temperatur()", "data[temperatur]", "data[\"temperatur\"]", "data->temperatur"],
+          "correct": [2],
+          "hint": "JSON wird in Python oft als Dictionary (Schlüssel-Wert-Paare) verarbeitet."
+        }
+      },
+      {
+        "slug": "w6",
+        "title": "Fehler 404 erklärt",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_BLANK",
+        "sortOrder": 6,
+        "story": "<p>Erkläre Statuscodes: OK, Umzug, Nicht gefunden, Serverfehler.</p>",
+        "description": "<p>Fülle die Statuscodes aus.</p>",
+        "config": {
+          "template": "Alles OK: ___\nUmzug: ___\nNicht gefunden: ___\nServerfehler: ___",
+          "blanks": ["200", "301", "404", "500"],
+          "hint": "404 ist der bekannteste Code im Web."
+        }
+      },
+      {
+        "slug": "w7",
+        "title": "Die Webseite für den Bürgermeister",
+        "difficulty": "HARD",
+        "points": 50,
+        "type": "PRACTICE",
+        "sortOrder": 7,
+        "story": "<p>Der Bürgermeister braucht eine moderne Webseite. Nur 1 Seite Budget!</p>",
+        "description": "<p>Entwirf die Seite.</p>",
+        "config": {
+          "instructions": "Erstelle eine Startseite mit: Stadtname, Begrüßung, 3 Bereiche, 1 Link, 1 Liste.",
+          "submissionNote": "Schreibe den HTML-Code oder beschreibe das Design detailliert."
+        }
+      }
     ]
   },
   {
-    "slug": "datenbanken", "title": "Datenbanken (SQL)", "description": "Strukturiere Daten wie ein Profi. Lerne SQL-Abfragen und Tabellen-Designs.", "iconEmoji": "🗄️", "sortOrder": 3,
+    "slug": "it-sicherheit",
+    "title": "IT-Sicherheit",
+    "description": "Du bist Sicherheitsanalyst. Deine Aufgabe: Schwachstellen finden, bevor es Hacker tun.",
+    "iconEmoji": "🔒",
+    "sortOrder": 3,
     "tasks": [
-      { "slug": "db1", "title": "Excel vs. Datenbank", "difficulty": "EASY", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 1, "story": "<p>Netflix speichert 200 Millionen Nutzerprofile. Stell dir vor, sie würden das in einer Excel-Tabelle machen. Was wäre das größte Problem?</p>", "description": "<p>Warum ist Excel für Millionen von Nutzern ungeeignet?</p>", "config": { "options": ["Excel ist zu grün", "Zu langsam bei großen Datenmengen & kein gleichzeitiger Zugriff für Millionen User", "Excel kann keine Namen speichern"], "correct": [1], "hint": "Datenbanken sind auf Geschwindigkeit und Multi-User-Zugriff optimiert." } }
+      {
+        "slug": "s1",
+        "title": "Phishing-Mail enttarnen",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 1,
+        "story": "<p>Von: support@paypa1.com. Betreff: Konto wird gelöscht!!! Link: http://paypal-sicher.xyz/login</p>",
+        "description": "<p>Wie viele Warnsignale findest du?</p>",
+        "config": {
+          "options": ["Keine", "1 Signal", "2 Signale", "Mindestens 3"],
+          "correct": [3],
+          "hint": "Achte auf Absender-Domain, Dringlichkeit und die Ziel-URL."
+        }
+      },
+      {
+        "slug": "s2",
+        "title": "Passwort-Stärke einschätzen",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 2,
+        "story": "<p>Kriterien: Länge, Groß, Zahl, Sonderzeichen, kein Wort. Wie viele Punkte für \"Hund2024!\"?</p>",
+        "description": "<p>Bewerte das Passwort.</p>",
+        "config": {
+          "options": ["2 Punkte", "3 Punkte", "4 Punkte", "5 Punkte"],
+          "correct": [2],
+          "hint": "Großbuchstabe, Zahl, Sonderzeichen vorhanden. Aber \"Hund\" ist ein Wörterbuch-Wort."
+        }
+      },
+      {
+        "slug": "s3",
+        "title": "Caesar-Verschlüsselung knacken",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 3,
+        "story": "<p>Verschiebe Buchstaben um 3 Stellen. A -> D. Dekodiere KHOOR.</p>",
+        "description": "<p>Vervollständige die Funktion.</p>",
+        "config": {
+          "template": "def caesar_decode(text, versatz):\n    res = \"\"\n    for c in text:\n        if c.___( ):\n            n = ___(c) - versatz\n            res += ___(n)\n        else: res += c\n    return res\n\nprint(caesar_decode(\"KHOOR\", 3))",
+          "blanks": [
+            {"index": 0, "answer": "isalpha", "caseSensitive": true},
+            {"index": 1, "answer": "ord", "caseSensitive": true},
+            {"index": 2, "answer": "chr", "caseSensitive": true}
+          ],
+          "expectedOutput": "HELLO\n",
+          "hint": "ord() gibt den Code eines Zeichens, chr() den Buchstaben zum Code."
+        }
+      },
+      {
+        "slug": "s4",
+        "title": "SQL Injection verstehen",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 4,
+        "story": "<p>Eingabe: <code>admin'--</code> in der Login-Abfrage.</p>",
+        "description": "<p>Was passiert?</p>",
+        "config": {
+          "options": [
+            "Fehler wegen Sonderzeichen",
+            "Hacker eingeloggt ohne Passwort",
+            "Datenbank wird gelöscht",
+            "Nichts passiert"
+          ],
+          "correct": [1],
+          "hint": "-- leitet in SQL einen Kommentar ein."
+        }
+      },
+      {
+        "slug": "s5",
+        "title": "Passwort-Checker programmieren",
+        "difficulty": "MEDIUM",
+        "points": 20,
+        "type": "CODE",
+        "sortOrder": 5,
+        "story": "<p>Prüfe: Mindestens 8 Zeichen UND mindestens 1 Zahl.</p>",
+        "description": "<p>Schreibe passwort_check(pw).</p>",
+        "config": {
+          "starterCode": "def passwort_check(pw):\n    pass\n\nprint(passwort_check(\"abc\"))\nprint(passwort_check(\"abcdef12\"))",
+          "expectedOutput": "Unsicher\nSicher\n",
+          "hint": "Nutze len(pw) >= 8 und any(c.isdigit() for c in pw)."
+        }
+      },
+      {
+        "slug": "s6",
+        "title": "2-Faktor-Authentifizierung erklären",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_BLANK",
+        "sortOrder": 6,
+        "story": "<p>Erkläre warum wir 2FA brauchen.</p>",
+        "description": "<p>Fülle die Lücken aus.</p>",
+        "config": {
+          "template": "Man braucht zwei verschiedene ___. Meistens Passwort und ein ___ auf dem Handy. Ohne das ___ kann man nicht einloggen.",
+          "blanks": ["Faktoren", "Code", "Handy"],
+          "hint": "Zwei Faktoren machen den Login viel sicherer."
+        }
+      },
+      {
+        "slug": "s7",
+        "title": "Red Team vs. Blue Team",
+        "difficulty": "HARD",
+        "points": 50,
+        "type": "PRACTICE",
+        "sortOrder": 7,
+        "story": "<p>Schulwebseite gehackt: Admin-Passwort war zu einfach, kein HTTPS.</p>",
+        "description": "<p>Agier als Blue Team.</p>",
+        "config": {
+          "instructions": "Nenne 3 Sofortmaßnahmen und 3 langfristige Maßnahmen zur Absicherung.",
+          "submissionNote": "Liste deine Strategien auf."
+        }
+      }
     ]
   },
   {
-    "slug": "cloud-netze", "title": "Cloud & Netzwerke", "description": "Wie funktioniert das Internet? Verstehe IP-Adressen, Server und die Cloud.", "iconEmoji": "☁️", "sortOrder": 4,
+    "slug": "datenbanken",
+    "title": "Datenbanken",
+    "description": "Du bist Datenbankadmin bei einem Startup – und die Datenbank ist gerade abgestürzt.",
+    "iconEmoji": "🗄️",
+    "sortOrder": 4,
     "tasks": [
-      { "slug": "c1", "title": "Kein Internet?", "difficulty": "EASY", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 1, "story": "<p>Du tippst <code>www.schule.de</code> in den Browser – aber es passiert nichts.</p>", "description": "<p>Was prüfst du als erstes?</p>", "config": { "options": ["Ob der Monitor an ist", "Ob das LAN-Kabel steckt oder WLAN verbunden ist", "Ob die Tastatur funktioniert"], "correct": [1], "hint": "Hardware-Verbindung (Layer 1) ist die häufigste Fehlerquelle." } }
+      {
+        "slug": "db1",
+        "title": "Chaos ohne Datenbank",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 1,
+        "story": "<p>Stell dir Netflix mit einer Excel-Tabelle vor. Was ist das Problem?</p>",
+        "description": "<p>Wähle das Hauptproblem.</p>",
+        "config": {
+          "options": [
+            "Excel ist zu teuer",
+            "Gleichzeitiger Zugriff von Millionen Usern unmöglich",
+            "Keine Videos in Excel",
+            "Dateiformat inkompatibel"
+          ],
+          "correct": [1],
+          "hint": "Datenbanken sind für parallele Zugriffe und große Mengen optimiert."
+        }
+      },
+      {
+        "slug": "db2",
+        "title": "SQL im Supermarkt",
+        "difficulty": "EASY",
+        "points": 15,
+        "type": "FILL_BLANK",
+        "sortOrder": 2,
+        "story": "<p>Ergänze die SQL-Befehle für die Produkt-Tabelle.</p>",
+        "description": "<p>Fülle die SQL-Schlüsselwörter aus.</p>",
+        "config": {
+          "template": "1. ___ * ___ produkte\n2. SELECT * FROM produkte ___ preis < 1.00\n3. SELECT * FROM produkte ORDER ___ preis",
+          "blanks": ["SELECT", "FROM", "WHERE", "BY"],
+          "hint": "Die Grundstruktur ist SELECT ... FROM ... WHERE ..."
+        }
+      },
+      {
+        "slug": "db3",
+        "title": "Was gibt diese Abfrage zurück?",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 3,
+        "story": "<p><code>SELECT kunde FROM bestellungen WHERE status='offen' ORDER BY betrag DESC;</code></p>",
+        "description": "<p>Wähle das Ergebnis.</p>",
+        "config": {
+          "options": [
+            "Alle Zeilen",
+            "Offene Bestellungen, höchste Beträge zuerst",
+            "Nur bezahlte Bestellungen",
+            "Nur der kleinste Betrag"
+          ],
+          "correct": [1],
+          "hint": "DESC bedeutet absteigend sortiert."
+        }
+      },
+      {
+        "slug": "db4",
+        "title": "JOIN verstehen",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 4,
+        "story": "<p>Du hast Tabellen 'nutzer' und 'bestellungen'. Wie verknüpfst du sie?</p>",
+        "description": "<p>Wähle die Technik.</p>",
+        "config": {
+          "options": ["Zwei SELECTs", "WHERE Bedingung", "Ein JOIN", "Geht nur mit Code"],
+          "correct": [2],
+          "hint": "Ein JOIN verbindet Daten aus verschiedenen Tabellen über gemeinsame IDs."
+        }
+      },
+      {
+        "slug": "db5",
+        "title": "Datenbankschema debuggen",
+        "difficulty": "HARD",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 5,
+        "story": "<p>Schema: <code>nachrichten(id, text, absender_name, datum)</code>. Warum ist das schlecht?</p>",
+        "description": "<p>Finde den Designfehler.</p>",
+        "config": {
+          "options": [
+            "Zu wenige Spalten",
+            "Namen statt IDs (Namensänderung korrumpiert Daten)",
+            "Datum gehört nicht rein",
+            "Anhänge fehlen"
+          ],
+          "correct": [1],
+          "hint": "Fremdschlüssel sollten immer auf IDs zeigen, nicht auf flüchtige Texte."
+        }
+      },
+      {
+        "slug": "db6",
+        "title": "Python trifft Datenbank",
+        "difficulty": "HARD",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 6,
+        "story": "<p>Filtere Schüler mit mehr als 100 Punkten.</p>",
+        "description": "<p>Vervollständige die Schleife.</p>",
+        "config": {
+          "template": "___ s ___ schueler:\n    if s[___] > 100:\n        print(s[\"name\"])",
+          "blanks": [
+            {"index": 0, "answer": "for", "caseSensitive": true},
+            {"index": 1, "answer": "in", "caseSensitive": true},
+            {"index": 2, "answer": "\"punkte\"", "caseSensitive": true}
+          ],
+          "expectedOutput": "Anna\nClara\n",
+          "hint": "Iteriere über die Liste und greife auf den Key zu."
+        }
+      },
+      {
+        "slug": "db7",
+        "title": "Entwirf die Datenbank für deine App",
+        "difficulty": "HARD",
+        "points": 50,
+        "type": "PRACTICE",
+        "sortOrder": 7,
+        "story": "<p>Deine App ist eine Team-To-Do-Liste.</p>",
+        "description": "<p>Entwirf das Schema.</p>",
+        "config": {
+          "instructions": "Definiere Tabellen, Spalten und Verknüpfungen (Fremdschlüssel). Schreibe 2 Beispiel-Abfragen.",
+          "submissionNote": "Beschreibe dein Tabellen-Design."
+        }
+      }
     ]
   },
   {
-    "slug": "web-entwicklung", "title": "Web-Entwicklung", "description": "Baue deine eigenen Webseiten. Lerne HTML, CSS und wie das World Wide Web funktioniert.", "iconEmoji": "🌐", "sortOrder": 5,
+    "slug": "ki-informatik",
+    "title": "Künstliche Intelligenz",
+    "description": "Du trainierst die KI von morgen – aber erst musst du verstehen, wie sie lernt.",
+    "iconEmoji": "🤖",
+    "sortOrder": 5,
     "tasks": [
-      { "slug": "w1", "title": "Anatomie einer URL", "difficulty": "EASY", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 1, "story": "<p>Dein Chef schickt dir diese URL und fragt: \"Warum funktioniert das nicht?\" – Erkläre ihm was fehlt:</p><pre><code>www.meine-seite.de/shop/artikel</code></pre>", "description": "<p>Was fehlt an dieser URL?</p>", "config": { "options": ["Das Protokoll (z.B. https://)", "Der Punkt am Ende", "Das www ist falsch"], "correct": [0], "hint": "Jede vollständige URL beginnt mit einem Protokoll." } }
+      {
+        "slug": "ai1",
+        "title": "Ist das KI?",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 1,
+        "story": "<p>Ist ein Taschenrechner, der 1000 * 1000 rechnet, eine KI?</p>",
+        "description": "<p>Wähle die Antwort.</p>",
+        "config": {
+          "options": ["Ja, das ist KI", "Nein, er folgt nur festen Regeln", "Schwache KI", "Hängt vom Modell ab"],
+          "correct": [1],
+          "hint": "KI zeichnet sich durch Lernen aus Mustern aus, nicht durch starre Logik."
+        }
+      },
+      {
+        "slug": "ai2",
+        "title": "Wie lernt eine KI?",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 2,
+        "story": "<p>Eine KI soll Katzen von Hunden unterscheiden. Was tut sie im Training?</p>",
+        "description": "<p>Beschreibe den Lernprozess.</p>",
+        "config": {
+          "options": [
+            "Speichert alle Fotos zum Vergleich",
+            "Fragt bei jedem Bild einen Menschen",
+            "Sucht nach Mustern (Ohren, Schnurrhaare) und lernt aus Fehlern",
+            "Denkt wie ein Mensch"
+          ],
+          "correct": [2],
+          "hint": "Maschinelles Lernen basiert auf statistischen Mustern in großen Datenmengen."
+        }
+      },
+      {
+        "slug": "ai3",
+        "title": "Training vs. Test",
+        "difficulty": "EASY",
+        "points": 15,
+        "type": "FILL_BLANK",
+        "sortOrder": 3,
+        "story": "<p>Warum teilen Entwickler ihre Daten auf?</p>",
+        "description": "<p>Fülle die Begriffe aus.</p>",
+        "config": {
+          "template": "Die ___ Daten werden zum Lernen genutzt. Mit den ___ Daten prüft man den Erfolg. Nur Erfolg auf bekannten Daten heißt ___.",
+          "blanks": ["Trainings", "Test", "Overfitting"],
+          "hint": "Overfitting ist wie Auswendiglernen ohne Verstehen."
+        }
+      },
+      {
+        "slug": "ai4",
+        "title": "KI-Bias erkennen",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 4,
+        "story": "<p>KI wurde mit Daten trainiert, bei denen fast nur Männer eingestellt wurden.</p>",
+        "description": "<p>Was ist die Folge?</p>",
+        "config": {
+          "options": [
+            "KI ist zu langsam",
+            "KI bevorzugt wahrscheinlich wieder Männer (Bias)",
+            "KI kann keine PDFs lesen",
+            "Datenmenge ist zu groß"
+          ],
+          "correct": [1],
+          "hint": "KI spiegelt die Vorurteile der Daten wider, mit denen sie trainiert wurde."
+        }
+      },
+      {
+        "slug": "ai5",
+        "title": "Nearest Neighbor von Hand️",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 5,
+        "story": "<p>Finde den nächsten Nachbarn zu 6 in [1, 4, 7, 10, 15].</p>",
+        "description": "<p>Vervollständige den kNN-Algorithmus.</p>",
+        "config": {
+          "template": "punkte = [1, 4, 7, 10, 15]\ngesucht = 6\nnaechster = ___[0]\nfor p in punkte:\n    if ___(p - gesucht) < ___(naechster - gesucht):\n        naechster = p\nprint(naechster)",
+          "blanks": [
+            {"index": 0, "answer": "punkte", "caseSensitive": true},
+            {"index": 1, "answer": "abs", "caseSensitive": true},
+            {"index": 2, "answer": "abs", "caseSensitive": true}
+          ],
+          "expectedOutput": "7\n",
+          "hint": "abs() berechnet den absoluten Abstand (ohne Vorzeichen)."
+        }
+      },
+      {
+        "slug": "ai6",
+        "title": "Prompt Engineering",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 6,
+        "story": "<p>Welcher Prompt liefert die beste Hilfe?</p>",
+        "description": "<p>Wähle die beste Anweisung.</p>",
+        "config": {
+          "options": [
+            "Hausaufgaben",
+            "Hilf mir",
+            "Ich bin 8. Klasse. Erkläre Pythagoras einfach mit Beispiel.",
+            "Erkläre Mathe"
+          ],
+          "correct": [2],
+          "hint": "Kontext und Zielgruppe helfen der KI, bessere Antworten zu geben."
+        }
+      },
+      {
+        "slug": "ai7",
+        "title": "Trainiere deine eigene KI-Idee",
+        "difficulty": "HARD",
+        "points": 50,
+        "type": "PRACTICE",
+        "sortOrder": 7,
+        "story": "<p>Entwirf ein KI-System für ein echtes Problem (Spam, Song-Empfehlung, etc.).</p>",
+        "description": "<p>Konzipiere dein System.</p>",
+        "config": {
+          "instructions": "Definiere Input, Output, Trainingsdaten, Testverfahren und potenzielle Probleme.",
+          "submissionNote": "Beschreibe deinen Entwurf."
+        }
+      }
     ]
   },
   {
-    "slug": "it-sicherheit", "title": "IT-Sicherheit", "description": "Schütze Daten und Systeme. Lerne Phishing-Erkennung, Verschlüsselung und Hacking-Abwehr.", "iconEmoji": "🔒", "sortOrder": 6,
+    "slug": "cloud-netze",
+    "title": "Cloud & Netzwerke",
+    "description": "Das Internet bricht nie einfach zusammen – aber heute ist was schiefgelaufen.",
+    "iconEmoji": "☁️",
+    "sortOrder": 6,
     "tasks": [
-      { "slug": "s1", "title": "Phishing-Alarm", "difficulty": "EASY", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 1, "story": "<p>Du bekommst folgende E-Mail. Wie viele Warnsignale findest du?</p><pre><code>Von: support@paypa1.com\nBetreff: ⚠️ DRINGEND: Ihr Konto wird in 24h gelöscht!!!\nInhalt: \"Sehr geehrter Kunde, klicken Sie JETZT auf den Link und bestätigen Sie Ihre Daten: http://paypal-sicher.xyz/login\"</code></pre>", "description": "<p>Wie viele Warnsignale findest du in dieser E-Mail?</p>", "config": { "options": ["Keine, sieht echt aus", "1 Signal", "Mindestens 3 (Falsche URL, Zeitdruck, seltsame Links)", "Nur die Rechtschreibung"], "correct": [2], "hint": "Achte auf Absender, Dringlichkeit und die Ziel-URL." } }
+      {
+        "slug": "c1",
+        "title": "Warum lädt die Seite nicht?",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 1,
+        "story": "<p>Du tippst www.schule.de ein, nichts passiert.</p>",
+        "description": "<p>Was prüfst du zuerst?</p>",
+        "config": {
+          "options": [
+            "Browser Update",
+            "Internetverbindung (Ping / andere Seite)",
+            "Ob die Seite existiert",
+            "RAM Auslastung"
+          ],
+          "correct": [1],
+          "hint": "Prüfe immer zuerst die einfachste Fehlerquelle (Physikalische Verbindung)."
+        }
+      },
+      {
+        "slug": "c2",
+        "title": "IP-Adressen entziffern",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 2,
+        "story": "<p>Welche Adresse ist eine gültige IPv4?</p>",
+        "description": "<p>Wähle die gültige IP.</p>",
+        "config": {
+          "options": ["999.1.1.1", "192.168.1", "192.168.1.100", "hello.world"],
+          "correct": [2],
+          "hint": "4 Zahlen von 0-255, getrennt durch Punkte."
+        }
+      },
+      {
+        "slug": "c3",
+        "title": "DNS erklärt",
+        "difficulty": "EASY",
+        "points": 15,
+        "type": "FILL_BLANK",
+        "sortOrder": 3,
+        "story": "<p>DNS ist das Telefonbuch des Internets.</p>",
+        "description": "<p>Fülle die Begriffe aus.</p>",
+        "config": {
+          "template": "Der ___ Server übersetzt den Namen in eine ___ Adresse. Ohne das müsste man sich für jede Seite eine ___ merken.",
+          "blanks": ["DNS", "IP", "Zahl"],
+          "hint": "Domain Name System ist die Langform."
+        }
+      },
+      {
+        "slug": "c4",
+        "title": "Cloud vs. Lokal",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 4,
+        "story": "<p>Was ist ein Vorteil einer Cloud-Lösung für die Schule?</p>",
+        "description": "<p>Wähle den Cloud-Vorteil.</p>",
+        "config": {
+          "options": [
+            "Immer offline verfügbar",
+            "Keine Kosten",
+            "Wartung und Backups übernimmt der Anbieter",
+            "Sicher vor allen Hackern"
+          ],
+          "correct": [2],
+          "hint": "Cloud bedeutet Auslagerung von Infrastruktur und Wartung."
+        }
+      },
+      {
+        "slug": "c5",
+        "title": "Pakete auf Reisen",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 5,
+        "story": "<p>Wie werden große Dateien übertragen?</p>",
+        "description": "<p>Erkläre den Transfer.</p>",
+        "config": {
+          "options": [
+            "Warten bis Leitung frei ist",
+            "Aufteilung in kleine Pakete, einzeln verschickt",
+            "Nur der Anfang wird geschickt",
+            "Gleichzeitige Kopie auf alle Server"
+          ],
+          "correct": [1],
+          "hint": "Paketvermittlung ist das Grundprinzip des Internets."
+        }
+      },
+      {
+        "slug": "c6",
+        "title": "Ping-Analyse",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 6,
+        "story": "<p>Berechne die durchschnittliche Antwortzeit.</p>",
+        "description": "<p>Vervollständige den Code.</p>",
+        "config": {
+          "template": "ping_zeiten = [12, 45, 8, 23, 67, 11]\ngesamt = ___\nfor z in ping_zeiten:\n    gesamt ___ z\n\ndurch = gesamt / ___(ping_zeiten)\nprint(durch)",
+          "blanks": [
+            {"index": 0, "answer": "0", "caseSensitive": true},
+            {"index": 1, "answer": "+=", "caseSensitive": true},
+            {"index": 2, "answer": "len", "caseSensitive": true}
+          ],
+          "expectedOutput": "27.666666666666668\n",
+          "hint": "Initialisiere die Summe mit 0 und teile durch die Anzahl."
+        }
+      },
+      {
+        "slug": "c7",
+        "title": "Schulnetzwerk planen",
+        "difficulty": "HARD",
+        "points": 50,
+        "type": "PRACTICE",
+        "sortOrder": 7,
+        "story": "<p>Plane das Netzwerk für ein neues Schulgebäude.</p>",
+        "description": "<p>Erstelle ein Konzept.</p>",
+        "config": {
+          "instructions": "Verbindungstypen, Standort Router/Switch, Content-Filter, Ausfallschutz.",
+          "submissionNote": "Beschreibe oder skizziere deine Planung."
+        }
+      }
     ]
   },
   {
-    "slug": "ki-informatik", "title": "KI & Informatik", "description": "Wie funktionieren ChatGPT und Co.? Erforsche die Welt der Künstlichen Intelligenz.", "iconEmoji": "🤖", "sortOrder": 7,
+    "slug": "digitaltechnik",
+    "title": "Digitaltechnik",
+    "description": "Alles was ein Computer tut, passiert letztendlich mit Einsen und Nullen.",
+    "iconEmoji": "🔧",
+    "sortOrder": 7,
     "tasks": [
-      { "slug": "ai1", "title": "KI oder nicht KI?", "difficulty": "EASY", "points": 10, "type": "MULTIPLE_CHOICE", "sortOrder": 1, "story": "<p>Welche dieser Dinge nutzt echte KI (maschinelles Lernen) – und welche nicht?</p>", "description": "<p><em>\"Ein Taschenrechner berechnet 1000 × 1000 = 1.000.000\"</em> – Ist das KI?</p>", "config": { "options": ["Ja, das ist KI", "Nein, das ist nur ein fester Algorithmus"], "correct": [1], "hint": "KI lernt aus Daten. Ein Taschenrechner folgt festen Regeln." } }
-    ]
+      {
+        "slug": "d1",
+        "title": "Alles ist eine Zahl",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 1,
+        "story": "<p>Wie speichert ein Computer den Buchstaben \"A\"?</p>",
+        "description": "<p>Wähle die Speicherform.</p>",
+        "config": {
+          "options": [
+            "Winziges Bild",
+            "Sprachaufnahme",
+            "Als Zahl (z.B. 65), binär gespeichert",
+            "Wird gar nicht gespeichert"
+          ],
+          "correct": [2],
+          "hint": "ASCII and Unicode definieren Standardzahlen für Buchstaben."
+        }
+      },
+      {
+        "slug": "d2",
+        "title": "Binär zählen",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 2,
+        "story": "<p>Was ist 1010 (binär) in Dezimal?</p>",
+        "description": "<p>Berechne den Wert.</p>",
+        "config": {
+          "options": ["10", "12", "8", "5"],
+          "correct": [0],
+          "hint": "8 + 0 + 2 + 0 = 10."
+        }
+      },
+      {
+        "slug": "d3",
+        "title": "Bits und Bytes",
+        "difficulty": "EASY",
+        "points": 15,
+        "type": "FILL_BLANK",
+        "sortOrder": 3,
+        "story": "<p>Einheiten umrechnen.</p>",
+        "description": "<p>Fülle die Begriffe aus.</p>",
+        "config": {
+          "template": "Kleinste Einheit: ___. 8 davon: ___. 1024 Byte: 1 ___. 1024 MB: 1 ___.",
+          "blanks": ["Bit", "Byte", "Kilobyte", "Gigabyte"],
+          "hint": "Byte ist die Grundeinheit für Datenmengen."
+        }
+      },
+      {
+        "slug": "d4",
+        "title": "Logikgatter: UND/ODER",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 4,
+        "story": "<p>Alarm auslösen wenn: Tür offen UND nach 22 Uhr.</p>",
+        "description": "<p>Wähle das Gatter.</p>",
+        "config": {
+          "options": ["ODER-Gatter", "UND-Gatter", "NICHT-Gatter", "Kein Gatter"],
+          "correct": [1],
+          "hint": "Beide Bedingungen müssen wahr sein."
+        }
+      },
+      {
+        "slug": "d5",
+        "title": "Binär zu Dezimal in Python",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 5,
+        "story": "<p>Rechne \"1101\" in eine Dezimalzahl um.</p>",
+        "description": "<p>Vervollständige den Code.</p>",
+        "config": {
+          "template": "binaer = \"1101\"\ndezimal = ___(binaer, ___)\nprint(dezimal)",
+          "blanks": [
+            {"index": 0, "answer": "int", "caseSensitive": true},
+            {"index": 1, "answer": "2", "caseSensitive": true}
+          ],
+          "expectedOutput": "13\n",
+          "hint": "int(string, basis) wandelt um."
+        }
+      },
+      {
+        "slug": "d6",
+        "title": "CPU, RAM, SSD – wer macht was?",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 6,
+        "story": "<p>Welche Komponente berechnet die Physik in einem Spiel?</p>",
+        "description": "<p>Wähle die Hardware.</p>",
+        "config": {
+          "options": ["SSD", "RAM", "CPU", "Grafikkarte"],
+          "correct": [2],
+          "hint": "Die CPU ist das Gehirn und führt allgemeine Berechnungen aus."
+        }
+      },
+      {
+        "slug": "d7",
+        "title": "Binäre Geheimbotschaft",
+        "difficulty": "HARD",
+        "points": 20,
+        "type": "CODE",
+        "sortOrder": 7,
+        "story": "<p>Wandle [\"01001000\", \"01101001\"] in Text um.</p>",
+        "description": "<p>Schreibe den Dekodierer.</p>",
+        "config": {
+          "starterCode": "ergebnis = \"\"\nfor code in binaer_nachricht:\n    dezimal = int(code, 2)\n    zeichen = chr(dezimal)\n    ergebnis += zeichen\n\nprint(ergebnis)",
+          "expectedOutput": "Hi\n",
+          "hint": "Nutze int(x, 2) and chr()."
+        }
+      },
+      {
+        "slug": "d8",
+        "title": "Bau deinen eigenen Computer (auf Papier) 🖥️",
+        "difficulty": "HARD",
+        "points": 50,
+        "type": "PRACTICE",
+        "sortOrder": 8,
+        "story": "<p>Stelle einen PC für 800€ zusammen.</p>",
+        "description": "<p>Konfiguriere den PC.</p>",
+        "config": {
+          "instructions": "Wähle CPU, RAM, Speicher. Begründe deine Wahl und erkläre die Rolle des Betriebssystems.",
+          "submissionNote": "Liste die Komponenten und Begründungen auf."
+        }
+      },
+      {
+        "slug": "d9",
+        "title": "Die smarte Lampe (AND) 💡",
+        "difficulty": "EASY",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 9,
+        "story": "<p>Eine Außenlampe soll nur leuchten, wenn der Schalter eingeschaltet ist UND es dunkel draußen ist. Ergänze den logischen Operator.</p>",
+        "description": "<p>Vervollständige die Logik für die Lampe.</p>",
+        "config": {
+          "template": "schalter_an = True\ndunkel = True\n\nleuchten = schalter_an ___ dunkel\nprint(leuchten)",
+          "blanks": [
+            {"index": 0, "answer": "and", "caseSensitive": true}
+          ],
+          "expectedOutput": "True\n",
+          "hint": "Das AND-Gatter (and) gibt nur True zurück, wenn beide Bedingungen wahr sind."
+        }
+      },
+      {
+        "slug": "d10",
+        "title": "Das Alarmsystem (OR) 🚨",
+        "difficulty": "EASY",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 10,
+        "story": "<p>Ein Alarm soll ausgelöst werden, wenn entweder die Vordertür ODER die Hintertür geöffnet wird.</p>",
+        "description": "<p>Vervollständige die Alarm-Logik.</p>",
+        "config": {
+          "template": "vordertuer_offen = False\nhintertuer_offen = True\n\nalarm = vordertuer_offen ___ hintertuer_offen\nprint(alarm)",
+          "blanks": [
+            {"index": 0, "answer": "or", "caseSensitive": true}
+          ],
+          "expectedOutput": "True\n",
+          "hint": "Das OR-Gatter (or) gibt True zurück, wenn mindestens eine Bedingung wahr ist."
+        }
+      },
+      {
+        "slug": "d11",
+        "title": "Die Nachtschaltung (NOT) 🌙",
+        "difficulty": "EASY",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 11,
+        "story": "<p>Ein Solarladegerät soll nur laden, wenn es NICHT regnet. Ergänze den Operator.</p>",
+        "description": "<p>Nutze die Umkehrung (Invertierung).</p>",
+        "config": {
+          "template": "regnet_es = False\n\nladen = ___ regnet_es\nprint(laden)",
+          "blanks": [
+            {"index": 0, "answer": "not", "caseSensitive": true}
+          ],
+          "expectedOutput": "True\n",
+          "hint": "Das NOT-Gatter (not) kehrt den Wahrheitswert um: aus False wird True."
+        }
+      },
+      {
+        "slug": "d12",
+        "title": "Die Wahrheitstabelle (AND) 📊",
+        "difficulty": "MEDIUM",
+        "points": 20,
+        "type": "FILL_BLANK",
+        "sortOrder": 12,
+        "story": "<p>Vervollständige die Wahrheitstabelle für ein AND-Gatter (1 = True, 0 = False).</p>",
+        "description": "<p>Fülle die fehlenden Ergebnisse aus.</p>",
+        "config": {
+          "template": "A | B | A AND B\n--|---|--------\n1 | 1 | ___\n1 | 0 | ___\n0 | 1 | ___\n0 | 0 | ___",
+          "blanks": ["1", "0", "0", "0"],
+          "hint": "Bei AND ist das Ergebnis nur 1, wenn beide Eingänge 1 sind."
+        }
+      },
+      {
+        "slug": "d13",
+        "title": "Der Tresor-Code (Kombinierte Logik) 🔐",
+        "difficulty": "MEDIUM",
+        "points": 25,
+        "type": "FILL_CODE",
+        "sortOrder": 13,
+        "story": "<p>Ein Tresor öffnet sich nur, wenn beide Schlüssel gedreht wurden UND der Not-Aus-Schalter NICHT gedrückt ist.</p>",
+        "description": "<p>Kombiniere mehrere Gatter.</p>",
+        "config": {
+          "template": "key1 = True\nkey2 = True\nnot_aus = False\n\ntresor_offen = (key1 ___ key2) ___ (___ not_aus)\nprint(tresor_offen)",
+          "blanks": [
+            {"index": 0, "answer": "and", "caseSensitive": true},
+            {"index": 1, "answer": "and", "caseSensitive": true},
+            {"index": 2, "answer": "not", "caseSensitive": true}
+          ],
+          "expectedOutput": "True\n",
+          "hint": "Klammern helfen, die Logik zu strukturieren. Du brauchst hier and und not."
+        }
+      },
+      {
+        "slug": "d14",
+        "title": "Der Wechselschalter (XOR) ↕️",
+        "difficulty": "HARD",
+        "points": 20,
+        "type": "FILL_CODE",
+        "sortOrder": 14,
+        "story": "<p>In einem Flur gibt es zwei Schalter für eine Lampe. Wenn beide Schalter die gleiche Position haben, ist das Licht aus. Wenn sie unterschiedlich sind, ist es an (Exklusives ODER).</p>",
+        "description": "<p>Implementiere die XOR-Logik.</p>",
+        "config": {
+          "template": "s1 = True\ns2 = False\n\n# Tipp: Ungleichheit ist wie XOR\nlicht = s1 ___ s2\nprint(licht)",
+          "blanks": [
+            {"index": 0, "answer": "!=", "caseSensitive": true}
+          ],
+          "expectedOutput": "True\n",
+          "hint": "XOR bedeutet: Entweder A oder B, aber nicht beide. In Python prüft != auf Ungleichheit."
+        }
+      },
+      {
+        "slug": "d15",
+        "title": "Logik-Designer: Kühlungssystem ❄️",
+        "difficulty": "HARD",
+        "points": 50,
+        "type": "PRACTICE",
+        "sortOrder": 15,
+        "story": "<p>Entwirf die Logik für ein Server-Kühlsystem.</p>",
+        "description": "<p>Beschreibe den logischen Aufbau.</p>",
+        "config": {
+          "instructions": "Der Lüfter soll laufen, wenn: (Temperatur > 30°C UND der manuelle Stopp NICHT aktiv ist) ODER wenn der Test-Knopf gedrückt wird. Nenne die benötigten Gatter und wie du sie verknüpfst.",
+          "submissionNote": "Erkläre deine Lösung schrittweise (z.B. Erst AND für Temp/Stopp, dann OR für Test-Knopf)."
+        }
+      }
+
   }
 ]
