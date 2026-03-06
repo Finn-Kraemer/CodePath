@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@theme {
+	--color-institutional-navy: #0f172a;
+	--color-institutional-gold: #b45309;
+}
+
+:root {
+	font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Global Reset for Rounded Corners - Mandatory sharp edges */
+* {
+	border-radius: 0px !important;
+}
+
+h1, h2, h3 {
+	letter-spacing: -0.02em;
+	font-weight: 800;
+}
+
+button, input, select, textarea {
+	border-radius: 0px !important;
+	transition: all 0.2s ease-in-out;
+}
+
+/* Remove all strong animations */
+.hover-subtle:hover {
+	transform: none !important;
+	scale: none !important;
+}
+
+/* Base spacing optimization */
+.container-institutional {
+	max-width: 1400px;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 2.5rem;
+	padding-right: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+	.container-institutional {
+		padding-left: 5rem;
+		padding-right: 5rem;
+	}
+}

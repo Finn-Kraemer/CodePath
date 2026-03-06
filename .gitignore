@@ -1,0 +1,17 @@
+# Java
+backend/target/
+*.class
+
+# Node
+frontend/node_modules/
+frontend/.svelte-kit/
+frontend/build/
+
+# Env
+.env
+*.env.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
