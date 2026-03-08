@@ -7,55 +7,77 @@
   "tasks": [
     {
       "slug": "p1",
-      "title": "Was ist eine Variable?",
+      "title": "Pseudocode oder Programmiersprache?",
       "difficulty": "EASY",
       "points": 10,
       "type": "MULTIPLE_CHOICE",
       "sortOrder": 1,
-      "story": "<p>Dein erster Tag als Junior-Entwickler! Dein Chef fragt dich: \\\"Erkläre mir in einem Satz was eine Variable in Python ist.\"</p>",
-      "description": "<p>Wähle die richtige Erklärung.</p>",
+      "story": "<p>Bevor man Code schreibt, plant man den Algorithmus. Dein Lehrer zeigt dir zwei Versionen des selben Plans:</p><p><strong>Version A:</strong></p><pre><code>WENN Nutzer eingeloggt\n    zeige Dashboard\nSONST\n    zeige Login-Seite</code></pre><p><strong>Version B:</strong></p><pre><code>if user.is_logged_in():\n    render('dashboard.html')\nelse:\n    redirect('/login')</code></pre>",
+      "description": "<p>Was ist der Unterschied zwischen Version A und Version B?</p>",
       "config": {
         "options": [
-          "Eine Variable ist eine feste Zahl die man nicht ändern kann",
-          "Eine Variable ist ein benannter Speicherplatz für einen Wert",
-          "Eine Variable ist ein Befehl der etwas ausgibt",
-          "Eine Variable ist nur in Mathe nützlich"
+          "Version A ist Python, Version B ist JavaScript",
+          "Version A ist Pseudocode – strukturierter als Prosa, aber ohne gültige Syntax. Version B ist echter Programmcode.",
+          "Beide sind Pseudocode – nur unterschiedlich formatiert",
+          "Version A ist ein Flussdiagramm in Textform"
         ],
         "correct": [
           1
         ],
-        "hint": "Stell dir eine Variable wie eine beschriftete Schublade vor – du kannst hineinlegen was du möchtest."
+        "hint": "Pseudocode beschreibt die Logik in verständlicher Sprache ohne sich um gültige Syntax zu kümmern. Er ist sprachunabhängig – man könnte ihn in Python, Java oder einer anderen Sprache umsetzen."
       }
     },
     {
       "slug": "p2",
-      "title": "Dein erster Bug",
+      "title": "Flussdiagramm lesen",
       "difficulty": "EASY",
       "points": 10,
       "type": "MULTIPLE_CHOICE",
       "sortOrder": 2,
-      "story": "<p>Dein Roboter soll \\\"Hallo Welt\" sagen – aber er schweigt. Schau dir seinen Code an:</p><pre><code>nachricht = \"Hallo Welt\"\nPrint(nachricht)</code></pre><p>Kannst du den Fehler finden?</p>",
-      "description": "<p>Was ist falsch an diesem Code?</p>",
+      "story": "<p>Im Programmablaufplan (Flussdiagramm) hat jede Form eine eigene Bedeutung. Dein Chef fragt dich beim Code-Review: <em>\"Welche Form nutzt man für eine Ja/Nein-Entscheidung?\"</em></p>",
+      "description": "<p>Welche Form stellt eine Verzweigung (Entscheidung) im Flussdiagramm dar?</p>",
       "config": {
         "options": [
-          "nachricht ist kein gültiger Variablenname",
-          "print muss großgeschrieben sein: Print",
-          "Der Text braucht keine Anführungszeichen",
-          "Python achtet auf Groß- und Kleinschreibung – print muss kleingeschrieben sein"
+          "Ein Rechteck – für alle Aktionen und Entscheidungen",
+          "Ein Oval/abgerundetes Rechteck – wie Start und Ende",
+          "Eine Raute – sie hat zwei Ausgänge: JA und NEIN",
+          "Ein Parallelogramm – für Eingabe und Ausgabe"
         ],
         "correct": [
-          3
+          2
         ],
-        "hint": "Python unterscheidet zwischen Groß- und Kleinschreibung. print() ist ein eingebauter Befehl."
+        "hint": "Die Raute hat zwei Ausgänge – einer für JA (Bedingung erfüllt) und einer für NEIN (Bedingung nicht erfüllt). Das macht sie zum Symbol für Entscheidungen."
       }
     },
     {
       "slug": "p3",
-      "title": "Variablen-Detektiv",
+      "title": "Variablen deklarieren",
       "difficulty": "EASY",
       "points": 10,
       "type": "MULTIPLE_CHOICE",
       "sortOrder": 3,
+      "story": "<p>Dein erster Tag als Junior-Entwickler! Du schaust dir diesen Code an:</p><pre><code>name = \"Max\"\nalter = 15\nist_bereit = True\n\nprint(punkte)</code></pre><p>Der Code stürzt mit einem Fehler ab. Kannst du erklären warum?</p>",
+      "description": "<p>Was ist die Ursache des Fehlers?</p>",
+      "config": {
+        "options": [
+          "name ist kein gültiger Variablenname",
+          "True muss kleingeschrieben werden: true",
+          "Die Variable punkte wurde nie deklariert und initialisiert – sie ist undefiniert",
+          "print() kann keine Variablen ausgeben"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Variablen müssen vor ihrer Verwendung deklariert werden. Python wirft einen NameError wenn du eine Variable benutzt die noch keinen Wert erhalten hat."
+      }
+    },
+    {
+      "slug": "p4",
+      "title": "Zuweisungen nachvollziehen",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 4,
       "story": "<p>Ein Kollege hat diesen Code geschrieben. Ohne ihn auszuführen: Was gibt <code>print(ergebnis)</code> am Ende aus?</p><pre><code>zahl = 10\nzahl = zahl + 5\nzahl = zahl * 2\nergebnis = zahl - 3\nprint(ergebnis)</code></pre>",
       "description": "<p>Berechne das Ergebnis im Kopf – gehe Zeile für Zeile durch.</p>",
       "config": {
@@ -68,95 +90,171 @@
         "correct": [
           2
         ],
-        "hint": "Zeile 1: zahl = 10 → Zeile 2: zahl = 10+5 = 15 → Zeile 3: zahl = 15×2 = 30 → Zeile 4: ergebnis = 30-3 = ?"
-      }
-    },
-    {
-      "slug": "p4",
-      "title": "Lücke im Passwort-Generator",
-      "difficulty": "EASY",
-      "points": 15,
-      "type": "FILL_CODE",
-      "sortOrder": 4,
-      "story": "<p>Du baust einen Passwort-Generator der 5 Sternchen als Platzhalter anzeigt. Die Schleife ist fast fertig – zwei Wörter fehlen noch:</p>",
-      "description": "<p>Ergänze die fehlenden Schlüsselwörter der for-Schleife.</p>",
-      "config": {
-        "template": "___ i ___ range(5):\n    print('*')",
-        "blanks": [
-          {
-            "index": 0,
-            "answer": "for",
-            "caseSensitive": true
-          },
-          {
-            "index": 1,
-            "answer": "in",
-            "caseSensitive": true
-          }
-        ],
-        "expectedOutput": "*\n*\n*\n*\n*\n",
-        "hint": "Eine for-Schleife beginnt immer mit dem Schlüsselwort for, dann der Variable, dann in, dann die Menge."
+        "hint": "Zeile 1: zahl = 10. Zeile 2: zahl = 10+5 = 15. Zeile 3: zahl = 15×2 = 30. Zeile 4: ergebnis = 30-3 = ?"
       }
     },
     {
       "slug": "p5",
-      "title": "Der Türsteher",
-      "difficulty": "MEDIUM",
+      "title": "Vergleichsoperatoren",
+      "difficulty": "EASY",
       "points": 10,
       "type": "MULTIPLE_CHOICE",
       "sortOrder": 5,
-      "story": "<p>Du programmierst das Einlass-System für eine Veranstaltung:</p><pre><code>alter = 15\n\nif alter >= 18:\n    print(\"Willkommen!\")\nelse:\n    print(\"Zutritt verweigert.\")</code></pre>",
-      "description": "<p>Welche Ausgabe erzeugt dieser Code wenn <code>alter = 15</code> ist?</p>",
+      "story": "<p>Du programmierst das Einlass-System für eine Veranstaltung. Es soll nur Personen ab 16 einlassen – und Personen bis einschließlich 16 sollen auch rein.</p><pre><code>alter = 16\n\nif alter ___ 16:\n    print(\"Willkommen!\")\nelse:\n    print(\"Zutritt verweigert.\")</code></pre>",
+      "description": "<p>Welcher Vergleichsoperator muss in die Lücke damit auch 16-Jährige eingelassen werden?</p>",
       "config": {
         "options": [
-          "Willkommen!",
-          "Zutritt verweigert.",
-          "Nichts – der Code hat einen Fehler",
-          "Beide Texte werden ausgegeben"
+          "> (größer als)",
+          ">= (größer oder gleich)",
+          "== (gleich)",
+          "!= (ungleich)"
         ],
         "correct": [
           1
         ],
-        "hint": "Python prüft die Bedingung nach if zuerst. 15 >= 18 ist falsch, also geht er in den else-Zweig."
+        "hint": "Der Ausdruck 16 > 16 ist False – 16 ist nicht größer als 16. Der Ausdruck 16 >= 16 ist True – 16 ist größer ODER gleich 16. Welcher passt?"
       }
     },
     {
       "slug": "p6",
-      "title": "Bug-Hunt: Die kaputte Funktion",
+      "title": "Boolean und Logik",
       "difficulty": "MEDIUM",
       "points": 10,
       "type": "MULTIPLE_CHOICE",
       "sortOrder": 6,
-      "story": "<p>Deine Funktion für den Flächeninhalt gibt falsche Werte zurück:</p><pre><code>def flaeche(breite, hoehe):\n    return breite + hoehe\n\nprint(flaeche(4, 5))  # Gibt 9 aus – erwartet: 20</code></pre>",
-      "description": "<p>Die Funktion berechnet den Flächeninhalt falsch. Was ist der Fehler?</p>",
+      "story": "<p>Du baust das Zutrittssystem für einen Club. Zutritt gibt es nur wenn jemand volljährig IST und einen gültigen Ausweis HAT:</p><pre><code>volljährig = True\nhat_ausweis = False\n\nzutritt = volljährig and hat_ausweis\nprint(zutritt)</code></pre>",
+      "description": "<p>Was gibt <code>print(zutritt)</code> aus – und warum?</p>",
       "config": {
         "options": [
-          "Die Funktion hat den falschen Namen",
-          "Es fehlt das Schlüsselwort return",
-          "Es muss * statt + stehen – Fläche = Breite × Höhe",
-          "Die Parameter sind falsch benannt"
+          "True – weil volljährig True ist",
+          "False – weil bei AND beide Bedingungen True sein müssen, hat_ausweis aber False ist",
+          "True – weil mindestens eine Bedingung True ist",
+          "Error – man kann Booleans nicht mit and verknüpfen"
         ],
         "correct": [
-          2
+          1
         ],
-        "hint": "Die Formel für den Flächeninhalt eines Rechtecks lautet: Breite × Höhe. Welcher Operator fehlt?"
+        "hint": "AND (Konjunktion): True and True = True. True and False = False. False and True = False. Beide müssen True sein!"
       }
     },
     {
       "slug": "p7",
-      "title": "Countdown-Rakete",
+      "title": "Datentyp erraten",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 7,
+      "story": "<p>Du debuggst Code und willst wissen welchen Datentyp verschiedene Werte haben. Python hat dafür die Funktion <code>type()</code>.</p><pre><code>print(type(42))        # ???\nprint(type(3.14))      # ???\nprint(type(\"A\"))       # ???\nprint(type(True))      # ???</code></pre>",
+      "description": "<p>Welche Ausgabe ist korrekt für alle vier Zeilen?</p>",
+      "config": {
+        "options": [
+          "int / float / char / bool",
+          "int / float / str / bool",
+          "number / decimal / string / boolean",
+          "integer / float / string / boolean"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "In Python: Ganzzahlen sind int, Kommazahlen sind float, Text ist str (nicht char – ein einzelnes Zeichen ist auch ein str der Länge 1), Wahrheitswerte sind bool."
+      }
+    },
+    {
+      "slug": "p8",
+      "title": "If-Else: Notenberechnung",
       "difficulty": "MEDIUM",
       "points": 15,
       "type": "FILL_CODE",
-      "sortOrder": 7,
-      "story": "<p>Der Countdown zur Raketenzündung soll rückwärts von 10 bis 1 laufen. Ergänze den fehlenden Code:</p>",
-      "description": "<p>Ergänze die drei Lücken im range()-Aufruf damit der Countdown rückwärts läuft.</p>",
+      "sortOrder": 8,
+      "story": "<p>Das Schulsystem braucht eine Funktion die Punkte in Notentexte umwandelt. Ergänze die fehlenden Vergleichsoperatoren und Schlüsselwörter:</p>",
+      "description": "<p>Ergänze die Lücken in der if-elif-else-Kette.</p>",
       "config": {
-        "template": "___ i in range(10, ___, ___):\n    print(i)\nprint('🚀 Start!')",
+        "template": "punkte = 78\n\n___ punkte >= 90:\n    print(\"Sehr gut\")\n___ punkte >= 75:\n    print(\"Gut\")\n___ punkte >= 60:\n    print(\"Befriedigend\")\n___:\n    print(\"Nicht bestanden\")",
         "blanks": [
           {
             "index": 0,
-            "answer": "for",
+            "answer": "if",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "elif",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "elif",
+            "caseSensitive": true
+          },
+          {
+            "index": 3,
+            "answer": "else",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "Gut\n",
+        "hint": "if startet die Kette, elif fügt weitere Bedingungen hinzu (sonst wenn), else ist der Standardfall wenn keine Bedingung zutrifft. elif ist die Kurzform von 'else if'."
+      }
+    },
+    {
+      "slug": "p9",
+      "title": "Match-Case verstehen",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 9,
+      "story": "<p>Du baust eine App die Wochentage erkennt. Dein Kollege schlägt vor match-case zu nutzen:</p><pre><code>tag = \"Samstag\"\n\nmatch tag:\n    case \"Samstag\" | \"Sonntag\":\n        print(\"Wochenende!\")\n    case _:\n        print(\"Arbeitstag\")</code></pre>",
+      "description": "<p>Was gibt dieser Code aus – und was bedeutet <code>case _:</code>?</p>",
+      "config": {
+        "options": [
+          "Arbeitstag – weil Samstag kein Wochentag ist",
+          "Wochenende! – case _ ist der Default-Fall der greift wenn kein anderes case passt",
+          "Fehler – man kann keine Strings mit match vergleichen",
+          "Nichts – match-case gibt standardmäßig nichts aus"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "tag = \"Samstag\" passt auf case \"Samstag\" | \"Sonntag\" – das | bedeutet ODER. case _ ist wie else: der Auffangfall wenn kein anderes case gepasst hat."
+      }
+    },
+    {
+      "slug": "p10",
+      "title": "Arrays: Index und Inhalt",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 10,
+      "story": "<p>Dein Team speichert Highscores in einer Liste:</p><pre><code>scores = [42, 87, 15, 99, 33]</code></pre><p>Visualisiert sieht das so aus:</p><pre><code>Index:  0    1    2    3    4\nWert:  42   87   15   99   33</code></pre>",
+      "description": "<p>Was gibt <code>print(scores[3])</code> aus?</p>",
+      "config": {
+        "options": [
+          "15",
+          "87",
+          "99",
+          "33"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Listen in Python starten bei Index 0. scores[0]=42, scores[1]=87, scores[2]=15, scores[3]=? Zähle von links beginnend bei 0."
+      }
+    },
+    {
+      "slug": "p11",
+      "title": "For-Schleife mit range()",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 11,
+      "story": "<p>Der Countdown zur Raketenzündung soll rückwärts von 10 bis 1 laufen – dann startet die Rakete. Ergänze den fehlenden Code:</p>",
+      "description": "<p>Ergänze die drei Argumente von range() damit der Countdown rückwärts läuft.</p>",
+      "config": {
+        "template": "for i in range(___, ___, ___):\n    print(i)\nprint(\"🚀 Start!\")",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "10",
             "caseSensitive": true
           },
           {
@@ -171,76 +269,17 @@
           }
         ],
         "expectedOutput": "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\n🚀 Start!\n",
-        "hint": "range(start, stop, step): start ist 10, stop ist 0 (nicht mitgezählt), step ist -1 damit es rückwärts geht."
+        "hint": "range(start, stop, step): start=10, stop=0 (nicht mitgezählt, also hört es bei 1 auf), step=-1 damit es rückwärts zählt."
       }
     },
     {
-      "slug": "p8",
-      "title": "Listen verstehen",
-      "difficulty": "MEDIUM",
-      "points": 10,
-      "type": "MULTIPLE_CHOICE",
-      "sortOrder": 8,
-      "story": "<p>Dein Team speichert die Highscores der Woche in einer Liste:</p><pre><code>scores = [42, 87, 15, 99, 33]\nprint(scores[2])</code></pre><p>Zähle die Indizes von links – bei welchem Wert landen wir?</p>",
-      "description": "<p>Was gibt <code>print(scores[2])</code> aus?</p>",
-      "config": {
-        "options": [
-          "42",
-          "87",
-          "15",
-          "99"
-        ],
-        "correct": [
-          2
-        ],
-        "hint": "Wichtig: Listen in Python starten bei Index 0, nicht bei 1. scores[0]=42, scores[1]=87, scores[2]=?"
-      }
-    },
-    {
-      "slug": "p9",
-      "title": "Die kaputte Liste",
-      "difficulty": "MEDIUM",
-      "points": 10,
-      "type": "MULTIPLE_CHOICE",
-      "sortOrder": 9,
-      "story": "<p>Dein Kollege will das Element an Position 3 löschen – aber er bekommt einen Fehler:</p><pre><code>früchte = [\"Apfel\", \"Banane\", \"Mango\"]\nfrüchte.remove(3)\nprint(früchte)</code></pre>",
-      "description": "<p>Dein Kollege bekommt einen Fehler. Was ist die Ursache?</p>",
-      "config": {
-        "options": [
-          "remove() existiert in Python nicht",
-          "remove() löscht nach Wert, nicht nach Index – der Wert 3 ist nicht in der Liste",
-          "Listen können keine Strings speichern",
-          "Es fehlt ein Semikolon am Ende"
-        ],
-        "correct": [
-          1
-        ],
-        "hint": "Es gibt zwei Methoden: remove(wert) sucht den Wert und löscht ihn. del liste[index] löscht an einer Position."
-      }
-    },
-    {
-      "slug": "p10",
-      "title": "FizzBuzz-Klassiker",
-      "difficulty": "HARD",
-      "points": 20,
-      "type": "CODE",
-      "sortOrder": 10,
-      "story": "<p>FizzBuzz ist der bekannteste Einstellungstest in der Programmierung. Zahlen 1–15: Vielfache von 3 → \\\"Fizz\", Vielfache von 5 → \\\"Buzz\", beides → \\\"FizzBuzz\", sonst die Zahl selbst.</p>",
-      "description": "<p>Implementiere die FizzBuzz-Logik vollständig.</p>",
-      "config": {
-        "starterCode": "for i in range(1, 16):\n    # Prüfe zuerst: Ist i durch 3 UND durch 5 teilbar? (Modulo-Operator: %)\n    # Dann: Nur durch 3? Nur durch 5? Sonst: Zahl ausgeben\n    pass",
-        "expectedOutput": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n",
-        "hint": "Der Modulo-Operator % gibt den Rest einer Division zurück. 15 % 3 == 0 heißt: 15 ist durch 3 teilbar. Prüfe zuerst auf FizzBuzz (beide Bedingungen), sonst greift nur eine!"
-      }
-    },
-    {
-      "slug": "p11",
-      "title": "Wörterbuch durchsuchen",
+      "slug": "p12",
+      "title": "Liste durchsuchen",
       "difficulty": "HARD",
       "points": 15,
       "type": "FILL_CODE",
-      "sortOrder": 11,
-      "story": "<p>Du baust ein Mini-Telefonbuch für die Schule. Alle Kontakte sollen ausgegeben werden:</p>",
+      "sortOrder": 12,
+      "story": "<p>Du baust ein Mini-Telefonbuch. Alle Kontakte sollen mit ihren Nummern ausgegeben werden. Das Dictionary speichert Name → Nummer:</p>",
       "description": "<p>Ergänze die drei Lücken damit alle Kontakte ausgegeben werden.</p>",
       "config": {
         "template": "kontakte = {\n    'Anna': '0151-111',\n    'Ben': '0162-222',\n    'Clara': '0173-333'\n}\n\n___ name, nummer ___ kontakte.___():\n    print(f'{name}: {nummer}')",
@@ -262,63 +301,36 @@
           }
         ],
         "expectedOutput": "Anna: 0151-111\nBen: 0162-222\nClara: 0173-333\n",
-        "hint": "Ein Dictionary speichert Schlüssel-Wert-Paare. Mit .items() bekommst du beide gleichzeitig und kannst sie in zwei Variablen entpacken."
-      }
-    },
-    {
-      "slug": "p12",
-      "title": "Schere-Stein-Papier",
-      "difficulty": "HARD",
-      "points": 20,
-      "type": "CODE",
-      "sortOrder": 12,
-      "story": "<p>Zeit für ein echtes Spiel! Programmiere die Spiellogik. Die Funktion bekommt die Wahl von Spieler und Computer und gibt zurück wer gewonnen hat.</p>",
-      "description": "<p>Schreibe die vollständige Funktion <code>gewinner(spieler, computer)</code>.</p>",
-      "config": {
-        "starterCode": "def gewinner(spieler, computer):\n    # Regeln: schere > papier, stein > schere, papier > stein\n    # Rückgabewerte: 'spieler', 'computer' oder 'unentschieden'\n    pass\n\nprint(gewinner('schere', 'papier'))   # → spieler\nprint(gewinner('stein', 'stein'))     # → unentschieden\nprint(gewinner('papier', 'schere'))   # → computer",
-        "expectedOutput": "spieler\nunentschieden\ncomputer\n",
-        "hint": "Prüfe zuerst: Sind beide gleich? → unentschieden. Dann alle Fälle wo der Spieler gewinnt mit if/elif. Alle anderen Fälle gewinnt der Computer."
+        "hint": "Ein Dictionary speichert Schlüssel-Wert-Paare. .items() gibt beides zurück. Du kannst sie direkt in zwei Variablen entpacken: for schlüssel, wert in dict.items()."
       }
     },
     {
       "slug": "p13",
-      "title": "Fehlerbehandlung mit try/except",
+      "title": "FizzBuzz-Klassiker",
       "difficulty": "HARD",
-      "points": 15,
-      "type": "FILL_CODE",
+      "points": 20,
+      "type": "CODE",
       "sortOrder": 13,
-      "story": "<p>In echten Apps tippen Nutzer manchmal Unsinn ein. Dein Programm soll nicht abstürzen, wenn jemand Text statt einer Zahl eingibt:</p>",
-      "description": "<p>Ergänze die Schlüsselwörter für die Fehlerbehandlung.</p>",
+      "story": "<p>FizzBuzz ist der bekannteste Programmiertest überhaupt. Er kombiniert Schleifen, Modulo und if-elif-else. Zahlen 1–15: Vielfache von 3 → \"Fizz\", Vielfache von 5 → \"Buzz\", beides → \"FizzBuzz\", sonst die Zahl selbst.</p>",
+      "description": "<p>Implementiere die FizzBuzz-Logik vollständig.</p>",
       "config": {
-        "template": "___ :\n    zahl = int('abc')  # Das wirft einen Fehler!\n    print('Zahl:', zahl)\n___ ValueError:\n    print('Fehler: Keine gültige Zahl!')",
-        "blanks": [
-          {
-            "index": 0,
-            "answer": "try",
-            "caseSensitive": true
-          },
-          {
-            "index": 1,
-            "answer": "except",
-            "caseSensitive": true
-          }
-        ],
-        "expectedOutput": "Fehler: Keine gültige Zahl!\n",
-        "hint": "try: Führe diesen Code aus, und falls etwas schiefgeht... except FehlerTyp: ...dann behandle den Fehler hier."
+        "starterCode": "for i in range(1, 16):\n    # Tipp: Prüfe zuerst ob i durch 3 UND 5 teilbar ist\n    # Dann: nur durch 3? Nur durch 5? Sonst: Zahl ausgeben\n    # Modulo-Operator: % gibt den Rest einer Division zurück\n    # 15 % 3 == 0 bedeutet: 15 ist durch 3 teilbar\n    pass",
+        "expectedOutput": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n",
+        "hint": "Reihenfolge der if-Bedingungen ist wichtig: Prüfe zuerst i % 3 == 0 and i % 5 == 0 (FizzBuzz), dann i % 3 == 0 (Fizz), dann i % 5 == 0 (Buzz), dann else (Zahl)."
       }
     },
     {
       "slug": "p14",
-      "title": "Startup-Pitch: Dein erstes Programm",
+      "title": "Dein erstes vollständiges Programm",
       "difficulty": "HARD",
       "points": 50,
       "type": "PRACTICE",
       "sortOrder": 14,
-      "story": "<p>Du hast jetzt alle Grundbausteine der Programmierung gelernt: Variablen, Schleifen, Funktionen, Listen. Zeit, alles zusammenzubringen! Entwickle ein kleines Programm das dir persönlich nützlich wäre.</p>",
-      "description": "<p>Schreibe ein vollständiges Programm und erkläre es.</p>",
+      "story": "<p>Du hast alle Grundbausteine gelernt: Algorithmen planen, Variablen, Datentypen, Vergleiche, if-else, match-case, Arrays und Schleifen. Zeit, alles zusammenzubringen!</p>",
+      "description": "<p>Schreibe ein vollständiges Programm und erkläre deinen Entwurf.</p>",
       "config": {
-        "instructions": "Dein Programm muss enthalten:\n1. Mindestens eine Funktion mit Parameter und return\n2. Eine Schleife (for oder while)\n3. Eine if/else-Bedingung\n4. Eine Liste oder ein Dictionary\n5. Einen sinnvollen Kommentar pro Abschnitt\n\nThemen-Ideen: Notenverwaltung, Stunden-Countdown, Quiz-Spiel, Taschenrechner",
-        "submissionNote": "Code + kurze Erklärung: Was macht das Programm? Welche Konzepte hast du benutzt?"
+        "instructions": "Dein Programm muss enthalten:\n1. Einen kurzen Pseudocode-Plan VOR dem Code (als Kommentar)\n2. Mindestens zwei Variablen mit verschiedenen Datentypen (int, str, bool)\n3. Eine if-elif-else-Bedingung oder ein match-case\n4. Eine for-Schleife die über eine Liste iteriert\n5. Mindestens einen logischen Ausdruck mit and, or oder not\n\nThemen-Ideen: Notenverwaltung, Quiz-Spiel, Wochenplan-Auswertung, Zugangssystem",
+        "submissionNote": "Pseudocode-Plan + vollständiger Python-Code + kurze Erklärung welche Konzepte du benutzt hast."
       }
     }
   ]

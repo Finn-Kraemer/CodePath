@@ -22,6 +22,7 @@
 	let loading = $state(true);
 	let rejectComment = $state('');
 	let showRejectInput = $state(false);
+	let lockAfterReject = $state(false);
 
 	async function fetchSubmission() {
 		try {
@@ -36,11 +37,12 @@
 		}
 	}
 
-	async function approve() {
+	async function approve(halfPoints: boolean = false) {
 		if (!submission) return;
 		try {
 			const res = await auth.apiFetch(`/api/admin/submissions/${submission.id}/approve`, {
-				method: 'PUT'
+				method: 'PUT',
+				body: JSON.stringify({ halfPoints })
 			});
 			if (res.ok) {
 				goto('/admin/submissions');
@@ -53,13 +55,16 @@
 	async function reject() {
 		if (!submission) return;
 		if (!rejectComment.trim()) {
-			alert('Bitte geben Sie einen Grund für die Ablehnung an.');
+			alert('Bitte geben Sie einen Grund an.');
 			return;
 		}
 		try {
 			const res = await auth.apiFetch(`/api/admin/submissions/${submission.id}/reject`, {
 				method: 'DELETE',
-				body: JSON.stringify({ comment: rejectComment })
+				body: JSON.stringify({ 
+					comment: rejectComment,
+					lockTask: lockAfterReject
+				})
 			});
 			if (res.ok) {
 				goto('/admin/submissions');
@@ -127,10 +132,12 @@
 
 			{#if showRejectInput}
 				<div class="bg-red-50 p-8 border-t border-red-100">
-					<h3 class="mb-4 font-sans text-xs font-black text-red-700 uppercase tracking-widest">Korrekturhinweis für den Schüler</h3>
+					<h3 class="mb-4 font-sans text-xs font-black text-red-700 uppercase tracking-widest">
+						{lockAfterReject ? 'Begründung für endgültige Sperrung' : 'Korrekturhinweis für den Schüler'}
+					</h3>
 					<textarea
 						bind:value={rejectComment}
-						placeholder="Beschreiben Sie hier, was der Schüler an seiner Lösung verbessern muss..."
+						placeholder={lockAfterReject ? 'Geben Sie an, warum diese Aufgabe endgültig gesperrt wird...' : 'Beschreiben Sie hier, was der Schüler an seiner Lösung verbessern muss...'}
 						class="w-full border border-red-200 p-4 font-sans text-sm focus:outline-none focus:border-red-400 rounded-none mb-4"
 						rows="4"
 					></textarea>
@@ -145,7 +152,7 @@
 							onclick={reject}
 							class="bg-red-700 px-8 py-3 font-mono text-[10px] font-bold text-white uppercase"
 						>
-							Jetzt Ablehnen
+							{lockAfterReject ? 'Endgültig Sperren' : 'Jetzt Ablehnen'}
 						</button>
 					</div>
 				</div>
@@ -153,18 +160,30 @@
 
 			<!-- Actions -->
 			{#if !showRejectInput}
-				<div class="bg-slate-50 border-t border-slate-100 p-8 flex justify-end gap-4">
+				<div class="bg-slate-50 border-t border-slate-100 p-8 flex flex-wrap justify-end gap-4">
 					<button
-						onclick={() => showRejectInput = true}
-						class="border border-red-200 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-red-600 uppercase transition-all hover:bg-red-50 rounded-none"
+						onclick={() => { lockAfterReject = true; showRejectInput = true; }}
+						class="border border-red-600 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-red-600 uppercase transition-all hover:bg-red-600 hover:text-white rounded-none"
 					>
-						Ablehnen & Feedback geben
+						Endgültig Sperren
 					</button>
 					<button
-						onclick={approve}
+						onclick={() => { lockAfterReject = false; showRejectInput = true; }}
+						class="border border-red-200 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-red-400 uppercase transition-all hover:bg-red-50 rounded-none"
+					>
+						Ablehnen (Korrektur)
+					</button>
+					<button
+						onclick={() => approve(true)}
+						class="border border-amber-500 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-amber-600 uppercase transition-all hover:bg-amber-500 hover:text-white rounded-none"
+					>
+						Halbe Punkte
+					</button>
+					<button
+						onclick={() => approve(false)}
 						class="bg-teal-700 px-8 py-4 text-[10px] font-bold tracking-[3px] text-white uppercase shadow-md transition-all hover:bg-teal-800 rounded-none"
 					>
-						Validieren & Freigeben
+						Volle Punkte
 					</button>
 				</div>
 			{/if}

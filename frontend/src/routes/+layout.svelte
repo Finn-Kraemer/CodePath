@@ -13,6 +13,7 @@
 	// Global Auth Guard
 	$effect(() => {
 		const path = page.url.pathname;
+		// Public pages that don't need auth
 		const isPublicPage = path === '/login' || path === '/register' || path === '/';
 
 		if (!auth.isAuthenticated && !isPublicPage) {
@@ -70,6 +71,9 @@
 		{ name: 'Feedback', path: '/feedback' },
 		{ name: 'Rangliste', path: '/leaderboard' }
 	];
+
+	// Helper to check if we are on the root frontpage
+	let isFrontpage = $derived(page.url.pathname === '/');
 </script>
 
 <svelte:head>
@@ -177,12 +181,14 @@
 							<span class="h-0.5 w-6 bg-institutional-navy transition-all {mobileMenuOpen ? '-translate-y-2 -rotate-45' : ''}"></span>
 						</button>
 					{:else}
-						<a
-							href="/login"
-							class="bg-institutional-gold px-6 py-2.5 text-[10px] font-black tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 rounded-none"
-						>
-							Anmelden
-						</a>
+						<div class="flex gap-4 items-center">
+							<a
+								href="/login"
+								class="bg-institutional-gold px-6 py-2.5 text-[10px] font-black tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 rounded-none"
+							>
+								Anmelden
+							</a>
+						</div>
 					{/if}
 				</div>
 			</div>
@@ -258,8 +264,8 @@
 	{/if}
 
 	<!-- Main Content Area -->
-	<main class="flex-grow py-12">
-		<div class="container-institutional">
+	<main class="flex-grow {isFrontpage ? '' : 'py-12'}">
+		<div class={isFrontpage ? '' : 'container-institutional'}>
 			{@render children()}
 		</div>
 	</main>

@@ -18,11 +18,14 @@
 		points: number;
 		config: any;
 		isCompleted: boolean;
+		isLocked: boolean;
+		supportUsed: boolean;
 	}
 
 	let task = $state<Task | null>(null);
 	let loading = $state(true);
 	let error = $state('');
+	let supportUsed = $state(false);
 
 	const moduleSlug = page.params.slug;
 	const taskSlug = page.params.taskSlug;
@@ -36,6 +39,7 @@
 			}
 			if (!res.ok) throw new Error('Aufgabe konnte nicht geladen werden');
 			task = await res.json();
+			if (task?.supportUsed) supportUsed = true;
 		} catch (err: any) {
 			error = err.message;
 		} finally {
@@ -64,9 +68,19 @@
 					>
 						Wertung: {task.points} Punkte
 					</span>
-					{#if task.isCompleted}
+					{#if task.isLocked}
 						<span
-							class="flex items-center gap-2 border border-green-200 bg-green-50 px-4 py-2 font-mono text-[10px] font-black tracking-widest text-green-700 uppercase rounded-none"
+							class="flex items-center gap-2 border border-red-200 bg-red-50 px-4 py-2 font-mono text-[10px] font-black tracking-widest text-red-700 uppercase rounded-none"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+								<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+							</svg>
+							Gesperrt
+						</span>
+					{:else if task.isCompleted}
+						<span
+							class="flex items-center gap-2 border px-4 py-2 font-mono text-[10px] font-black tracking-widest uppercase rounded-none
+							{task.supportUsed ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-green-200 bg-green-50 text-green-700'}"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +94,7 @@
 									clip-rule="evenodd"
 								/>
 							</svg>
-							Validiert
+							{task.supportUsed ? 'Teil-Validiert (50%)' : 'Validiert'}
 						</span>
 					{/if}
 				</div>
@@ -99,6 +113,15 @@
 	{:else if task}
 		<div class="grid grid-cols-1 gap-12 lg:grid-cols-3">
 			<div class="lg:col-span-2">
+				{#if task.isLocked}
+					<div class="mb-8 border border-red-200 bg-red-50 p-8 flex items-center gap-6 font-sans font-bold text-red-700 uppercase tracking-widest text-xs rounded-none shadow-sm">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+						</svg>
+						Diese Aufgabe wurde nach zu vielen Fehlversuchen gesperrt.
+					</div>
+				{/if}
+
 				<div
 					class="prose prose-slate mb-12 max-w-none border border-slate-200 bg-white p-10 shadow-sm rounded-none"
 				>
@@ -129,17 +152,19 @@
 					</div>
 				</div>
 
-				{#if task.type === 'MULTIPLE_CHOICE'}
-					<MultipleChoice {task} {moduleSlug} />
-				{:else if task.type === 'FILL_BLANK'}
-					<FillBlank {task} {moduleSlug} />
-				{:else if task.type === 'FILL_CODE'}
-					<FillCode {task} {moduleSlug} />
-				{:else if task.type === 'CODE'}
-					<CodeTask {task} {moduleSlug} />
-				{:else if task.type === 'PRACTICE'}
-					<PracticeTask {task} {moduleSlug} />
-				{/if}
+				<div class={task.isLocked ? 'opacity-50 pointer-events-none grayscale' : ''}>
+					{#if task.type === 'MULTIPLE_CHOICE'}
+						<MultipleChoice {task} {moduleSlug} {supportUsed} />
+					{:else if task.type === 'FILL_BLANK'}
+						<FillBlank {task} {moduleSlug} {supportUsed} />
+					{:else if task.type === 'FILL_CODE'}
+						<FillCode {task} {moduleSlug} {supportUsed} />
+					{:else if task.type === 'CODE'}
+						<CodeTask {task} {moduleSlug} {supportUsed} />
+					{:else if task.type === 'PRACTICE'}
+						<PracticeTask {task} {moduleSlug} {supportUsed} />
+					{/if}
+				</div>
 			</div>
 
 			<div class="space-y-8">
@@ -149,10 +174,38 @@
 					>
 						Unterstützung
 					</h3>
-					<p class="font-sans text-sm leading-relaxed italic text-slate-300">
-						"{task.config.hint ||
-							'Prüfen Sie Ihre Eingaben sorgfältig, bevor Sie die Validierung starten.'}"
-					</p>
+
+					{#if !supportUsed && !task.isCompleted && !task.isLocked}
+						<button
+							onclick={() => {
+								if (confirm('Wenn Sie die Unterstützung nutzen, erhalten Sie für diese Aufgabe nur noch die hälfte der Punkte. Möchten Sie fortfahren?')) {
+									supportUsed = true;
+								}
+							}}
+							class="w-full border border-institutional-gold/30 bg-white/5 py-4 font-mono text-[9px] font-bold tracking-[2px] text-institutional-gold uppercase transition-all hover:bg-white/10 rounded-none"
+						>
+							Hilfestellung anfordern
+						</button>
+						<p class="mt-4 text-[10px] text-slate-400 italic leading-relaxed">
+							Hinweis: Die Inanspruchnahme reduziert die erreichbare Punktzahl um 50%.
+						</p>
+					{:else}
+						<div class="animate-in fade-in slide-in-from-top-2 duration-500">
+							<p class="font-sans text-sm leading-relaxed italic text-slate-300">
+								"{task.config.support || task.config.hint ||
+									'Prüfen Sie Ihre Eingaben sorgfältig, bevor Sie die Validierung starten.'}"
+							</p>
+							{#if supportUsed && !task.isCompleted && !task.isLocked}
+								<div class="mt-6 flex items-center gap-3 border border-amber-500/30 bg-amber-500/10 p-3">
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+										<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+									</svg>
+									<span class="font-mono text-[8px] font-bold tracking-widest text-amber-500 uppercase">Punktabzug aktiv (50%)</span>
+								</div>
+							{/if}
+						</div>
+					{/if}
+
 					<div class="mt-8 border-t border-white/10 pt-6">
 						<a
 							href="/knowledge"

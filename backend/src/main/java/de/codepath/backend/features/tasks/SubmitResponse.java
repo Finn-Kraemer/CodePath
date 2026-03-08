@@ -13,6 +13,10 @@ import lombok.NoArgsConstructor;
 public class SubmitResponse {
     @JsonProperty("isCorrect")
     private boolean isCorrect;
+
+    @JsonProperty("isLocked")
+    private boolean isLocked;
+
     private Integer pointsAwarded;
     private String status; // For PRACTICE (PENDING, APPROVED, REJECTED)
     private String feedback;

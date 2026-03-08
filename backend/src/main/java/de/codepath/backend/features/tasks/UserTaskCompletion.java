@@ -38,4 +38,10 @@ public class UserTaskCompletion {
 
     @Column(name = "time_spent_seconds", nullable = false)
     private Long timeSpentSeconds = 0L;
+
+    @Column(name = "support_used", nullable = false)
+    private boolean supportUsed = false;
+
+    @Column(name = "is_locked", nullable = false)
+    private boolean isLocked = false;
 }

@@ -2,12 +2,12 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
 
-	let { task, moduleSlug } = $props();
+	let { task, moduleSlug, supportUsed = false } = $props();
 
 	let editorElement = $state<HTMLElement | null>(null);
 	let editor: any = null;
 	let output = $state('');
-	let result = $state<{ correct: boolean; feedback: string } | null>(null);
+	let result = $state<{ correct: boolean; feedback: string; isLocked?: boolean } | null>(null);
 	let loading = $state(false);
 	let pyodideReady = $state(false);
 	let pyodide: any = null;
@@ -54,7 +54,7 @@
 			minimap: { enabled: false },
 			fontSize: 14,
 			automaticLayout: true,
-			readOnly: task.isCompleted,
+			readOnly: task.isCompleted || task.isLocked,
 			roundedSelection: false,
 			scrollBeyondLastLine: false
 		});
@@ -65,7 +65,7 @@
 	});
 
 	async function runCode() {
-		if (!pyodideReady || !editor) return;
+		if (!pyodideReady || !editor || task.isLocked) return;
 		loading = true;
 		output = '';
 		const code = editor.getValue();
@@ -83,12 +83,19 @@
 
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
-				body: JSON.stringify({ payload: { output: stdout } })
+				body: JSON.stringify({ 
+					payload: { output: stdout },
+					supportUsed
+				})
 			});
 			const data = await res.json();
-			result = { correct: data.isCorrect, feedback: data.feedback };
+			result = { correct: data.isCorrect, feedback: data.feedback, isLocked: data.isLocked };
 			if (data.isCorrect) {
 				task.isCompleted = true;
+				editor.updateOptions({ readOnly: true });
+			}
+			if (data.isLocked) {
+				task.isLocked = true;
 				editor.updateOptions({ readOnly: true });
 			}
 		} catch (err: any) {
@@ -147,7 +154,7 @@
 						? 'border-green-200 bg-green-50 text-green-700'
 						: 'border-rose-200 bg-rose-50 text-rose-700'}"
 				>
-					<span class="mb-3 text-2xl font-black">{result.correct ? 'ERFOLG' : 'FEHLER'}</span>
+					<span class="mb-3 text-2xl font-black">{result.correct ? 'ERFOLG' : (result.isLocked ? 'GESPERRT' : 'FEHLER')}</span>
 					<p class="leading-relaxed">{result.feedback}</p>
 				</div>
 			{:else}
@@ -162,9 +169,9 @@
 
 	<button
 		onclick={runCode}
-		disabled={loading || !pyodideReady || task.isCompleted}
+		disabled={loading || !pyodideReady || task.isCompleted || task.isLocked}
 		class="w-full bg-institutional-navy py-6 font-sans text-[11px] font-bold tracking-[4px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
 	>
-		{loading ? 'Skript wird ausgeführt...' : task.isCompleted ? 'Validierung bereits abgeschlossen' : 'Code ausführen & prüfen'}
+		{loading ? 'Skript wird ausgeführt...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Validierung bereits abgeschlossen' : 'Code ausführen & prüfen'}
 	</button>
 </div>

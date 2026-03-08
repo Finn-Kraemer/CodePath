@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { auth } from '$lib/auth.svelte';
 
-	let { task, moduleSlug } = $props();
+	let { task, moduleSlug, supportUsed = false } = $props();
 
 	let answers = $state<string[]>([]);
-	let result = $state<{ correct: boolean; feedback: string } | null>(null);
+	let result = $state<{ correct: boolean; feedback: string; isLocked?: boolean } | null>(null);
 	let loading = $state(false);
 
 	// Split template by ___ to render inputs
@@ -23,11 +23,15 @@
 		try {
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
-				body: JSON.stringify({ payload: { answers } })
+				body: JSON.stringify({ 
+					payload: { answers },
+					supportUsed
+				})
 			});
 			const data = await res.json();
-			result = { correct: data.isCorrect, feedback: data.feedback };
+			result = { correct: data.isCorrect, feedback: data.feedback, isLocked: data.isLocked };
 			if (data.isCorrect) task.isCompleted = true;
+			if (data.isLocked) task.isLocked = true;
 		} catch (e) {
 			result = { correct: false, feedback: 'Fehler bei der Verbindung zum Server' };
 		} finally {
@@ -49,7 +53,7 @@
 			{#if i < parts.length - 1}
 				<input
 					bind:value={answers[i]}
-					disabled={task.isCompleted}
+					disabled={task.isCompleted || task.isLocked}
 					type="text"
 					class="mx-2 min-w-[100px] border-b-2 border-slate-300 bg-white px-3 py-1 text-institutional-navy outline-none transition-colors focus:border-institutional-navy disabled:opacity-50 rounded-none"
 					placeholder="..."
@@ -64,7 +68,7 @@
             {result.correct ? 'border-green-200 bg-green-50 text-green-700' : 'border-rose-200 bg-rose-50 text-rose-700'}"
 		>
 			<div class="flex items-center gap-4">
-				<span class="text-xl font-bold">{result.correct ? '✓' : '✗'}</span>
+				<span class="text-xl font-bold">{result.correct ? '✓' : (result.isLocked ? '🔒' : '✗')}</span>
 				<div>
 					<span class="font-bold uppercase tracking-widest">{result.correct ? 'Ergebnis:' : 'Hinweis:'}</span> {result.feedback}
 				</div>
@@ -74,9 +78,9 @@
 
 	<button
 		onclick={handleSubmit}
-		disabled={loading || answers.some((a) => !a) || task.isCompleted}
+		disabled={loading || answers.some((a) => !a) || task.isCompleted || task.isLocked}
 		class="w-full bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
 	>
-		{loading ? 'Prüfung läuft...' : task.isCompleted ? 'Eintrag bereits validiert' : 'Prüfungsantwort absenden'}
+		{loading ? 'Prüfung läuft...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Eintrag bereits validiert' : 'Prüfungsantwort absenden'}
 	</button>
 </div>

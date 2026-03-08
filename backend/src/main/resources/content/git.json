@@ -1,0 +1,296 @@
+{
+    "slug": "git",
+    "title": "Git & Versionskontrolle",
+    "description": "Du arbeitest im Team an einer App – ohne Git verliert ihr den Überblick. Lerne wie professionelle Entwickler Code verwalten.",
+    "iconEmoji": "🌿",
+    "sortOrder": 8,
+    "tasks": [
+        {
+            "slug": "g1",
+            "title": "Warum brauchen wir Git?",
+            "difficulty": "EASY",
+            "points": 10,
+            "type": "MULTIPLE_CHOICE",
+            "sortOrder": 1,
+            "story": "<p>Stell dir vor: Du und zwei Mitschüler arbeiten gleichzeitig an derselben Python-Datei. Einer speichert seine Version, der andere auch – und plötzlich sind Änderungen weg.</p>",
+            "description": "<p>Was ist das Hauptproblem ohne Versionskontrolle?</p>",
+            "config": {
+                "options": [
+                    "Code wird zu groß für eine Datei",
+                    "Änderungen verschiedener Personen überschreiben sich – und es gibt keine Möglichkeit zurückzugehen",
+                    "Python funktioniert nicht ohne Git",
+                    "Dateien werden zu langsam gespeichert"
+                ],
+                "correct": [
+                    1
+                ],
+                "hint": "Stell dir vor zwei Personen tippen gleichzeitig in dasselbe Dokument. Was passiert mit den Änderungen des einen wenn der andere speichert?"
+            }
+        },
+        {
+            "slug": "g2",
+            "title": "Was ist ein Repository?",
+            "difficulty": "EASY",
+            "points": 10,
+            "type": "MULTIPLE_CHOICE",
+            "sortOrder": 2,
+            "story": "<p>Dein Lehrer spricht von einem 'Repo'. Alle anderen nicken – aber du fragst dich: Was ist das eigentlich?</p>",
+            "description": "<p>Was ist ein Git-Repository?</p>",
+            "config": {
+                "options": [
+                    "Ein Ordner auf GitHub.com",
+                    "Ein Ordner der von Git überwacht wird – inklusive der gesamten Änderungshistorie aller Dateien",
+                    "Eine spezielle Datei die Git-Befehle speichert",
+                    "Ein Backup auf einem Server"
+                ],
+                "correct": [
+                    1
+                ],
+                "hint": "Ein Repository ist mehr als nur ein Ordner – Git merkt sich jede Änderung die je gemacht wurde. Schau in den versteckten .git-Ordner!"
+            }
+        },
+        {
+            "slug": "g3",
+            "title": "Die drei Zonen von Git",
+            "difficulty": "EASY",
+            "points": 15,
+            "type": "FILL_BLANK",
+            "sortOrder": 3,
+            "story": "<p>Git arbeitet mit drei Bereichen. Du musst verstehen wo dein Code gerade ist bevor du Befehle ausführst.</p>",
+            "description": "<p>Ergänze die drei Git-Zonen in der richtigen Reihenfolge.</p>",
+            "config": {
+                "template": "1. ___ (Arbeitsbereich): Hier bearbeitest du Dateien ganz normal.\n2. ___ (Wartebereich): Hier sammelst du Änderungen die in den nächsten Commit sollen.\n3. ___ (Verlauf): Hier sind alle gespeicherten Snapshots dauerhaft festgehalten.",
+                "blanks": [
+                    "Working Directory",
+                    "Staging Area",
+                    "Repository"
+                ],
+                "hint": "Denk an einen Umzug: Du packst Dinge (Working Directory), stapelst sie am Ausgang (Staging Area) und lädst sie in den LKW (Repository/Commit)."
+            }
+        },
+        {
+            "slug": "g4",
+            "title": "Erster Commit – Schritt für Schritt",
+            "difficulty": "EASY",
+            "points": 15,
+            "type": "FILL_BLANK",
+            "sortOrder": 4,
+            "story": "<p>Du hast eine neue Datei <code>app.py</code> erstellt und willst sie in Git speichern. Was sind die Befehle in der richtigen Reihenfolge?</p>",
+            "description": "<p>Ergänze die fehlenden Git-Befehle.</p>",
+            "config": {
+                "template": "# Schritt 1: Repository anlegen\ngit ___\n\n# Schritt 2: Datei zur Staging Area hinzufügen\ngit ___ app.py\n\n# Schritt 3: Snapshot mit Beschreibung speichern\ngit ___ -m \"Erste Version der App\"",
+                "blanks": [
+                    "init",
+                    "add",
+                    "commit"
+                ],
+                "hint": "init = Repository erstellen (einmalig). add = zur Bühne bringen. commit = den Moment festhalten. Diese drei Befehle sind der Kern von Git."
+            }
+        },
+        {
+            "slug": "g5",
+            "title": "git status lesen",
+            "difficulty": "MEDIUM",
+            "points": 10,
+            "type": "MULTIPLE_CHOICE",
+            "sortOrder": 5,
+            "story": "<p>Du tippst <code>git status</code> und siehst:</p><pre><code>On branch main\nChanges not staged for commit:\n  modified: app.py\n\nUntracked files:\n  neue_datei.py</code></pre>",
+            "description": "<p>Was bedeutet dieser Status?</p>",
+            "config": {
+                "options": [
+                    "Beide Dateien sind im nächsten Commit enthalten",
+                    "app.py wurde geändert aber noch nicht gestaged. neue_datei.py kennt Git noch gar nicht.",
+                    "Git hat einen Fehler – Dateien sollten automatisch gestaged werden",
+                    "app.py wurde gelöscht"
+                ],
+                "correct": [
+                    1
+                ],
+                "hint": "'not staged' = geändert aber nicht in der Staging Area. 'Untracked' = Git weiß noch nichts von dieser Datei – sie wurde noch nie git add gemacht."
+            }
+        },
+        {
+            "slug": "g6",
+            "title": "Gute Commit-Nachrichten",
+            "difficulty": "MEDIUM",
+            "points": 10,
+            "type": "MULTIPLE_CHOICE",
+            "sortOrder": 6,
+            "story": "<p>Du schaust dir die Commit-Historie eines Projekts an:</p><pre><code>A: \"fix\"\nB: \"asdf\"\nC: \"Füge Login-Validierung für E-Mail-Format hinzu\"\nD: \"changes\"</code></pre>",
+            "description": "<p>Welche Commit-Nachricht ist professionell und nützlich?</p>",
+            "config": {
+                "options": [
+                    "A – kurz und schnell",
+                    "B – Entwickler wissen was es bedeutet",
+                    "C – beschreibt präzise was geändert wurde",
+                    "D – allgemein aber ausreichend"
+                ],
+                "correct": [
+                    2
+                ],
+                "hint": "Eine gute Commit-Nachricht beantwortet: Was wurde geändert? In 3 Monaten musst du noch verstehen was passiert ist – schreib für dein zukünftiges Ich."
+            }
+        },
+        {
+            "slug": "g7",
+            "title": "Branches verstehen",
+            "difficulty": "MEDIUM",
+            "points": 10,
+            "type": "MULTIPLE_CHOICE",
+            "sortOrder": 7,
+            "story": "<p>Dein Team entwickelt eine App. Du willst ein neues Feature (Dark Mode) entwickeln ohne den funktionierenden Hauptcode zu gefährden.</p>",
+            "description": "<p>Warum erstellt man dafür einen neuen Branch?</p>",
+            "config": {
+                "options": [
+                    "Branches speichern Dateien schneller",
+                    "Ein Branch ist eine parallele Entwicklungslinie – du kannst experimentieren ohne den Hauptcode (main) zu beschädigen",
+                    "Branches sind nur für große Teams nötig",
+                    "Ein Branch macht automatisch ein Backup auf GitHub"
+                ],
+                "correct": [
+                    1
+                ],
+                "hint": "Stell dir einen Branch wie ein Paralleluniversum vor: Dein Experiment läuft getrennt vom Hauptcode. Wenn es klappt, bringst du es zurück."
+            }
+        },
+        {
+            "slug": "g8",
+            "title": "Branch-Befehle",
+            "difficulty": "MEDIUM",
+            "points": 15,
+            "type": "FILL_BLANK",
+            "sortOrder": 8,
+            "story": "<p>Du willst einen neuen Branch für das Dark-Mode-Feature erstellen, zu ihm wechseln und am Ende wieder zurück zu main.</p>",
+            "description": "<p>Ergänze die fehlenden Branch-Befehle.</p>",
+            "config": {
+                "template": "# Neuen Branch erstellen UND direkt wechseln\ngit checkout ___ dark-mode\n\n# Alle Branches anzeigen\ngit ___\n\n# Zurück zu main wechseln\ngit checkout ___",
+                "blanks": [
+                    "-b",
+                    "branch",
+                    "main"
+                ],
+                "hint": "checkout -b = Branch erstellen und direkt wechseln (b wie 'branch'). git branch ohne Argument zeigt alle vorhandenen Branches. main ist der Standard-Hauptbranch."
+            }
+        },
+        {
+            "slug": "g9",
+            "title": "Merge – Branches zusammenführen",
+            "difficulty": "MEDIUM",
+            "points": 10,
+            "type": "MULTIPLE_CHOICE",
+            "sortOrder": 9,
+            "story": "<p>Dein Dark-Mode-Feature ist fertig und getestet. Jetzt soll es in den Hauptcode übernommen werden:</p><pre><code>git checkout main\ngit merge dark-mode</code></pre>",
+            "description": "<p>Was passiert bei diesem Merge-Befehl?</p>",
+            "config": {
+                "options": [
+                    "Der dark-mode Branch wird automatisch gelöscht",
+                    "Die Änderungen aus dark-mode werden in main übernommen – die Historien beider Branches werden zusammengeführt",
+                    "main wird komplett durch dark-mode ersetzt",
+                    "Nichts – man muss zuerst git push aufrufen"
+                ],
+                "correct": [
+                    1
+                ],
+                "hint": "merge = zusammenführen. Du bist auf main und holst die Änderungen von dark-mode rein. Der dark-mode Branch bleibt dabei erhalten bis du ihn manuell löschst."
+            }
+        },
+        {
+            "slug": "g10",
+            "title": "Remote Repository – Was ist GitHub?",
+            "difficulty": "MEDIUM",
+            "points": 10,
+            "type": "MULTIPLE_CHOICE",
+            "sortOrder": 10,
+            "story": "<p>Du hast lokal Commits gemacht. Dein Teamkollege auf der anderen Seite der Stadt soll deinen Code sehen und damit weiterarbeiten können.</p>",
+            "description": "<p>Was ist der Unterschied zwischen lokalem Repository und Remote Repository (GitHub)?</p>",
+            "config": {
+                "options": [
+                    "GitHub ist schneller als ein lokales Repository",
+                    "GitHub kostet Geld, lokale Repos sind kostenlos",
+                    "Lokal = nur auf deinem Rechner. Remote (GitHub) = auf einem Server, von überall erreichbar und für das Team zugänglich",
+                    "Es gibt keinen Unterschied – beide speichern den Code gleich"
+                ],
+                "correct": [
+                    2
+                ],
+                "hint": "Lokal = deine Festplatte. Remote = ein Server irgendwo auf der Welt. GitHub ist der bekannteste Anbieter für Remote-Repositories."
+            }
+        },
+        {
+            "slug": "g11",
+            "title": "Push & Pull",
+            "difficulty": "HARD",
+            "points": 15,
+            "type": "FILL_BLANK",
+            "sortOrder": 11,
+            "story": "<p>Du hast lokal committed und willst deinen Code auf GitHub hochladen. Dein Teamkollege hat inzwischen neue Commits gepusht – du willst seine Änderungen holen.</p>",
+            "description": "<p>Ergänze die Befehle für die Zusammenarbeit über GitHub.</p>",
+            "config": {
+                "template": "# Remote-Adresse einmalig hinterlegen\ngit remote add origin https://github.com/user/repo.git\n\n# Lokale Commits auf GitHub hochladen\ngit ___ origin main\n\n# Neueste Änderungen von GitHub holen und integrieren\ngit ___ origin main",
+                "blanks": [
+                    "push",
+                    "pull"
+                ],
+                "hint": "push = hochladen (du drückst deinen Code zu GitHub). pull = runterladen + automatisch integrieren (du ziehst die Änderungen von GitHub). Merkhilfe: push raus, pull rein."
+            }
+        },
+        {
+            "slug": "g12",
+            "title": "Typischer Team-Workflow",
+            "difficulty": "HARD",
+            "points": 15,
+            "type": "MULTIPLE_CHOICE",
+            "sortOrder": 12,
+            "story": "<p>Du fängst morgens an zu arbeiten. Dein Team hat gestern noch Änderungen gepusht. Was ist die richtige Reihenfolge?</p>",
+            "description": "<p>Bringe die typischen Schritte in die richtige Reihenfolge.</p>",
+            "config": {
+                "options": [
+                    "Sofort coden → commit → push",
+                    "git pull → neuen Branch erstellen → coden → commit → push",
+                    "git push → coden → git pull",
+                    "Neuen Branch erstellen → coden → git pull → commit → push"
+                ],
+                "correct": [
+                    1
+                ],
+                "hint": "Immer zuerst pullen – sonst arbeitest du auf veraltetem Code und bekommst Probleme beim Push. Dann Branch für dein Feature, coden, committen, pushen."
+            }
+        },
+        {
+            "slug": "g13",
+            "title": ".gitignore – Was gehört nicht ins Repo?",
+            "difficulty": "HARD",
+            "points": 10,
+            "type": "MULTIPLE_CHOICE",
+            "sortOrder": 13,
+            "story": "<p>Dein Projekt hat eine <code>.env</code>-Datei mit dem Datenbankpasswort, einen <code>node_modules/</code>-Ordner mit 50.000 Dateien und automatisch generierte <code>__pycache__/</code>-Ordner.</p>",
+            "description": "<p>Was sollte in die .gitignore und NICHT ins Repository?</p>",
+            "config": {
+                "options": [
+                    "Nur .env – der Rest ist wichtig für andere Entwickler",
+                    "Nur node_modules/ – es ist zu groß",
+                    "Alle drei: Passwörter niemals einchecken, generierte Dateien gehören nicht ins Repo da sie jederzeit neu erstellt werden können",
+                    "Nichts – Git soll alles tracken damit andere Entwickler alles haben"
+                ],
+                "correct": [
+                    2
+                ],
+                "hint": "Faustregel: Secrets/Passwörter NIEMALS ins Repo (Sicherheit!). Generierte Dateien auch nicht – node_modules entsteht aus package.json, __pycache__ aus .py Dateien. Andere Entwickler führen einfach npm install aus."
+            }
+        },
+        {
+            "slug": "g14",
+            "title": "Git-Workflow: Teamarbeit dokumentieren",
+            "difficulty": "HARD",
+            "points": 50,
+            "type": "PRACTICE",
+            "sortOrder": 14,
+            "story": "<p>Dein Team entwickelt eine Schul-App auf GitHub. Du bist verantwortlich für den Login-Bereich. Dokumentiere den vollständigen Workflow von Anfang bis zum fertigen Feature auf GitHub.</p>",
+            "description": "<p>Beschreibe den kompletten Git-Workflow für dein Feature.</p>",
+            "config": {
+                "instructions": "Deine Dokumentation muss enthalten:\n1. Start: Wie holst du den aktuellen Stand vom Team? (Befehl + Erklärung)\n2. Branch: Wie erstellst du deinen Feature-Branch?\n3. Entwicklung: Mindestens 3 sinnvolle Commit-Nachrichten mit git add + git commit\n4. Abschluss: Wie lädst du alles auf GitHub hoch?\n5. Integration: Wie kommt dein Feature in den main-Branch?\n6. Bonus: Was ist ein Pull Request auf GitHub und warum ist er besser als ein direkter Merge in main?",
+                "submissionNote": "Liste alle Befehle mit kurzer Erklärung was sie tun. Schreibe die Commit-Nachrichten so dass man in 6 Monaten noch versteht was du gemacht hast."
+            }
+        }
+    ]
+}

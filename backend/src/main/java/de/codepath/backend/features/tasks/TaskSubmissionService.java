@@ -3,6 +3,7 @@ package de.codepath.backend.features.tasks;
 import de.codepath.backend.features.modules.Module;
 import de.codepath.backend.features.modules.ModuleRepository;
 import de.codepath.backend.features.tasks.events.PracticeSubmissionEvent;
+import de.codepath.backend.features.tasks.events.TaskCompletionEvent;
 import de.codepath.backend.features.tasks.messaging.SubmissionProducer;
 import de.codepath.backend.features.messaging.RealtimeUpdateService;
 import de.codepath.backend.users.User;
@@ -43,7 +44,15 @@ public class TaskSubmissionService {
                     return c;
                 });
 
-        // Update time spent
+        if (progress.isLocked()) {
+            return SubmitResponse.builder()
+                    .isCorrect(false)
+                    .isLocked(true)
+                    .feedback("Diese Aufgabe ist gesperrt.")
+                    .build();
+        }
+
+        // Update time spent locally for calculation, but don't save yet if using MQ
         if (request.getTimeSpentSeconds() != null) {
             progress.setTimeSpentSeconds(progress.getTimeSpentSeconds() + request.getTimeSpentSeconds());
         }
@@ -52,15 +61,25 @@ public class TaskSubmissionService {
 
         if (isCorrect) {
             if (task.getType() == TaskType.PRACTICE) {
-                return handlePracticeSubmission(task, user, request.getPayload());
+                return handlePracticeSubmission(task, user, request.getPayload(), request.isSupportUsed());
             } else {
                 if (!progress.isCompleted()) {
-                    completeTask(user, task, progress);
+                    // ASYNCHRONOUS COMPLETION
+                    int awardedPoints = calculatePoints(task, progress, request.isSupportUsed());
+                    
+                    submissionProducer.sendTaskCompletion(TaskCompletionEvent.builder()
+                            .userId(user.getId())
+                            .taskId(task.getId())
+                            .pointsAwarded(awardedPoints)
+                            .supportUsed(request.isSupportUsed())
+                            .timeSpentSeconds(progress.getTimeSpentSeconds())
+                            .build());
+
                     return SubmitResponse.builder()
                             .isCorrect(true)
-                            .pointsAwarded(progress.getPointsAwarded())
+                            .pointsAwarded(awardedPoints)
                             .failedAttempts(progress.getFailedAttempts())
-                            .feedback("Super! Das war richtig.")
+                            .feedback("Super! Das war richtig. (Punkte werden im Hintergrund verarbeitet)")
                             .build();
                 } else {
                     return SubmitResponse.builder()
@@ -76,23 +95,33 @@ public class TaskSubmissionService {
         // Handle wrong answer
         if (!progress.isCompleted()) {
             progress.setFailedAttempts(progress.getFailedAttempts() + 1);
+            
+            // Lock Multiple Choice after 3 attempts
+            if (task.getType() == TaskType.MULTIPLE_CHOICE && progress.getFailedAttempts() >= 3) {
+                progress.setLocked(true);
+            }
+            
             completionRepository.save(progress);
         }
 
         SubmitResponse.SubmitResponseBuilder responseBuilder = SubmitResponse.builder()
                 .isCorrect(false)
+                .isLocked(progress.isLocked())
                 .pointsAwarded(0)
                 .failedAttempts(progress.getFailedAttempts())
                 .feedback("Leider falsch. Tipp: " + task.getConfig().getOrDefault("hint", "Probiere es noch einmal!"));
 
         if (progress.getFailedAttempts() >= 3) {
             responseBuilder.correctSolution(getSolution(task));
+            if (progress.isLocked()) {
+                responseBuilder.feedback("Drei Fehlversuche. Diese Aufgabe wurde gesperrt.");
+            }
         }
 
         return responseBuilder.build();
     }
 
-    private void completeTask(User user, Task task, UserTaskCompletion progress) {
+    private int calculatePoints(Task task, UserTaskCompletion progress, boolean supportUsed) {
         int points = task.getPoints();
         
         // Bonus for time (if < 60s and MCQ/Fill)
@@ -100,22 +129,17 @@ public class TaskSubmissionService {
             points += 5; // Fixed bonus for speed
         }
         
-        // Deduction for solution (if failed 3+ times, but they solved it now? 
-        // Or if they just saw the solution and copied it)
+        // Deduction for solution (if failed 3+ times)
         if (progress.getFailedAttempts() >= 3) {
             points = Math.max(1, points / 2);
         }
 
-        progress.setCompleted(true);
-        progress.setCompletedAt(LocalDateTime.now());
-        progress.setPointsAwarded(points);
-        completionRepository.save(progress);
-
-        user.setTotalPoints(user.getTotalPoints() + points);
-        userRepository.save(user);
+        // Additional deduction if support/help was used
+        if (supportUsed) {
+            points = Math.max(1, points / 2);
+        }
         
-        // Push Leaderboard Update
-        realtimeUpdateService.publishLeaderboardUpdate();
+        return points;
     }
 
     private String getSolution(Task task) {
@@ -185,7 +209,7 @@ public class TaskSubmissionService {
         return output != null && output.trim().equals(expected.trim());
     }
 
-    private SubmitResponse handlePracticeSubmission(Task task, User user, Map<String, Object> payload) {
+    private SubmitResponse handlePracticeSubmission(Task task, User user, Map<String, Object> payload, boolean supportUsed) {
         // Prevent spam: check if a PENDING submission already exists
         boolean hasPending = practiceSubmissionRepository.existsByUser_IdAndTask_IdAndStatus(user.getId(), task.getId(), SubmissionStatus.PENDING);
         
@@ -208,6 +232,7 @@ public class TaskSubmissionService {
                 .userId(user.getId())
                 .taskId(task.getId())
                 .content(content)
+                .supportUsed(supportUsed)
                 .build());
 
         return SubmitResponse.builder()

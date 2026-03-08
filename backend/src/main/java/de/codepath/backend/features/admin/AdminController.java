@@ -31,16 +31,18 @@ public class AdminController {
     }
 
     @PutMapping("/submissions/{id}/approve")
-    public ResponseEntity<Void> approveSubmission(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> approveSubmission(@PathVariable("id") Long id, @RequestBody(required = false) Map<String, Boolean> body) {
         User admin = userService.getCurrentUser();
-        adminService.approveSubmission(id, admin);
+        boolean halfPoints = body != null && Boolean.TRUE.equals(body.get("halfPoints"));
+        adminService.approveSubmission(id, admin, halfPoints);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/submissions/{id}/reject")
-    public ResponseEntity<Void> rejectSubmission(@PathVariable("id") Long id, @RequestBody(required = false) Map<String, String> body) {
-        String comment = body != null ? body.get("comment") : null;
-        adminService.rejectSubmission(id, comment);
+    public ResponseEntity<Void> rejectSubmission(@PathVariable("id") Long id, @RequestBody(required = false) Map<String, Object> body) {
+        String comment = body != null ? (String) body.get("comment") : null;
+        boolean lockTask = body != null && Boolean.TRUE.equals(body.get("lockTask"));
+        adminService.rejectSubmission(id, comment, lockTask);
         return ResponseEntity.ok().build();
     }
 
@@ -68,8 +70,8 @@ public class AdminController {
     }
 
     @GetMapping("/students/{username}/submissions")
-    public List<Map<String, Object>> getPendingSubmissionsForStudent(@PathVariable("username") String username) {
-        return adminService.getPendingSubmissionsForStudent(username);
+    public List<Map<String, Object>> getSubmissionsForStudent(@PathVariable("username") String username) {
+        return adminService.getSubmissionsForStudent(username);
     }
 
     @GetMapping("/students/{username}/tasks")
@@ -84,8 +86,15 @@ public class AdminController {
     }
 
     @PutMapping("/students/{username}/tasks/{taskId}/toggle")
-    public ResponseEntity<Void> toggleTask(@PathVariable("username") String username, @PathVariable("taskId") Long taskId) {
-        adminService.toggleTaskCompletion(username, taskId);
+    public ResponseEntity<Void> toggleTask(@PathVariable("username") String username, @PathVariable("taskId") Long taskId, @RequestBody(required = false) Map<String, Boolean> body) {
+        boolean halfPoints = body != null && Boolean.TRUE.equals(body.get("halfPoints"));
+        adminService.toggleTaskCompletion(username, taskId, halfPoints);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/students/{username}/tasks/{taskId}/toggle-lock")
+    public ResponseEntity<Void> toggleTaskLock(@PathVariable("username") String username, @PathVariable("taskId") Long taskId) {
+        adminService.toggleTaskLock(username, taskId);
         return ResponseEntity.ok().build();
     }
 }

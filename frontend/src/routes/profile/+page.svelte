@@ -88,6 +88,30 @@
 		}
 	}
 
+	async function handleDownloadReport() {
+		error = '';
+		success = '';
+		try {
+			const res = await auth.apiFetch('/api/reports/my-report');
+			if (res.ok) {
+				const blob = await res.blob();
+				const url = window.URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = `CodePath_Zeugnis_${profile?.username}.pdf`;
+				document.body.appendChild(a);
+				a.click();
+				window.URL.revokeObjectURL(url);
+				document.body.removeChild(a);
+				success = 'Zeugnis wurde erfolgreich generiert.';
+			} else {
+				error = 'Zeugnis konnte nicht generiert werden.';
+			}
+		} catch (e) {
+			error = 'Fehler beim Herunterladen.';
+		}
+	}
+
 	onMount(fetchProfile);
 </script>
 
@@ -121,6 +145,28 @@
 						{profile.completedTasksCount}
 					</p>
 				</div>
+			</div>
+
+			<!-- Report Card Download -->
+			<div class="border border-slate-200 bg-white p-12 shadow-sm rounded-none">
+				<h2 class="mb-6 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+					Abschluss-Dokumente
+				</h2>
+				<p class="text-sm text-slate-500 mb-10 leading-relaxed">
+					Laden Sie hier Ihren offiziellen Leistungsnachweis als PDF-Dokument herunter. Das Dokument enthält eine Übersicht Ihrer Leistungen in den einzelnen Modulen sowie eine automatisch berechnete Abschlussnote.
+				</p>
+
+				<button
+					onclick={handleDownloadReport}
+					class="flex items-center justify-center gap-4 w-full border-2 border-institutional-gold bg-white py-5 font-sans text-[11px] font-bold tracking-[3px] text-institutional-gold uppercase transition-all hover:bg-amber-50 rounded-none shadow-sm"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+						<polyline points="7 10 12 15 17 10"></polyline>
+						<line x1="12" y1="15" x2="12" y2="3"></line>
+					</svg>
+					Zeugnis herunterladen (PDF)
+				</button>
 			</div>
 
 			<!-- Settings -->

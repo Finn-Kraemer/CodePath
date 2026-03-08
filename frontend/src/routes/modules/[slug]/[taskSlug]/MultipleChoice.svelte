@@ -2,10 +2,10 @@
 	import { auth } from '$lib/auth.svelte';
 	import TaskTimer from '$lib/components/tasks/TaskTimer.svelte';
 
-	let { task, moduleSlug } = $props();
+	let { task, moduleSlug, supportUsed = false } = $props();
 
 	let selected = $state<number[]>([]);
-	let result = $state<{ correct: boolean; feedback: string; solution?: string } | null>(null);
+	let result = $state<{ correct: boolean; feedback: string; solution?: string; isLocked?: boolean } | null>(null);
 	let loading = $state(false);
 	let timerRef = $state<TaskTimer | null>(null);
 
@@ -21,16 +21,19 @@
 				method: 'POST',
 				body: JSON.stringify({ 
 					payload: { selected },
-					timeSpentSeconds: timeSpentSinceLastSubmit
+					timeSpentSeconds: timeSpentSinceLastSubmit,
+					supportUsed
 				})
 			});
 			const data = await res.json();
 			result = { 
 				correct: data.isCorrect, 
 				feedback: data.feedback,
-				solution: data.correctSolution 
+				solution: data.correctSolution,
+				isLocked: data.isLocked
 			};
 			if (data.isCorrect) task.isCompleted = true;
+			if (data.isLocked) task.isLocked = true;
 			task.failedAttempts = data.failedAttempts;
 			task.timeSpentSeconds = currentSeconds;
 		} catch (e) {
@@ -41,7 +44,7 @@
 	}
 
 	function toggleOption(index: number) {
-		if (task.isCompleted) return;
+		if (task.isCompleted || task.isLocked) return;
 		if (selected.includes(index)) {
 			selected = selected.filter((i) => i !== index);
 		} else {
@@ -62,12 +65,12 @@
 		{#each task.config.options as option, i (i)}
 			<button
 				onclick={() => toggleOption(i)}
-				disabled={task.isCompleted}
+				disabled={task.isCompleted || task.isLocked}
 				class="w-full border-2 p-5 text-left font-sans text-sm transition-all rounded-none
                 {selected.includes(i)
 					? 'border-institutional-navy bg-slate-50 font-bold'
 					: 'border-slate-100 bg-slate-50 hover:border-slate-300'}
-                {task.isCompleted ? 'opacity-60 cursor-default' : ''}"
+                {task.isCompleted || task.isLocked ? 'opacity-60 cursor-default' : ''}"
 			>
 				<div class="flex items-center gap-5">
 					<div
@@ -92,7 +95,7 @@
             {result.correct ? 'border-green-200 bg-green-50 text-green-700' : 'border-rose-200 bg-rose-50 text-rose-700'}"
 		>
 			<div class="flex items-center gap-4">
-				<span class="text-xl font-bold">{result.correct ? '✓' : '✗'}</span>
+				<span class="text-xl font-bold">{result.correct ? '✓' : (result.isLocked ? '🔒' : '✗')}</span>
 				<div>
 					<span class="font-bold uppercase tracking-widest">{result.correct ? 'Ergebnis:' : 'Hinweis:'}</span> {result.feedback}
 					{#if result.solution}
@@ -108,9 +111,9 @@
 
 	<button
 		onclick={handleSubmit}
-		disabled={loading || selected.length === 0 || task.isCompleted}
+		disabled={loading || selected.length === 0 || task.isCompleted || task.isLocked}
 		class="w-full bg-institutional-navy py-5 font-sans text-xs font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
 	>
-		{loading ? 'Verarbeitung...' : task.isCompleted ? 'Aufgabe bereits erfolgreich abgeschlossen' : 'Antwort einreichen'}
+		{loading ? 'Verarbeitung...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Aufgabe bereits erfolgreich abgeschlossen' : 'Antwort einreichen'}
 	</button>
 </div>

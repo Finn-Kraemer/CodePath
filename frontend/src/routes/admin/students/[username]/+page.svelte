@@ -19,6 +19,13 @@
 	let success = $state('');
 	let processingTaskId = $state<number | null>(null);
 
+	// Reaktiv für ausgeklappte Module (Standard: leer = alle zu)
+	let expandedModules = $state<Record<string, boolean>>({});
+
+	function toggleModule(title: string) {
+		expandedModules[title] = !expandedModules[title];
+	}
+
 	async function fetchData() {
 		try {
 			const [studentRes, tasksRes] = await Promise.all([
@@ -37,26 +44,45 @@
 		}
 	}
 
-	async function toggleTask(task: any) {
+	async function toggleTask(task: any, halfPoints: boolean = false) {
 		if (processingTaskId !== null) return;
 
 		processingTaskId = task.id;
-		const originalState = task.isCompleted;
-
+		
 		try {
 			const res = await auth.apiFetch(`/api/admin/students/${username}/tasks/${task.id}/toggle`, {
+				method: 'PUT',
+				body: JSON.stringify({ halfPoints })
+			});
+
+			if (res.ok) {
+				// Refresh all data to get consistent state
+				await fetchData();
+			} else {
+				alert('Fehler beim Speichern.');
+			}
+		} catch (e) {
+			console.error(e);
+		} finally {
+			processingTaskId = null;
+		}
+	}
+
+	async function toggleTaskLock(task: any) {
+		if (processingTaskId !== null) return;
+
+		processingTaskId = task.id;
+		const originalState = task.isLocked;
+
+		try {
+			const res = await auth.apiFetch(`/api/admin/students/${username}/tasks/${task.id}/toggle-lock`, {
 				method: 'PUT'
 			});
 
 			if (res.ok) {
-				task.isCompleted = !originalState;
-				// Refresh student stats to show updated points
-				const studentRes = await auth.apiFetch(`/api/users/profile?username=${username}`);
-				if (studentRes.ok) {
-					student = await studentRes.json();
-				}
+				task.isLocked = !originalState;
 			} else {
-				alert('Fehler beim Speichern.');
+				alert('Fehler beim Sperren/Entsperren.');
 			}
 		} catch (e) {
 			console.error(e);
@@ -109,58 +135,133 @@
 					<h3 class="mb-10 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
 						Leistungshistorie nach Modulen
 					</h3>
-					<div class="space-y-12">
+					<div class="space-y-8">
 						{#each Object.entries(groupedTasks) as [moduleTitle, moduleTasks] (moduleTitle)}
-							<div>
-								<h4
-									class="mb-6 border-b border-slate-100 pb-3 font-sans text-[11px] font-black tracking-[3px] text-institutional-navy uppercase"
+							<div class="border border-slate-100 rounded-none overflow-hidden">
+								<button
+									onclick={() => toggleModule(moduleTitle)}
+									class="flex w-full items-center justify-between bg-slate-50 p-4 transition-colors hover:bg-slate-100"
 								>
-									{moduleTitle}
-								</h4>
-								<div class="grid grid-cols-1 gap-3">
-									{#each moduleTasks as task (task.id)}
-										<button
-											onclick={() => toggleTask(task)}
-											disabled={processingTaskId === task.id}
-											class="group flex w-full items-center justify-between border p-6 text-left transition-all rounded-none
-                                            {task.isCompleted
-												? 'border-green-200 bg-green-50/30 hover:border-green-300'
-												: 'border-slate-100 bg-slate-50 hover:border-slate-200'}"
+									<h4 class="font-sans text-[11px] font-black tracking-[3px] text-institutional-navy uppercase text-left">
+										{moduleTitle}
+									</h4>
+									<div class="flex items-center gap-3 shrink-0">
+										<span class="font-mono text-[9px] text-slate-400 uppercase tracking-widest">
+											{moduleTasks.filter(t => t.isCompleted).length} / {moduleTasks.length} gelöst
+										</span>
+										<svg 
+											xmlns="http://www.w3.org/2000/svg" 
+											class="h-4 w-4 text-slate-400 transition-transform duration-300 {expandedModules[moduleTitle] ? '' : '-rotate-90'}" 
+											fill="none" viewBox="0 0 24 24" stroke="currentColor"
 										>
-											<div class="flex items-center gap-6">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+										</svg>
+									</div>
+								</button>
+								
+								{#if expandedModules[moduleTitle]}
+									<div class="p-4 grid grid-cols-1 gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+										{#each moduleTasks as task (task.id)}
+											<div class="group flex w-full items-stretch gap-2">
+												<!-- Task Info Card (Status Display) -->
 												<div
-													class="flex h-10 w-10 items-center justify-center border transition-colors rounded-none
-                                                    {task.isCompleted
-														? 'border-green-600 bg-green-600 text-white'
-														: 'border-slate-200 bg-white text-slate-300 group-hover:border-slate-400'}"
+													class="flex-1 flex items-center justify-between border p-6 text-left transition-all rounded-none
+													{task.isLocked 
+														? 'border-red-200 bg-red-50/30' 
+														: task.isCompleted
+															? task.supportUsed
+																? 'border-amber-200 bg-amber-50/30'
+																: 'border-green-200 bg-green-50/30'
+															: 'border-slate-100 bg-slate-50'}"
 												>
-													{#if processingTaskId === task.id}
-														<div class="h-4 w-4 border-2 border-white border-t-transparent animate-spin"></div>
-													{:else if task.isCompleted}
-														<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-															<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-														</svg>
-													{/if}
+													<div class="flex items-center gap-6">
+														<div
+															class="flex h-10 w-10 items-center justify-center border transition-colors rounded-none
+															{task.isLocked
+																? 'border-red-600 bg-red-600 text-white'
+																: task.isCompleted
+																	? task.supportUsed
+																		? 'border-amber-500 bg-amber-500 text-white'
+																		: 'border-green-600 bg-green-600 text-white'
+																	: 'border-slate-200 bg-white text-slate-300'}"
+														>
+															{#if processingTaskId === task.id}
+																<div class="h-4 w-4 border-2 border-institutional-navy border-t-transparent animate-spin"></div>
+															{:else if task.isLocked}
+																<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+																	<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+																</svg>
+															{:else if task.isCompleted}
+																<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+																	<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+																</svg>
+															{/if}
+														</div>
+														<div>
+															<p class="font-sans text-sm font-bold {task.isLocked ? 'text-red-900' : task.isCompleted ? (task.supportUsed ? 'text-amber-900' : 'text-green-900') : 'text-slate-700'} uppercase tracking-tight">
+																{task.title}
+															</p>
+															<p class="mt-1 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase">
+																{task.type} · {task.points} PKT {#if task.supportUsed}(50%){/if}
+															</p>
+														</div>
+													</div>
+													<span
+														class="font-mono text-[10px] font-black uppercase 
+														{task.isLocked ? 'text-red-600' : task.isCompleted ? (task.supportUsed ? 'text-amber-600' : 'text-green-600') : 'text-slate-300'}"
+													>
+														{task.isLocked ? 'Gesperrt' : task.isCompleted ? (task.supportUsed ? 'Teil-Valid.' : 'Validiert') : 'Offen'}
+													</span>
 												</div>
-												<div>
-													<p class="font-sans text-sm font-bold {task.isCompleted ? 'text-green-900' : 'text-slate-700'} uppercase tracking-tight">
-														{task.title}
-													</p>
-													<p class="mt-1 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase">
-														{task.type} · {task.points} PKT
-													</p>
+
+												<!-- Actions -->
+												<div class="flex gap-1">
+													<button
+														onclick={() => toggleTask(task, false)}
+														disabled={processingTaskId === task.id}
+														title="Volle Punkte (Toggle)"
+														class="px-4 border transition-all 
+														{task.isCompleted && !task.supportUsed 
+															? 'bg-green-600 border-green-600 text-white' 
+															: 'bg-white border-slate-200 text-slate-400 hover:border-green-600 hover:text-green-600'}"
+													>
+														<span class="font-mono text-[10px] font-black">100%</span>
+													</button>
+													<button
+														onclick={() => toggleTask(task, true)}
+														disabled={processingTaskId === task.id}
+														title="Halbe Punkte (Toggle)"
+														class="px-4 border transition-all 
+														{task.isCompleted && task.supportUsed 
+															? 'bg-amber-500 border-amber-500 text-white' 
+															: 'bg-white border-slate-200 text-slate-400 hover:border-amber-500 hover:text-amber-500'}"
+													>
+														<span class="font-mono text-[10px] font-black">50%</span>
+													</button>
+													<button
+														onclick={() => toggleTaskLock(task)}
+														disabled={processingTaskId === task.id}
+														title={task.isLocked ? 'Entsperren' : 'Sperren'}
+														class="px-4 border transition-all 
+														{task.isLocked 
+															? 'bg-red-600 border-red-600 text-white' 
+															: 'bg-white border-slate-200 text-slate-300 hover:border-red-600 hover:text-red-600'}"
+													>
+														{#if task.isLocked}
+															<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+																<path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+															</svg>
+														{:else}
+															<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+																<path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zM7 7a3 3 0 016 0v2H7V7z" />
+															</svg>
+														{/if}
+													</button>
 												</div>
 											</div>
-											<span
-												class="font-mono text-[10px] font-black uppercase {task.isCompleted
-													? 'text-green-600'
-													: 'text-slate-300'}"
-											>
-												{task.isCompleted ? 'Validiert' : 'Offen'}
-											</span>
-										</button>
-									{/each}
-								</div>
+										{/each}
+									</div>
+								{/if}
 							</div>
 						{/each}
 					</div>

@@ -5,7 +5,7 @@
   import PracticeEditor from '$lib/components/editor/PracticeEditor.svelte';
   import TaskTimer from '$lib/components/tasks/TaskTimer.svelte';
 
-  let { task, moduleSlug } = $props();
+  let { task, moduleSlug, supportUsed = false } = $props();
 
   let editorRef = $state<PracticeEditor | null>(null);
   let timerRef = $state<TaskTimer | null>(null);
@@ -42,7 +42,8 @@
           payload: { 
             practiceContent: editorContent 
           },
-          timeSpentSeconds: timeSpentSinceLastSubmit
+          timeSpentSeconds: timeSpentSinceLastSubmit,
+          supportUsed
         })
       });
       
@@ -163,6 +164,7 @@
       
       <PracticeEditor 
         bind:this={editorRef}
+        initialContent={task.submissionContent || ''}
         placeholder="Schreiben Sie hier Ihre Lösung. Sie können Text formatieren, Code einbetten und Bilder hochladen..."
       />
 

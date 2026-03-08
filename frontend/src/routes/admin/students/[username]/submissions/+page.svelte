@@ -15,6 +15,8 @@
 		moduleTitle: string;
 		submittedAt: string;
 		content: string;
+		status: 'PENDING' | 'APPROVED' | 'REJECTED';
+		adminComment?: string;
 	}
 
 	let submissions = $state<Submission[]>([]);
@@ -33,29 +35,41 @@
 		}
 	}
 
-	async function approve(id: number) {
+	async function approve(id: number, halfPoints: boolean = false) {
 		try {
 			const res = await auth.apiFetch(`/api/admin/submissions/${id}/approve`, {
-				method: 'PUT'
+				method: 'PUT',
+				body: JSON.stringify({ halfPoints })
 			});
 			if (res.ok) {
-				submissions = submissions.filter((s) => s.id !== id);
+				const index = submissions.findIndex(s => s.id === id);
+				if (index !== -1) {
+					submissions[index] = { ...submissions[index], status: 'APPROVED' };
+				}
 			}
 		} catch (e) {
 			console.error(e);
 		}
 	}
 
-	async function reject(id: number) {
-		if (!confirm('Möchten Sie diese Abgabe wirklich ablehnen? Sie wird gelöscht und der Teilnehmer kann erneut einreichen.')) {
-			return;
-		}
+	async function reject(id: number, lockTask: boolean = false) {
+		const msg = lockTask 
+			? 'Geben Sie einen Grund für die endgültige Sperrung an:' 
+			: 'Möchten Sie diese Abgabe wirklich ablehnen? Geben Sie einen optionalen Grund an:';
+		
+		const comment = prompt(msg);
+		if (comment === null) return;
+
 		try {
 			const res = await auth.apiFetch(`/api/admin/submissions/${id}/reject`, {
-				method: 'DELETE'
+				method: 'DELETE',
+				body: JSON.stringify({ comment, lockTask })
 			});
 			if (res.ok) {
-				submissions = submissions.filter((s) => s.id !== id);
+				const index = submissions.findIndex(s => s.id === id);
+				if (index !== -1) {
+					submissions[index] = { ...submissions[index], status: 'REJECTED', adminComment: comment };
+				}
 			}
 		} catch (e) {
 			console.error(e);
@@ -73,10 +87,10 @@
 			>← Zurück zur Teilnehmer-Akte: {username}</a
 		>
 		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			Einzelleistungs-Prüfung
+			Leistungs-Nachweise
 		</h1>
 		<p class="mt-4 text-slate-500">
-			Überprüfung der praktischen Abgaben für Teilnehmer <span class="font-bold text-institutional-navy"
+			Historie der praktischen Abgaben für Teilnehmer <span class="font-bold text-institutional-navy"
 				>@{username}</span
 			>.
 		</p>
@@ -89,7 +103,7 @@
 	{:else if submissions.length === 0}
 		<div class="border border-dashed border-slate-200 bg-white p-24 text-center rounded-none">
 			<p class="font-serif text-sm text-slate-400 italic">
-				Keine ausstehenden Abgaben für diesen Teilnehmer vorhanden.
+				Keine Abgaben für diesen Teilnehmer vorhanden.
 			</p>
 		</div>
 	{:else}
@@ -100,15 +114,25 @@
 				>
 					<!-- Header Section -->
 					<div class="bg-slate-50 border-b border-slate-100 p-8 flex items-center justify-between">
-						<div>
-							<p class="text-xs text-slate-500">
-								Inhalte: <span class="font-bold tracking-tight text-slate-700 uppercase"
-									>{s.taskTitle}</span
-								>
-								in <span class="font-bold tracking-tight text-slate-700 uppercase"
-									>{s.moduleTitle}</span
-								>
-							</p>
+						<div class="flex items-center gap-4">
+							<div>
+								<p class="text-xs text-slate-500">
+									Inhalte: <span class="font-bold tracking-tight text-slate-700 uppercase"
+										>{s.taskTitle}</span
+									>
+									in <span class="font-bold tracking-tight text-slate-700 uppercase"
+										>{s.moduleTitle}</span
+									>
+								</p>
+							</div>
+							
+							{#if s.status === 'APPROVED'}
+								<span class="bg-teal-100 text-teal-700 text-[9px] font-bold px-2 py-0.5 tracking-wider uppercase">Validiert</span>
+							{:else if s.status === 'REJECTED'}
+								<span class="bg-red-100 text-red-700 text-[9px] font-bold px-2 py-0.5 tracking-wider uppercase">Abgelehnt</span>
+							{:else}
+								<span class="bg-amber-100 text-amber-700 text-[9px] font-bold px-2 py-0.5 tracking-wider uppercase">Ausstehend</span>
+							{/if}
 						</div>
 						<p class="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-widest">
 							Eingang: {new Date(s.submittedAt).toLocaleString('de-DE')}
@@ -119,23 +143,56 @@
 					<div class="p-8">
 						<span class="block mb-4 font-mono text-[9px] font-bold text-slate-400 uppercase tracking-[3px]">Abgegebene Ausarbeitung</span>
 						<PracticeReview content={s.content} />
+						
+						{#if s.adminComment}
+							<div class="mt-6 border-l-2 border-red-200 bg-red-50/30 p-4">
+								<p class="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-1">Feedback vom Dozenten:</p>
+								<p class="text-sm text-slate-600 italic">"{s.adminComment}"</p>
+							</div>
+						{/if}
 					</div>
 
 					<!-- Actions -->
-					<div class="bg-slate-50 border-t border-slate-100 p-8 flex justify-end gap-4">
-						<button
-							onclick={() => reject(s.id)}
-							class="border border-red-200 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-red-600 uppercase transition-all hover:bg-red-50 rounded-none"
-						>
-							Ablehnen / Zurücksetzen
-						</button>
-						<button
-							onclick={() => approve(s.id)}
-							class="bg-teal-700 px-8 py-4 text-[10px] font-bold tracking-[3px] text-white uppercase shadow-md transition-all hover:bg-teal-800 rounded-none"
-						>
-							Validieren & Freigeben
-						</button>
-					</div>
+					{#if s.status === 'PENDING'}
+						<div class="bg-slate-50 border-t border-slate-100 p-8 flex flex-wrap justify-end gap-4">
+							<button
+								onclick={() => reject(s.id, true)}
+								class="border border-red-600 bg-white px-6 py-4 text-[10px] font-bold tracking-[3px] text-red-600 uppercase transition-all hover:bg-red-600 hover:text-white rounded-none"
+							>
+								Endgültig Sperren
+							</button>
+							<button
+								onclick={() => reject(s.id, false)}
+								class="border border-red-200 bg-white px-6 py-4 text-[10px] font-bold tracking-[3px] text-red-400 uppercase transition-all hover:bg-red-50 rounded-none"
+							>
+								Ablehnen (Korrektur)
+							</button>
+							<button
+								onclick={() => approve(s.id, true)}
+								class="border border-amber-500 bg-white px-6 py-4 text-[10px] font-bold tracking-[3px] text-amber-600 uppercase transition-all hover:bg-amber-500 hover:text-white rounded-none"
+							>
+								Halbe Punkte
+							</button>
+							<button
+								onclick={() => approve(s.id, false)}
+								class="bg-teal-700 px-8 py-4 text-[10px] font-bold tracking-[3px] text-white uppercase shadow-md transition-all hover:bg-teal-800 rounded-none"
+							>
+								Volle Punkte
+							</button>
+						</div>
+					{:else}
+						<div class="bg-slate-50 border-t border-slate-100 p-8 flex justify-end gap-4">
+							<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic py-4">Bereits bearbeitet</p>
+							{#if s.status === 'APPROVED'}
+								<button
+									onclick={() => reject(s.id, false)}
+									class="border border-red-100 bg-white px-6 py-4 text-[9px] font-bold tracking-[2px] text-red-400 uppercase transition-all hover:bg-red-50 rounded-none"
+								>
+									Nachträglich Ablehnen
+								</button>
+							{/if}
+						</div>
+					{/if}
 				</div>
 			{/each}
 		</div>

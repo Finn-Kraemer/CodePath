@@ -2,11 +2,11 @@
 	import { onMount } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
 
-	let { task, moduleSlug } = $props();
+	let { task, moduleSlug, supportUsed = false } = $props();
 
 	let answers = $state<string[]>([]);
 	let output = $state('');
-	let result = $state<{ correct: boolean; feedback: string } | null>(null);
+	let result = $state<{ correct: boolean; feedback: string; isLocked?: boolean } | null>(null);
 	let loading = $state(false);
 	let pyodideReady = $state(false);
 	let pyodide: any = null;
@@ -36,7 +36,7 @@
 	});
 
 	async function handleSubmit() {
-		if (!pyodideReady || answers.some((a) => !a)) return;
+		if (!pyodideReady || answers.some((a) => !a) || task.isLocked) return;
 		loading = true;
 		output = '';
 
@@ -62,11 +62,15 @@
 
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
-				body: JSON.stringify({ payload: { output: stdout } })
+				body: JSON.stringify({ 
+					payload: { output: stdout },
+					supportUsed
+				})
 			});
 			const data = await res.json();
-			result = { correct: data.isCorrect, feedback: data.feedback };
+			result = { correct: data.isCorrect, feedback: data.feedback, isLocked: data.isLocked };
 			if (data.isCorrect) task.isCompleted = true;
+			if (data.isLocked) task.isLocked = true;
 		} catch (err: any) {
 			output = err.message;
 			result = { correct: false, feedback: 'Syntax-Fehler im Skript' };
@@ -86,7 +90,7 @@
 	>
 		<pre class="whitespace-pre-wrap">{#each parts as part, i (i)}{part}{#if i < parts.length - 1}<input
 						bind:value={answers[i]}
-						disabled={task.isCompleted}
+						disabled={task.isCompleted || task.isLocked}
 						type="text"
 						class="mx-2 min-w-[80px] border-b-2 border-teal-500 bg-slate-800 px-3 py-1 text-white outline-none transition-colors focus:border-white disabled:opacity-50 rounded-none"
 						placeholder="..."
@@ -125,7 +129,7 @@
 							? 'border-green-200 bg-green-50 text-green-700'
 							: 'border-rose-200 bg-rose-50 text-rose-700'}"
 					>
-						<span class="mb-2 text-xl font-bold">{result.correct ? '✓' : '✗'}</span>
+						<span class="mb-2 text-xl font-bold">{result.correct ? '✓' : (result.isLocked ? '🔒' : '✗')}</span>
 						{result.feedback}
 					</div>
 				{:else}
@@ -141,9 +145,9 @@
 
 	<button
 		onclick={handleSubmit}
-		disabled={loading || !pyodideReady || answers.some((a) => !a) || task.isCompleted}
+		disabled={loading || !pyodideReady || answers.some((a) => !a) || task.isCompleted || task.isLocked}
 		class="w-full bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
 	>
-		{loading ? 'Prüfprozess...' : task.isCompleted ? 'Skript bereits verifiziert' : 'Skript ausführen & validieren'}
+		{loading ? 'Prüfprozess...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Skript bereits verifiziert' : 'Skript ausführen & validieren'}
 	</button>
 </div>

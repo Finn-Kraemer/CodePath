@@ -11,6 +11,8 @@
 		difficulty: string;
 		points: number;
 		isCompleted: boolean;
+		isLocked: boolean;
+		supportUsed: boolean;
 	}
 
 	let tasks = $state<Task[]>([]);
@@ -83,18 +85,30 @@
 				<a
 					href={`/modules/${slug}/${task.slug}`}
 					class="group flex items-center justify-between border p-8 transition-all rounded-none
-                    {task.isCompleted
-						? 'border-green-200 bg-green-50/30'
-						: 'border-slate-200 bg-white hover:border-institutional-navy shadow-sm'}"
+                    {task.isLocked
+						? 'border-red-200 bg-red-50/30'
+						: task.isCompleted
+							? task.supportUsed
+								? 'border-amber-200 bg-amber-50/30'
+								: 'border-green-200 bg-green-50/30'
+							: 'border-slate-200 bg-white hover:border-institutional-navy shadow-sm'}"
 				>
 					<div class="flex items-center gap-8">
 						<div
 							class="flex h-14 w-14 items-center justify-center font-mono text-[11px] font-black transition-colors rounded-none
-                            {task.isCompleted
-								? 'bg-green-600 text-white'
-								: 'bg-slate-100 text-slate-400 group-hover:bg-institutional-navy group-hover:text-white'}"
+                            {task.isLocked
+								? 'bg-red-600 text-white'
+								: task.isCompleted
+									? task.supportUsed
+										? 'bg-amber-500 text-white'
+										: 'bg-green-600 text-white'
+									: 'bg-slate-100 text-slate-400 group-hover:bg-institutional-navy group-hover:text-white'}"
 						>
-							{#if task.isCompleted}
+							{#if task.isLocked}
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
+									<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+								</svg>
+							{:else if task.isCompleted}
 								<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
 									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
 								</svg>
@@ -114,14 +128,17 @@
 								<span class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase italic">
 									{task.type.replace('_', ' ')}
 								</span>
+								{#if task.supportUsed && task.isCompleted}
+									<span class="bg-amber-100 text-amber-700 font-mono text-[8px] font-bold px-2 py-0.5 tracking-wider uppercase">Punktabzug aktiv</span>
+								{/if}
 							</div>
 						</div>
 					</div>
 
 					<div class="flex items-center gap-4">
 						<span class="font-sans text-[10px] font-black tracking-widest uppercase transition-colors
-                            {task.isCompleted ? 'text-green-600' : 'text-slate-300 group-hover:text-institutional-navy'}">
-							{task.isCompleted ? 'Abgeschlossen' : 'Aufgabe lösen →'}
+                            {task.isLocked ? 'text-red-600' : task.isCompleted ? (task.supportUsed ? 'text-amber-600' : 'text-green-600') : 'text-slate-300 group-hover:text-institutional-navy'}">
+							{task.isLocked ? 'Gesperrt' : task.isCompleted ? 'Abgeschlossen' : 'Aufgabe lösen →'}
 						</span>
 					</div>
 				</a>

@@ -5,6 +5,8 @@ import de.codepath.backend.features.modules.ModuleRepository;
 import de.codepath.backend.features.modules.ModuleResponse;
 import de.codepath.backend.features.tasks.*;
 import de.codepath.backend.common.AnnouncementDisplayMode;
+import de.codepath.backend.common.SystemSetting;
+import de.codepath.backend.common.SystemSettingRepository;
 import de.codepath.backend.features.messaging.RealtimeUpdateService;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
@@ -62,30 +64,35 @@ public class AdminService {
     }
 
     @Transactional
-    public void approveSubmission(Long id, User admin) {
+    public void approveSubmission(Long id, User admin, boolean halfPoints) {
         PracticeSubmission submission = submissionRepository.findById(id).orElseThrow();
         if (submission.getStatus() == SubmissionStatus.APPROVED) return;
 
         submission.setStatus(SubmissionStatus.APPROVED);
         submission.setReviewedAt(LocalDateTime.now());
         submission.setReviewer(admin);
+        
+        // If admin manually chooses half points, we override the supportUsed flag for point calculation
+        if (halfPoints) {
+            submission.setSupportUsed(true);
+        }
         submissionRepository.save(submission);
 
-        saveCompletion(submission.getUser(), submission.getTask());
+        saveCompletion(submission.getUser(), submission.getTask(), submission.isSupportUsed());
         
         // Push Leaderboard Update
         realtimeUpdateService.publishLeaderboardUpdate();
     }
 
     @Transactional
-    public void rejectSubmission(Long id, String comment) {
+    public void rejectSubmission(Long id, String comment, boolean lockTask) {
         PracticeSubmission submission = submissionRepository.findById(id).orElseThrow();
         
+        User user = submission.getUser();
+        Task task = submission.getTask();
+
         // If it was already approved, we need to remove the completion and points
         if (submission.getStatus() == SubmissionStatus.APPROVED) {
-            User user = submission.getUser();
-            Task task = submission.getTask();
-            
             completionRepository.findByUser_IdAndTask_Id(user.getId(), task.getId()).ifPresent(completion -> {
                 user.setTotalPoints(user.getTotalPoints() - completion.getPointsAwarded());
                 completion.setCompleted(false);
@@ -98,6 +105,18 @@ public class AdminService {
             realtimeUpdateService.publishLeaderboardUpdate();
         }
         
+        if (lockTask) {
+            UserTaskCompletion completion = completionRepository.findByUser_IdAndTask_Id(user.getId(), task.getId())
+                    .orElseGet(() -> {
+                        UserTaskCompletion c = new UserTaskCompletion();
+                        c.setUser(user);
+                        c.setTask(task);
+                        return c;
+                    });
+            completion.setLocked(true);
+            completionRepository.save(completion);
+        }
+
         submission.setStatus(SubmissionStatus.REJECTED);
         submission.setAdminComment(comment);
         submission.setReviewedAt(LocalDateTime.now());
@@ -118,20 +137,26 @@ public class AdminService {
         realtimeUpdateService.publishAnnouncement(content, displayMode.name());
     }
 
-    private void saveCompletion(User user, Task task) {
+    private void saveCompletion(User user, Task task, boolean supportUsed) {
         UserTaskCompletion completion = completionRepository.findByUser_IdAndTask_Id(user.getId(), task.getId())
                 .orElse(new UserTaskCompletion());
         
         if (completion.isCompleted()) return;
 
+        int points = task.getPoints();
+        if (supportUsed) {
+            points = Math.max(1, points / 2);
+        }
+
         completion.setUser(user);
         completion.setTask(task);
-        completion.setPointsAwarded(task.getPoints());
+        completion.setPointsAwarded(points);
         completion.setCompletedAt(LocalDateTime.now());
         completion.setCompleted(true);
+        completion.setSupportUsed(supportUsed);
         completionRepository.save(completion);
 
-        user.setTotalPoints(user.getTotalPoints() + task.getPoints());
+        user.setTotalPoints(user.getTotalPoints() + points);
         userRepository.save(user);
     }
 
@@ -163,17 +188,22 @@ public class AdminService {
     public List<TaskResponse> getTasksForStudent(String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
         return taskRepository.findAll(Sort.by("module.sortOrder", "sortOrder")).stream()
-                .map(t -> TaskResponse.builder()
-                        .id(t.getId())
-                        .slug(t.getSlug())
-                        .title(t.getTitle())
-                        .type(t.getType().name())
-                        .difficulty(t.getDifficulty().name())
-                        .points(t.getPoints())
-                        .moduleTitle(t.getModule().getTitle())
-                        .isCompleted(completionRepository.existsByUser_IdAndTask_Id(user.getId(), t.getId()))
-                        .build()
-                )
+                .map(t -> {
+                    UserTaskCompletion completion = completionRepository.findByUser_IdAndTask_Id(user.getId(), t.getId())
+                            .orElse(null);
+                    return TaskResponse.builder()
+                            .id(t.getId())
+                            .slug(t.getSlug())
+                            .title(t.getTitle())
+                            .type(t.getType().name())
+                            .difficulty(t.getDifficulty().name())
+                            .points(t.getPoints())
+                            .moduleTitle(t.getModule().getTitle())
+                            .isCompleted(completion != null && completion.isCompleted())
+                            .isLocked(completion != null && completion.isLocked())
+                            .supportUsed(completion != null && completion.isSupportUsed())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -184,10 +214,9 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    public List<Map<String, Object>> getPendingSubmissionsForStudent(String username) {
+    public List<Map<String, Object>> getSubmissionsForStudent(String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
-        return submissionRepository.findByStatusWithDetails(SubmissionStatus.PENDING).stream()
-                .filter(s -> s.getUser().getId().equals(user.getId()))
+        return submissionRepository.findByUserIdWithDetails(user.getId()).stream()
                 .map(this::mapSubmission)
                 .collect(Collectors.toList());
     }
@@ -207,6 +236,9 @@ public class AdminService {
         map.put("moduleTitle", s.getTask().getModule().getTitle());
         map.put("submittedAt", s.getSubmittedAt());
         map.put("content", s.getContent());
+        map.put("status", s.getStatus().name());
+        map.put("adminComment", s.getAdminComment());
+        map.put("supportUsed", s.isSupportUsed());
         return map;
     }
 
@@ -218,20 +250,53 @@ public class AdminService {
     }
 
     @Transactional
-    public void toggleTaskCompletion(String username, Long taskId) {
+    public void toggleTaskCompletion(String username, Long taskId, boolean halfPoints) {
         User user = userRepository.findByUsername(username).orElseThrow();
         Task task = taskRepository.findById(taskId).orElseThrow();
         
-        if (completionRepository.existsByUser_IdAndTask_Id(user.getId(), taskId)) {
-            UserTaskCompletion completion = completionRepository.findById(new UserTaskCompletionId(user.getId(), taskId)).orElseThrow();
-            user.setTotalPoints(user.getTotalPoints() - completion.getPointsAwarded());
-            completionRepository.delete(completion);
-        } else {
-            saveCompletion(user, task);
-        }
+        completionRepository.findByUser_IdAndTask_Id(user.getId(), taskId).ifPresentOrElse(
+            completion -> {
+                // If it exists, we either delete it or update the points
+                int currentPoints = completion.getPointsAwarded();
+                int targetPoints = halfPoints ? Math.max(1, task.getPoints() / 2) : task.getPoints();
+
+                if (currentPoints == targetPoints) {
+                    // Same status, so we delete (toggle off)
+                    user.setTotalPoints(user.getTotalPoints() - currentPoints);
+                    completionRepository.delete(completion);
+                } else {
+                    // Update points (e.g., from full to half or vice versa)
+                    user.setTotalPoints(user.getTotalPoints() - currentPoints + targetPoints);
+                    completion.setPointsAwarded(targetPoints);
+                    completion.setSupportUsed(halfPoints);
+                    completionRepository.save(completion);
+                }
+            },
+            () -> {
+                // Not completed yet, so we create it
+                saveCompletion(user, task, halfPoints);
+            }
+        );
         userRepository.save(user);
         
         // Push Leaderboard Update
         realtimeUpdateService.publishLeaderboardUpdate();
+    }
+
+    @Transactional
+    public void toggleTaskLock(String username, Long taskId) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        
+        UserTaskCompletion completion = completionRepository.findByUser_IdAndTask_Id(user.getId(), taskId)
+                .orElseGet(() -> {
+                    Task task = taskRepository.findById(taskId).orElseThrow();
+                    UserTaskCompletion c = new UserTaskCompletion();
+                    c.setUser(user);
+                    c.setTask(task);
+                    return c;
+                });
+        
+        completion.setLocked(!completion.isLocked());
+        completionRepository.save(completion);
     }
 }

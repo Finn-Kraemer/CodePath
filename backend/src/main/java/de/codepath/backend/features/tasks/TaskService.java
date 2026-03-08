@@ -41,12 +41,14 @@ public class TaskService {
 
     private TaskResponse mapToResponse(Task t, User user) {
         String submissionStatus = null;
+        String submissionContent = null;
         String adminComment = null;
         if (t.getType() == TaskType.PRACTICE) {
             PracticeSubmission sub = practiceSubmissionRepository.findTopByUser_IdAndTask_IdOrderBySubmittedAtDesc(user.getId(), t.getId())
                     .orElse(null);
             if (sub != null) {
                 submissionStatus = sub.getStatus().name();
+                submissionContent = sub.getContent();
                 adminComment = sub.getAdminComment();
             } else {
                 submissionStatus = "NOT_SUBMITTED";
@@ -67,7 +69,10 @@ public class TaskService {
                 .points(t.getPoints())
                 .config(t.getConfig())
                 .isCompleted(completion != null && completion.isCompleted())
+                .isLocked(completion != null && completion.isLocked())
+                .supportUsed(completion != null && completion.isSupportUsed())
                 .submissionStatus(submissionStatus)
+                .submissionContent(submissionContent)
                 .adminComment(adminComment)
                 .failedAttempts(completion != null ? completion.getFailedAttempts() : 0)
                 .timeSpentSeconds(completion != null ? completion.getTimeSpentSeconds() : 0L)

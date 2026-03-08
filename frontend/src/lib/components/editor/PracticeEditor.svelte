@@ -24,10 +24,12 @@
   let { 
     placeholder = 'Schreibe hier deine Lösung...', 
     disabled = false,
+    initialContent = '',
     onchange
   } = $props<{ 
     placeholder?: string; 
     disabled?: boolean;
+    initialContent?: string;
     onchange?: (html: string) => void;
   }>();
 
@@ -39,6 +41,7 @@
   onMount(() => {
     editor = new Editor({
       element: editorElement,
+      content: initialContent,
       extensions: [
         Document,
         Paragraph,

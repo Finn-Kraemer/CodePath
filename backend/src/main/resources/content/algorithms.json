@@ -1,0 +1,273 @@
+{
+    "slug": "algorithmen",
+    "title": "Algorithmen & Datenstrukturen",
+    "description": "Du optimierst das Backend einer App – Millionen Nutzer warten auf Antworten. Die Wahl des richtigen Algorithmus macht den Unterschied.",
+    "iconEmoji": "⚡",
+    "sortOrder": 9,
+    "tasks": [
+      {
+        "slug": "a1",
+        "title": "Was ist ein Algorithmus?",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 1,
+        "story": "<p>Dein Lehrer sagt: 'Ein Algorithmus ist wie ein Kochrezept.' Du nickst – aber verstehst du wirklich was das bedeutet?</p>",
+        "description": "<p>Welche Aussage beschreibt einen Algorithmus am besten?</p>",
+        "config": {
+          "options": [
+            "Ein Algorithmus ist immer ein Programm in Python",
+            "Ein Algorithmus ist eine eindeutige, endliche Schritt-für-Schritt-Anleitung die ein Problem löst",
+            "Ein Algorithmus muss immer der schnellste Weg sein",
+            "Ein Algorithmus ist nur für Mathematiker relevant"
+          ],
+          "correct": [1],
+          "hint": "Die Schlüsselwörter sind 'eindeutig' und 'endlich'. Jeder Schritt muss klar definiert sein und der Algorithmus muss irgendwann aufhören. Ein Kochrezept erfüllt das – eine vage Anleitung nicht."
+        }
+      },
+      {
+        "slug": "a2",
+        "title": "Lineare Suche verstehen",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 2,
+        "story": "<p>Du hast eine unsortierte Liste mit 1000 Schülernamen. Du suchst 'Zoe'. Die lineare Suche geht jeden Namen der Reihe nach durch.</p>",
+        "description": "<p>Wie viele Vergleiche sind im schlimmsten Fall nötig?</p>",
+        "config": {
+          "options": [
+            "Immer genau 500 (die Mitte)",
+            "Immer 1 – Computer suchen sehr schnell",
+            "Bis zu 1000 – im schlechtesten Fall ist Zoe der letzte Eintrag oder gar nicht vorhanden",
+            "Genau 10 – Computer nutzen automatisch schlauere Verfahren"
+          ],
+          "correct": [2],
+          "hint": "Lineare Suche = von vorne nach hinten, Element für Element. Im schlimmsten Fall (worst case) ist das gesuchte Element ganz am Ende oder existiert gar nicht."
+        }
+      },
+      {
+        "slug": "a3",
+        "title": "Lineare Suche implementieren",
+        "difficulty": "EASY",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 3,
+        "story": "<p>Du baust eine Suchfunktion für das Schulverzeichnis. Implementiere die einfachste Suchmethode: von vorne nach hinten durch die Liste gehen.</p>",
+        "description": "<p>Ergänze die lineare Suche.</p>",
+        "config": {
+          "template": "def lineare_suche(liste, ziel):\n    ___ i, element ___ enumerate(liste):\n        if element ___ ziel:\n            return i  # Index gefunden!\n    return ___  # Nicht gefunden\n\nnamen = [\"Anna\", \"Ben\", \"Clara\", \"David\"]\nprint(lineare_suche(namen, \"Clara\"))  # → 2\nprint(lineare_suche(namen, \"Eva\"))   # → -1",
+          "blanks": [
+            {"index": 0, "answer": "for", "caseSensitive": true},
+            {"index": 1, "answer": "in", "caseSensitive": true},
+            {"index": 2, "answer": "==", "caseSensitive": true},
+            {"index": 3, "answer": "-1", "caseSensitive": true}
+          ],
+          "expectedOutput": "2\n-1\n",
+          "hint": "enumerate() gibt (Index, Wert) zurück. Vergleiche mit ==. Die Konvention: -1 zurückgeben wenn nichts gefunden wurde (nicht 0 – das wäre der erste Index!)."
+        }
+      },
+      {
+        "slug": "a4",
+        "title": "Binäre Suche – das Ratespiel",
+        "difficulty": "EASY",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 4,
+        "story": "<p>Du spielst 'Denk dir eine Zahl zwischen 1 und 1000'. Dein Freund rät immer die Mitte und bekommt 'zu groß' oder 'zu klein' als Antwort. Er halbiert jedes Mal den Suchbereich.</p>",
+        "description": "<p>Warum ist diese Strategie viel besser als einfach von 1 bis 1000 zu zählen?</p>",
+        "config": {
+          "options": [
+            "Sie ist nicht besser – beide brauchen gleich viele Versuche",
+            "Jeder Schritt halbiert die verbleibenden Möglichkeiten – statt bis zu 1000 Versuchen braucht man nur etwa 10",
+            "Die Mitte zu raten ist nur bei geraden Zahlen besser",
+            "Es funktioniert nur wenn die Zahl zwischen 1 und 100 liegt"
+          ],
+          "correct": [1],
+          "hint": "1000 → 500 → 250 → 125 → 62 → 31 → 15 → 7 → 3 → 1. Zähle die Pfeile – das sind die maximalen Schritte! Diese Strategie heißt Binäre Suche."
+        }
+      },
+      {
+        "slug": "a5",
+        "title": "Binäre Suche implementieren",
+        "difficulty": "MEDIUM",
+        "points": 20,
+        "type": "CODE",
+        "sortOrder": 5,
+        "story": "<p>Die binäre Suche braucht eine <strong>sortierte</strong> Liste. Dafür ist sie dramatisch schneller als die lineare Suche: Bei 1 Million Elementen braucht sie maximal 20 Schritte statt 1 Million.</p>",
+        "description": "<p>Implementiere die binäre Suche vollständig.</p>",
+        "config": {
+          "starterCode": "def binaere_suche(liste, ziel):\n    links = 0\n    rechts = len(liste) - 1\n    \n    while links <= rechts:\n        mitte = (links + rechts) // 2\n        # Falls liste[mitte] == ziel: gefunden! return mitte\n        # Falls liste[mitte] < ziel: suche rechts weiter (links = mitte + 1)\n        # Falls liste[mitte] > ziel: suche links weiter (rechts = mitte - 1)\n        pass\n    \n    return -1\n\nzahlen = [2, 5, 8, 12, 16, 23, 38, 42, 55, 72]\nprint(binaere_suche(zahlen, 23))  # → 5\nprint(binaere_suche(zahlen, 10))  # → -1",
+          "expectedOutput": "5\n-1\n",
+          "hint": "Drei Fälle: liste[mitte] == ziel → return mitte. liste[mitte] < ziel → links = mitte + 1 (rechter Bereich). liste[mitte] > ziel → rechts = mitte - 1 (linker Bereich)."
+        }
+      },
+      {
+        "slug": "a6",
+        "title": "Stack – Last In, First Out",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 6,
+        "story": "<p>Der Browser-Zurück-Button merkt sich deine besuchten Seiten. Du besuchst: Google → YouTube → Reddit. Dann drückst du zweimal Zurück.</p>",
+        "description": "<p>Welche Datenstruktur steckt hinter dem Zurück-Button – und in welcher Reihenfolge kehrst du zurück?</p>",
+        "config": {
+          "options": [
+            "Queue (Warteschlange): Zurück zu Google, dann YouTube",
+            "Stack (Stapel): Zurück zu YouTube, dann Google",
+            "Liste: Zurück zu Reddit, dann YouTube",
+            "Dictionary: Reihenfolge ist zufällig"
+          ],
+          "correct": [1],
+          "hint": "Stack = Kartenstapel. Das zuletzt draufgelegte kommt als erstes wieder runter (LIFO = Last In, First Out). Reddit war zuletzt – also kommt YouTube als nächstes."
+        }
+      },
+      {
+        "slug": "a7",
+        "title": "Stack in Python bauen",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 7,
+        "story": "<p>Python-Listen funktionieren perfekt als Stack. <code>append()</code> legt obendrauf (push), <code>pop()</code> nimmt das oberste Element runter.</p>",
+        "description": "<p>Ergänze den Stack der den Browser-Verlauf simuliert.</p>",
+        "config": {
+          "template": "verlauf = []\n\n# Seiten besuchen (push)\nverlauf.___( \"google.com\")\nverlauf.___( \"youtube.com\")\nverlauf.___( \"reddit.com\")\n\nprint(\"Aktuell:\", verlauf[-1])\n\n# Zurück-Button (pop)\nverlauf.___()\nprint(\"Zurück zu:\", verlauf[-1])",
+          "blanks": [
+            {"index": 0, "answer": "append", "caseSensitive": true},
+            {"index": 1, "answer": "append", "caseSensitive": true},
+            {"index": 2, "answer": "append", "caseSensitive": true},
+            {"index": 3, "answer": "pop", "caseSensitive": true}
+          ],
+          "expectedOutput": "Aktuell: reddit.com\nZurück zu: youtube.com\n",
+          "hint": "append() fügt am Ende hinzu (oben auf den Stapel). pop() entfernt das letzte Element und gibt es zurück. [-1] liest das letzte Element ohne es zu entfernen."
+        }
+      },
+      {
+        "slug": "a8",
+        "title": "Queue – First In, First Out",
+        "difficulty": "MEDIUM",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 8,
+        "story": "<p>Der Drucker in der Schule druckt Aufträge in der Reihenfolge wie sie ankommen. Wer zuerst druckt bekommt sein Dokument zuerst – das ist eine Queue (Warteschlange).</p>",
+        "description": "<p>Ergänze die Queue-Simulation mit <code>collections.deque</code>.</p>",
+        "config": {
+          "template": "from collections import deque\n\ndrucker_queue = deque()\n\n# Aufträge hinzufügen (hinten anstellen)\ndrucker_queue.___( \"Anna: Mathe-Hausaufgaben\")\ndrucker_queue.___( \"Ben: Referat\")\ndrucker_queue.___( \"Clara: Stundenplan\")\n\n# Aufträge abarbeiten (vorne wegnehmen) – FIFO!\nprint(\"Drucke:\", drucker_queue.___(  ))\nprint(\"Drucke:\", drucker_queue.___(  ))",
+          "blanks": [
+            {"index": 0, "answer": "append", "caseSensitive": true},
+            {"index": 1, "answer": "append", "caseSensitive": true},
+            {"index": 2, "answer": "append", "caseSensitive": true},
+            {"index": 3, "answer": "popleft", "caseSensitive": true},
+            {"index": 4, "answer": "popleft", "caseSensitive": true}
+          ],
+          "expectedOutput": "Drucke: Anna: Mathe-Hausaufgaben\nDrucke: Ben: Referat\n",
+          "hint": "deque ist effizienter als eine normale Liste für Queues. append() fügt rechts hinzu (hinten anstellen). popleft() nimmt links weg (vorne aus der Schlange)."
+        }
+      },
+      {
+        "slug": "a9",
+        "title": "Bubble Sort verstehen",
+        "difficulty": "MEDIUM",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 9,
+        "story": "<p>Bubble Sort vergleicht immer zwei benachbarte Elemente und tauscht sie wenn sie falsch sortiert sind.</p><pre><code>Runde 1: [5, 3, 8, 1] → [3, 5, 1, 8]\nRunde 2: [3, 5, 1, 8] → [3, 1, 5, 8]\nRunde 3: [3, 1, 5, 8] → [1, 3, 5, 8] ✓</code></pre>",
+        "description": "<p>Was passiert in jeder Runde von Bubble Sort?</p>",
+        "config": {
+          "options": [
+            "Die Liste wird in zwei Hälften geteilt und separat sortiert",
+            "Das größte noch unsortierte Element 'blubbert' an seine richtige Position am Ende",
+            "Ein zufälliges Element wird an die richtige Stelle gesetzt",
+            "Die Liste wird komplett neu angeordnet"
+          ],
+          "correct": [1],
+          "hint": "Schau dir die Beispiele an: Nach Runde 1 ist 8 (das Größte) am Ende. Nach Runde 2 ist 5 an seiner Stelle. Die großen Werte 'blubbern' wie Luftblasen nach oben – daher der Name."
+        }
+      },
+      {
+        "slug": "a10",
+        "title": "Bubble Sort implementieren",
+        "difficulty": "HARD",
+        "points": 20,
+        "type": "CODE",
+        "sortOrder": 10,
+        "story": "<p>Bubble Sort ist langsam bei großen Listen – aber perfekt zum Lernen. Jeder Entwickler kennt ihn. Die Logik ist einfach: immer benachbarte Paare vergleichen und tauschen.</p>",
+        "description": "<p>Implementiere Bubble Sort vollständig.</p>",
+        "config": {
+          "starterCode": "def bubble_sort(liste):\n    n = len(liste)\n    for i in range(n - 1):          # n-1 Runden reichen\n        for j in range(0, n - i - 1):  # Innere Schleife: Paare vergleichen\n            if liste[j] > liste[j + 1]:\n                # Tausche liste[j] und liste[j+1]\n                pass\n    return liste\n\nzahlen = [64, 34, 25, 12, 22, 11, 90]\nprint(bubble_sort(zahlen))",
+          "expectedOutput": "[11, 12, 22, 25, 34, 64, 90]\n",
+          "hint": "Python-Style Tausch: liste[j], liste[j+1] = liste[j+1], liste[j] – das tauscht beide Werte in einer Zeile ohne eine temporäre Variable."
+        }
+      },
+      {
+        "slug": "a11",
+        "title": "Baum-Struktur verstehen",
+        "difficulty": "HARD",
+        "points": 10,
+        "type": "MULTIPLE_CHOICE",
+        "sortOrder": 11,
+        "story": "<p>Ein Binärbaum ist eine Datenstruktur wo jeder Knoten maximal 2 Kinder hat. Hier ein Beispiel:</p><pre><code>        4\n       / \\\n      2   6\n     / \\\n    1   3</code></pre>",
+        "description": "<p>In welcher Reihenfolge gibt die Inorder-Traversierung (links → Wurzel → rechts) die Werte aus?</p>",
+        "config": {
+          "options": [
+            "4, 2, 6, 1, 3",
+            "1, 2, 3, 4, 6",
+            "4, 2, 1, 3, 6",
+            "1, 3, 2, 6, 4"
+          ],
+          "correct": [1],
+          "hint": "Inorder: erst komplett links, dann Wurzel, dann rechts. Starte bei 4 → gehe links zu 2 → gehe links zu 1 (kein Kind mehr) → ausgeben: 1. Zurück zu 2 → ausgeben: 2. Gehe rechts zu 3 → ausgeben: 3. Zurück zu 4 → ausgeben: 4. Rechts zu 6 → ausgeben: 6."
+        }
+      },
+      {
+        "slug": "a12",
+        "title": "Binärbaum in Python bauen",
+        "difficulty": "HARD",
+        "points": 20,
+        "type": "CODE",
+        "sortOrder": 12,
+        "story": "<p>Dateisysteme, Suchmaschinen und Datenbanken nutzen Baumstrukturen. Ein Binärbaum besteht aus Knoten, die jeweils einen Wert und Zeiger auf linkes und rechtes Kind speichern.</p>",
+        "description": "<p>Baue einen Binärbaum und implementiere die Inorder-Traversierung.</p>",
+        "config": {
+          "starterCode": "class Knoten:\n    def __init__(self, wert):\n        self.wert = wert\n        self.links = None\n        self.rechts = None\n\ndef inorder(knoten):\n    # Basisfall: wenn knoten None ist → return\n    # Schritt 1: inorder(knoten.links)  – erst ganz links\n    # Schritt 2: print(knoten.wert)     – dann Wurzel\n    # Schritt 3: inorder(knoten.rechts) – dann rechts\n    pass\n\n# Baum aufbauen\nwurzel = Knoten(4)\nwurzel.links = Knoten(2)\nwurzel.rechts = Knoten(6)\nwurzel.links.links = Knoten(1)\nwurzel.links.rechts = Knoten(3)\n\ninorder(wurzel)\nprint()  # Zeilenumbruch",
+          "expectedOutput": "1 2 3 4 6 \n",
+          "hint": "Inorder ist rekursiv: rufe zuerst inorder(links) auf, dann print(wert), dann inorder(rechts). Der Basisfall: if knoten is None: return. Das gibt die Werte in sortierter Reihenfolge aus!"
+        }
+      },
+      {
+        "slug": "a13",
+        "title": "Graph – Verbindungen modellieren",
+        "difficulty": "HARD",
+        "points": 15,
+        "type": "FILL_CODE",
+        "sortOrder": 13,
+        "story": "<p>Ein Graph besteht aus Knoten (Nodes) und Kanten (Edges). Soziale Netzwerke, Stadtpläne und das Internet sind Graphen. Ein einfacher Weg einen Graphen in Python darzustellen: als Dictionary von Nachbarlisten (Adjazenzliste).</p>",
+        "description": "<p>Ergänze den Code der alle Nachbarn eines Knotens ausgibt und per BFS (Breitensuche) den Graphen durchsucht.</p>",
+        "config": {
+          "template": "# Adjazenzliste: Wer ist mit wem verbunden?\nstadtplan = {\n    \"A\": [\"B\", \"C\"],\n    \"B\": [\"A\", \"D\"],\n    \"C\": [\"A\"],\n    \"D\": [\"B\"]\n}\n\n# Breitensuche (BFS) – besucht alle erreichbaren Knoten\nfrom collections import deque\n\ndef bfs(graph, start):\n    besucht = set()\n    queue = deque([___])\n    besucht.add(start)\n    \n    while queue:\n        knoten = queue.___()\n        print(knoten, end=\" \")\n        \n        for nachbar in graph[___]:\n            if nachbar ___ besucht:\n                besucht.add(nachbar)\n                queue.append(nachbar)\n\nbfs(stadtplan, \"A\")\nprint()",
+          "blanks": [
+            {"index": 0, "answer": "start", "caseSensitive": true},
+            {"index": 1, "answer": "popleft", "caseSensitive": true},
+            {"index": 2, "answer": "knoten", "caseSensitive": true},
+            {"index": 3, "answer": "not in", "caseSensitive": true}
+          ],
+          "expectedOutput": "A B C D \n",
+          "hint": "BFS nutzt eine Queue (FIFO). Start-Knoten in Queue legen. Solange Queue nicht leer: Knoten vorne nehmen, alle unbesuchten Nachbarn hinten anstellen. 'not in' prüft ob Nachbar noch nicht besucht wurde."
+        }
+      },
+      {
+        "slug": "a14",
+        "title": "Algorithmen-Design: Empfehlungssystem",
+        "difficulty": "HARD",
+        "points": 50,
+        "type": "PRACTICE",
+        "sortOrder": 14,
+        "story": "<p>Du baust das Empfehlungssystem für die Lernplattform. Es soll Schülern automatisch die nächste passende Aufgabe empfehlen – nicht zu leicht, nicht zu schwer.</p>",
+        "description": "<p>Entwirf deinen eigenen Algorithmus und wähle die passende Datenstruktur.</p>",
+        "config": {
+          "instructions": "Dein Entwurf muss enthalten:\n1. Algorithmus-Beschreibung: Was sind Eingabe und Ausgabe? Beschreibe die Logik in Pseudocode oder Python.\n2. Datenstruktur: Welche Struktur nutzt du für die Aufgaben? (Liste, Dictionary, Baum, Graph...) Begründe warum.\n3. Schritt-für-Schritt: Was passiert wenn ein Schüler eine Aufgabe löst?\n4. Sonderfall: Was passiert wenn keine passende Aufgabe gefunden wird?\n5. Bonus: Könnte man einen Graphen nutzen um Aufgaben-Abhängigkeiten darzustellen? (z.B. 'Schleifen' muss vor 'Funktionen' kommen) Skizziere die Idee.\n\nKontext: Jede Aufgabe hat einen Schwierigkeitsgrad (1-10). Der Schüler hat zuletzt Aufgaben der Schwierigkeit 3-5 gelöst.",
+          "submissionNote": "Pseudocode oder Python + Erklärung der Datenstruktur + Begründung deiner Entscheidungen."
+        }
+      }
+    ]
+  }

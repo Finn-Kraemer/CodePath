@@ -21,67 +21,63 @@ Das Projekt ist als **Monorepo** strukturiert und folgt einer klassischen Client
 Das Backend ist in Java mit Spring Boot realisiert und nutzt eine **Package-by-Feature** Struktur für hohe Modularität.
 
 ### 1. Sicherheit & Authentifizierung (`/auth`)
-- **Mechanismus:** JWT-basierte Authentifizierung (Stateless).
-- **Filter-Chain:** Ein `JwtAuthenticationFilter` extrahiert den Token aus dem `Authorization`-Header und validiert diesen gegen den `JwtService`.
-- **Rollen:** Unterscheidung zwischen `STUDENT` und `ADMIN` via Spring Security `@PreAuthorize`.
+- **JWT-Authentifizierung:** Stateless-Sitzungen via JWT.
+- **Rollen:** `STUDENT` und `ADMIN`.
+- **Anmerkung:** Spring Security Warnungen bezüglich `AuthenticationManager` wurden explizit unterdrückt, da das Setup mit einem manuell konfigurierten `DaoAuthenticationProvider` gewollt ist.
 
 ### 2. Datenmodell & Migrationen
-- **Flyway:** Verwaltet versionierte SQL-Migrationen (`src/main/resources/db/migration/`).
-- **Kernentitäten:**
-    - `User`: Nutzerdaten, Rollen und Gesamtpunkte.
-    - `Module` & `Task`: Struktur der Lerninhalte.
-    - `UserTaskCompletion`: Speichert Fortschritt, Bearbeitungszeit (`timeSpentSeconds`) und Fehlversuche (`failedAttempts`).
-    - `PracticeSubmission`: Speichert die Freitext-Abgaben für manuelle Korrekturen (Status: `PENDING`, `APPROVED`, `REJECTED`).
-    - `GlobalAnnouncement`: Systemweite Mitteilungen der Lehrkräfte (unterstützt verschiedene Anzeige-Modi).
-    - `GeneralFeedback`: Ermöglicht Schülern die Abgabe von allgemeinem Kurs-Feedback.
-    - `SystemSetting`: Speichert globale Konfigurationen wie den Status der Feedback-Runde.
+- **Flyway:** Verwaltet versionierte SQL-Migrationen.
+- **Wichtige Erweiterungen:**
+    - `UserTaskCompletion`: Speichert Fortschritt, Bearbeitungszeit, Fehlversuche, Sperr-Status (`is_locked`) und ob Unterstützung genutzt wurde (`support_used`).
+    - `PracticeSubmission`: Speichert Freitext-Lösungen inkl. Statusverlauf und Korrekturkommentaren.
+    - `SystemSetting`: Globale Key-Value Konfigurationen (z.B. Feedback-Status).
 
-### 3. Aufgaben-Validierung & Fortschritt (`TaskSubmissionService`)
-Der zentrale Dienst zur Prüfung von Aufgaben wurde um Fortschritts-Tracking erweitert:
-- **Timer:** Erfasst die Bearbeitungszeit pro Aufgabe. Kann für Bonus-Punkte bei schneller Lösung genutzt werden.
-- **Fehlversuche:** Trackt `failedAttempts`. Nach 3 Fehlversuchen liefert das Backend die korrekte Lösung als Hilfestellung mit.
-- **Punkte-Logik:** Bonus-Punkte für Schnelligkeit und Abzug bei Nutzung der Lösungshilfe.
-- **PRACTICE:** Unterstützt nun einen Feedback-Zyklus. Bei `REJECTED` kann ein Admin-Kommentar hinterlegt werden, woraufhin der Schüler seine Lösung überarbeiten kann.
+### 3. Aufgaben-Validierung & Sperrsystem (`TaskSubmissionService`)
+- **Automatisches Sperren:** Multiple-Choice-Aufgaben werden nach **3 Fehlversuchen** automatisch gesperrt.
+- **Support-Modus:** Schüler können Hilfestellungen aufklappen. Dies setzt das Flag `support_used`, wodurch die erreichbare Punktzahl für diese Aufgabe halbiert wird.
+- **Korrektur-Workflow:** Bei einer Ablehnung zur Korrektur bleibt die ursprüngliche Lösung des Schülers im Editor erhalten (`submissionContent`), um eine einfache Überarbeitung zu ermöglichen.
 
 ### 4. Skalierung & Asynchronität (RabbitMQ)
-Um das System vor Überlastung zu schützen (z.B. wenn eine ganze Klasse gleichzeitig Aufgaben abgibt), ist **RabbitMQ** integriert:
-- **Event-Driven:** Speicherintensive Prozesse wie die Freitext-Praxisabgaben (`PracticeSubmissionEvent`) werden nicht synchron in die Datenbank geschrieben, sondern als Event an RabbitMQ (`codepath.practice.submissions`) übergeben.
-- **Consumer:** Der `SubmissionConsumer` arbeitet die Queue asynchron und idempotent im Hintergrund ab.
-- **User Experience:** Das Backend blockiert nicht; der Schüler erhält sofort eine Rückmeldung, dass die Abgabe erfolgreich in Prüfung ist.
-
-### 5. Dateninitialisierung & Kommunikation
-- Beim Systemstart lädt der `DataInitializer` die Datei `content.json`.
-- **Live-Editor (Ankündigungen):** Admins können globale Mitteilungen veröffentlichen. Diese unterstützen Zeilenumbrüche (`\n`) und verschiedene Anzeige-Modi (Header, Info-Seite).
-- **Globales Feedback:** Admins können eine Feedback-Runde starten/stoppen. Schüler können einmalig nach Bestätigung eine Rückmeldung abgeben.
+Alle leistungskritischen Schreibvorgänge laufen asynchron über Message Queues:
+- **Praxis-Abgaben:** `codepath.practice.submissions` entkoppelt die Speicherung großer Textinhalte.
+- **Aufgaben-Fertigstellung:** `codepath.task.completions` verarbeitet Punktegutschriften und Leaderboard-Updates im Hintergrund.
+- **Consumer:** Der `SubmissionConsumer` garantiert Idempotenz und sorgt für eine reibungslose Punktevergabe ohne Blockierung des Web-Threads.
 
 ---
 
 ## 🎨 Frontend-Implementierung
 
-Das Frontend nutzt die neuesten Features von **Svelte 5** für ein reaktives und performantes Nutzererlebnis.
+Das Frontend nutzt **Svelte 5** für ein hochreaktives Nutzererlebnis.
 
-### 1. Reaktivität mit Svelte 5 Runes
-- Nutzung von `$state`, `$derived` und `$effect` für ein effizientes State-Management.
-- Zentraler `auth.svelte.ts` Store zur Verwaltung des Login-Status und API-Abfragen.
+### 1. Svelte 5 Integration
+- Nutzung von Runes (`$state`, `$derived`, `$effect`) für konsistentes State-Management.
+- **Tiefen-Reaktivität:** Komplexe Zustände wie eingeklappte Module werden über reaktive Records verwaltet.
 
-### 2. Interaktive Komponenten
-- **TaskTimer:** Eine reaktive Komponente, die die Bearbeitungszeit misst und beim Submit mitsendet.
-- **GlobalAnnouncement Banner:** Integriert in das Hauptlayout zur Echtzeit-Kommunikation.
-- **Feedback-System:** Dedizierte Seiten für Schüler (`/feedback`) mit Einmalsperre und Bestätigungsdialog sowie für Admins (`/admin/feedback`) zur Steuerung und Einsicht.
-- **Monaco Editor:** Bietet eine vollwertige IDE-Erfahrung für Python-Aufgaben inklusive Syntax-Highlighting.
-- **Pyodide Integration:** Python-Code wird **direkt im Browser** des Nutzers ausgeführt.
+### 2. UI & Design ("Institutional Navy")
+- **Dashboard:** Aufgeräumtes Admin-Control-Center mit 12-Spalten-Grid, Schnellzugriffs-Karten und Live-Leaderboard.
+- **Teilnehmer-Akte:** Module sind standardmäßig eingeklappt. Bietet granulare Steuerung pro Aufgabe (100% Punkte, 50% Punkte, Sperren/Entsperren).
+- **Status-Visualisierung:** 
+    - Grün: Erledigt (volle Punkte).
+    - Gelb: Erledigt mit Unterstützung (halbe Punkte).
+    - Rot: Gesperrt (zu viele Fehlversuche oder manuell).
 
-### 3. Routing & Layout
-- SvelteKit-basiertes Dateisystem-Routing.
-- **Admin-Bereich:** Zentrale Dashboard-Übersicht mit Echtzeit-Feed von Schüler-Kommentaren, Verwaltung der Ankündigungen, Feedback-Zentrum und Prüfung von Abgaben.
+### 3. Interaktive Editoren
+- **PracticeEditor:** Basierend auf TipTap, unterstützt Rich-Text und Bild-Uploads.
+- **Code-Umgebung:** Monaco Editor mit Pyodide für serverseitig unabhängige Python-Ausführung im Client.
 
 ---
 
-## 🚀 Key Features & Implementierung
+## 🚀 Key Features & Funktionen
 
-### Gamification (Leaderboard)
-- Die `LeaderboardService` berechnet im Backend ein Ranking basierend auf den `totalPoints` der User.
+### Granulare Validierung
+Admins können im Korrektur-Workflow differenziert entscheiden:
+- **Volle Punkte:** Standard-Freigabe.
+- **Halbe Punkte:** Freigabe mit Punktabzug (überschreibt `support_used`).
+- **Endgültig Sperren:** Lehnt ab und verhindert weitere Einreichungen.
+- **Ablehnen (Korrektur):** Standard-Ablehnung für eine Nachbesserung.
 
-### Manueller Korrektur-Workflow (Feedback-Kultur)
-- Vollständiger Zyklus aus Einreichung, Prüfung, Freigabe oder Ablehnung mit Kommentar zur Revision.
-- Ermöglicht eine enge pädagogische Begleitung der Schüler durch die Lehrkräfte.
+### Öffentliche Frontpage
+Die Startseite (`/`) ist öffentlich zugänglich und dient als Infoportal für den Kurs mit:
+- Einführung in den IT-Projekttag.
+- Kurzprofil der Lehrperson (Informatikstudent).
+- Veranstaltungs-Agenda und geplanter Ablauf (Timeline-Design).

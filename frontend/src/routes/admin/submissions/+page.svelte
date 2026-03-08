@@ -30,10 +30,11 @@
 		}
 	}
 
-	async function approve(id: number) {
+	async function approve(id: number, halfPoints: boolean = false) {
 		try {
 			const res = await auth.apiFetch(`/api/admin/submissions/${id}/approve`, {
-				method: 'PUT'
+				method: 'PUT',
+				body: JSON.stringify({ halfPoints })
 			});
 			if (res.ok) {
 				submissions = submissions.filter((s) => s.id !== id);
@@ -119,10 +120,16 @@
 							Abgabe öffnen
 						</a>
 						<button
-							onclick={() => approve(s.id)}
+							onclick={() => approve(s.id, true)}
+							class="border border-amber-500 px-6 py-4 text-[10px] font-bold tracking-[3px] text-amber-600 uppercase transition-all hover:bg-amber-500 hover:text-white rounded-none"
+						>
+							Halbe Punkte
+						</button>
+						<button
+							onclick={() => approve(s.id, false)}
 							class="bg-institutional-navy px-8 py-4 text-[10px] font-bold tracking-[3px] text-white uppercase shadow-md transition-all hover:opacity-90 rounded-none"
 						>
-							Schnell-Freigabe
+							Volle Punkte
 						</button>
 					</div>
 				</div>

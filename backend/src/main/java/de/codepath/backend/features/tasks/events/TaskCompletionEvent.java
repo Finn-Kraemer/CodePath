@@ -11,9 +11,10 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PracticeSubmissionEvent implements Serializable {
+public class TaskCompletionEvent implements Serializable {
     private Long userId;
     private Long taskId;
-    private String content;
+    private int pointsAwarded;
     private boolean supportUsed;
+    private long timeSpentSeconds;
 }

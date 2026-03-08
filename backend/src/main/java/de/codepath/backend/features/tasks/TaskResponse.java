@@ -24,7 +24,15 @@ public class TaskResponse {
     
     @JsonProperty("isCompleted")
     private boolean isCompleted;
+
+    @JsonProperty("isLocked")
+    private boolean isLocked;
+
+    @JsonProperty("supportUsed")
+    private boolean supportUsed;
+
     private String submissionStatus;
+    private String submissionContent;
     private String adminComment;
     private Integer failedAttempts;
     private Long timeSpentSeconds;

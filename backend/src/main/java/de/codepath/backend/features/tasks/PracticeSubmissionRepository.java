@@ -11,6 +11,9 @@ public interface PracticeSubmissionRepository extends JpaRepository<PracticeSubm
     @Query("SELECT p FROM PracticeSubmission p JOIN FETCH p.user JOIN FETCH p.task t JOIN FETCH t.module WHERE p.status = :status")
     List<PracticeSubmission> findByStatusWithDetails(@Param("status") SubmissionStatus status);
     
+    @Query("SELECT p FROM PracticeSubmission p JOIN FETCH p.user JOIN FETCH p.task t JOIN FETCH t.module WHERE p.user.id = :userId ORDER BY p.submittedAt DESC")
+    List<PracticeSubmission> findByUserIdWithDetails(@Param("userId") Long userId);
+
     List<PracticeSubmission> findByUserId(Long userId);
 
     java.util.Optional<PracticeSubmission> findTopByUser_IdAndTask_IdOrderBySubmittedAtDesc(Long userId, Long taskId);

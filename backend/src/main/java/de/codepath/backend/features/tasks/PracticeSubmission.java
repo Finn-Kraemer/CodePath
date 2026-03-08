@@ -45,4 +45,7 @@ public class PracticeSubmission {
 
     @Column(name = "admin_comment", columnDefinition = "TEXT")
     private String adminComment;
+
+    @Column(name = "support_used", nullable = false)
+    private boolean supportUsed = false;
 }

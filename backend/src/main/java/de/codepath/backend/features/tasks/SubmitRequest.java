@@ -13,4 +13,5 @@ import java.util.Map;
 public class SubmitRequest {
     private Map<String, Object> payload;
     private Long timeSpentSeconds;
+    private boolean supportUsed;
 }
