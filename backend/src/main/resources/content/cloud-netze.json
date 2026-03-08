@@ -1,0 +1,253 @@
+{
+  "slug": "cloud-netze",
+  "title": "Cloud & Netzwerke",
+  "description": "Das Internet bricht nie einfach zusammen – aber heute ist was schiefgelaufen.",
+  "iconEmoji": "☁️",
+  "sortOrder": 6,
+  "tasks": [
+    {
+      "slug": "c1",
+      "title": "Warum lädt die Seite nicht?",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 1,
+      "story": "<p>Dein erster Tag als Netzwerk-Techniker! Eine Lehrerin ruft an: \\\"Das Internet geht nicht!\" Du fährst zu ihr. Was ist dein erster Schritt?</p>",
+      "description": "<p>Du tippst www.schule.de ein – nichts passiert. Was prüfst du als erstes?</p>",
+      "config": {
+        "options": [
+          "Ob der Browser ein Update braucht",
+          "Ob die Internetverbindung funktioniert (andere Seite aufrufen / Ping)",
+          "Ob die Webseite überhaupt existiert",
+          "Ob der Arbeitsspeicher voll ist"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Diagnose-Regel: Starte immer mit der einfachsten Erklärung. Wenn keine Webseite lädt ist das Internet selbst das Problem – nicht die eine Seite."
+      }
+    },
+    {
+      "slug": "c2",
+      "title": "IP-Adressen entziffern",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 2,
+      "story": "<p>Jedes Gerät im Internet hat eine eindeutige IP-Adresse – wie eine Telefonnummer. Aber welche dieser Adressen ist gültig?</p>",
+      "description": "<p>Welche der folgenden ist eine gültige IPv4-Adresse?</p>",
+      "config": {
+        "options": [
+          "999.1.1.1",
+          "192.168.1",
+          "192.168.1.100",
+          "hello.world.net.de"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Eine IPv4-Adresse besteht aus genau 4 Zahlen (0–255) getrennt durch Punkte. 999 ist zu groß, bei Option 2 fehlt ein Teil."
+      }
+    },
+    {
+      "slug": "c3",
+      "title": "DNS: Das Telefonbuch des Internets",
+      "difficulty": "EASY",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 3,
+      "story": "<p>Du tippst \\\"google.com\" ein. Aber der Computer kennt keine Namen – er braucht eine IP-Adresse. Wer übersetzt?</p>",
+      "description": "<p>Ergänze die Erklärung von DNS.</p>",
+      "config": {
+        "template": "Der ___ Server übersetzt einen Domainnamen (z.B. google.com) in eine ___ -Adresse. Ohne DNS müsste man sich für jede Webseite eine ___ -Adresse merken.",
+        "blanks": [
+          "DNS",
+          "IP",
+          "IP"
+        ],
+        "hint": "DNS = Domain Name System. Es ist wie ein Telefonbuch: Du schlägst den Namen (google.com) nach und bekommst die Nummer (IP-Adresse)."
+      }
+    },
+    {
+      "slug": "c4",
+      "title": "Cloud vs. lokaler Server",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 4,
+      "story": "<p>Die Schule überlegt: Eigener Server im Keller oder Cloud? Was ist der größte praktische Vorteil der Cloud?</p>",
+      "description": "<p>Was ist ein echter Vorteil von Cloud-Lösungen für eine Schule?</p>",
+      "config": {
+        "options": [
+          "Die Seite funktioniert immer auch ohne Internet",
+          "Es entstehen überhaupt keine Kosten",
+          "Wartung, Updates und Backups übernimmt der Anbieter – die Schule braucht kein eigenes IT-Team",
+          "Schülerdaten sind in der Cloud sicher vor allen Angriffen"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Cloud bedeutet: Jemand anderes betreibt die Server. Der Vorteil ist ausgelagerte Verantwortung – aber man gibt auch Kontrolle ab."
+      }
+    },
+    {
+      "slug": "c5",
+      "title": "TCP vs. UDP",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 5,
+      "story": "<p>TCP bestätigt jedes Paket und schickt es bei Verlust neu. UDP schickt einfach los ohne Bestätigung. Welches nutzen Video-Calls wie Zoom – und warum?</p>",
+      "description": "<p>Warum nutzen Video-Calls oft UDP statt TCP?</p>",
+      "config": {
+        "options": [
+          "UDP ist sicherer als TCP",
+          "Bei Live-Übertragungen ist Geschwindigkeit wichtiger als Vollständigkeit – ein kurzer Aussetzer ist besser als 2 Sekunden Wartezeit",
+          "TCP funktioniert nicht für Video-Übertragungen",
+          "UDP verbraucht weniger Strom"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "TCP wartet auf fehlende Pakete (zuverlässig aber langsamer). UDP schickt einfach drauflos (schnell aber unzuverlässig). Bei einem Live-Video: Lieber ein kurzer Pixelfehler als das Bild einfriert."
+      }
+    },
+    {
+      "slug": "c6",
+      "title": "OSI-Modell: Welche Schicht?",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 6,
+      "story": "<p>Das OSI-Modell teilt Netzwerkkommunikation in 7 Schichten: 1=Kabel, 2=MAC, 3=IP, 4=TCP/UDP, 5=Session, 6=Präsentation, 7=Anwendung (HTTP/DNS).</p>",
+      "description": "<p>Auf welcher Schicht arbeitet eine Firewall die IP-Adressen filtert?</p>",
+      "config": {
+        "options": [
+          "Schicht 1 (Bitübertragung) – sie arbeitet mit Kabeln und Signalen",
+          "Schicht 3 (Netzwerk) – sie analysiert IP-Adressen und Ports",
+          "Schicht 7 (Anwendung) – sie versteht HTTP und E-Mail",
+          "Schicht 5 (Sitzung) – sie verwaltet Verbindungen"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "IP-Adressen gehören zur Netzwerkschicht (Schicht 3). Bekannte Protokolle auf dieser Schicht: IP, ICMP (Ping). HTTP und DNS sind Schicht 7."
+      }
+    },
+    {
+      "slug": "c7",
+      "title": "Ping-Analyse",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 7,
+      "story": "<p>Du analysierst die Ping-Zeiten eines Schulservers (in Millisekunden). Unter 50ms ist gut, über 100ms ist problematisch:</p>",
+      "description": "<p>Ergänze den Code der die durchschnittliche Antwortzeit berechnet.</p>",
+      "config": {
+        "template": "ping_zeiten = [12, 45, 8, 23, 67, 11]\n\ngesamt = ___\nfor z in ping_zeiten:\n    gesamt ___ z\n\ndurchschnitt = gesamt / ___(ping_zeiten)\nprint(durchschnitt)",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "0",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "+=",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "len",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "27.666666666666668\n",
+        "hint": "Initialisiere die Summe mit 0. += addiert zur bestehenden Summe. len() gibt die Anzahl der Elemente zurück."
+      }
+    },
+    {
+      "slug": "c8",
+      "title": "Subnetting verstehen",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 8,
+      "story": "<p>Die <code>/24</code> Notation bedeutet: die ersten 24 der 32 Bits einer IP-Adresse sind für das Netzwerk reserviert. Die restlichen Bits stehen für Geräte zur Verfügung.</p>",
+      "description": "<p>Das Schulnetzwerk hat die Adresse <code>192.168.1.0/24</code>. Wie viele Geräte können maximal angeschlossen werden?</p>",
+      "config": {
+        "options": [
+          "24 Geräte",
+          "254 Geräte (256 Adressen minus 2 reservierte = 254 nutzbar)",
+          "1024 Geräte",
+          "Unbegrenzt viele Geräte"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "32 - 24 = 8 Bits für Hosts. 2^8 = 256 mögliche Adressen. Aber: .0 ist die Netzwerkadresse und .255 ist Broadcast – beide reserviert. Also: 256 - 2 = 254."
+      }
+    },
+    {
+      "slug": "c9",
+      "title": "Load Balancing simulieren",
+      "difficulty": "HARD",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 9,
+      "story": "<p>Wenn eine Woche nach App-Launch 100.000 Nutzer gleichzeitig deine App nutzen, bricht ein Server zusammen. Ein Load Balancer verteilt die Last auf mehrere Server:</p>",
+      "description": "<p>Ergänze den Round-Robin-Algorithmus der Anfragen gleichmäßig auf Server verteilt.</p>",
+      "config": {
+        "template": "server = ['Server-A', 'Server-B', 'Server-C']\nanfragen = ['User1', 'User2', 'User3', 'User4', 'User5', 'User6']\n\nfor i, anfrage in ___(anfragen):\n    zugewiesener_server = server[i ___ ___(server)]\n    print(f'{anfrage} → {zugewiesener_server}')",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "enumerate",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "%",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "len",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "User1 → Server-A\nUser2 → Server-B\nUser3 → Server-C\nUser4 → Server-A\nUser5 → Server-B\nUser6 → Server-C\n",
+        "hint": "enumerate() gibt (Index, Wert) zurück. Modulo % wiederholt den Zyklus: 0%3=0, 1%3=1, 2%3=2, 3%3=0 (fängt von vorne an)."
+      }
+    },
+    {
+      "slug": "c10",
+      "title": "HTTP-Request simulieren",
+      "difficulty": "HARD",
+      "points": 20,
+      "type": "CODE",
+      "sortOrder": 10,
+      "story": "<p>Du simulierst wie ein Browser eine HTTP-Anfrage aufbaut – genau das macht dein Browser unsichtbar jedes Mal wenn du eine URL aufrufst:</p>",
+      "description": "<p>Schreibe eine Funktion die einen vollständigen HTTP GET-Request-String aufbaut.</p>",
+      "config": {
+        "starterCode": "def http_get(host, pfad):\n    # HTTP GET Format:\n    # GET /pfad HTTP/1.1\\r\\n\n    # Host: hostname\\r\\n\n    # Connection: close\\r\\n\n    # \\r\\n  (Leerzeile = Ende der Header)\n    pass\n\nresult = http_get('www.schule.de', '/stundenplan')\nprint(result)",
+        "expectedOutput": "GET /stundenplan HTTP/1.1\r\nHost: www.schule.de\r\nConnection: close\r\n\r\n\n",
+        "hint": "Baue den String mit f-Strings zusammen. Jede HTTP-Zeile endet mit \\r\\n (Carriage Return + Newline). Am Ende kommt eine Leerzeile (nur \\r\\n) die das Ende der Header anzeigt."
+      }
+    },
+    {
+      "slug": "c11",
+      "title": "Schulnetzwerk planen",
+      "difficulty": "HARD",
+      "points": 50,
+      "type": "PRACTICE",
+      "sortOrder": 11,
+      "story": "<p>Eine neue Schule mit 30 Klassenräumen, 1.000 Schülern und 60 Lehrern soll ein modernes Netzwerk bekommen. Du wirst beauftragt, das Konzept zu erstellen.</p>",
+      "description": "<p>Plane das komplette Netzwerk für ein neues Schulgebäude.</p>",
+      "config": {
+        "instructions": "Dein Netzwerkkonzept muss enthalten:\n1. Verbindungstypen: Was für Kabel/WLAN wo? (Klassenzimmer, Server-Raum, Verwaltung)\n2. Hardware: Wo stehen Router, Switches, Access Points?\n3. IP-Konzept: Wie teilst du die IP-Adressen auf? (Schüler-WLAN getrennt von Lehrer-Netzwerk?)\n4. Sicherheit: Wie schützt du das Netzwerk? (Firewall, Content-Filter für Schüler)\n5. Ausfallschutz: Was passiert wenn die Internetverbindung abbricht?\n6. Bonus: Welche Cloud-Dienste würdest du nutzen – und welche Datenschutz-Fragen (DSGVO) entstehen?",
+        "submissionNote": "Netzwerkplan als Text oder Skizze mit Begründungen."
+      }
+    }
+  ]
+}

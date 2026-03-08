@@ -1,0 +1,291 @@
+{
+  "slug": "digitaltechnik",
+  "title": "Digitaltechnik",
+  "description": "Alles was ein Computer tut, passiert letztendlich mit Einsen und Nullen.",
+  "iconEmoji": "🔧",
+  "sortOrder": 7,
+  "tasks": [
+    {
+      "slug": "d1",
+      "title": "Alles ist eine Zahl",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 1,
+      "story": "<p>Computer können nur elektrische Signale verarbeiten – an oder aus, 1 oder 0. Aber wie speichert er dann Text? Bilder? Musik?</p>",
+      "description": "<p>Wie speichert ein Computer den Buchstaben \"A\"?</p>",
+      "config": {
+        "options": [
+          "Als winziges Bild des Buchstabens",
+          "Als Sprachaufnahme des Buchstabens",
+          "Als Zahl (65) im Binärsystem gespeichert",
+          "Buchstaben werden gar nicht gespeichert"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Computer kennen nur Zahlen. Der ASCII-Standard legt fest: Buchstabe A = Zahl 65. Diese Zahl wird dann binär (01000001) gespeichert."
+      }
+    },
+    {
+      "slug": "d2",
+      "title": "Bits und Bytes",
+      "difficulty": "EASY",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 2,
+      "story": "<p>Bevor wir rechnen können müssen wir die Einheiten kennen. Ergänze die Tabelle:</p>",
+      "description": "<p>Ergänze die Einheiten.</p>",
+      "config": {
+        "template": "Kleinste Einheit (0 oder 1): ___\n8 davon zusammen: ___\n1024 Byte: 1 Kilo___\n1024 Kilobyte: 1 Mega___",
+        "blanks": [
+          "Bit",
+          "Byte",
+          "byte",
+          "byte"
+        ],
+        "hint": "1 Bit = eine 0 oder 1. 8 Bits = 1 Byte = ein Zeichen (z.B. ein Buchstabe). Speichergrößen verdoppeln sich immer: 1024 Byte = 1 KB, 1024 KB = 1 MB..."
+      }
+    },
+    {
+      "slug": "d3",
+      "title": "Binär zählen",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 3,
+      "story": "<p>Das Binärsystem hat nur zwei Ziffern (0 und 1). Jede Stelle ist doppelt so viel wert wie die rechte Nachbarstelle. Wie viel ist 1010 binär?</p><p>Stellenwerte: 8 | 4 | 2 | 1</p>",
+      "description": "<p>Was ist 1010 (binär) als Dezimalzahl?</p>",
+      "config": {
+        "options": [
+          "5",
+          "8",
+          "10",
+          "12"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Jede Stelle im Binärsystem hat einen Wert (von rechts): 1, 2, 4, 8, 16... Rechne: 1×8 + 0×4 + 1×2 + 0×1 = ?"
+      }
+    },
+    {
+      "slug": "d4",
+      "title": "Was ist ein Logikgatter?",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 4,
+      "story": "<p>Ein Einbruchsalarm soll auslösen wenn: Die Tür ist offen UND es ist nach 22 Uhr. Welches Logikgatter beschreibt diese Bedingung?</p>",
+      "description": "<p>Welches Logikgatter passt zu dieser Alltagsbeschreibung?</p>",
+      "config": {
+        "options": [
+          "ODER-Gatter – einer von beiden reicht",
+          "UND-Gatter – beide Bedingungen müssen erfüllt sein",
+          "NICHT-Gatter – die Bedingung wird umgekehrt",
+          "Kein Logikgatter – das ist normaler Code"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Das UND-Gatter gibt nur 1 (wahr) aus wenn BEIDE Eingänge 1 (wahr) sind. Tür offen UND nach 22 Uhr = beide müssen stimmen."
+      }
+    },
+    {
+      "slug": "d5",
+      "title": "Die smarte Lampe (AND)",
+      "difficulty": "EASY",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 5,
+      "story": "<p>Eine Außenlampe soll nur leuchten wenn der Schalter eingeschaltet ist UND es dunkel draußen ist. Ergänze den logischen Operator:</p>",
+      "description": "<p>Ergänze den logischen Operator.</p>",
+      "config": {
+        "template": "schalter_an = True\ndunkel = True\n\nleuchten = schalter_an ___ dunkel\nprint(leuchten)",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "and",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "True\n",
+        "hint": "In Python ist das UND-Gatter das Schlüsselwort and (kleingeschrieben). True and True = True, True and False = False."
+      }
+    },
+    {
+      "slug": "d6",
+      "title": "Das Alarmsystem (OR)",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 6,
+      "story": "<p>Ein Alarm soll auslösen wenn entweder die Vordertür ODER die Hintertür geöffnet wird. Einer von beiden reicht!</p>",
+      "description": "<p>Ergänze den ODER-Operator.</p>",
+      "config": {
+        "template": "vordertuer_offen = False\nhintertuer_offen = True\n\nalarm = vordertuer_offen ___ hintertuer_offen\nprint(alarm)",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "or",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "True\n",
+        "hint": "Das ODER-Gatter (or) gibt True zurück wenn mindestens eine Bedingung wahr ist. False or True = True."
+      }
+    },
+    {
+      "slug": "d7",
+      "title": "Die Nachtschaltung (NOT)",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 7,
+      "story": "<p>Ein Solarladegerät soll laden wenn es NICHT regnet. Ergänze den richtigen Operator:</p>",
+      "description": "<p>Ergänze den NOT-Operator.</p>",
+      "config": {
+        "template": "regnet_es = False\n\nladen = ___ regnet_es\nprint(laden)",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "not",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "True\n",
+        "hint": "Das NOT-Gatter (not) kehrt den Wahrheitswert um: not True = False, not False = True. Wenn es NICHT regnet → laden."
+      }
+    },
+    {
+      "slug": "d8",
+      "title": "Die Wahrheitstabelle (AND)",
+      "difficulty": "MEDIUM",
+      "points": 20,
+      "type": "FILL_BLANK",
+      "sortOrder": 8,
+      "story": "<p>Eine Wahrheitstabelle zeigt alle möglichen Ein- und Ausgaben eines Logikgatters. Vervollständige die Tabelle für das AND-Gatter:</p>",
+      "description": "<p>Fülle alle vier Felder der AND-Wahrheitstabelle aus (0 = false, 1 = true).</p>",
+      "config": {
+        "template": "A | B | A AND B\n--|---|--------\n1 | 1 | ___\n1 | 0 | ___\n0 | 1 | ___\n0 | 0 | ___",
+        "blanks": [
+          "1",
+          "0",
+          "0",
+          "0"
+        ],
+        "hint": "AND gibt nur dann 1 aus wenn BEIDE Eingänge 1 sind. In allen anderen Fällen ist das Ergebnis 0."
+      }
+    },
+    {
+      "slug": "d9",
+      "title": "Binär zu Dezimal in Python",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 9,
+      "story": "<p>Python hat eine eingebaute Funktion für die Umrechnung. Kannst du sie nutzen?</p>",
+      "description": "<p>Vervollständige den Code der eine Binärzahl in Dezimal umrechnet.</p>",
+      "config": {
+        "template": "binaer = '1101'\ndezimal = ___(binaer, ___)\nprint(dezimal)",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "int",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "2",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "13\n",
+        "hint": "int(string, basis) wandelt einen Zahlstring um. basis=2 für Binär, basis=16 für Hexadezimal. int('1101', 2) = 1×8+1×4+0×2+1×1 = 13."
+      }
+    },
+    {
+      "slug": "d10",
+      "title": "Der Tresor-Code (Kombinierte Logik)",
+      "difficulty": "HARD",
+      "points": 25,
+      "type": "FILL_CODE",
+      "sortOrder": 10,
+      "story": "<p>Ein Banktresor öffnet sich nur unter zwei Bedingungen gleichzeitig: Beide Schlüssel werden gleichzeitig gedreht UND der Not-Aus-Schalter ist NICHT aktiviert.</p>",
+      "description": "<p>Kombiniere AND, OR und NOT zu einer komplexen Bedingung.</p>",
+      "config": {
+        "template": "key1 = True\nkey2 = True\nnot_aus = False\n\n# Der Tresor öffnet sich wenn:\n# Beide Schlüssel gedreht (key1 AND key2)\n# UND der Not-Aus ist NICHT gedrückt\ntresor_offen = (key1 ___ key2) ___ (___ not_aus)\nprint(tresor_offen)",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "and",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "and",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "not",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "True\n",
+        "hint": "Klammern helfen die Logik zu strukturieren: Erst (key1 and key2) auswerten, dann kombinieren mit (not not_aus). Beide Teile müssen True sein."
+      }
+    },
+    {
+      "slug": "d11",
+      "title": "Der Wechselschalter (XOR)",
+      "difficulty": "HARD",
+      "points": 20,
+      "type": "FILL_CODE",
+      "sortOrder": 11,
+      "story": "<p>Im Flur gibt es zwei Lichtschalter (oben und unten an der Treppe). Wenn beide Schalter gleich stehen → Licht aus. Wenn sie unterschiedlich stehen → Licht an. Das ist das XOR-Gatter!</p>",
+      "description": "<p>Implementiere die XOR-Logik mit dem Ungleichheitsoperator.</p>",
+      "config": {
+        "template": "# XOR = Entweder A oder B, aber NICHT beide gleichzeitig\n# Wenn beide gleich sind: Licht aus\n# Wenn sie unterschiedlich sind: Licht an\n\ns1 = True\ns2 = False\n\nlicht = s1 ___ s2\nprint(licht)   # → True (unterschiedlich = Licht an)",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "!=",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "True\n",
+        "hint": "XOR bedeutet: Entweder A oder B, aber nicht beide. True XOR False = True. True XOR True = False. In Python: != prüft auf Ungleichheit – das ist dasselbe!"
+      }
+    },
+    {
+      "slug": "d12",
+      "title": "Binäre Geheimbotschaft",
+      "difficulty": "HARD",
+      "points": 20,
+      "type": "CODE",
+      "sortOrder": 12,
+      "story": "<p>Du hast eine verschlüsselte Nachricht abgefangen – sie besteht nur aus Einsen und Nullen. Jede 8-stellige Gruppe ist ein Buchstabe im ASCII-Code. Decodiere sie!</p>",
+      "description": "<p>Schreibe den vollständigen Dekodierer für eine Liste von Binärzahlen.</p>",
+      "config": {
+        "starterCode": "binaer_nachricht = ['01001000', '01101001']\n\n# Deine Aufgabe:\n# 1. Gehe durch jede Binärzahl in der Liste\n# 2. Wandle sie in eine Dezimalzahl um (Tipp: int(code, 2))\n# 3. Wandle die Dezimalzahl in ein Zeichen um (Tipp: chr(zahl))\n# 4. Füge das Zeichen zum Ergebnis hinzu\n\nergebnis = \"\"\n# ... dein Code hier\n\nprint(ergebnis)",
+        "expectedOutput": "Hi\n",
+        "hint": "int('01001000', 2) = 72. chr(72) = ''H''. int('01101001', 2) = 105. chr(105) = ''i''. Kombiniere alles in einer Schleife."
+      }
+    },
+    {
+      "slug": "d13",
+      "title": "Logik-Designer: Kühlungssystem",
+      "difficulty": "HARD",
+      "points": 50,
+      "type": "PRACTICE",
+      "sortOrder": 13,
+      "story": "<p>Ein Rechenzentrum braucht ein automatisches Kühlsystem. Du bist Digitaltechnik-Ingenieur und entwirfst die Steuerungslogik. Alles was du gelernt hast kommt jetzt zusammen!</p>",
+      "description": "<p>Entwirf die vollständige Logik für ein automatisches Serverkühlsystem.</p>",
+      "config": {
+        "instructions": "Das Kühlsystem soll den Lüfter starten wenn:\n(Temperatur > 30°C UND manueller Stopp ist NICHT aktiv)\nODER\n(Test-Knopf wird gedrückt)\n\nDein Entwurf muss enthalten:\n1. Welche Eingangssignale gibt es? (Variablen)\n2. Welche Logikgatter brauchst du? (AND, OR, NOT)\n3. In welcher Reihenfolge werden sie verknüpft?\n4. Schreibe den Python-Code der die Logik umsetzt\n5. Teste deinen Code mit mindestens 4 verschiedenen Eingabe-Kombinationen\n6. Bonus: Zeichne den Schaltplan (Rechtecke für Gatter, Linien für Verbindungen)",
+        "submissionNote": "Erklärung der Logik + Python-Code + Testergebnisse + optional Schaltplan-Skizze"
+      }
+    }
+  ]
+}

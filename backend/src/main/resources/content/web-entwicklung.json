@@ -1,0 +1,318 @@
+{
+  "slug": "web-entwicklung",
+  "title": "Web-Entwicklung",
+  "description": "Du bist Junior-Entwickler bei einer Webagentur – heute ist dein erster Tag.",
+  "iconEmoji": "🌐",
+  "sortOrder": 2,
+  "tasks": [
+    {
+      "slug": "w1",
+      "title": "Wer fragt, wer antwortet?",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 1,
+      "story": "<p>Wenn du \\\"youtube.com\" in deinen Browser tippst, passiert etwas im Hintergrund. Dein Browser und ein Computer irgendwo auf der Welt kommunizieren miteinander. Welches Prinzip steckt dahinter?</p>",
+      "description": "<p>Welche Aussage beschreibt das Client-Server-Prinzip richtig?</p>",
+      "config": {
+        "options": [
+          "Browser und Server tauschen gleichzeitig Daten aus",
+          "Der Browser (Client) stellt eine Anfrage – der Server schickt die Antwort zurück",
+          "Der Server schickt automatisch Webseiten an alle Nutzer",
+          "Client und Server sind dasselbe Gerät"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Denk an ein Restaurant: Der Gast (Client) bestellt, der Koch (Server) liefert."
+      }
+    },
+    {
+      "slug": "w2",
+      "title": "Die kaputte URL",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 2,
+      "story": "<p>Dein Kollege schickt dir diesen Link und wundert sich warum er nicht funktioniert:</p><pre><code>www.meine-seite.de/shop/artikel</code></pre>",
+      "description": "<p>Warum funktioniert diese URL nicht?</p>",
+      "config": {
+        "options": [
+          "Die URL ist zu lang",
+          "Das Protokoll (https://) fehlt – Browser wissen sonst nicht wie sie kommunizieren sollen",
+          "Bindestriche sind in URLs verboten",
+          "Unterordner sind nicht erlaubt"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Eine vollständige URL hat immer diese Teile: Protokoll://Domain/Pfad. Was fehlt hier am Anfang?"
+      }
+    },
+    {
+      "slug": "w3",
+      "title": "HTML-Detektiv",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 3,
+      "story": "<p>Dein erster HTML-Code! Was zeigt der Browser an?</p><pre><code>&lt;h1&gt;Meine Webseite&lt;/h1&gt;\n&lt;!-- Das ist ein Kommentar --&gt;\n&lt;p&gt;Willkommen!&lt;/p&gt;</code></pre>",
+      "description": "<p>Was sieht der Nutzer im Browser wenn er diese Seite öffnet?</p>",
+      "config": {
+        "options": [
+          "Alles inklusive des Kommentartextes",
+          "Nur die Überschrift, ohne den Absatz",
+          "Die Überschrift und den Text – der Kommentar ist unsichtbar",
+          "Den rohen HTML-Code als Text"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "HTML-Kommentare (<!-- -->) sind nur im Quellcode sichtbar, nicht im Browser. h1 und p sind sichtbare Elemente."
+      }
+    },
+    {
+      "slug": "w4",
+      "title": "Baue eine Visitenkarte",
+      "difficulty": "EASY",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 4,
+      "story": "<p>Dein Chef bittet dich, eine einfache HTML-Visitenkarte zu bauen. Die Grundstruktur ist da – aber welche Tags fehlen?</p>",
+      "description": "<p>Ergänze die fehlenden HTML-Tags.</p>",
+      "config": {
+        "template": "<!DOCTYPE html>\n<___>\n  <head><title>Max</title></head>\n  <___>\n    <___>Max Mustermann</___>\n    <p>Web-Entwickler</p>\n    <___ href='mailto:max@mail.de'>Schreib mir</___>\n  </body>\n</html>",
+        "blanks": [
+          "html",
+          "body",
+          "h1",
+          "h1",
+          "a",
+          "a"
+        ],
+        "hint": "html umschließt alles, body enthält sichtbare Inhalte, h1 ist eine große Überschrift, a ist ein Link (Anchor)."
+      }
+    },
+    {
+      "slug": "w5",
+      "title": "Fehler 404 und Co.",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 5,
+      "story": "<p>Beim Testen der neuen Webseite bekommst du verschiedene Antworten vom Server. Dein Chef fragt dich die Codes auswendig zu kennen. Welcher Code bedeutet was?</p>",
+      "description": "<p>Trage die richtigen HTTP-Statuscodes ein.</p>",
+      "config": {
+        "template": "Alles OK → ___\nSeite dauerhaft umgezogen → ___\nSeite nicht gefunden → ___\nServerfehler → ___",
+        "blanks": [
+          "200",
+          "301",
+          "404",
+          "500"
+        ],
+        "hint": "Merkhilfe: 2xx = Erfolg, 3xx = Weiterleitung, 4xx = Fehler des Nutzers, 5xx = Fehler des Servers."
+      }
+    },
+    {
+      "slug": "w6",
+      "title": "CSS: Was ändert sich?",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 6,
+      "story": "<p>Dein Kollege hat CSS zur Webseite hinzugefügt:</p><pre><code>p {\n  color: red;\n  font-size: 24px;\n  text-align: center;\n}</code></pre><p>Die Seite hat 5 Absätze (<code>&lt;p&gt;</code>). Was passiert?</p>",
+      "description": "<p>Was bewirkt dieser CSS-Code?</p>",
+      "config": {
+        "options": [
+          "Nur das erste p-Element auf der Seite wird verändert",
+          "Alle p-Elemente werden rot, 24px groß und zentriert",
+          "Die gesamte Seite wird rot eingefärbt",
+          "Nichts – CSS braucht immer ein id-Attribut"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Ein CSS-Selektor ohne # (id) oder . (Klasse) gilt für alle HTML-Elemente dieses Typs auf der gesamten Seite."
+      }
+    },
+    {
+      "slug": "w7",
+      "title": "GET vs. POST",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 7,
+      "story": "<p>Eine Suchmaschine nutzt <code>GET /suche?q=Python</code> – deine Suchanfrage steht direkt in der URL. Ein Login-Formular schickt Nutzername und Passwort per <code>POST</code> im unsichtbaren Body.</p>",
+      "description": "<p>Warum ist POST für das Login besser als GET?</p>",
+      "config": {
+        "options": [
+          "POST ist schneller als GET",
+          "GET-Parameter erscheinen in der URL – das Passwort wäre im Browser-Verlauf sichtbar",
+          "POST-Anfragen werden automatisch verschlüsselt, GET nicht",
+          "Formulare funktionieren grundsätzlich nur mit POST"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Öffne mal eine Suchmaschine und such nach etwas – schau dann in die URL-Zeile. Was siehst du dort?"
+      }
+    },
+    {
+      "slug": "w8",
+      "title": "Formular-Felder ergänzen",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 8,
+      "story": "<p>Du baust das Login-Formular für die Schulwebseite. Welche Werte gehören in die Lücken?</p><pre><code>&lt;form action=\"/login\"&gt;\n  &lt;___ type=\"text\" placeholder=\"Nutzername\"&gt;\n  &lt;___ type=\"___\" placeholder=\"Passwort\"&gt;\n  &lt;___ type=\"___\" value=\"Einloggen\"&gt;\n&lt;/form&gt;</code></pre>",
+      "description": "<p>Welche Tags und Attribute fehlen im Login-Formular?</p>",
+      "config": {
+        "template": "Textfeld-Tag: ___ | Passwortfeld-Tag: ___ | Passwort-Typ: ___ | Submit-Typ: ___",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "input",
+            "caseSensitive": false
+          },
+          {
+            "index": 1,
+            "answer": "input",
+            "caseSensitive": false
+          },
+          {
+            "index": 2,
+            "answer": "password",
+            "caseSensitive": false
+          },
+          {
+            "index": 3,
+            "answer": "submit",
+            "caseSensitive": false
+          }
+        ],
+        "hint": "HTML-Formulare nutzen <input> für fast alles. Der Typ (type=) bestimmt das Verhalten: text zeigt den Text, password versteckt ihn."
+      }
+    },
+    {
+      "slug": "w9",
+      "title": "JavaScript: Klick-Reaktion",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 9,
+      "story": "<p>Mit JavaScript kannst du Webseiten interaktiv machen. Was macht dieser Button?</p><pre><code>&lt;button onclick=\"alert('Hallo!')\"&gt;\n  Klick mich\n&lt;/button&gt;</code></pre>",
+      "description": "<p>Was passiert wenn der Nutzer auf den Button klickt?</p>",
+      "config": {
+        "options": [
+          "Die Seite wird komplett neu geladen",
+          "Ein Popup mit dem Text Hallo! erscheint",
+          "Die Seite navigiert zu einer neuen URL",
+          "Nichts – alert() ist eine veraltete Funktion"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "onclick ist ein Event-Handler – er wartet auf ein Ereignis (den Klick) und führt dann Code aus. alert() zeigt ein Browser-Popup."
+      }
+    },
+    {
+      "slug": "w10",
+      "title": "JSON parsen in Python",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 10,
+      "story": "<p>Deine Web-App bekommt Daten von einer API als JSON-Text zurück. JSON ist das meistgenutzte Datenformat im Web:</p>",
+      "description": "<p>Ergänze die beiden Lücken damit der Name ausgegeben wird.</p>",
+      "config": {
+        "template": "import json\n\nantwort = ''{'name': 'Anna', 'punkte': 42}''\n\ndaten = json.___(antwort)\nprint(daten[___])",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "loads",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "'name'",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "Anna\n",
+        "hint": "json.loads() (load string) wandelt einen JSON-Text in ein Python-Dictionary um. Dann kannst du wie gewohnt mit ['schlüssel'] darauf zugreifen."
+      }
+    },
+    {
+      "slug": "w11",
+      "title": "API-Detektiv",
+      "difficulty": "HARD",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 11,
+      "story": "<p>Du rufst eine Wetter-API auf und bekommst diese JSON-Antwort:</p><pre><code>{\"stadt\": \"Berlin\", \"temperatur\": 18, \"wetter\": \"sonnig\"}</code></pre><p>Wie liest du die Temperatur aus nachdem du <code>data = json.loads(antwort)</code> ausgeführt hast?</p>",
+      "description": "<p>Wie greifst du in Python auf die Temperatur aus dieser JSON-Antwort zu?</p>",
+      "config": {
+        "options": [
+          "data.temperatur()",
+          "data[temperatur]",
+          "data['temperatur']",
+          "data->temperatur"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "JSON wird in Python als Dictionary geladen. Bei Dictionaries greift man mit ['schlüssel'] auf Werte zu – der Schlüssel ist ein String also mit Anführungszeichen."
+      }
+    },
+    {
+      "slug": "w12",
+      "title": "Responsive Design verstehen",
+      "difficulty": "HARD",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 12,
+      "story": "<p>Ihr habt eine tolle Schulwebseite gebaut – aber beim Test auf dem Smartphone überlappen sich Texte und Buttons sind nicht klickbar. Das Problem ist mangelndes Responsive Design.</p>",
+      "description": "<p>Die Webseite sieht auf dem Desktop super aus – auf dem Handy ist alles winzig und durcheinander. Was fehlt?</p>",
+      "config": {
+        "options": [
+          "Eine andere Schriftart",
+          "Das viewport-Meta-Tag im head und CSS Media Queries für verschiedene Bildschirmbreiten",
+          "Mehr Bilder auf der Seite",
+          "Eine schnellere Internetverbindung"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Stichwort: <meta name='viewport'> sagt dem Handy wie breit die Seite ist. @media (max-width: 600px) {...} definiert CSS speziell für kleine Bildschirme."
+      }
+    },
+    {
+      "slug": "w13",
+      "title": "Die Webseite für den Bürgermeister",
+      "difficulty": "HARD",
+      "points": 50,
+      "type": "PRACTICE",
+      "sortOrder": 13,
+      "story": "<p>Der Bürgermeister deiner Stadt hat gehört dass du HTML und CSS kannst. Er beauftragt dich eine moderne Webseite für die Stadt zu bauen – Budget: 1 Seite!</p>",
+      "description": "<p>Entwirf eine vollständige, funktionierende HTML-Seite.</p>",
+      "config": {
+        "instructions": "Erstelle eine Stadtwebseite mit:\n1. Korrekter HTML-Grundstruktur (DOCTYPE, html, head, body)\n2. Einer Überschrift (h1) mit dem Stadtnamen\n3. Einem Absatz (p) mit Begrüßungstext\n4. Einer ungeordneten Liste (ul/li) mit 3 Sehenswürdigkeiten\n5. Einem Link (a) zu einer anderen Webseite\n6. Mindestens 3 CSS-Regeln (z.B. Farbe, Schriftgröße, Hintergrund)",
+        "submissionNote": "Schreibe den vollständigen HTML-Code. Kommentiere deine CSS-Entscheidungen kurz."
+      }
+    },
+    {
+      "slug": "w14",
+      "title": "Deine eigene API entwerfen",
+      "difficulty": "HARD",
+      "points": 50,
+      "type": "PRACTICE",
+      "sortOrder": 14,
+      "story": "<p>Andere Entwickler wollen deine Noten-App nutzen. Dafür brauchst du eine API – eine Schnittstelle die andere Programme ansprechen können. Entwirf sie!</p>",
+      "description": "<p>Entwirf eine REST-API für eine Schüler-Noten-App.</p>",
+      "config": {
+        "instructions": "Deine API-Dokumentation muss enthalten:\n1. Mindestens 4 Endpunkte (URL + HTTP-Methode: GET, POST, PUT, DELETE)\n2. Für jeden Endpunkt: Was tut er? Welche Daten bekommt er? Was gibt er zurück? (JSON-Beispiel)\n3. Welche Statuscodes gibt er bei Erfolg und bei Fehlern zurück?\n4. Bonus: Wie schützt du die API? (Stichwort: Wer darf was?)",
+        "submissionNote": "API-Dokumentation als Tabelle oder strukturierter Text. Beispiel-Format:\nGET /schueler → gibt alle Schüler zurück → Status 200"
+      }
+    }
+  ]
+}

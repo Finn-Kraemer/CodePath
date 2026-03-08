@@ -1,0 +1,311 @@
+{
+  "slug": "ki-informatik",
+  "title": "Künstliche Intelligenz",
+  "description": "Du trainierst die KI von morgen – aber erst musst du verstehen, wie sie lernt.",
+  "iconEmoji": "🤖",
+  "sortOrder": 5,
+  "tasks": [
+    {
+      "slug": "ai1",
+      "title": "Ist das KI?",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 1,
+      "story": "<p>Überall hört man von KI – aber was ist eigentlich der Unterschied zwischen einem normalen Programm und echter Künstlicher Intelligenz?</p>",
+      "description": "<p>Welches der folgenden Beispiele ist echte KI – und welches nicht?</p>",
+      "config": {
+        "options": [
+          "Ein Taschenrechner der 1000×1000 rechnet – das ist starke KI",
+          "Ein Spamfilter der aus Beispielen gelernt hat Spam zu erkennen – das ist KI",
+          "Beide sind KI weil beide Computer benutzen",
+          "Keines ist KI weil echte KI erst in der Zukunft existiert"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Der Unterschied: Ein Taschenrechner folgt festen Regeln die Menschen programmiert haben. Eine KI lernt Regeln selbst aus Beispieldaten."
+      }
+    },
+    {
+      "slug": "ai2",
+      "title": "Wie lernt eine KI?",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 2,
+      "story": "<p>Du willst eine KI trainieren die Katzen von Hunden unterscheidet. Du gibst ihr 10.000 beschriftete Fotos. Was passiert im Training?</p>",
+      "description": "<p>Was tut eine KI beim Training um Katzen von Hunden zu unterscheiden?</p>",
+      "config": {
+        "options": [
+          "Sie speichert alle Trainingsfotos und vergleicht später einfach",
+          "Sie fragt bei jedem neuen Bild einen Menschen",
+          "Sie sucht nach statistischen Mustern in den Daten und passt sich an wenn sie Fehler macht",
+          "Sie denkt wie ein Mensch und erkennt Tiere intuitiv"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Maschinelles Lernen = die KI bekommt viele Beispiele (Fotos + korrekte Antworten), macht Vorhersagen, vergleicht mit der richtigen Antwort und verbessert sich."
+      }
+    },
+    {
+      "slug": "ai3",
+      "title": "Training vs. Test-Daten",
+      "difficulty": "EASY",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 3,
+      "story": "<p>Warum teilen KI-Entwickler ihre Daten in zwei Gruppen auf bevor sie ein Modell trainieren?</p>",
+      "description": "<p>Ergänze die Begriffe.</p>",
+      "config": {
+        "template": "Die ___ -Daten werden zum Lernen verwendet. Mit den ___ -Daten prüft man ob die KI wirklich gelernt hat oder nur auswendig kennt. Wenn das Modell nur auf bekannten Daten gut ist nennt man das ___.",
+        "blanks": [
+          "Trainings",
+          "Test",
+          "Overfitting"
+        ],
+        "hint": "Overfitting ist wie ein Schüler der die Musterklausur auswendig lernt aber bei der echten Klausur versagt – er hat nicht wirklich verstanden."
+      }
+    },
+    {
+      "slug": "ai4",
+      "title": "Supervised vs. Unsupervised Learning",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 4,
+      "story": "<p>Eine KI soll Spam-Mails erkennen. Sie wird mit 10.000 E-Mails trainiert, die alle von Menschen als \\\"Spam\" oder \\\"Kein Spam\" markiert wurden.</p>",
+      "description": "<p>Welche Art von maschinellem Lernen wird hier verwendet?</p>",
+      "config": {
+        "options": [
+          "Unsupervised Learning – weil die KI selbst entscheidet",
+          "Supervised Learning – weil die Trainingsdaten beschriftet (gelabelt) sind",
+          "Reinforcement Learning – weil die KI Belohnungen bekommt",
+          "Deep Learning – weil neuronale Netze genutzt werden"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Supervised = beaufsichtigt/beschriftet. Die KI bekommt Beispiele MIT den richtigen Antworten. Unsupervised = unbeschriftet – die KI muss selbst Muster finden."
+      }
+    },
+    {
+      "slug": "ai5",
+      "title": "KI-Bias erkennen",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 5,
+      "story": "<p>Ein großes Unternehmen nutzt KI um Bewerbungen vorzusortieren. Das spart Zeit – aber ist es fair?</p>",
+      "description": "<p>Eine Bewerbungs-KI wurde mit Daten aus den letzten 10 Jahren trainiert – in dieser Zeit wurden fast ausschließlich Männer eingestellt. Was ist die Folge?</p>",
+      "config": {
+        "options": [
+          "Die KI wird zu langsam weil die Datenmenge zu groß ist",
+          "Die KI bevorzugt wahrscheinlich wieder Männer – sie hat gelernt dass Männer erfolgreiche Bewerber sind",
+          "Die KI kann keine PDFs lesen",
+          "Die Datenmenge ist zu gering für Training"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "KI lernt Muster aus Daten – auch ungerechte Muster. Wenn historische Daten diskriminierend waren, lernt die KI diese Diskriminierung. Das nennt man Bias."
+      }
+    },
+    {
+      "slug": "ai6",
+      "title": "Nearest Neighbor von Hand",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 6,
+      "story": "<p>Der k-Nearest-Neighbor-Algorithmus ist einer der einfachsten KI-Algorithmen: Finde den Punkt der dem gesuchten Wert am nächsten ist. Finde den nächsten Nachbarn zur Zahl 6 in [1, 4, 7, 10, 15]:</p>",
+      "description": "<p>Vervollständige den einfachen kNN-Algorithmus.</p>",
+      "config": {
+        "template": "punkte = [1, 4, 7, 10, 15]\ngesucht = 6\n\nnaechster = ___[0]\nfor p in punkte:\n    if ___(p - gesucht) < ___(naechster - gesucht):\n        naechster = p\n\nprint(naechster)",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "punkte",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "abs",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "abs",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "7\n",
+        "hint": "abs() berechnet den absoluten Abstand (immer positiv): abs(7-6)=1, abs(4-6)=2. Der nächste Nachbar zu 6 hat den kleinsten Abstand."
+      }
+    },
+    {
+      "slug": "ai7",
+      "title": "Prompt Engineering",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 7,
+      "story": "<p>KI-Assistenten sind mächtig – aber nur wenn man sie richtig anspricht. Welcher dieser Prompts liefert die beste Hilfe?</p>",
+      "description": "<p>Welcher Prompt wird die hilfreichste Antwort von einer KI erhalten?</p>",
+      "config": {
+        "options": [
+          "Hausaufgaben",
+          "Hilf mir bitte",
+          "Ich bin Schüler in der 8. Klasse. Erkläre mir den Satz des Pythagoras einfach mit einem konkreten Beispiel.",
+          "Erkläre Mathematik"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Gute Prompts enthalten: Wer bist du? (Kontext), Was brauchst du? (konkretes Ziel), Wie soll die Antwort sein? (Format, Niveau, Beispiele)."
+      }
+    },
+    {
+      "slug": "ai8",
+      "title": "Konfusionsmatrix lesen",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 8,
+      "story": "<p>Dein KI-Modell soll Krankheiten erkennen. Von 100 Tests:</p><ul><li>✅ 40 kranke Patienten korrekt als krank erkannt</li><li>❌ 10 kranke Patienten fälschlich als gesund eingestuft</li><li>❌ 5 gesunde Patienten fälschlich als krank eingestuft</li><li>✅ 45 gesunde Patienten korrekt als gesund erkannt</li></ul>",
+      "description": "<p>Wie hoch ist die Genauigkeit (Accuracy) des Modells?</p>",
+      "config": {
+        "options": [
+          "40%",
+          "80%",
+          "85%",
+          "90%"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Accuracy = (korrekte Vorhersagen) / (alle Tests) = (richtig krank + richtig gesund) / 100 = (40 + 45) / 100 = ?"
+      }
+    },
+    {
+      "slug": "ai9",
+      "title": "KI-Genauigkeit berechnen",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 9,
+      "story": "<p>Du evaluierst dein erstes KI-Modell. Es hat 10 Vorhersagen gemacht – vergleiche sie mit den richtigen Antworten:</p>",
+      "description": "<p>Ergänze den Code der die Genauigkeit deines Modells berechnet.</p>",
+      "config": {
+        "template": "vorhersagen = [1, 0, 1, 1, 0, 1, 0, 0, 1, 1]\nrichtig      = [1, 0, 1, 0, 0, 1, 1, 0, 1, 1]\n\nkorrekt = ___\nfor i in range(___(vorhersagen)):\n    if vorhersagen[i] ___ richtig[i]:\n        korrekt += 1\n\ngenauigkeit = korrekt / len(vorhersagen) * 100\nprint(f'Genauigkeit: {genauigkeit}%')",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "0",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "len",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "==",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "Genauigkeit: 80.0%\n",
+        "hint": "Zähle wie oft Vorhersage == richtige Antwort. Teile durch die Gesamtanzahl und multipliziere mit 100."
+      }
+    },
+    {
+      "slug": "ai10",
+      "title": "Neuronales Netz vereinfacht",
+      "difficulty": "HARD",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 10,
+      "story": "<p>Neuronale Netze sind das Herz moderner KI. Sie haben drei Arten von Schichten – ähnlich wie das menschliche Gehirn:</p>",
+      "description": "<p>Ergänze die fehlenden Begriffe.</p>",
+      "config": {
+        "template": "Die ___-Schicht empfängt die Rohdaten (z.B. Pixelwerte eines Bildes).\nDie ___-Schicht(en) in der Mitte extrahieren Muster wie Kanten und Formen.\nDie ___-Schicht gibt das Ergebnis aus (z.B. 'Katze' oder 'Hund').\nDas Netz lernt durch ___ : Es berechnet seinen Fehler und passt die Verbindungen rückwärts an.",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "Input",
+            "caseSensitive": false
+          },
+          {
+            "index": 1,
+            "answer": "Hidden",
+            "caseSensitive": false
+          },
+          {
+            "index": 2,
+            "answer": "Output",
+            "caseSensitive": false
+          },
+          {
+            "index": 3,
+            "answer": "Backpropagation",
+            "caseSensitive": false
+          }
+        ],
+        "hint": "Input = Eingabe, Hidden = Versteckt (die mittleren Schichten), Output = Ausgabe. Backpropagation = Fehler-Rückwärts-Verteilung: Das Netz lernt aus seinen Fehlern."
+      }
+    },
+    {
+      "slug": "ai11",
+      "title": "Entscheidungsbaum programmieren",
+      "difficulty": "HARD",
+      "points": 20,
+      "type": "CODE",
+      "sortOrder": 11,
+      "story": "<p>Ein Entscheidungsbaum ist der einfachste KI-Klassifikator: Er stellt nacheinander Ja/Nein-Fragen. Du baust einen der Tiere klassifiziert:</p>",
+      "description": "<p>Schreibe die vollständige Funktion <code>tier_klassifizieren(hat_fluegel, ist_saeugetier, lebt_im_wasser)</code>.</p>",
+      "config": {
+        "starterCode": "def tier_klassifizieren(hat_fluegel, ist_saeugetier, lebt_im_wasser):\n    # Regeln (Entscheidungsbaum):\n    # hat_fluegel=True, ist_saeugetier=False → 'Vogel'\n    # hat_fluegel=True, ist_saeugetier=True  → 'Fledermaus'\n    # lebt_im_wasser=True, ist_saeugetier=True  → 'Delphin'\n    # lebt_im_wasser=True, ist_saeugetier=False → 'Fisch'\n    # Alle anderen Fälle → 'Hund'\n    pass\n\nprint(tier_klassifizieren(True, False, False))   # → Vogel\nprint(tier_klassifizieren(True, True, False))    # → Fledermaus\nprint(tier_klassifizieren(False, True, True))    # → Delphin\nprint(tier_klassifizieren(False, False, True))   # → Fisch\nprint(tier_klassifizieren(False, True, False))   # → Hund",
+        "expectedOutput": "Vogel\nFledermaus\nDelphin\nFisch\nHund\n",
+        "hint": "Prüfe die Bedingungen von oben nach unten mit if/elif/else. Beachte: Fledermaus und Vogel haben beide Flügel – unterscheide sie mit ist_saeugetier."
+      }
+    },
+    {
+      "slug": "ai12",
+      "title": "Ist das ethisch?",
+      "difficulty": "HARD",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 12,
+      "story": "<p>In den USA nutzen manche Gerichte eine KI um zu entscheiden ob ein Angeklagter auf Bewährung freigelassen wird. Die KI wurde mit historischen Urteilsdaten trainiert.</p>",
+      "description": "<p>Was ist das größte Problem wenn KI über Freiheitsentzug entscheidet?</p>",
+      "config": {
+        "options": [
+          "Die KI ist zu langsam für Gerichtsverfahren",
+          "Wenn historische Urteile diskriminierend waren lernt die KI diese Diskriminierung – und Menschen verlieren ihre Freiheit durch einen undurchsichtigen Algorithmus",
+          "Richter werden arbeitslos",
+          "KI kann keine juristischen Texte lesen"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Historische Daten spiegeln historische Ungerechtigkeiten wider. Ein Algorithmus kann diese verstärken – und anders als ein Mensch kann er seine Entscheidung nicht erklären."
+      }
+    },
+    {
+      "slug": "ai13",
+      "title": "Trainiere deine eigene KI-Idee",
+      "difficulty": "HARD",
+      "points": 50,
+      "type": "PRACTICE",
+      "sortOrder": 13,
+      "story": "<p>Du bist Gründer eines KI-Startups! Investors Day: Du hast 3 Minuten um deine Idee zu pitchen. Entwirf ein KI-System für ein Problem das dir wichtig ist.</p>",
+      "description": "<p>Entwirf ein vollständiges KI-System für ein echtes Problem.</p>",
+      "config": {
+        "instructions": "Dein KI-Konzept muss enthalten:\n1. Das Problem: Welches echte Problem löst deine KI? Warum ist das nützlich?\n2. Die Lösung: Eingabe → KI → Ausgabe (konkret beschreiben)\n3. Die Daten: Womit würdest du sie trainieren? Woher kommen die Daten?\n4. Die Bewertung: Wie misst du ob sie gut ist? (Genauigkeit? Was wäre 100%?)\n5. Die Risiken: Welche Fehler kann sie machen? Welche ethischen Probleme gibt es?\n6. Bonus: Schreibe einen Python-Prototyp mit if/elif (Entscheidungsbaum-Logik)",
+        "submissionNote": "Konzeptpapier mit allen 5 Punkten. Bonus: Python-Code."
+      }
+    }
+  ]
+}

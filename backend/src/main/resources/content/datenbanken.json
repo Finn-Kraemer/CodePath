@@ -1,0 +1,311 @@
+{
+  "slug": "datenbanken",
+  "title": "Datenbanken",
+  "description": "Du bist Datenbankadmin bei einem Startup – und die Datenbank ist gerade abgestürzt.",
+  "iconEmoji": "🗄️",
+  "sortOrder": 4,
+  "tasks": [
+    {
+      "slug": "db1",
+      "title": "Warum brauchen wir Datenbanken?",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 1,
+      "story": "<p>Stell dir vor, Netflix würde alle Nutzer, Filme und Abos in einer Excel-Tabelle verwalten. Was wäre das größte Problem?</p>",
+      "description": "<p>Wähle das Hauptproblem wenn Netflix eine Excel-Datei nutzen würde.</p>",
+      "config": {
+        "options": [
+          "Excel kostet zu viel Geld",
+          "Millionen Nutzer gleichzeitig können nicht auf dieselbe Datei zugreifen und sie verändern",
+          "Excel kann keine Videos speichern",
+          "Das Dateiformat ist mit Smartphones inkompatibel"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Stell dir vor 10 Millionen Menschen öffnen gleichzeitig dieselbe Excel-Datei und ändern Daten. Was passiert?"
+      }
+    },
+    {
+      "slug": "db2",
+      "title": "Deine erste SQL-Abfrage",
+      "difficulty": "EASY",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 2,
+      "story": "<p>Du arbeitest in einem Supermarkt mit einer Produktdatenbank. Ergänze die SQL-Befehle:</p>",
+      "description": "<p>Ergänze die SQL-Schlüsselwörter.</p>",
+      "config": {
+        "template": "Alle Produkte anzeigen:\n___ * ___ produkte\n\nNur günstige Produkte (unter 1€):\nSELECT * FROM produkte ___ preis < 1.00\n\nProdukte nach Preis sortiert:\nSELECT * FROM produkte ORDER ___ preis",
+        "blanks": [
+          "SELECT",
+          "FROM",
+          "WHERE",
+          "BY"
+        ],
+        "hint": "SQL folgt einer festen Reihenfolge: SELECT (was?) FROM (woher?) WHERE (welche Bedingung?) ORDER BY (Reihenfolge)"
+      }
+    },
+    {
+      "slug": "db3",
+      "title": "Was gibt diese Abfrage zurück?",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 3,
+      "story": "<p>Du analysierst unbezahlte Bestellungen. Was liefert diese Abfrage?</p><pre><code>SELECT kunde, betrag \nFROM bestellungen \nWHERE status = 'offen' \nORDER BY betrag DESC;</code></pre>",
+      "description": "<p>Was sind die Ergebnisse dieser SQL-Abfrage?</p>",
+      "config": {
+        "options": [
+          "Alle Zeilen der Tabelle ungefiltert",
+          "Alle offenen Bestellungen – sortiert nach Betrag, höchster zuerst",
+          "Nur die bezahlten Bestellungen",
+          "Nur die Zeile mit dem kleinsten Betrag"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Lese die Abfrage von oben nach unten: SELECT (was) FROM (woher) WHERE (welche Bedingung) ORDER BY (wie sortiert). DESC = descending = absteigend = größter zuerst."
+      }
+    },
+    {
+      "slug": "db4",
+      "title": "Was bedeutet NULL?",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 4,
+      "story": "<p>In der Schüler-Datenbank hat das Feld <code>email</code> bei manchen Einträgen den Wert <code>NULL</code>. Schüler 7 hat keine E-Mail angegeben.</p>",
+      "description": "<p>Was bedeutet NULL in einer Datenbank?</p>",
+      "config": {
+        "options": [
+          "Die Zahl 0",
+          "Einen leeren Text (\"\")",
+          "Kein Wert vorhanden – der Wert ist unbekannt oder fehlt",
+          "Einen Fehler in der Datenbank"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "NULL ist weder 0 noch leer – es bedeutet: dieser Wert existiert nicht oder ist unbekannt. Ein Schüler ohne eingetragene E-Mail hat NULL, nicht \"\"."
+      }
+    },
+    {
+      "slug": "db5",
+      "title": "JOIN verstehen",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 5,
+      "story": "<p>Du hast zwei Tabellen: <code>nutzer</code> (id, name, email) und <code>bestellungen</code> (id, nutzer_id, betrag). Du willst den Namen und den Betrag zusammen sehen.</p>",
+      "description": "<p>Wie verknüpfst du Daten aus zwei verschiedenen Tabellen?</p>",
+      "config": {
+        "options": [
+          "Zwei separate SELECT-Abfragen nacheinander",
+          "Eine WHERE-Bedingung mit zwei Tabellennamen",
+          "Mit einem JOIN über eine gemeinsame ID-Spalte",
+          "Das geht nur mit speziellem Datenbankcode, nicht mit SQL"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Ein JOIN verbindet Zeilen aus zwei Tabellen die eine gemeinsame ID haben. Nutzer-ID in der Bestellungs-Tabelle zeigt auf die ID in der Nutzer-Tabelle."
+      }
+    },
+    {
+      "slug": "db6",
+      "title": "UPDATE und DELETE",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 6,
+      "story": "<p>Eine Schülerin hat geheiratet und ihren Namen geändert. Eine Klasse verlässt die Schule. Ergänze die SQL-Befehle:</p>",
+      "description": "<p>Ergänze die SQL-Befehle.</p>",
+      "config": {
+        "template": "Namen ändern: ___ schueler ___ name = ''Anna Müller'' WHERE id = 5\nKlasse löschen: ___ FROM klassen WHERE bezeichnung = ''9b''",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "UPDATE",
+            "caseSensitive": false
+          },
+          {
+            "index": 1,
+            "answer": "SET",
+            "caseSensitive": false
+          },
+          {
+            "index": 2,
+            "answer": "DELETE",
+            "caseSensitive": false
+          }
+        ],
+        "hint": "UPDATE tabelle SET spalte = wert WHERE ... ändert Daten. DELETE FROM tabelle WHERE ... löscht Zeilen. ACHTUNG: Ohne WHERE werden ALLE Zeilen geändert/gelöscht!"
+      }
+    },
+    {
+      "slug": "db7",
+      "title": "COUNT und GROUP BY",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 7,
+      "story": "<p>Du willst wissen wie viele Bestellungen jeder Kunde aufgegeben hat:</p><pre><code>SELECT kunde, COUNT(*) as anzahl\nFROM bestellungen\nGROUP BY kunde\nORDER BY anzahl DESC;</code></pre>",
+      "description": "<p>Was macht <code>GROUP BY kunde</code> in dieser Abfrage?</p>",
+      "config": {
+        "options": [
+          "Es sortiert die Ergebnisse nach Kundenname",
+          "Es fasst alle Zeilen desselben Kunden zu einer Gruppe zusammen damit COUNT sie zählen kann",
+          "Es filtert nur bestimmte Kunden heraus",
+          "Es verbindet zwei Tabellen miteinander"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Ohne GROUP BY würde COUNT(*) alle Bestellungen zusammenzählen. Mit GROUP BY werden erst Gruppen gebildet (alle Zeilen von Anna zusammen, alle von Ben zusammen...) und dann wird pro Gruppe gezählt."
+      }
+    },
+    {
+      "slug": "db8",
+      "title": "Python trifft Datenbank",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 8,
+      "story": "<p>Bevor man echte Datenbanken nutzt, versteht man sie besser wenn man sie in Python nachbaut. Hier sind Schülerdaten als Liste von Dictionaries:</p>",
+      "description": "<p>Vervollständige die Schleife die Schüler mit über 100 Punkten filtert.</p>",
+      "config": {
+        "template": "schueler = [\n    {'name': 'Anna', 'punkte': 120},\n    {'name': 'Ben', 'punkte': 85},\n    {'name': 'Clara', 'punkte': 105}\n]\n\n___ s ___ schueler:\n    if s[___] > 100:\n        print(s['name'])",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "for",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "in",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "'punkte'",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "Anna\nClara\n",
+        "hint": "Jedes Element s in der Liste ist ein Dictionary. Mit s['punkte'] greifst du auf den Punktestand zu – genau wie WHERE punkte > 100 in SQL."
+      }
+    },
+    {
+      "slug": "db9",
+      "title": "Transaktionen: Alles oder nichts",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 9,
+      "story": "<p>Eine Banküberweisung besteht aus zwei SQL-Befehlen:</p><ol><li>Konto A: <code>UPDATE konten SET guthaben = guthaben - 100 WHERE id = 1</code></li><li>Konto B: <code>UPDATE konten SET guthaben = guthaben + 100 WHERE id = 2</code></li></ol><p>Nach Schritt 1 fällt der Server aus. Das Geld ist weg – aber nie angekommen!</p>",
+      "description": "<p>Wie lösen Datenbanken das Problem einer unterbrochenen Überweisung?</p>",
+      "config": {
+        "options": [
+          "Das passiert nicht – professionelle Server stürzen nie ab",
+          "Mit Transaktionen: Entweder beide Schritte gelingen (COMMIT) oder keiner davon (ROLLBACK)",
+          "Die Bank führt Schritt 2 beim nächsten Systemstart automatisch nach",
+          "Tägliche Backups lösen dieses Problem"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "COMMIT = alle Änderungen werden dauerhaft gespeichert. ROLLBACK = alle Änderungen werden rückgängig gemacht. Transaktionen garantieren: Alles oder nichts."
+      }
+    },
+    {
+      "slug": "db10",
+      "title": "JOIN in Python simulieren",
+      "difficulty": "HARD",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 10,
+      "story": "<p>In SQL würde man schreiben: <code>SELECT s.name, k.bezeichnung FROM schueler s JOIN klassen k ON s.klasse_id = k.id</code>. Hier baust du das in Python nach:</p>",
+      "description": "<p>Ergänze den Code der Schüler mit ihrer Klassen-Bezeichnung verbindet.</p>",
+      "config": {
+        "template": "schueler = [(1, 'Anna', 2), (2, 'Ben', 1), (3, 'Clara', 2)]\nklassen = {1: '8a', 2: '9b'}\n\n___ s ___ schueler:\n    klasse = klassen[s[___]]\n    print(f'{s[1]} ist in Klasse {___}')",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "for",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "in",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "2",
+            "caseSensitive": true
+          },
+          {
+            "index": 3,
+            "answer": "klasse",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "Anna ist in Klasse 9b\nBen ist in Klasse 8a\nClara ist in Klasse 9b\n",
+        "hint": "s[2] ist die klasse_id. Nutze sie als Schlüssel im klassen-Dictionary – genau wie ein SQL JOIN über die ID verknüpft."
+      }
+    },
+    {
+      "slug": "db11",
+      "title": "Datenbankschema debuggen",
+      "difficulty": "HARD",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 11,
+      "story": "<p>Ein Mitschüler hat dieses Schema für eine Chat-App designed:</p><pre><code>nachrichten(id, text, absender_name, datum)</code></pre><p>Er speichert den Namen direkt statt einer Nutzer-ID. Was ist das Problem?</p>",
+      "description": "<p>Warum ist dieses Datenbankschema schlecht designed?</p>",
+      "config": {
+        "options": [
+          "Die Tabelle hat zu wenige Spalten",
+          "absender_name statt einer absender_id: Wenn ein Nutzer seinen Namen ändert, werden historische Nachrichten falsch verknüpft",
+          "Das Datum gehört nicht in eine Nachrichten-Tabelle",
+          "Es fehlen Attachment-Felder"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Fremdschlüssel (Verweise auf andere Tabellen) sollten immer auf unveränderliche IDs zeigen, nicht auf Textwerte die sich ändern können."
+      }
+    },
+    {
+      "slug": "db12",
+      "title": "Entwirf die Datenbank für deine App",
+      "difficulty": "HARD",
+      "points": 50,
+      "type": "PRACTICE",
+      "sortOrder": 12,
+      "story": "<p>Du baust eine Team-App wo mehrere Nutzer Aufgaben erstellen, zuweisen und als erledigt markieren können. Entwirf das Datenbankmodell!</p>",
+      "description": "<p>Entwirf ein vollständiges Datenbankschema für eine Team-To-Do-App.</p>",
+      "config": {
+        "instructions": "Dein Schema muss enthalten:\n1. Alle nötigen Tabellen mit Spalten und Datentypen (z.B. TEXT, INTEGER, BOOLEAN, DATE)\n2. Primärschlüssel (id) für jede Tabelle\n3. Fremdschlüssel-Beziehungen zwischen den Tabellen\n4. Mindestens 2 Beispiel-SQL-Abfragen (z.B. alle offenen Aufgaben eines Nutzers)\n5. Bonus: Warum hast du die Tabellen so aufgeteilt? (Stichwort: keine Datendoppelung)",
+        "submissionNote": "Tabellendefinitionen + Beziehungen + 2 SQL-Abfragen + kurze Begründung der Entscheidungen"
+      }
+    },
+    {
+      "slug": "db13",
+      "title": "Datenbank: Mini-Instagram",
+      "difficulty": "HARD",
+      "points": 50,
+      "type": "PRACTICE",
+      "sortOrder": 13,
+      "story": "<p>Du baust das Backend von Mini-Instagram. Nutzer sollen Posts teilen, anderen folgen und Likes geben können.</p>",
+      "description": "<p>Entwirf das komplette Datenbankmodell für eine Social-Media-App.</p>",
+      "config": {
+        "instructions": "Dein Modell muss abdecken:\n1. Nutzer können Posts erstellen\n2. Nutzer können anderen Nutzern folgen\n3. Nutzer können Posts liken\n\nFür jede Funktion:\n- Welche Tabellen brauchst du?\n- Welche Spalten und Datentypen?\n- Schreibe SQL für: Alle Posts der gefolgten Nutzer, neueste zuerst\n\nBonus: Wie zählst du Likes effizient? Denke an: Brauche ich eine extra Spalten oder eine extra Tabelle?",
+        "submissionNote": "Tabellen-Schema + Beziehungen + SQL-Abfrage + Bonus-Begründung"
+      }
+    }
+  ]
+}

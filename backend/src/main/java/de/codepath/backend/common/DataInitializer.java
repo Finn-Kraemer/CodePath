@@ -15,11 +15,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,15 +66,18 @@ public class DataInitializer implements CommandLineRunner {
 
     private void loadContentFromJson() {
         try {
-            Resource resource = resourceLoader.getResource("classpath:content.json");
-            if (!resource.exists()) {
-                log.warn("content.json not found in classpath.");
+            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader);
+            Resource[] resources = resolver.getResources("classpath:content/*.json");
+            
+            if (resources.length == 0) {
+                log.warn("No content files found in classpath:content/");
                 return;
             }
 
-            try (InputStream is = resource.getInputStream()) {
-                List<ModuleDto> modules = objectMapper.readValue(is, new TypeReference<>() {});
-                for (ModuleDto mDto : modules) {
+            for (Resource resource : resources) {
+                log.info("Loading content from: {}", resource.getFilename());
+                try (InputStream is = resource.getInputStream()) {
+                    ModuleDto mDto = objectMapper.readValue(is, ModuleDto.class);
                     Module module = persistModule(mDto);
                     if (mDto.getTasks() != null) {
                         for (TaskDto tDto : mDto.getTasks()) {
@@ -82,7 +87,7 @@ public class DataInitializer implements CommandLineRunner {
                 }
             }
         } catch (Exception e) {
-            log.error("Failed to load content from JSON", e);
+            log.error("Failed to load content from JSON files", e);
         }
     }
 

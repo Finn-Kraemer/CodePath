@@ -1,0 +1,282 @@
+{
+  "slug": "it-sicherheit",
+  "title": "IT-Sicherheit",
+  "description": "Du bist Sicherheitsanalyst. Deine Aufgabe: Schwachstellen finden, bevor es Hacker tun.",
+  "iconEmoji": "🔒",
+  "sortOrder": 3,
+  "tasks": [
+    {
+      "slug": "s1",
+      "title": "Phishing-Mail enttarnen",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 1,
+      "story": "<p>Du bekommst diese E-Mail:</p><pre><code>Von: support@paypa1.com\nBetreff: Dein Konto wird in 24h gelöscht!!!\nInhalt: Klicke hier sofort:\nLink: http://paypal-sicher.xyz/login</code></pre>",
+      "description": "<p>Wie viele Warnsignale findest du in dieser E-Mail?</p>",
+      "config": {
+        "options": [
+          "Keine – die Mail sieht legitim aus",
+          "1 Signal (der verdächtige Link)",
+          "2 Signale",
+          "Mindestens 3 Signale"
+        ],
+        "correct": [
+          3
+        ],
+        "hint": "Schaue dir folgende Dinge an: 1. Die Absender-Domain (paypa1 statt paypal), 2. Der Betreff mit !!! (künstliche Dringlichkeit), 3. Die Link-Domain (paypal-sicher.xyz – kein offizielles paypal.com)"
+      }
+    },
+    {
+      "slug": "s2",
+      "title": "Passwort-Stärke einschätzen",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 2,
+      "story": "<p>Dein Chef bittet dich, Passwörter auf Sicherheit zu prüfen. Welches der folgenden Passwörter ist am sichersten?</p>",
+      "description": "<p>Wähle das sicherste Passwort aus.</p>",
+      "config": {
+        "options": [
+          "hund2024",
+          "Hund2024!",
+          "tr0ub4dor&3",
+          "passwort123"
+        ],
+        "correct": [
+          2
+        ],
+        "hint": "Gutes Passwort: lang, kein echtes Wort, Groß+Klein+Zahlen+Sonderzeichen kombiniert. Wörterbuch-Wörter (auch mit Zahlen) sind durch automatische Angriffe leicht zu knacken."
+      }
+    },
+    {
+      "slug": "s3",
+      "title": "Hashing vs. Verschlüsselung",
+      "difficulty": "EASY",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 3,
+      "story": "<p>Zwei Entwickler streiten sich:</p><ul><li>Anna speichert Passwörter als <strong>Hash</strong> (z.B. SHA-256)</li><li>Ben speichert sie <strong>verschlüsselt</strong> mit einem geheimen Schlüssel</li></ul><p>Wer hat recht?</p>",
+      "description": "<p>Welche Methode ist für die Speicherung von Passwörtern besser – und warum?</p>",
+      "config": {
+        "options": [
+          "Verschlüsselung – weil man sie im Notfall wieder entschlüsseln kann",
+          "Hashing – weil ein Hash nicht rückgängig gemacht werden kann und die Datenbank das Passwort nie im Klartext kennt",
+          "Beides ist gleich gut",
+          "Keine – Passwörter sollten im Klartext gespeichert werden"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Ein Hash ist eine Einbahnstraße: rein, aber nicht wieder raus. Wenn die Datenbank gehackt wird, stehen dort nur unleserliche Hashes statt echter Passwörter."
+      }
+    },
+    {
+      "slug": "s4",
+      "title": "2-Faktor-Authentifizierung",
+      "difficulty": "EASY",
+      "points": 15,
+      "type": "FILL_BLANK",
+      "sortOrder": 4,
+      "story": "<p>Deine Schul-E-Mail bietet 2FA an. Viele Schüler fragen: \\\"Warum brauche ich das, ich habe doch schon ein Passwort?\" Erkläre es!</p>",
+      "description": "<p>Ergänze die Erklärung von 2FA.</p>",
+      "config": {
+        "template": "Beim Login braucht man zwei verschiedene ___. Meistens ist das ein ___ (etwas das man weiß) und ein einmaliger ___ aufs Handy (etwas das man hat).",
+        "blanks": [
+          "Faktoren",
+          "Passwort",
+          "Code"
+        ],
+        "hint": "2FA = Zwei-Faktor-Authentifizierung. Zwei verschiedene Arten von Beweisen: etwas das du weißt + etwas das du hast."
+      }
+    },
+    {
+      "slug": "s5",
+      "title": "Caesar-Verschlüsselung knacken",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 5,
+      "story": "<p>Julius Caesar hat seine Nachrichten verschlüsselt indem er jeden Buchstaben um 3 Stellen verschoben hat (A→D, B→E...). Dekodiere \\\"KHOOR\":</p>",
+      "description": "<p>Vervollständige die Dekodier-Funktion.</p>",
+      "config": {
+        "template": "def caesar_decode(text, versatz):\n    res = \"\"\n    for c in text:\n        if c.___(  ):\n            n = ___(c) - versatz\n            res += ___(n)\n        else:\n            res += c\n    return res\n\nprint(caesar_decode('KHOOR', 3))",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "isalpha",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "ord",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "chr",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "HELLO\n",
+        "hint": "ord(''A'') gibt die ASCII-Zahl eines Buchstabens (65 für A). chr(65) gibt den Buchstaben zur Zahl zurück. isalpha() prüft ob ein Zeichen ein Buchstabe ist."
+      }
+    },
+    {
+      "slug": "s6",
+      "title": "SQL Injection verstehen",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 6,
+      "story": "<p>Eine unsichere Login-Abfrage sieht so aus:</p><pre><code>SELECT * FROM users \nWHERE name='${eingabe}' \nAND passwort='${pw}'</code></pre><p>Ein Angreifer gibt als Namen <code>admin'--</code> ein.</p>",
+      "description": "<p>Was passiert wenn ein Angreifer <code>admin'--</code> als Nutzernamen eingibt?</p>",
+      "config": {
+        "options": [
+          "Es gibt einen Fehler wegen des Sonderzeichens",
+          "Der Angreifer ist eingeloggt ohne das Passwort zu kennen",
+          "Die gesamte Datenbank wird gelöscht",
+          "Nichts – das Anführungszeichen ist harmlos"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Das einfache Anführungszeichen '' beendet den String in der SQL-Abfrage. -- ist ein SQL-Kommentar der alles danach ignoriert – also auch die Passwortprüfung!"
+      }
+    },
+    {
+      "slug": "s7",
+      "title": "Passwort-Checker programmieren",
+      "difficulty": "MEDIUM",
+      "points": 20,
+      "type": "CODE",
+      "sortOrder": 7,
+      "story": "<p>Du baust ein Tool für die Schulwebseite das prüft ob Passwörter sicher genug sind.</p>",
+      "description": "<p>Schreibe die Funktion <code>passwort_check(pw)</code> die ein Passwort bewertet.</p>",
+      "config": {
+        "starterCode": "def passwort_check(pw):\n    # Bedingungen für ein sicheres Passwort:\n    # 1. Mindestens 8 Zeichen lang\n    # 2. Mindestens eine Zahl enthalten\n    # Wenn beide Bedingungen erfüllt: 'Sicher', sonst: 'Unsicher'\n    pass\n\nprint(passwort_check('abc'))        # → Unsicher\nprint(passwort_check('abcdef12'))   # → Sicher",
+        "expectedOutput": "Unsicher\nSicher\n",
+        "hint": "len(pw) gibt die Länge zurück. any(c.isdigit() for c in pw) prüft ob mindestens eine Ziffer im Passwort steckt."
+      }
+    },
+    {
+      "slug": "s8",
+      "title": "Firewall-Regeln lesen",
+      "difficulty": "MEDIUM",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 8,
+      "story": "<p>Ein Schulserver hat diese Firewall-Konfiguration (erste passende Regel gewinnt):</p><pre><code>Regel 1: ALLOW  Port 443 (HTTPS)\nRegel 2: ALLOW  Port 80  (HTTP)\nRegel 3: DENY   Port 22  (SSH)\nRegel 4: DENY   ALL</code></pre>",
+      "description": "<p>Was passiert wenn ein Admin versucht sich per SSH (Port 22) zu verbinden?</p>",
+      "config": {
+        "options": [
+          "Erlaubt – der Admin hat besondere Rechte",
+          "Blockiert – Regel 3 trifft zu bevor DENY ALL erreicht wird",
+          "Erlaubt – SSH ist ein sicheres Protokoll",
+          "Blockiert durch DENY ALL – die letzte Regel gilt immer"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Firewall-Regeln werden von oben nach unten geprüft. Die erste Regel die passt, gewinnt. Regel 3 passt auf Port 22 bevor DENY ALL erreicht wird."
+      }
+    },
+    {
+      "slug": "s9",
+      "title": "Passwort-Hash berechnen",
+      "difficulty": "MEDIUM",
+      "points": 15,
+      "type": "FILL_CODE",
+      "sortOrder": 9,
+      "story": "<p>Statt Passwörter direkt zu speichern, speicherst du nur ihren Hash. Beim Login vergleichst du Hash mit Hash:</p>",
+      "description": "<p>Ergänze den Code der Passwörter als Hash speichert und vergleicht.</p>",
+      "config": {
+        "template": "import hashlib\n\ndef passwort_hash(pw):\n    return hashlib.___(''sha256'', pw.___(''utf-8'')).hexdigest()\n\ngespeicherter_hash = passwort_hash('geheim123')\neingabe_hash = passwort_hash('geheim123')\n\nprint(gespeicherter_hash ___ eingabe_hash)",
+        "blanks": [
+          {
+            "index": 0,
+            "answer": "new",
+            "caseSensitive": true
+          },
+          {
+            "index": 1,
+            "answer": "encode",
+            "caseSensitive": true
+          },
+          {
+            "index": 2,
+            "answer": "==",
+            "caseSensitive": true
+          }
+        ],
+        "expectedOutput": "True\n",
+        "hint": "hashlib.new(''sha256'', daten).hexdigest() berechnet den Hash. Strings müssen erst mit .encode(''utf-8'') in Bytes umgewandelt werden."
+      }
+    },
+    {
+      "slug": "s10",
+      "title": "Brute-Force: Caesar knacken",
+      "difficulty": "HARD",
+      "points": 20,
+      "type": "CODE",
+      "sortOrder": 10,
+      "story": "<p>Du baust ein Tool das zeigt wie schwach Caesar-Verschlüsselung ist. Es probiert automatisch alle 25 möglichen Versätze durch – ein echter Brute-Force-Angriff!</p>",
+      "description": "<p>Der Code probiert alle 25 möglichen Versätze durch. Ergänze die fehlenden Teile.</p>",
+      "config": {
+        "starterCode": "def caesar_brute_force(text):\n    for versatz in range(1, 26):\n        ergebnis = \"\"\n        for zeichen in text:\n            if zeichen.isalpha():\n                basis = ord(''A'') if zeichen.isupper() else ord(''a'')\n                ergebnis += chr((ord(zeichen) - basis - versatz) % 26 + basis)\n            else:\n                ergebnis += zeichen\n        print(f'Versatz {versatz:2}: {ergebnis}')\n\ncaesar_brute_force('KHOOR')",
+        "expectedOutput": "Versatz  1: JGNNQ\nVersatz  2: IFMMP\nVersatz  3: HELLO\nVersatz  4: GDKKN\nVersatz  5: FCJJM\nVersatz  6: EBIIL\nVersatz  7: DAHHK\nVersatz  8: CZGGJ\nVersatz  9: BYFFI\nVersatz 10: AXEEH\nVersatz 11: ZWDDG\nVersatz 12: YVCCE\nVersatz 13: XUBBF\nVersatz 14: WTAAE\nVersatz 15: VS99D\nVersatz 16: UR88C\nVersatz 17: TQ77B\nVersatz 18: SP66A\nVersatz 19: RO559\nVersatz 20: QN448\nVersatz 21: PM337\nVersatz 22: OL226\nVersatz 23: NK115\nVersatz 24: MJ004\nVersatz 25: LIPWP\n",
+        "hint": "Der Code ist vollständig – führe ihn aus! Bei welchem Versatz erscheint lesbarer Text? Das ist ein echter Brute-Force-Angriff: alle Möglichkeiten ausprobieren bis man eine Lösung findet."
+      }
+    },
+    {
+      "slug": "s11",
+      "title": "Man-in-the-Middle-Angriff",
+      "difficulty": "HARD",
+      "points": 10,
+      "type": "MULTIPLE_CHOICE",
+      "sortOrder": 11,
+      "story": "<p>Du sitzt im Café. Du verbindest dich mit dem WLAN \"Starbucks_Free\". Ein Angreifer hat dieses WLAN selbst erstellt und liest deinen gesamten Datenverkehr mit – deine Passwörter, Nachrichten, alles.</p>",
+      "description": "<p>Wie nennt man diesen Angriff – und was schützt dich davor?</p>",
+      "config": {
+        "options": [
+          "Brute-Force-Angriff – Schutz: starkes Passwort",
+          "Man-in-the-Middle (MITM) – Schutz: HTTPS und VPN verschlüsseln den Datenverkehr",
+          "SQL Injection – Schutz: Prepared Statements",
+          "Phishing – Schutz: URLs genau prüfen"
+        ],
+        "correct": [
+          1
+        ],
+        "hint": "Der Angreifer sitzt in der Mitte zwischen dir und dem echten Server. HTTPS verschlüsselt die Verbindung so dass ein Mitleser nur unlesbares Kauderwelsch sieht."
+      }
+    },
+    {
+      "slug": "s12",
+      "title": "Sicherheits-Audit: Die App deines Mitschülers",
+      "difficulty": "HARD",
+      "points": 50,
+      "type": "PRACTICE",
+      "sortOrder": 12,
+      "story": "<p>Dein Mitschüler hat eine Login-App gebaut und bittet dich um einen Sicherheitscheck:</p><pre><code>// Sein Code:\nconst query = `SELECT * FROM users \n  WHERE user='${eingabe}' \n  AND pass='${passwort}'`\n\nconst admin_pw = \"admin123\"  // Im Code gespeichert!\n// Kein HTTPS, kein Rate-Limiting, keine Fehlerbehandlung</code></pre>",
+      "description": "<p>Erstelle einen professionellen Sicherheitsbericht.</p>",
+      "config": {
+        "instructions": "Dein Audit-Bericht muss enthalten:\n1. Mindestens 4 konkrete Sicherheitslücken benennen und erklären (was ist das Problem?)\n2. Für jede Lücke: einen konkreten Lösungsvorschlag\n3. Eine Priorisierung: Was ist am gefährlichsten? (Kritisch / Mittel / Niedrig)\n4. Bonus: Erkläre wie ein Angreifer die SQL Injection konkret ausnutzen würde\n\nHinweis: Schaue nach SQL Injection, Klartext-Passwort, fehlendem HTTPS, fehlendem Rate-Limiting.",
+        "submissionNote": "Strukturierter Bericht mit: Lücke → Erklärung → Lösung → Priorität"
+      }
+    },
+    {
+      "slug": "s13",
+      "title": "Red Team vs. Blue Team",
+      "difficulty": "HARD",
+      "points": 50,
+      "type": "PRACTICE",
+      "sortOrder": 13,
+      "story": "<p>Alarm! Die Schulwebseite wurde gehackt. Der Angreifer hat Zugriff auf alle Schülerdaten bekommen. Erste Erkenntnisse: Das Admin-Passwort war \\\"schule123\", es gab kein HTTPS, und es waren keine Updates eingespielt.</p>",
+      "description": "<p>Du bist das Blue Team. Reagiere auf den Angriff und schütze das System.</p>",
+      "config": {
+        "instructions": "Dein Einsatzplan muss enthalten:\n1. Sofortmaßnahmen (3 Dinge die du in den nächsten 30 Minuten tust)\n2. Mittelfristige Maßnahmen (was wird in den nächsten Wochen umgesetzt?)\n3. Wie war der Angreifer erfolgreich? Was war die eigentliche Schwachstelle?\n4. Bonus: Was hätte verhindert werden können wenn du vorher einen Pen-Test gemacht hättest?",
+        "submissionNote": "Incident-Response-Plan als strukturierter Text."
+      }
+    }
+  ]
+}
