@@ -306,6 +306,22 @@
         "instructions": "Dein Modell muss abdecken:\n1. Nutzer können Posts erstellen\n2. Nutzer können anderen Nutzern folgen\n3. Nutzer können Posts liken\n\nFür jede Funktion:\n- Welche Tabellen brauchst du?\n- Welche Spalten und Datentypen?\n- Schreibe SQL für: Alle Posts der gefolgten Nutzer, neueste zuerst\n\nBonus: Wie zählst du Likes effizient? Denke an: Brauche ich eine extra Spalten oder eine extra Tabelle?",
         "submissionNote": "Tabellen-Schema + Beziehungen + SQL-Abfrage + Bonus-Begründung"
       }
+    },
+    {
+      "slug": "sql-query-pro",
+      "title": "Daten-Abfrage mit SQL",
+      "difficulty": "HARD",
+      "points": 25,
+      "type": "SQL",
+      "sortOrder": 14,
+      "story": "<p>In dieser Aufgabe arbeitest du mit einer echten Datenbank. Dir steht die Tabelle <code>mitarbeiter</code> zur Verfügung.</p><div class='bg-slate-100 p-4 font-mono text-xs my-4'><strong>Tabelle: mitarbeiter</strong><br/>- id (INT)<br/>- name (VARCHAR)<br/>- abteilung (VARCHAR)<br/>- gehalt (INT)</div>",
+      "description": "<p>Schreibe eine Abfrage, die alle Mitarbeiter aus der Abteilung <strong>'IT'</strong> ausgibt, die ein Gehalt von <strong>mehr als 5000</strong> haben.</p>",
+      "config": {
+        "starterSql": "-- Tabelle: mitarbeiter (id, name, abteilung, gehalt)\nSELECT * FROM mitarbeiter WHERE ",
+        "schemaSql": "CREATE TABLE mitarbeiter (id INT PRIMARY KEY, name VARCHAR(50), abteilung VARCHAR(50), gehalt INT); INSERT INTO mitarbeiter VALUES (1, 'Max', 'IT', 6000), (2, 'Lisa', 'Marketing', 4500), (3, 'Tim', 'IT', 4800), (4, 'Sarah', 'IT', 5200);",
+        "solutionSql": "SELECT * FROM mitarbeiter WHERE abteilung = 'IT' AND gehalt > 5000;",
+        "hint": "Prüfe die Spaltennamen genau: Nutze 'abteilung' für die Fachbereichs-Filterung und 'gehalt' für den Betrag."
+      }
     }
   ]
 }

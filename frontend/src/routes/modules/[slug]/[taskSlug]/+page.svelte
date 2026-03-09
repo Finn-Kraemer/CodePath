@@ -7,6 +7,9 @@
 	import FillCode from './FillCode.svelte';
 	import CodeTask from './CodeTask.svelte';
 	import PracticeTask from './PracticeTask.svelte';
+	import SortingTask from './SortingTask.svelte';
+	import SQLTask from './SQLTask.svelte';
+	import TerminalTask from './TerminalTask.svelte';
 
 	interface Task {
 		slug: string;
@@ -20,6 +23,9 @@
 		isCompleted: boolean;
 		isLocked: boolean;
 		supportUsed: boolean;
+		submissionStatus: string;
+		submissionContent: string;
+		adminComment: string;
 	}
 
 	let task = $state<Task | null>(null);
@@ -163,6 +169,12 @@
 						<CodeTask {task} {moduleSlug} {supportUsed} />
 					{:else if task.type === 'PRACTICE'}
 						<PracticeTask {task} {moduleSlug} {supportUsed} />
+					{:else if task.type === 'SORTING'}
+						<SortingTask {task} {moduleSlug} {supportUsed} />
+					{:else if task.type === 'SQL'}
+						<SQLTask {task} {moduleSlug} {supportUsed} />
+					{:else if task.type === 'TERMINAL'}
+						<TerminalTask {task} {moduleSlug} {supportUsed} />
 					{/if}
 				</div>
 			</div>
@@ -216,7 +228,7 @@
 				</div>
 
 				<div class="border border-slate-200 bg-white p-10 shadow-sm rounded-none text-center">
-					<span class="block mb-2 font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">Modul-Status</span>
+					<span class="block mb-2 font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">Kurs-Kontext</span>
 					<div class="text-xl font-black text-institutional-navy uppercase tracking-tighter">
 						{moduleSlug?.replace('-', ' ')}
 					</div>

@@ -291,6 +291,21 @@
                 "instructions": "Deine Dokumentation muss enthalten:\n1. Start: Wie holst du den aktuellen Stand vom Team? (Befehl + Erklärung)\n2. Branch: Wie erstellst du deinen Feature-Branch?\n3. Entwicklung: Mindestens 3 sinnvolle Commit-Nachrichten mit git add + git commit\n4. Abschluss: Wie lädst du alles auf GitHub hoch?\n5. Integration: Wie kommt dein Feature in den main-Branch?\n6. Bonus: Was ist ein Pull Request auf GitHub und warum ist er besser als ein direkter Merge in main?",
                 "submissionNote": "Liste alle Befehle mit kurzer Erklärung was sie tun. Schreibe die Commit-Nachrichten so dass man in 6 Monaten noch versteht was du gemacht hast."
             }
+        },
+        {
+            "slug": "terminal-git-init",
+            "title": "Projekt-Setup im Terminal",
+            "difficulty": "HARD",
+            "points": 20,
+            "type": "TERMINAL",
+            "sortOrder": 15,
+            "story": "<p>Du beginnst ein neues Projekt. Nutze das Terminal, um die Grundstruktur vorzubereiten.</p>",
+            "description": "<p>1. Erstellen Sie einen Ordner namens <code>website</code>. 2. Erstellen Sie darin eine Datei <code>index.html</code>. 3. Erstellen Sie eine weitere Datei <code>styles.css</code>.</p>",
+            "config": {
+                "initialFs": [],
+                "expectedState": "website,website/index.html,website/styles.css",
+                "hint": "Nutze die Befehle 'mkdir website' und 'touch dateiname'. Tippe 'submit' wenn du fertig bist."
+            }
         }
     ]
 }

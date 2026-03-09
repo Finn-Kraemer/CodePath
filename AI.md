@@ -9,10 +9,10 @@ Das Projekt ist als **Monorepo** strukturiert und folgt einer klassischen Client
 ### Übersicht Tech-Stack
 - **Backend:** Java 21, Spring Boot 3.5, Spring Security, Hibernate/JPA.
 - **Frontend:** Svelte 5 (SvelteKit), TypeScript, Tailwind CSS 4.
-- **Datenbank:** PostgreSQL 17.
+- **Datenbank:** PostgreSQL 17 (Produktion) & H2 (In-Memory für SQL-Validierung).
 - **Message Broker:** RabbitMQ (Spring AMQP) für asynchrone Lastabwicklung.
 - **Infrastruktur:** Docker & Docker Compose.
-- **Besonderheiten:** Pyodide (Python), TipTap, Monaco Editor, OpenPDF.
+- **Besonderheiten:** Pyodide (Python), TipTap, Monaco Editor, OpenPDF, Svelte-dnd-action.
 
 ---
 
@@ -29,17 +29,18 @@ Das Backend ist in Java mit Spring Boot realisiert und nutzt eine **Package-by-F
 - **Flyway:** Verwaltet versionierte SQL-Migrationen.
 - **Wichtige Kernentitäten:**
     - `User`: Nutzerdaten, Rollen und Gesamtpunkte.
+    - `Module`: Enthält nun `available_until` für zeitgesteuerte Sperrungen (Deadlines).
     - `UserTaskCompletion`: Speichert Fortschritt, Bearbeitungszeit, Fehlversuche, Sperr-Status (`is_locked`) und `support_used`.
     - `PracticeSubmission`: Freitext-Lösungen inkl. Statusverlauf und Korrekturkommentaren.
 
 ### 3. Zeugnis-Generierung (`ReportService`)
-- **PDF-Export:** Nutzt `OpenPDF` zur Erstellung offizieller Leistungsnachweise.
+- **PDF-Export:** Nutzt `OpenPDF` zur Erstellung offizieller Leistungsnachweise (inkl. Wasserzeichen und offiziellem Header).
 - **Noten-Logik:** Berechnet automatisch eine Note (1-6) basierend auf erreichten Prozentpunkten (IHK-Spiegel).
 - **Validierung:** Nur vom Admin freigeschaltete Module werden bewertet. Durch Fehlversuche gesperrte Aufgaben zählen als 0 Punkte.
 
 ### 4. Skalierung & Message Queues (RabbitMQ)
 - **Praxis-Abgaben:** `codepath.practice.submissions` entkoppelt die Speicherung großer Textinhalte.
-- **Aufgaben-Fertigstellung:** `codepath.task.completions` verarbeitet Punktegutschriften und Leaderboard-Updates im Hintergrund.
+- **Aufgaben-Fertigstellung:** `codepath.task.completions` verarbeitet Punktegutschriften und Leaderboard-Updates asynchron im Hintergrund, um Web-Threads zu entlasten.
 
 ---
 
@@ -59,10 +60,20 @@ Das Frontend nutzt **Svelte 5** und moderne Browser-APIs für Stabilität und Pe
 - **Dashboard:** Modernes Control-Center mit Schnellzugriffen und Teilnehmer-Ranking.
 - **Teilnehmer-Akte:** Module sind standardmäßig eingeklappt für bessere Übersicht. Bietet granulare Steuerung (100%, 50%, Sperren).
 - **Frontpage:** Öffentliche Landingpage mit Agenda, Zeitplan und Lehrer-Profil (Informatikstudent, 22 Jahre).
+- **Beamer-Ansicht (`/projector`):** Spezielles, abgedunkeltes Full-Screen-Layout ohne Navigation für die Präsentation im Raum. Zeigt das Live-Leaderboard, eine Echtzeituhr und globale Mitteilungen an (Updates via MQTT + 30s Fallback-Polling).
 
 ---
 
-## 🚀 Key Features & Funktionen
+## 🚀 Key Features & Aufgaben-Formate
+
+### Vielfältige Aufgaben-Typen (`TaskType`)
+Die Plattform unterstützt interaktive Aufgaben zur IT-Berufsorientierung:
+1. **Multiple Choice / Fill Blank:** Automatisierte Text- und Logikprüfungen.
+2. **Python Code (`CODE`, `FILL_CODE`):** Browserbasierte Python-Ausführung via Pyodide.
+3. **SQL-Abfragen (`SQL`):** Schüler schreiben `SELECT`-Queries im Monaco Editor. Das Backend validiert das Result-Set dynamisch gegen eine isolierte In-Memory H2-Datenbank.
+4. **Terminal Simulator (`TERMINAL`):** Virtuelle Kommandozeile. Das Backend prüft den finalen Dateisystem-Status (z.B. nach `mkdir`, `touch`, `rm`).
+5. **Drag & Drop (`SORTING`):** Sortieraufgaben (z.B. für Prozessabläufe) über flüssige Animationen mit `svelte-dnd-action`.
+6. **Praxis (`PRACTICE`):** Freitext-Einreichungen mit TipTap-Rich-Text-Editor für manuelle Dozenten-Korrekturen.
 
 ### Granulare Validierung
 Admins können im Korrektur-Workflow differenziert entscheiden:
@@ -73,5 +84,6 @@ Admins können im Korrektur-Workflow differenziert entscheiden:
 ### Korrektur-Kultur
 - Bei einer Ablehnung zur Korrektur bleibt die ursprüngliche Lösung des Schülers im Editor erhalten (`submissionContent`), um eine iterative Verbesserung zu ermöglichen.
 
-### Automatisches Sperrsystem
-- Multiple-Choice-Aufgaben werden nach **3 Fehlversuchen** automatisch gesperrt, um bloßes Raten zu verhindern.
+### Zeit- und Sperrmanagement
+- **Modul-Deadlines:** Admins können End-Uhrzeiten für Module festlegen. Schüler sehen einen Live-Countdown; nach Ablauf wird das Modul optisch ("Zeit abgelaufen") und technisch gesperrt.
+- **Automatisches Sperren:** Multiple-Choice-Aufgaben werden nach **3 Fehlversuchen** gesperrt.

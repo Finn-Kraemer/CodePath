@@ -1,0 +1,133 @@
+{
+  "$comment": "Dieses Schema dient rein der Dokumentation und Validierung in Editoren. Es wird NICHT vom Backend oder Frontend als Datenquelle geladen.",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CodePath Module Schema",
+  "description": "Definition der JSON-Struktur für Lernmodule und Aufgaben in CodePath.",
+  "type": "object",
+  "required": ["slug", "title", "description", "iconEmoji", "sortOrder", "tasks"],
+  "properties": {
+    "slug": { "type": "string", "description": "Eindeutiger URL-Identifier des Moduls (z.B. 'it-sicherheit')" },
+    "title": { "type": "string", "description": "Anzeigename des Moduls" },
+    "description": { "type": "string", "description": "Kurze Beschreibung des Moduls" },
+    "iconEmoji": { "type": "string", "description": "Ein Emoji als Icon (z.B. '🔒')" },
+    "sortOrder": { "type": "integer", "description": "Reihenfolge in der Übersicht" },
+    "tasks": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/task" }
+    }
+  },
+  "definitions": {
+    "task": {
+      "type": "object",
+      "required": ["slug", "title", "difficulty", "points", "type", "sortOrder", "description"],
+      "properties": {
+        "slug": { "type": "string", "description": "Eindeutiger Identifier der Aufgabe innerhalb des Moduls" },
+        "title": { "type": "string", "description": "Name der Aufgabe" },
+        "story": { "type": "string", "description": "Optionaler Kontext-Text (HTML erlaubt)" },
+        "description": { "type": "string", "description": "Aufgabenstellung (HTML erlaubt)" },
+        "difficulty": { "enum": ["EASY", "MEDIUM", "HARD"] },
+        "points": { "type": "integer", "minimum": 1 },
+        "sortOrder": { "type": "integer" },
+        "type": { 
+          "enum": [
+            "MULTIPLE_CHOICE", 
+            "FILL_BLANK", 
+            "FILL_CODE", 
+            "CODE", 
+            "PRACTICE", 
+            "SQL", 
+            "TERMINAL", 
+            "SORTING"
+          ] 
+        },
+        "config": {
+          "type": "object",
+          "description": "Typspezifische Konfiguration",
+          "oneOf": [
+            { "$ref": "#/definitions/configMultipleChoice" },
+            { "$ref": "#/definitions/configFillBlank" },
+            { "$ref": "#/definitions/configCode" },
+            { "$ref": "#/definitions/configSql" },
+            { "$ref": "#/definitions/configTerminal" },
+            { "$ref": "#/definitions/configSorting" },
+            { "$ref": "#/definitions/configPractice" }
+          ]
+        }
+      }
+    },
+    "configMultipleChoice": {
+      "type": "object",
+      "required": ["options", "correct"],
+      "properties": {
+        "options": { "type": "array", "items": { "type": "string" } },
+        "correct": { "type": "array", "items": { "type": "integer" }, "description": "Indizes der richtigen Optionen" },
+        "hint": { "type": "string" },
+        "support": { "type": "string", "description": "Hilfetext (halbiert Punkte bei Nutzung)" }
+      }
+    },
+    "configFillBlank": {
+      "type": "object",
+      "required": ["template", "blanks"],
+      "properties": {
+        "template": { "type": "string", "description": "Text mit '___' als Platzhalter" },
+        "blanks": { 
+          "type": "array", 
+          "items": { 
+            "type": "object",
+            "required": ["answer"],
+            "properties": {
+              "answer": { "type": "string" },
+              "caseSensitive": { "type": "boolean" }
+            }
+          } 
+        },
+        "hint": { "type": "string" }
+      }
+    },
+    "configCode": {
+      "type": "object",
+      "required": ["expectedOutput"],
+      "properties": {
+        "starterCode": { "type": "string", "description": "Initialer Python Code" },
+        "expectedOutput": { "type": "string", "description": "String den das Programm exakt ausgeben muss" },
+        "hint": { "type": "string" }
+      }
+    },
+    "configSql": {
+      "type": "object",
+      "required": ["solutionSql"],
+      "properties": {
+        "starterSql": { "type": "string" },
+        "schemaSql": { "type": "string", "description": "DDL/DML zum Aufbau der In-Memory Testdatenbank" },
+        "solutionSql": { "type": "string", "description": "Musterlösung gegen die validiert wird" },
+        "hint": { "type": "string" }
+      }
+    },
+    "configTerminal": {
+      "type": "object",
+      "required": ["expectedState"],
+      "properties": {
+        "initialFs": { "type": "array", "items": { "type": "string" } },
+        "expectedState": { "type": "string", "description": "Alphabetisch sortierte, kommagetrennte Liste der erwarteten Dateien/Ordner" },
+        "hint": { "type": "string" }
+      }
+    },
+    "configSorting": {
+      "type": "object",
+      "required": ["items", "correctOrder"],
+      "properties": {
+        "items": { "type": "array", "items": { "type": "string" } },
+        "correctOrder": { "type": "array", "items": { "type": "integer" }, "description": "Die Ziel-Reihenfolge der ursprünglichen Indizes" },
+        "hint": { "type": "string" }
+      }
+    },
+    "configPractice": {
+      "type": "object",
+      "required": ["instructions"],
+      "properties": {
+        "instructions": { "type": "string", "description": "Was der Schüler im Editor tun soll" },
+        "submissionNote": { "type": "string" }
+      }
+    }
+  }
+}

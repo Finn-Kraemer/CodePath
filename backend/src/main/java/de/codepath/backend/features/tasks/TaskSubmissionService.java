@@ -9,15 +9,17 @@ import de.codepath.backend.features.messaging.RealtimeUpdateService;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TaskSubmissionService {
 
     private final TaskRepository taskRepository;
@@ -158,6 +160,9 @@ public class TaskSubmissionService {
                     .map(b -> ((Map<?, ?>) b).get("answer").toString())
                     .reduce((a, b) -> a + ", " + b).orElse("");
             case FILL_CODE, CODE -> "Erwartete Ausgabe: " + task.getConfig().get("expectedOutput");
+            case SORTING -> "Richtige Reihenfolge: " + task.getConfig().get("correctOrder");
+            case SQL -> "Musterlösung: " + task.getConfig().get("solutionSql");
+            case TERMINAL -> "Erwarteter Endzustand: " + task.getConfig().get("expectedState");
             case PRACTICE -> "Manuelle Prüfung erforderlich.";
         };
     }
@@ -170,10 +175,14 @@ public class TaskSubmissionService {
                 case MULTIPLE_CHOICE -> validateMultipleChoice(task, payload);
                 case FILL_BLANK -> validateFillBlank(task, payload);
                 case FILL_CODE, CODE -> validateCode(task, payload);
+                case SORTING -> validateSorting(task, payload);
+                case SQL -> validateSql(task, payload);
+                case TERMINAL -> validateTerminal(task, payload);
                 case PRACTICE -> true;
             };
         } catch (Exception e) {
-            return false; // Any malformed payload or config results in "wrong"
+            log.error("Validation error for task type {}: {}", task.getType(), e.getMessage());
+            return false;
         }
     }
 
@@ -216,6 +225,69 @@ public class TaskSubmissionService {
         
         if (expected == null) return false;
         return output != null && output.trim().equals(expected.trim());
+    }
+
+    private boolean validateSorting(Task task, Map<String, Object> payload) {
+        List<?> currentOrder = (List<?>) payload.get("order");
+        List<?> correctOrder = (List<?>) task.getConfig().get("correctOrder");
+        if (currentOrder == null || correctOrder == null) return false;
+        return Objects.equals(currentOrder, correctOrder);
+    }
+
+    private boolean validateSql(Task task, Map<String, Object> payload) {
+        String studentQuery = (String) payload.get("result");
+        String schemaSql = (String) task.getConfig().get("schemaSql");
+        String solutionSql = (String) task.getConfig().get("solutionSql");
+
+        if (studentQuery == null || solutionSql == null) return false;
+
+        // Use H2 in-memory for validation
+        String url = "jdbc:h2:mem:sql_val_" + UUID.randomUUID() + ";MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE";
+        
+        try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
+            try (Statement stmt = conn.createStatement()) {
+                // 1. Setup Schema
+                if (schemaSql != null && !schemaSql.isBlank()) {
+                    stmt.execute(schemaSql);
+                }
+
+                // 2. Execute Solution to get expected results
+                List<Map<String, Object>> expectedResults = executeAndMap(stmt, solutionSql);
+                
+                // 3. Execute Student Query
+                List<Map<String, Object>> studentResults = executeAndMap(stmt, studentQuery);
+
+                // 4. Compare
+                return Objects.equals(expectedResults, studentResults);
+            }
+        } catch (SQLException e) {
+            log.warn("SQL Validation failed: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    private List<Map<String, Object>> executeAndMap(Statement stmt, String sql) throws SQLException {
+        List<Map<String, Object>> results = new ArrayList<>();
+        try (ResultSet rs = stmt.executeQuery(sql)) {
+            ResultSetMetaData meta = rs.getMetaData();
+            int colCount = meta.getColumnCount();
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                for (int i = 1; i <= colCount; i++) {
+                    row.put(meta.getColumnName(i).toUpperCase(), rs.getObject(i));
+                }
+                results.add(row);
+            }
+        }
+        return results;
+    }
+
+    private boolean validateTerminal(Task task, Map<String, Object> payload) {
+        // Validate final state of virtual FS
+        String actualState = (String) payload.get("finalState");
+        String expectedState = (String) task.getConfig().get("expectedState");
+        if (actualState == null || expectedState == null) return false;
+        return actualState.equals(expectedState);
     }
 
     private SubmitResponse handlePracticeSubmission(Task task, User user, Map<String, Object> payload, boolean supportUsed) {

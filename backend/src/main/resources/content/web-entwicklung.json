@@ -313,6 +313,27 @@
         "instructions": "Deine API-Dokumentation muss enthalten:\n1. Mindestens 4 Endpunkte (URL + HTTP-Methode: GET, POST, PUT, DELETE)\n2. Für jeden Endpunkt: Was tut er? Welche Daten bekommt er? Was gibt er zurück? (JSON-Beispiel)\n3. Welche Statuscodes gibt er bei Erfolg und bei Fehlern zurück?\n4. Bonus: Wie schützt du die API? (Stichwort: Wer darf was?)",
         "submissionNote": "API-Dokumentation als Tabelle oder strukturierter Text. Beispiel-Format:\nGET /schueler → gibt alle Schüler zurück → Status 200"
       }
+    },
+    {
+      "slug": "sorting-request-cycle",
+      "title": "HTTP Request-Response Zyklus",
+      "difficulty": "MEDIUM",
+      "points": 20,
+      "type": "SORTING",
+      "sortOrder": 15,
+      "story": "<p>Was passiert, wenn du eine Webseite aufrufst? Sortiere die Schritte in die zeitlich korrekte Reihenfolge.</p>",
+      "description": "<p>Bringen Sie die technischen Schritte einer Web-Anfrage in die richtige Reihenfolge.</p>",
+      "config": {
+        "items": [
+          "Browser sendet HTTP-Anfrage",
+          "Server verarbeitet die Anfrage",
+          "Server generiert die Antwort (HTML)",
+          "Browser empfängt Daten",
+          "Browser rendert die Webseite"
+        ],
+        "correctOrder": [0, 1, 2, 3, 4],
+        "hint": "Denken Sie an den Weg der Daten: Vom Client zum Server und wieder zurück."
+      }
     }
   ]
 }
