@@ -21,9 +21,18 @@ Das Projekt ist als **Monorepo** strukturiert und folgt einer klassischen Client
 Das Backend ist in Java mit Spring Boot realisiert und nutzt eine **Package-by-Feature** Struktur.
 
 ### 1. Sicherheit & Authentifizierung (`/auth`)
-- **JWT-Authentifizierung:** Stateless-Sitzungen via JWT.
+- **JWT-Authentifizierung:** Stateless-Sitzungen via JWT. Das Token wird im Body gesendet und im Frontend verwaltet (HttpOnly Cookies sind für die API-Kommunikation vorbereitet).
+- **CSRF-Schutz:** Aktiviert via `CookieCsrfTokenRepository`. Das Frontend sendet den Token im `X-XSRF-TOKEN` Header bei allen schreibenden Anfragen (POST, PUT, DELETE) mit.
 - **Rollen:** `STUDENT` und `ADMIN`.
 - **Anmerkung:** Spring Security Warnungen bezüglich `AuthenticationManager` wurden explizit unterdrückt (via Logging-Config), da das manuelle Provider-Setup gewollt ist.
+
+### 2. SQL-Aufgaben Validierung (`TaskSubmissionService`)
+- **Sandbox:** Studentische SQL-Abfragen werden in einer isolierten In-Memory H2-Datenbank validiert.
+- **RCE-Schutz:** 
+    - **Whitelist-Validierung:** Nur Abfragen, die mit `SELECT`, `WITH` oder `VALUES` beginnen, sind erlaubt.
+    - **Keyword-Blocking:** Gefährliche administrative Befehle (`CREATE`, `DROP`, `ALTER`, `CALL`, etc.) werden vor der Ausführung blockiert.
+    - **Read-Only Modus:** Die Datenbankverbindung wird vor der Ausführung des studentischen Codes explizit auf `setReadOnly(true)` gesetzt.
+- **DoS-Schutz:** Ein Query-Timeout von 3 Sekunden verhindert Ressourcen-Erschöpfung durch komplexe Abfragen.
 
 ### 2. Datenmodell & Migrationen
 - **Flyway:** Verwaltet versionierte SQL-Migrationen.

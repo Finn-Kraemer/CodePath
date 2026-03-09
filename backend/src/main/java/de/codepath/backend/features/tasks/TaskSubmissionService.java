@@ -241,27 +241,55 @@ public class TaskSubmissionService {
 
         if (studentQuery == null || solutionSql == null) return false;
 
-        // Use H2 in-memory for validation
+        // SECURITY: Whitelist check for student query
+        // Only allow SELECT, WITH, and basic query operations. Block everything else (CREATE, DROP, ALTER, CALL, etc.)
+        String sanitizedQuery = studentQuery.trim().toUpperCase();
+        if (!sanitizedQuery.startsWith("SELECT") && !sanitizedQuery.startsWith("WITH") && !sanitizedQuery.startsWith("VALUES")) {
+            log.warn("Blocked potentially dangerous SQL query: {}", studentQuery);
+            return false;
+        }
+        
+        // Block dangerous keywords anywhere in the query (simple protection)
+        String[] forbidden = {"CREATE", "DROP", "ALTER", "CALL", "EXECUTE", "GRANT", "REVOKE", "TRUNCATE", "DELETE", "UPDATE", "INSERT", ";"};
+        for (String word : forbidden) {
+            if (sanitizedQuery.contains(word) && !sanitizedQuery.contains("'" + word + "'")) {
+                // Special check to avoid blocking keywords inside strings (imperfect but better than nothing)
+                // For a robust solution, a real SQL parser would be needed.
+                log.warn("Blocked SQL query containing forbidden keyword '{}': {}", word, studentQuery);
+                return false;
+            }
+        }
+
+        // Use H2 in-memory for validation with security restrictions
         String url = "jdbc:h2:mem:sql_val_" + UUID.randomUUID() + ";MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE";
         
         try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
-            try (Statement stmt = conn.createStatement()) {
-                // 1. Setup Schema
-                if (schemaSql != null && !schemaSql.isBlank()) {
+            // 1. Setup Schema (while connection is in read-write mode)
+            if (schemaSql != null && !schemaSql.isBlank()) {
+                try (Statement stmt = conn.createStatement()) {
                     stmt.execute(schemaSql);
                 }
+            }
 
-                // 2. Execute Solution to get expected results
-                List<Map<String, Object>> expectedResults = executeAndMap(stmt, solutionSql);
-                
-                // 3. Execute Student Query
+            // 2. Execute Solution to get expected results
+            List<Map<String, Object>> expectedResults;
+            try (Statement stmt = conn.createStatement()) {
+                expectedResults = executeAndMap(stmt, solutionSql);
+            }
+            
+            // 3. SECURE: Set connection to read-only before executing student query
+            conn.setReadOnly(true);
+            
+            // 4. Execute Student Query with timeout to prevent DoS
+            try (Statement stmt = conn.createStatement()) {
+                stmt.setQueryTimeout(3); // 3 seconds limit
                 List<Map<String, Object>> studentResults = executeAndMap(stmt, studentQuery);
 
-                // 4. Compare
+                // 5. Compare results
                 return Objects.equals(expectedResults, studentResults);
             }
         } catch (SQLException e) {
-            log.warn("SQL Validation failed: {}", e.getMessage());
+            log.warn("SQL Validation failed or blocked by security: {}", e.getMessage());
             return false;
         }
     }
