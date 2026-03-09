@@ -10,7 +10,26 @@
 	let result = $state<{ correct: boolean; feedback: string; isLocked?: boolean } | null>(null);
 	let loading = $state(false);
 	let pyodideReady = $state(false);
-	let pyodide: any = null;
+	
+	let worker: Worker | null = null;
+	let executionTimeout: any = null;
+
+	function initWorker() {
+		if (worker) worker.terminate();
+		pyodideReady = false;
+		
+		worker = new Worker('/pyodide-worker.js');
+		worker.onmessage = (event) => {
+			const { type, stdout, error: workerError } = event.data;
+			
+			if (type === 'ready') {
+				pyodideReady = true;
+			} else if (type === 'result' || type === 'error') {
+				clearTimeout(executionTimeout);
+				handleWorkerResponse(stdout, workerError);
+			}
+		};
+	}
 
 	onMount(async () => {
 		// Load Monaco
@@ -30,19 +49,7 @@
 			initEditor();
 		}
 
-		// Load Pyodide
-		if (!(window as any).loadPyodide) {
-			const pyodideScript = document.createElement('script');
-			pyodideScript.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
-			pyodideScript.onload = async () => {
-				pyodide = await (window as any).loadPyodide();
-				pyodideReady = true;
-			};
-			document.head.appendChild(pyodideScript);
-		} else {
-			pyodide = await (window as any).loadPyodide();
-			pyodideReady = true;
-		}
+		initWorker();
 	});
 
 	function initEditor() {
@@ -62,25 +69,21 @@
 
 	onDestroy(() => {
 		if (editor) editor.dispose();
+		if (worker) worker.terminate();
+		if (executionTimeout) clearTimeout(executionTimeout);
 	});
 
-	async function runCode() {
-		if (!pyodideReady || !editor || task.isLocked) return;
-		loading = true;
-		output = '';
-		const code = editor.getValue();
+	async function handleWorkerResponse(stdout: string, workerError: string) {
+		if (workerError) {
+			output = workerError;
+			result = { correct: false, feedback: 'Code-Fehler im Skript' };
+			loading = false;
+			return;
+		}
+
+		output = stdout;
 
 		try {
-			pyodide.runPython(`
-                import sys
-                import io
-                sys.stdout = io.StringIO()
-            `);
-
-			await pyodide.runPythonAsync(code);
-			const stdout = pyodide.runPython('sys.stdout.getvalue()');
-			output = stdout;
-
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
 				body: JSON.stringify({ 
@@ -98,12 +101,32 @@
 				task.isLocked = true;
 				editor.updateOptions({ readOnly: true });
 			}
-		} catch (err: any) {
-			output = err.message;
-			result = { correct: false, feedback: 'Code-Fehler: ' + err.message };
+		} catch (e) {
+			result = { correct: false, feedback: 'Fehler bei der Verbindung zum Server' };
 		} finally {
 			loading = false;
 		}
+	}
+
+	async function runCode() {
+		if (!pyodideReady || !editor || task.isLocked || !worker) return;
+		loading = true;
+		output = '';
+		result = null;
+		const code = editor.getValue();
+
+		// Start execution with timeout
+		worker.postMessage({ type: 'run', code: code });
+		
+		executionTimeout = setTimeout(() => {
+			if (loading) {
+				worker?.terminate();
+				loading = false;
+				output = "TIMEOUT: Die Code-Ausführung hat zu lange gedauert (evtl. Endlosschleife).";
+				result = { correct: false, feedback: "Ausführung abgebrochen." };
+				initWorker(); // Restart worker
+			}
+		}, 5000);
 	}
 </script>
 

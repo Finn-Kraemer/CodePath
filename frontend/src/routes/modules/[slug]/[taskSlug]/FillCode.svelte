@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
 
 	let { task, moduleSlug, supportUsed = false } = $props();
@@ -9,7 +9,9 @@
 	let result = $state<{ correct: boolean; feedback: string; isLocked?: boolean } | null>(null);
 	let loading = $state(false);
 	let pyodideReady = $state(false);
-	let pyodide: any = null;
+	
+	let worker: Worker | null = null;
+	let executionTimeout: any = null;
 
 	let parts = $derived(task.config.template.split('___'));
 
@@ -19,47 +21,43 @@
 		}
 	});
 
-	onMount(async () => {
-		// Load Pyodide
-		if (!(window as any).loadPyodide) {
-			const pyodideScript = document.createElement('script');
-			pyodideScript.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
-			pyodideScript.onload = async () => {
-				pyodide = await (window as any).loadPyodide();
+	function initWorker() {
+		if (worker) worker.terminate();
+		pyodideReady = false;
+		
+		worker = new Worker('/pyodide-worker.js');
+		worker.onmessage = (event) => {
+			const { type, stdout, error: workerError } = event.data;
+			
+			if (type === 'ready') {
 				pyodideReady = true;
-			};
-			document.head.appendChild(pyodideScript);
-		} else {
-			pyodide = await (window as any).loadPyodide();
-			pyodideReady = true;
-		}
+			} else if (type === 'result' || type === 'error') {
+				clearTimeout(executionTimeout);
+				handleWorkerResponse(stdout, workerError);
+			}
+		};
+	}
+
+	onMount(() => {
+		initWorker();
 	});
 
-	async function handleSubmit() {
-		if (!pyodideReady || answers.some((a) => !a) || task.isLocked) return;
-		loading = true;
-		output = '';
+	onDestroy(() => {
+		if (worker) worker.terminate();
+		if (executionTimeout) clearTimeout(executionTimeout);
+	});
 
-		// Assemble code
-		let finalCode = '';
-		parts.forEach((part: string, i: number) => {
-			finalCode += part;
-			if (i < answers.length) {
-				finalCode += answers[i];
-			}
-		});
+	async function handleWorkerResponse(stdout: string, workerError: string) {
+		if (workerError) {
+			output = workerError;
+			result = { correct: false, feedback: 'Syntax-Fehler im Skript' };
+			loading = false;
+			return;
+		}
+
+		output = stdout;
 
 		try {
-			pyodide.runPython(`
-                import sys
-                import io
-                sys.stdout = io.StringIO()
-            `);
-
-			await pyodide.runPythonAsync(finalCode);
-			const stdout = pyodide.runPython('sys.stdout.getvalue()');
-			output = stdout;
-
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
 				body: JSON.stringify({ 
@@ -71,12 +69,40 @@
 			result = { correct: data.isCorrect, feedback: data.feedback, isLocked: data.isLocked };
 			if (data.isCorrect) task.isCompleted = true;
 			if (data.isLocked) task.isLocked = true;
-		} catch (err: any) {
-			output = err.message;
-			result = { correct: false, feedback: 'Syntax-Fehler im Skript' };
+		} catch (e) {
+			result = { correct: false, feedback: 'Fehler bei der Verbindung zum Server' };
 		} finally {
 			loading = false;
 		}
+	}
+
+	async function handleSubmit() {
+		if (!pyodideReady || answers.some((a) => !a) || task.isLocked || !worker) return;
+		loading = true;
+		output = '';
+		result = null;
+
+		// Assemble code
+		let finalCode = '';
+		parts.forEach((part: string, i: number) => {
+			finalCode += part;
+			if (i < answers.length) {
+				finalCode += answers[i];
+			}
+		});
+
+		// Start execution with timeout
+		worker.postMessage({ type: 'run', code: finalCode });
+		
+		executionTimeout = setTimeout(() => {
+			if (loading) {
+				worker?.terminate();
+				loading = false;
+				output = "TIMEOUT: Die Code-Ausführung hat zu lange gedauert (evtl. Endlosschleife).";
+				result = { correct: false, feedback: "Ausführung abgebrochen." };
+				initWorker(); // Restart worker for next attempt
+			}
+		}, 5000);
 	}
 </script>
 
@@ -90,7 +116,7 @@
 	>
 		<pre class="whitespace-pre-wrap">{#each parts as part, i (i)}{part}{#if i < parts.length - 1}<input
 						bind:value={answers[i]}
-						disabled={task.isCompleted || task.isLocked}
+						disabled={task.isCompleted || task.isLocked || loading}
 						type="text"
 						class="mx-2 min-w-[80px] border-b-2 border-teal-500 bg-slate-800 px-3 py-1 text-white outline-none transition-colors focus:border-white disabled:opacity-50 rounded-none"
 						placeholder="..."
@@ -148,6 +174,6 @@
 		disabled={loading || !pyodideReady || answers.some((a) => !a) || task.isCompleted || task.isLocked}
 		class="w-full bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
 	>
-		{loading ? 'Prüfprozess...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Skript bereits verifiziert' : 'Skript ausführen & validieren'}
+		{loading ? 'Prüfprozess läuft...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Skript bereits verifiziert' : 'Skript ausführen & validieren'}
 	</button>
 </div>

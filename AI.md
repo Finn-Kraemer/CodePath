@@ -7,63 +7,58 @@ CodePath ist eine moderne, interaktive Lernplattform zur IT-Berufsorientierung. 
 Das Projekt ist als **Monorepo** strukturiert und folgt einer klassischen Client-Server-Architektur mit einer persistenten Datenhaltung.
 
 ### Übersicht Tech-Stack
-- **Backend:** Java 21, Spring Boot 3.5, Spring Security, JWT, Hibernate/JPA.
+- **Backend:** Java 21, Spring Boot 3.5, Spring Security, Hibernate/JPA.
 - **Frontend:** Svelte 5 (SvelteKit), TypeScript, Tailwind CSS 4.
 - **Datenbank:** PostgreSQL 17.
 - **Message Broker:** RabbitMQ (Spring AMQP) für asynchrone Lastabwicklung.
 - **Infrastruktur:** Docker & Docker Compose.
-- **Besonderheiten:** Pyodide (Python im Browser), TipTap (Rich-Text), Monaco Editor.
+- **Besonderheiten:** Pyodide (Python), TipTap, Monaco Editor, OpenPDF.
 
 ---
 
 ## 🖥️ Backend-Implementierung
 
-Das Backend ist in Java mit Spring Boot realisiert und nutzt eine **Package-by-Feature** Struktur für hohe Modularität.
+Das Backend ist in Java mit Spring Boot realisiert und nutzt eine **Package-by-Feature** Struktur.
 
 ### 1. Sicherheit & Authentifizierung (`/auth`)
 - **JWT-Authentifizierung:** Stateless-Sitzungen via JWT.
 - **Rollen:** `STUDENT` und `ADMIN`.
-- **Anmerkung:** Spring Security Warnungen bezüglich `AuthenticationManager` wurden explizit unterdrückt, da das Setup mit einem manuell konfigurierten `DaoAuthenticationProvider` gewollt ist.
+- **Anmerkung:** Spring Security Warnungen bezüglich `AuthenticationManager` wurden explizit unterdrückt (via Logging-Config), da das manuelle Provider-Setup gewollt ist.
 
 ### 2. Datenmodell & Migrationen
 - **Flyway:** Verwaltet versionierte SQL-Migrationen.
-- **Wichtige Erweiterungen:**
-    - `UserTaskCompletion`: Speichert Fortschritt, Bearbeitungszeit, Fehlversuche, Sperr-Status (`is_locked`) und ob Unterstützung genutzt wurde (`support_used`).
-    - `PracticeSubmission`: Speichert Freitext-Lösungen inkl. Statusverlauf und Korrekturkommentaren.
-    - `SystemSetting`: Globale Key-Value Konfigurationen (z.B. Feedback-Status).
+- **Wichtige Kernentitäten:**
+    - `User`: Nutzerdaten, Rollen und Gesamtpunkte.
+    - `UserTaskCompletion`: Speichert Fortschritt, Bearbeitungszeit, Fehlversuche, Sperr-Status (`is_locked`) und `support_used`.
+    - `PracticeSubmission`: Freitext-Lösungen inkl. Statusverlauf und Korrekturkommentaren.
 
-### 3. Aufgaben-Validierung & Sperrsystem (`TaskSubmissionService`)
-- **Automatisches Sperren:** Multiple-Choice-Aufgaben werden nach **3 Fehlversuchen** automatisch gesperrt.
-- **Support-Modus:** Schüler können Hilfestellungen aufklappen. Dies setzt das Flag `support_used`, wodurch die erreichbare Punktzahl für diese Aufgabe halbiert wird.
-- **Korrektur-Workflow:** Bei einer Ablehnung zur Korrektur bleibt die ursprüngliche Lösung des Schülers im Editor erhalten (`submissionContent`), um eine einfache Überarbeitung zu ermöglichen.
+### 3. Zeugnis-Generierung (`ReportService`)
+- **PDF-Export:** Nutzt `OpenPDF` zur Erstellung offizieller Leistungsnachweise.
+- **Noten-Logik:** Berechnet automatisch eine Note (1-6) basierend auf erreichten Prozentpunkten (IHK-Spiegel).
+- **Validierung:** Nur vom Admin freigeschaltete Module werden bewertet. Durch Fehlversuche gesperrte Aufgaben zählen als 0 Punkte.
 
-### 4. Skalierung & Asynchronität (RabbitMQ)
-Alle leistungskritischen Schreibvorgänge laufen asynchron über Message Queues:
+### 4. Skalierung & Message Queues (RabbitMQ)
 - **Praxis-Abgaben:** `codepath.practice.submissions` entkoppelt die Speicherung großer Textinhalte.
 - **Aufgaben-Fertigstellung:** `codepath.task.completions` verarbeitet Punktegutschriften und Leaderboard-Updates im Hintergrund.
-- **Consumer:** Der `SubmissionConsumer` garantiert Idempotenz und sorgt für eine reibungslose Punktevergabe ohne Blockierung des Web-Threads.
 
 ---
 
 ## 🎨 Frontend-Implementierung
 
-Das Frontend nutzt **Svelte 5** für ein hochreaktives Nutzererlebnis.
+Das Frontend nutzt **Svelte 5** und moderne Browser-APIs für Stabilität und Performance.
 
-### 1. Svelte 5 Integration
-- Nutzung von Runes (`$state`, `$derived`, `$effect`) für konsistentes State-Management.
-- **Tiefen-Reaktivität:** Komplexe Zustände wie eingeklappte Module werden über reaktive Records verwaltet.
+### 1. Stabilität & Sandbox (Web Worker)
+- **Code-Execution:** Python-Code (Pyodide) wird in einem dedizierten **Web Worker** (`pyodide-worker.js`) ausgeführt.
+- **Timeout-Mechanismus:** Ein 5-Sekunden-Timeout verhindert, dass Endlosschleifen im Schüler-Code den Browser einfrieren lassen. Nach Ablauf wird der Worker automatisch terminiert.
 
-### 2. UI & Design ("Institutional Navy")
-- **Dashboard:** Aufgeräumtes Admin-Control-Center mit 12-Spalten-Grid, Schnellzugriffs-Karten und Live-Leaderboard.
-- **Teilnehmer-Akte:** Module sind standardmäßig eingeklappt. Bietet granulare Steuerung pro Aufgabe (100% Punkte, 50% Punkte, Sperren/Entsperren).
-- **Status-Visualisierung:** 
-    - Grün: Erledigt (volle Punkte).
-    - Gelb: Erledigt mit Unterstützung (halbe Punkte).
-    - Rot: Gesperrt (zu viele Fehlversuche oder manuell).
+### 2. Offline-Fähigkeit (Service Worker)
+- **PWA-Features:** Ein Service Worker (`service-worker.js`) implementiert eine "Network First"-Strategie.
+- **Caching:** Wichtige Bibliotheken (Monaco, Pyodide) und bereits geladene Aufgaben-Daten werden lokal gespeichert, um bei instabilem Schul-WLAN einen unterbrechungsfreien Betrieb zu ermöglichen.
 
-### 3. Interaktive Editoren
-- **PracticeEditor:** Basierend auf TipTap, unterstützt Rich-Text und Bild-Uploads.
-- **Code-Umgebung:** Monaco Editor mit Pyodide für serverseitig unabhängige Python-Ausführung im Client.
+### 3. UI & Design ("Institutional Navy")
+- **Dashboard:** Modernes Control-Center mit Schnellzugriffen und Teilnehmer-Ranking.
+- **Teilnehmer-Akte:** Module sind standardmäßig eingeklappt für bessere Übersicht. Bietet granulare Steuerung (100%, 50%, Sperren).
+- **Frontpage:** Öffentliche Landingpage mit Agenda, Zeitplan und Lehrer-Profil (Informatikstudent, 22 Jahre).
 
 ---
 
@@ -73,11 +68,10 @@ Das Frontend nutzt **Svelte 5** für ein hochreaktives Nutzererlebnis.
 Admins können im Korrektur-Workflow differenziert entscheiden:
 - **Volle Punkte:** Standard-Freigabe.
 - **Halbe Punkte:** Freigabe mit Punktabzug (überschreibt `support_used`).
-- **Endgültig Sperren:** Lehnt ab und verhindert weitere Einreichungen.
-- **Ablehnen (Korrektur):** Standard-Ablehnung für eine Nachbesserung.
+- **Endgültig Sperren:** Lehnt ab und verhindert weitere Einreichungen für diese Aufgabe.
 
-### Öffentliche Frontpage
-Die Startseite (`/`) ist öffentlich zugänglich und dient als Infoportal für den Kurs mit:
-- Einführung in den IT-Projekttag.
-- Kurzprofil der Lehrperson (Informatikstudent).
-- Veranstaltungs-Agenda und geplanter Ablauf (Timeline-Design).
+### Korrektur-Kultur
+- Bei einer Ablehnung zur Korrektur bleibt die ursprüngliche Lösung des Schülers im Editor erhalten (`submissionContent`), um eine iterative Verbesserung zu ermöglichen.
+
+### Automatisches Sperrsystem
+- Multiple-Choice-Aufgaben werden nach **3 Fehlversuchen** automatisch gesperrt, um bloßes Raten zu verhindern.
