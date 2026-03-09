@@ -4,7 +4,7 @@ ALTER TABLE system_settings ALTER COLUMN value TYPE TEXT;
 
 INSERT INTO system_settings (key, value) VALUES ('frontpage_config', '{
   "hero": {
-    "badge": "IT-Projekttag 2026",
+    "badge": "Berufsorientierungstag IT 2026",
     "title": "The Path to Code",
     "description": "Willkommen zu deinem Deep-Dive in die Welt der Informationstechnik. Heute lernst du nicht aus Büchern, sondern arbeitest direkt an den Systemen, die unsere digitale Welt antreiben."
   },
@@ -12,14 +12,14 @@ INSERT INTO system_settings (key, value) VALUES ('frontpage_config', '{
     "badge": "Deine Lehrperson",
     "title": "Expertise aus der Praxis",
     "quote": "In der IT zählt nicht, was man auswendig gelernt hat, sondern wie kreativ und analytisch man Probleme löst. Mein Ziel für heute ist es, euch die Werkzeuge an die Hand zu geben, mit denen ihr reale Herausforderungen meistern könnt.",
-    "description": "Als Dozent mit langjähriger Erfahrung in der Softwareentwicklung und Systemarchitektur begleite ich euch heute durch den IT-Projekttag. Mein Fokus liegt darauf, die Brücke zwischen akademischen Konzepten und der industriellen Anwendung zu schlagen. Ich stehe euch den ganzen Tag für Fragen, Feedback und technisches Mentoring zur Verfügung.",
+    "description": "Als Dozent mit langjähriger Erfahrung in der Softwareentwicklung und Systemarchitektur begleite ich euch heute durch den Berufsorientierungstag IT. Mein Fokus liegt darauf, die Brücke zwischen akademischen Konzepten und der industriellen Anwendung zu schlagen. Ich stehe euch den ganzen Tag für Fragen, Feedback und technisches Mentoring zur Verfügung.",
     "emoji": "👨‍🏫",
     "role": "Dozent für Fachinformatik"
   },
   "agenda": {
     "badge": "Die Agenda",
     "title": "Veranstaltungs-Übersicht",
-    "description": "Dieser Projekttag ist als Intensiv-Workshop konzipiert. Wir decken die gesamte Breite der modernen Informationstechnik ab – von der Hardware-Ebene bis zur Cloud-Infrastruktur.",
+    "description": "Dieser Berufsorientierungstag ist als Intensiv-Workshop konzipiert. Wir decken die gesamte Breite der modernen Informationstechnik ab – von der Hardware-Ebene bis zur Cloud-Infrastruktur.",
     "items": [
       { "emoji": "💾", "title": "Grundlagen & Logik", "description": "Verständnis für binäre Systeme, digitale Logikgatter und die Architektur von Prozessoren als Basis jeder Software." },
       { "emoji": "🛠️", "title": "Software Engineering", "description": "Einstieg in Python. Wir lösen reale Probleme durch Algorithmen und lernen saubere Code-Strukturen kennen." },

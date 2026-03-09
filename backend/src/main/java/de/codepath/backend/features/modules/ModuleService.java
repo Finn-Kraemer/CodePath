@@ -40,6 +40,7 @@ public class ModuleService {
                             .description(m.getDescription())
                             .iconEmoji(m.getIconEmoji())
                             .isUnlocked(m.getIsUnlocked())
+                            .availableUntil(m.getAvailableUntil())
                             .totalTasks(total)
                             .completedTasks(completed)
                             .build();

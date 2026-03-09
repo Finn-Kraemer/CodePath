@@ -19,6 +19,8 @@ public class ModuleResponse {
     
     @JsonProperty("isUnlocked")
     private boolean isUnlocked;
+
+    private java.time.LocalDateTime availableUntil;
     
     private long totalTasks;
     private long completedTasks;

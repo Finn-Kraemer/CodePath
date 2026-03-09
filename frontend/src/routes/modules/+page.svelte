@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
 
 	interface Module {
+		id: number;
 		slug: string;
 		title: string;
 		description: string;
@@ -10,90 +11,151 @@
 		isUnlocked: boolean;
 		totalTasks: number;
 		completedTasks: number;
+		availableUntil?: string;
 	}
 
 	let modules = $state<Module[]>([]);
 	let loading = $state(true);
-	let error = $state('');
-	let pollInterval: any;
+	let now = $state(new Date());
+
+	// Update now every second for countdowns
+	onMount(() => {
+		fetchModules();
+		const interval = setInterval(() => (now = new Date()), 1000);
+		return () => clearInterval(interval);
+	});
 
 	async function fetchModules() {
 		try {
 			const res = await auth.apiFetch('/api/modules');
-			if (!res.ok) throw new Error('Module konnten nicht geladen werden');
-			modules = await res.json();
-		} catch (err: any) {
-			error = err.message;
+			if (res.ok) {
+				modules = await res.json();
+			}
+		} catch (e) {
+			console.error(e);
 		} finally {
 			loading = false;
 		}
 	}
 
-	onMount(() => {
-		fetchModules();
-		pollInterval = setInterval(fetchModules, 10000);
-	});
+	function getTimeLeft(deadline: string) {
+		const diff = new Date(deadline).getTime() - now.getTime();
+		if (diff <= 0) return 'Abgelaufen';
 
-	onDestroy(() => {
-		if (pollInterval) clearInterval(pollInterval);
-	});
+		const h = Math.floor(diff / 3600000);
+		const m = Math.floor((diff % 3600000) / 60000);
+		const s = Math.floor((diff % 60000) / 1000);
+
+		return `${h}h ${m}m ${s}s`;
+	}
+
+	function isExpired(deadline?: string) {
+		if (!deadline) return false;
+		return new Date(deadline).getTime() <= now.getTime();
+	}
 </script>
 
-<div class="mx-auto max-w-6xl">
-	<header class="mb-16 border-b border-slate-200 pb-8">
+<div class="flex flex-col gap-12">
+	<header class="border-b border-slate-200 pb-8">
 		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			Modul-Übersicht
+			Lernmodule
 		</h1>
-		<p class="mt-4 text-lg text-slate-500">
-			Wählen Sie einen Fachbereich aus, um mit den Lerninhalten zu beginnen.
-		</p>
+		<p class="mt-4 text-slate-500">Wähle ein Modul aus, um mit den Aufgaben zu beginnen.</p>
 	</header>
 
-	{#if loading && modules.length === 0}
+	{#if loading}
 		<div class="flex justify-center py-24">
 			<div class="h-12 w-12 border-4 border-slate-200 border-t-institutional-navy animate-spin"></div>
 		</div>
-	{:else if error && modules.length === 0}
-		<div class="border border-red-200 bg-red-50 p-8 text-red-700 font-mono text-sm">
-			<span class="font-bold">SYSTEM-FEHLER:</span> {error}
+	{:else if modules.length === 0}
+		<div class="border border-dashed border-slate-200 bg-white p-24 text-center rounded-none">
+			<p class="font-serif text-sm text-slate-400 italic">
+				Aktuell sind keine Module zur Bearbeitung freigeschaltet.
+			</p>
 		</div>
 	{:else}
-		<div class="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
-			{#each modules as module (module.slug)}
-				<a
-					href={`/modules/${module.slug}`}
-					class="group flex flex-col border border-slate-200 bg-white p-10 transition-all hover:border-institutional-navy shadow-sm rounded-none"
+		<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+			{#each modules as mod (mod.slug)}
+				<div
+					class="relative flex flex-col border border-slate-200 bg-white shadow-sm transition-all rounded-none
+                    {isExpired(mod.availableUntil) ? 'grayscale opacity-80' : 'hover:border-institutional-navy hover:shadow-md'}"
 				>
-					<div class="mb-8 text-5xl grayscale transition-all group-hover:grayscale-0">
-						{module.iconEmoji}
-					</div>
+                    {#if isExpired(mod.availableUntil)}
+                        <div class="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[1px] pointer-events-none">
+                            <div class="bg-rose-600 text-white px-4 py-2 font-mono text-[10px] font-black tracking-[3px] uppercase shadow-xl -rotate-3 border-2 border-white">
+                                Bearbeitungszeit Abgelaufen
+                            </div>
+                        </div>
+                    {/if}
 
-					<h2 class="mb-4 font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase transition-colors group-hover:text-amber-700">
-						{module.title}
-					</h2>
-
-					<p class="mb-10 text-sm leading-relaxed text-slate-500">
-						{module.description}
-					</p>
-
-					<div class="mt-auto border-t border-slate-100 pt-8">
-						<div class="mb-3 flex items-center justify-between">
-							<span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">Fortschritt</span>
-							<span class="font-mono text-[10px] font-black text-institutional-navy">
-								{Math.round((module.completedTasks / module.totalTasks) * 100) || 0}%
-							</span>
+					<div class="flex-grow p-8">
+						<div class="mb-6 flex items-center justify-between">
+							<span class="text-4xl grayscale transition-all {isExpired(mod.availableUntil) ? '' : 'hover:grayscale-0'}"
+								>{mod.iconEmoji}</span
+							>
+							{#if mod.completedTasks === mod.totalTasks && mod.totalTasks > 0}
+								<span
+									class="bg-green-100 px-3 py-1 font-mono text-[9px] font-black text-green-700 uppercase tracking-widest rounded-none"
+									>Abgeschlossen</span
+								>
+							{/if}
 						</div>
-						<div class="h-1 w-full bg-slate-100">
-							<div
-								class="h-full bg-institutional-navy transition-all duration-700"
-								style="width: {(module.completedTasks / module.totalTasks) * 100 || 0}%"
-							></div>
-						</div>
-						<p class="mt-4 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase">
-							{module.completedTasks} / {module.totalTasks} Aufgaben abgeschlossen
+						<h3
+							class="mb-3 font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase"
+						>
+							{mod.title}
+						</h3>
+						<p class="text-sm leading-relaxed text-slate-500">
+							{mod.description}
 						</p>
 					</div>
-				</a>
+
+					<!-- Progress & Action -->
+					<div class="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 p-8">
+						<div class="flex flex-col gap-4">
+							<div class="flex items-center gap-4">
+								<div class="h-1.5 w-32 bg-slate-200 rounded-none overflow-hidden">
+									<div
+										class="h-full bg-institutional-navy transition-all duration-1000"
+										style="width: {(mod.completedTasks / (mod.totalTasks || 1)) * 100}%"
+									></div>
+								</div>
+								<span class="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+									{mod.completedTasks}/{mod.totalTasks}
+								</span>
+							</div>
+
+							{#if mod.availableUntil}
+								<div class="flex items-center gap-2">
+									<div
+										class="h-2 w-2 rounded-full {isExpired(mod.availableUntil)
+											? 'bg-rose-500'
+											: 'bg-amber-500 animate-pulse'}"
+									></div>
+									<span
+										class="font-mono text-[9px] font-bold uppercase tracking-widest {isExpired(
+											mod.availableUntil
+										)
+											? 'text-rose-600'
+											: 'text-amber-600'}"
+									>
+										{isExpired(mod.availableUntil)
+											? 'Zeit abgelaufen'
+											: `Noch: ${getTimeLeft(mod.availableUntil)}`}
+									</span>
+								</div>
+							{/if}
+						</div>
+
+						<a
+							href={`/modules/${mod.slug}`}
+							class="bg-institutional-navy px-8 py-3 text-[10px] font-black tracking-[3px] text-white uppercase shadow-sm transition-all hover:bg-slate-800 rounded-none
+                            {isExpired(mod.availableUntil) ? 'pointer-events-none opacity-20' : ''}"
+						>
+							{isExpired(mod.availableUntil) ? 'Gesperrt' : 'Öffnen'}
+						</a>
+					</div>
+				</div>
 			{/each}
 		</div>
 	{/if}

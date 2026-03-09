@@ -234,6 +234,23 @@
 							</div>
 						</div>
 					</a>
+
+					<a href="/projector" target="_blank" class="flex items-center justify-between p-6 bg-white border border-slate-200 hover:border-institutional-navy transition-all group shadow-sm">
+						<div class="flex items-center gap-4">
+							<div class="p-3 bg-slate-900/5 text-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-colors">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+								</svg>
+							</div>
+							<div class="flex flex-col">
+								<span class="font-sans text-[11px] font-black uppercase tracking-widest text-institutional-navy">Beamer-Modus</span>
+								<span class="font-mono text-[9px] text-slate-400 uppercase">Live-Präsentation öffnen</span>
+							</div>
+						</div>
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300 group-hover:text-institutional-navy transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+						</svg>
+					</a>
 				</div>
 			</section>
 

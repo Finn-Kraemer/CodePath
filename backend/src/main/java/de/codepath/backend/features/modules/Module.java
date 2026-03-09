@@ -31,4 +31,7 @@ public class Module {
 
     @Column(name = "is_unlocked")
     private Boolean isUnlocked = false;
+
+    @Column(name = "available_until")
+    private java.time.LocalDateTime availableUntil;
 }

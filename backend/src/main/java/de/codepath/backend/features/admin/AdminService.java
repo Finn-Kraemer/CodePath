@@ -50,6 +50,14 @@ public class AdminService {
         return saved.getIsUnlocked();
     }
 
+    @Transactional
+    public void setModuleDeadline(Long id, LocalDateTime deadline) {
+        Module module = moduleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Modul nicht gefunden: " + id));
+        module.setAvailableUntil(deadline);
+        moduleRepository.save(module);
+    }
+
     public List<ModuleResponse> getAllModules() {
         return moduleRepository.findAll(Sort.by("sortOrder")).stream()
                 .map(m -> ModuleResponse.builder()
@@ -59,6 +67,7 @@ public class AdminService {
                         .description(m.getDescription())
                         .iconEmoji(m.getIconEmoji())
                         .isUnlocked(m.getIsUnlocked())
+                        .availableUntil(m.getAvailableUntil())
                         .build())
                 .collect(Collectors.toList());
     }

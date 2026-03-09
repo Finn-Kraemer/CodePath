@@ -1,9 +1,7 @@
 package de.codepath.backend.features.report;
 
 import com.lowagie.text.*;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.*;
 import de.codepath.backend.features.modules.Module;
 import de.codepath.backend.features.modules.ModuleRepository;
 import de.codepath.backend.features.tasks.*;
@@ -24,149 +22,174 @@ public class ReportService {
     private final UserTaskCompletionRepository completionRepository;
 
     public byte[] generateStudentReport(User user) {
-        Document document = new Document(PageSize.A4);
+        Document document = new Document(PageSize.A4, 40, 40, 60, 60);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {
-            PdfWriter.getInstance(document, out);
+            PdfWriter writer = PdfWriter.getInstance(document, out);
+            
+            // Background Watermark Event
+            writer.setPageEvent(new PdfPageEventHelper() {
+                @Override
+                public void onEndPage(PdfWriter writer, Document document) {
+                    PdfContentByte canvas = writer.getDirectContentUnder();
+                    Font waterFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 50, new Color(226, 232, 240, 40));
+                    Phrase watermark = new Phrase("OFFIZIELLER LEISTUNGSNACHWEIS", waterFont);
+                    ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER, watermark, 297, 421, 45);
+                    
+                    // Top gold line
+                    PdfContentByte topCb = writer.getDirectContent();
+                    topCb.setColorFill(new Color(180, 83, 9));
+                    topCb.rectangle(0, 832, 595, 10);
+                    topCb.fill();
+                }
+            });
+
             document.open();
 
-            // Font styles
-            Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, new Color(0, 32, 63));
-            Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.WHITE);
-            Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK);
-            Font boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.BLACK);
+            // Institutional Colors
+            Color navy = new Color(15, 23, 42);
+            Color gold = new Color(180, 83, 9);
+            Color bgGray = new Color(241, 245, 249);
+            Color borderGray = new Color(203, 213, 225);
 
-            // Title
-            Paragraph title = new Paragraph("LEISTUNGSNACHWEIS", titleFont);
-            title.setAlignment(Element.ALIGN_CENTER);
-            title.setSpacingAfter(10);
-            document.add(title);
+            // Header Section
+            PdfPTable headerTable = new PdfPTable(1);
+            headerTable.setWidthPercentage(100);
             
-            Paragraph subTitle = new Paragraph("CodePath - Kompetenzzentrum IT", FontFactory.getFont(FontFactory.HELVETICA, 12, new Color(193, 161, 97)));
-            subTitle.setAlignment(Element.ALIGN_CENTER);
-            subTitle.setSpacingAfter(30);
-            document.add(subTitle);
+            PdfPCell hCell = new PdfPCell();
+            hCell.setBorder(Rectangle.NO_BORDER);
+            hCell.setPaddingBottom(30);
+            
+            Paragraph pTitle = new Paragraph("ZERTIFIKAT ÜBER DIE TEILNAHME", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, navy));
+            pTitle.setSpacingAfter(5);
+            hCell.addElement(pTitle);
+            
+            Paragraph pSub = new Paragraph("BERUFSORIENTIERUNGSTAG IT 2026", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, gold));
+            hCell.addElement(pSub);
+            
+            headerTable.addCell(hCell);
+            document.add(headerTable);
 
-            // User Info
-            PdfPTable infoTable = new PdfPTable(2);
-            infoTable.setWidthPercentage(100);
-            infoTable.setSpacingAfter(30);
-            
-            addInfoCell(infoTable, "Teilnehmer:", boldFont);
-            addInfoCell(infoTable, user.getDisplayName() != null ? user.getDisplayName() : user.getUsername(), normalFont);
-            
-            addInfoCell(infoTable, "Benutzername:", boldFont);
-            addInfoCell(infoTable, "@" + user.getUsername(), normalFont);
-            
-            addInfoCell(infoTable, "Ausstellungsdatum:", boldFont);
-            addInfoCell(infoTable, java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")), normalFont);
-            
-            document.add(infoTable);
+            // Form-like User Info
+            PdfPTable userBox = new PdfPTable(2);
+            userBox.setWidthPercentage(100);
+            userBox.setWidths(new float[]{1, 2});
+            userBox.setSpacingAfter(40);
 
-            // Results Table
+            addFormCell(userBox, "NAME DES ABSOLVENTEN", user.getDisplayName() != null ? user.getDisplayName() : user.getUsername(), navy, bgGray, borderGray);
+            addFormCell(userBox, "SYSTEM-IDENTIFIKATOR", "@" + user.getUsername(), navy, bgGray, borderGray);
+            addFormCell(userBox, "DATUM DER PRÜFUNG", java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd. MMMM yyyy", java.util.Locale.GERMAN)), navy, bgGray, borderGray);
+            
+            document.add(userBox);
+
+            // Table of results
+            Paragraph tableTitle = new Paragraph("ERGEBNISSE DER LERNMODULE", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, navy));
+            tableTitle.setSpacingAfter(10);
+            document.add(tableTitle);
+
             PdfPTable table = new PdfPTable(4);
             table.setWidthPercentage(100);
-            table.setWidths(new float[]{4, 2, 2, 1});
+            table.setWidths(new float[]{4, 1.5f, 1.5f, 1});
+            table.setHeaderRows(1);
 
-            // Table Headers
-            String[] headers = {"Lernmodul", "Erreicht", "Max.", "Note"};
-            for (String header : headers) {
-                PdfPCell cell = new PdfPCell(new Phrase(header.toUpperCase(), headerFont));
-                cell.setBackgroundColor(new Color(0, 32, 63)); 
+            String[] colHeaders = {"Lernmodul", "Ergebnis", "Max.", "Note"};
+            for (String ch : colHeaders) {
+                PdfPCell cell = new PdfPCell(new Phrase(ch.toUpperCase(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE)));
+                cell.setBackgroundColor(navy);
                 cell.setPadding(10);
-                cell.setBorderColor(Color.WHITE);
+                cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
             }
 
-            // Only fetch modules that are unlocked by admin
             List<Module> modules = moduleRepository.findByIsUnlockedTrue(org.springframework.data.domain.Sort.by("sortOrder"));
             int totalAchieved = 0;
-            int totalMaxAvailable = 0;
+            int totalMax = 0;
 
-            for (Module module : modules) {
-                List<Task> tasks = taskRepository.findByModuleIdOrderBySortOrderAsc(module.getId());
-                int moduleAchieved = 0;
-                int moduleMax = 0;
+            for (int i = 0; i < modules.size(); i++) {
+                Module m = modules.get(i);
+                List<Task> tasks = taskRepository.findByModuleIdOrderBySortOrderAsc(m.getId());
+                int mAchieved = 0;
+                int mMax = 0;
 
-                for (Task task : tasks) {
-                    moduleMax += task.getPoints();
-                    
-                    UserTaskCompletion completion = completionRepository.findByUser_IdAndTask_Id(user.getId(), task.getId())
-                            .orElse(null);
-                    
-                    if (completion != null && completion.isCompleted()) {
-                        moduleAchieved += completion.getPointsAwarded();
-                    }
+                for (Task t : tasks) {
+                    mMax += t.getPoints();
+                    UserTaskCompletion c = completionRepository.findByUser_IdAndTask_Id(user.getId(), t.getId()).orElse(null);
+                    if (c != null && c.isCompleted()) mAchieved += c.getPointsAwarded();
                 }
 
-                if (moduleMax > 0) {
-                    double percentage = (double) moduleAchieved / moduleMax;
-                    int grade = calculateGrade(percentage);
+                if (mMax > 0) {
+                    double pct = (double) mAchieved / mMax;
+                    int grade = calculateGrade(pct);
+                    Color rowBg = (i % 2 == 0) ? Color.WHITE : new Color(248, 250, 252);
 
-                    table.addCell(createCell(module.getTitle(), normalFont));
-                    table.addCell(createCell(moduleAchieved + " Pkt.", normalFont));
-                    table.addCell(createCell(moduleMax + " Pkt.", normalFont));
-                    table.addCell(createCell(String.valueOf(grade), boldFont));
+                    table.addCell(createCell(m.getTitle(), FontFactory.getFont(FontFactory.HELVETICA, 10), rowBg, borderGray));
+                    table.addCell(createCell(mAchieved + " Pkt.", FontFactory.getFont(FontFactory.HELVETICA, 10), rowBg, borderGray));
+                    table.addCell(createCell(mMax + " Pkt.", FontFactory.getFont(FontFactory.HELVETICA, 10), rowBg, borderGray));
+                    table.addCell(createCell(String.valueOf(grade), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10), rowBg, borderGray));
 
-                    totalAchieved += moduleAchieved;
-                    totalMaxAvailable += moduleMax;
+                    totalAchieved += mAchieved;
+                    totalMax += mMax;
                 }
             }
-
             document.add(table);
 
-            // Summary
-            if (totalMaxAvailable > 0) {
-                double totalPercentage = (double) totalAchieved / totalMaxAvailable;
-                int finalGrade = calculateGrade(totalPercentage);
+            // Final Evaluation
+            if (totalMax > 0) {
+                double totalPct = (double) totalAchieved / totalMax;
+                int finalGrade = calculateGrade(totalPct);
 
-                PdfPTable summaryTable = new PdfPTable(1);
-                summaryTable.setWidthPercentage(100);
-                summaryTable.setSpacingBefore(40);
-                
+                PdfPTable footerTable = new PdfPTable(1);
+                footerTable.setSpacingBefore(40);
+                footerTable.setWidthPercentage(100);
+
                 PdfPCell summaryCell = new PdfPCell();
-                summaryCell.setPadding(20);
-                summaryCell.setBackgroundColor(new Color(248, 250, 252));
-                summaryCell.setBorderColor(new Color(226, 232, 240));
+                summaryCell.setPadding(25);
+                summaryCell.setBorderWidth(1.5f);
+                summaryCell.setBorderColor(navy);
+                summaryCell.setBackgroundColor(bgGray);
+
+                Paragraph resTitle = new Paragraph("GESAMTBEWERTUNG", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, navy));
+                resTitle.setSpacingAfter(10);
+                summaryCell.addElement(resTitle);
+
+                summaryCell.addElement(new Paragraph(String.format("Der Teilnehmer hat %d von %d Punkten erreicht.", totalAchieved, totalMax), FontFactory.getFont(FontFactory.HELVETICA, 10)));
                 
-                Paragraph p1 = new Paragraph("GESAMTERGEBNIS", boldFont);
-                p1.setSpacingAfter(10);
-                summaryCell.addElement(p1);
-                
-                summaryCell.addElement(new Paragraph("Gesamtpunktzahl: " + totalAchieved + " von " + totalMaxAvailable + " Punkten", normalFont));
-                
-                Paragraph pGrade = new Paragraph("ABSCHLUSSNOTE: " + finalGrade, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, new Color(193, 161, 97)));
-                pGrade.setSpacingBefore(10);
-                summaryCell.addElement(pGrade);
-                
-                summaryTable.addCell(summaryCell);
-                document.add(summaryTable);
-                
-                Paragraph footerNote = new Paragraph("\n* Hinweis: Nur vom Dozenten freigeschaltete Module wurden bewertet. Aufgaben, die durch Fehlversuche gesperrt wurden, zählen mit 0 Punkten in das Gesamtergebnis.", FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 7, Color.GRAY));
-                footerNote.setSpacingBefore(20);
-                document.add(footerNote);
+                Paragraph pFinalGrade = new Paragraph("ABSCHLUSSNOTE: " + finalGrade, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, gold));
+                pFinalGrade.setSpacingBefore(10);
+                summaryCell.addElement(pFinalGrade);
+
+                footerTable.addCell(summaryCell);
+                document.add(footerTable);
             }
 
             document.close();
         } catch (DocumentException e) {
-            throw new RuntimeException("Error generating PDF", e);
+            throw new RuntimeException(e);
         }
 
         return out.toByteArray();
     }
 
-    private void addInfoCell(PdfPTable table, String text, Font font) {
-        PdfPCell cell = new PdfPCell(new Phrase(text, font));
-        cell.setBorder(Rectangle.NO_BORDER);
-        cell.setPadding(5);
-        table.addCell(cell);
+    private void addFormCell(PdfPTable table, String label, String value, Color navy, Color bg, Color border) {
+        PdfPCell lCell = new PdfPCell(new Phrase(label, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 7, Color.GRAY)));
+        lCell.setBorder(Rectangle.NO_BORDER);
+        lCell.setPaddingTop(10);
+        table.addCell(lCell);
+
+        PdfPCell vCell = new PdfPCell(new Phrase(value, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, navy)));
+        vCell.setBorder(Rectangle.BOTTOM);
+        vCell.setBorderColor(border);
+        vCell.setPaddingBottom(5);
+        table.addCell(vCell);
     }
 
-    private PdfPCell createCell(String text, Font font) {
+    private PdfPCell createCell(String text, Font font, Color bg, Color border) {
         PdfPCell cell = new PdfPCell(new Phrase(text, font));
-        cell.setPadding(8);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setPadding(10);
+        cell.setBackgroundColor(bg);
+        cell.setBorder(Rectangle.BOTTOM);
+        cell.setBorderColor(border);
         return cell;
     }
 

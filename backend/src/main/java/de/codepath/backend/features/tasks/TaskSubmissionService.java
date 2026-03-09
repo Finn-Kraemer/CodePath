@@ -32,6 +32,15 @@ public class TaskSubmissionService {
     public SubmitResponse submitTask(String moduleSlug, String taskSlug, User user, SubmitRequest request) {
         Module module = moduleRepository.findBySlug(moduleSlug)
                 .orElseThrow(() -> new RuntimeException("Module not found"));
+        
+        // Check Deadline
+        if (module.getAvailableUntil() != null && module.getAvailableUntil().isBefore(LocalDateTime.now())) {
+            return SubmitResponse.builder()
+                    .isCorrect(false)
+                    .feedback("Die Bearbeitungszeit für dieses Modul ist abgelaufen.")
+                    .build();
+        }
+
         Task task = taskRepository.findByModuleIdAndSlug(module.getId(), taskSlug)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 

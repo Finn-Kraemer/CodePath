@@ -30,6 +30,25 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("isUnlocked", newState));
     }
 
+    @PutMapping("/modules/{id}/deadline")
+    public ResponseEntity<Void> setDeadline(@PathVariable("id") Long id, @RequestBody Map<String, String> body) {
+        String timeStr = body.get("deadline");
+        java.time.LocalDateTime deadline = null;
+        
+        if (timeStr != null && !timeStr.isBlank()) {
+            if (timeStr.contains("T")) {
+                deadline = java.time.LocalDateTime.parse(timeStr);
+            } else {
+                // Assume HH:mm format and combine with current date
+                java.time.LocalTime time = java.time.LocalTime.parse(timeStr);
+                deadline = java.time.LocalDateTime.of(java.time.LocalDate.now(), time);
+            }
+        }
+        
+        adminService.setModuleDeadline(id, deadline);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/submissions/{id}/approve")
     public ResponseEntity<Void> approveSubmission(@PathVariable("id") Long id, @RequestBody(required = false) Map<String, Boolean> body) {
         User admin = userService.getCurrentUser();
