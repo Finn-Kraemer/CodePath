@@ -74,7 +74,7 @@ services:
     image: ghcr.io/finn-kraemer/codepath-frontend:latest
     restart: on-failure
     ports:
-      - "80:80"
+      - "8081:80"
     depends_on:
       backend:
         condition: service_healthy
