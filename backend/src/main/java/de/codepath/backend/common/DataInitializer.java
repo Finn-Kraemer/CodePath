@@ -55,7 +55,18 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeAdminUser() {
-        if (userRepository.findByUsername(adminUsername).isPresent()) return;
+        Optional<User> existingAdmin = userRepository.findByUsername(adminUsername);
+        if (existingAdmin.isPresent()) {
+            User admin = existingAdmin.get();
+            if (admin.getRole() != UserRole.ADMIN) {
+                log.info("Updating existing user '{}' to ADMIN role", adminUsername);
+                admin.setRole(UserRole.ADMIN);
+                userRepository.save(admin);
+            }
+            return;
+        }
+        
+        log.info("Creating initial admin user: {}", adminUsername);
         User admin = new User();
         admin.setUsername(adminUsername);
         admin.setPasswordHash(passwordEncoder.encode(adminPassword));

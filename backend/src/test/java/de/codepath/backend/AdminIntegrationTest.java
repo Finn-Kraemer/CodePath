@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -87,6 +88,7 @@ public class AdminIntegrationTest {
     @Test
     void shouldToggleModuleAsAdmin() throws Exception {
         mockMvc.perform(put("/api/admin/modules/" + testModule.getId() + "/toggle")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk());
 

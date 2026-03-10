@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 public class SystemSetting {
 
     @Id
+    @Column(name = "\"key\"")
     private String key;
 
     @Column(nullable = false)
