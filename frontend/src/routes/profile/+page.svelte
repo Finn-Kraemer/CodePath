@@ -19,14 +19,23 @@
 	let changingPassword = $state(false);
 	let error = $state('');
 	let success = $state('');
+    let certificatesEnabled = $state(false);
 
 	async function fetchProfile() {
 		try {
-			const res = await auth.apiFetch('/api/users/profile');
-			if (res.ok) {
-				profile = await res.json();
+			const [profileRes, certRes] = await Promise.all([
+				auth.apiFetch('/api/users/profile'),
+				auth.apiFetch('/api/common/settings/certificates')
+			]);
+
+			if (profileRes.ok) {
+				profile = await profileRes.json();
 				newDisplayName = profile?.displayName || '';
 			}
+            if (certRes.ok) {
+                const data = await certRes.json();
+                certificatesEnabled = data.enabled;
+            }
 		} catch (e) {
 			error = 'Profil konnte nicht geladen werden';
 		} finally {
@@ -156,17 +165,24 @@
 					Laden Sie hier Ihren offiziellen Leistungsnachweis als PDF-Dokument herunter. Das Dokument enthält eine Übersicht Ihrer Leistungen in den einzelnen Modulen sowie eine automatisch berechnete Abschlussnote.
 				</p>
 
-				<button
-					onclick={handleDownloadReport}
-					class="flex items-center justify-center gap-4 w-full border-2 border-institutional-gold bg-white py-5 font-sans text-[11px] font-bold tracking-[3px] text-institutional-gold uppercase transition-all hover:bg-amber-50 rounded-none shadow-sm"
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-						<polyline points="7 10 12 15 17 10"></polyline>
-						<line x1="12" y1="15" x2="12" y2="3"></line>
-					</svg>
-					Zeugnis herunterladen (PDF)
-				</button>
+				{#if certificatesEnabled || profile.role === 'ADMIN'}
+					<button
+						onclick={handleDownloadReport}
+						class="flex items-center justify-center gap-4 w-full border-2 border-institutional-gold bg-white py-5 font-sans text-[11px] font-bold tracking-[3px] text-institutional-gold uppercase transition-all hover:bg-amber-50 rounded-none shadow-sm"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+							<polyline points="7 10 12 15 17 10"></polyline>
+							<line x1="12" y1="15" x2="12" y2="3"></line>
+						</svg>
+						Zeugnis herunterladen (PDF)
+					</button>
+				{:else}
+					<div class="bg-slate-50 border border-slate-200 p-8 text-center">
+						<p class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-2">Status: Gesperrt</p>
+						<p class="text-xs text-slate-500">Offizielle Zeugnisse werden erst am Ende der Veranstaltung freigegeben.</p>
+					</div>
+				{/if}
 			</div>
 
 			<!-- Settings -->

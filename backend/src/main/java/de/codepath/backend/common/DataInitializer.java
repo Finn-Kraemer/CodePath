@@ -1,5 +1,12 @@
 package de.codepath.backend.common;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.codepath.backend.features.modules.Module;
+import de.codepath.backend.features.modules.ModuleRepository;
+import de.codepath.backend.features.tasks.Difficulty;
+import de.codepath.backend.features.tasks.Task;
+import de.codepath.backend.features.tasks.TaskRepository;
+import de.codepath.backend.features.tasks.TaskType;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
 import de.codepath.backend.users.UserRole;
@@ -15,7 +22,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +34,10 @@ public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModuleRepository moduleRepository;
+    private final TaskRepository taskRepository;
+    private final ResourceLoader resourceLoader;
+    private final ObjectMapper objectMapper;
 
     @Value("${admin.seed.username:admin}")
     private String adminUsername;
@@ -40,6 +50,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         log.info("Starting data initialization...");
         initializeAdminUser();
+        loadContentFromJson();
         log.info("Data initialization completed.");
     }
 
@@ -134,8 +145,8 @@ public class DataInitializer implements CommandLineRunner {
         private String title;
         private String story;
         private String description;
-        private de.codepath.backend.features.tasks.TaskType type;
-        private de.codepath.backend.features.tasks.Difficulty difficulty;
+        private TaskType type;
+        private Difficulty difficulty;
         private Integer points;
         private Integer sortOrder;
         private Map<String, Object> config;

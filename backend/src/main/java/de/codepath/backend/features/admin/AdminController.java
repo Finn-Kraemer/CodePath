@@ -116,4 +116,16 @@ public class AdminController {
         adminService.toggleTaskLock(username, taskId);
         return ResponseEntity.ok().build();
     }
-}
+
+    @GetMapping("/settings/certificates")
+    public Map<String, Boolean> getCertificateStatus() {
+        return Map.of("enabled", adminService.areCertificatesEnabled());
+    }
+
+    @PutMapping("/settings/certificates/toggle")
+    public ResponseEntity<Map<String, Boolean>> toggleCertificates() {
+        boolean newState = adminService.toggleCertificates();
+        return ResponseEntity.ok(Map.of("enabled", newState));
+    }
+    }
+

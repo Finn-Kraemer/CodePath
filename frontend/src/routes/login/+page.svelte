@@ -100,13 +100,9 @@
 				Noch kein Zugang? <a
 					href="/register"
 					class="font-bold text-institutional-gold transition-all hover:underline"
-					>Konto beantragen</a
+					>Konto jetzt erstellen</a
 				>
 			</p>
 		</div>
 	</div>
-
-	<p class="mt-10 text-center font-mono text-[9px] tracking-[4px] text-slate-400 uppercase">
-		Zertifizierte End-to-End Verschlüsselung
-	</p>
 </div>

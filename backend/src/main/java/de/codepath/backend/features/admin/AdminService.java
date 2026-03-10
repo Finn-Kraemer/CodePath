@@ -37,6 +37,24 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final de.codepath.backend.common.GlobalAnnouncementRepository announcementRepository;
     private final RealtimeUpdateService realtimeUpdateService;
+    private final SystemSettingRepository settingRepository;
+
+    @Transactional
+    public boolean toggleCertificates() {
+        SystemSetting setting = settingRepository.findById("certificates_enabled")
+                .orElse(new SystemSetting("certificates_enabled", "false"));
+        
+        boolean current = "true".equalsIgnoreCase(setting.getValue());
+        setting.setValue(current ? "false" : "true");
+        settingRepository.save(setting);
+        return !current;
+    }
+
+    public boolean areCertificatesEnabled() {
+        return settingRepository.findById("certificates_enabled")
+                .map(s -> "true".equalsIgnoreCase(s.getValue()))
+                .orElse(false);
+    }
 
     @Transactional
     public boolean toggleModule(Long id) {
