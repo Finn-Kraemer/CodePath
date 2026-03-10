@@ -1,11 +1,5 @@
 package de.codepath.backend.common;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import de.codepath.backend.features.modules.Module;
-import de.codepath.backend.features.modules.ModuleRepository;
-import de.codepath.backend.features.tasks.Task;
-import de.codepath.backend.features.tasks.TaskRepository;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
 import de.codepath.backend.users.UserRole;
@@ -32,12 +26,8 @@ import java.util.Optional;
 @org.springframework.context.annotation.Profile("!test")
 public class DataInitializer implements CommandLineRunner {
 
-    private final ModuleRepository moduleRepository;
-    private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ObjectMapper objectMapper;
-    private final ResourceLoader resourceLoader;
 
     @Value("${admin.seed.username:admin}")
     private String adminUsername;
@@ -50,7 +40,6 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         log.info("Starting data initialization...");
         initializeAdminUser();
-        loadContentFromJson();
         log.info("Data initialization completed.");
     }
 

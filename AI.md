@@ -47,9 +47,16 @@ Das Backend ist in Java mit Spring Boot realisiert und nutzt eine **Package-by-F
 - **Noten-Logik:** Berechnet automatisch eine Note (1-6) basierend auf erreichten Prozentpunkten (IHK-Spiegel).
 - **Validierung:** Nur vom Admin freigeschaltete Module werden bewertet. Durch Fehlversuche gesperrte Aufgaben zählen als 0 Punkte.
 
-### 4. Skalierung & Message Queues (RabbitMQ)
-- **Praxis-Abgaben:** `codepath.practice.submissions` entkoppelt die Speicherung großer Textinhalte.
-- **Aufgaben-Fertigstellung:** `codepath.task.completions` verarbeitet Punktegutschriften und Leaderboard-Updates asynchron im Hintergrund, um Web-Threads zu entlasten.
+### 4. Skalierung & Asynchronität (RabbitMQ)
+Um das System vor Überlastung zu schützen (z.B. wenn eine ganze Klasse gleichzeitig Aufgaben abgibt), ist **RabbitMQ** integriert:
+- **Event-Driven:** Speicherintensive Prozesse wie die Freitext-Praxisabgaben (`PracticeSubmissionEvent`) werden nicht synchron in die Datenbank geschrieben, sondern als Event an RabbitMQ (`codepath.practice.submissions`) übergeben.
+- **Consumer:** Der `SubmissionConsumer` arbeitet die Queue asynchron und idempotent im Hintergrund ab.
+- **User Experience:** Das Backend blockiert nicht; der Schüler erhält sofort eine Rückmeldung, dass die Abgabe erfolgreich in Prüfung ist.
+
+### 5. Dateninitialisierung & Kommunikation
+- **Flyway Seeding:** Neue Module und Aufgaben werden beim Systemstart automatisch über SQL-Migrationen (`V7__seed_tasks.sql`) in die Datenbank geladen. Dies ersetzt das Laden aus einer `content.json` und stellt sicher, dass die Daten bei jedem Start (auch mit `docker compose down -v`) konsistent vorhanden sind.
+- **Live-Editor (Ankündigungen):** Admins können globale Mitteilungen veröffentlichen. Diese unterstützen Zeilenumbrüche (`\n`) und verschiedene Anzeige-Modi (Header, Info-Seite).
+- **Globales Feedback:** Admins können eine Feedback-Runde starten/stoppen. Schüler können einmalig nach Bestätigung eine Rückmeldung abgeben.
 
 ---
 
