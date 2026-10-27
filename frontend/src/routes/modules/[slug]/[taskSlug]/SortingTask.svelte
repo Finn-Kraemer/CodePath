@@ -5,13 +5,8 @@
 
 	let { task, moduleSlug, supportUsed = false } = $props();
 
-	// Initialize items with IDs for dnd-action
-	let items = $state(
-		(task.config.items || []).map((text: string, index: number) => ({
-			id: index,
-			text: text
-		}))
-	);
+	// Der Server liefert die Elemente bereits gemischt und mit IDs ({ id, text })
+	let items = $state<{ id: number; text: string }[]>([...(task.config.items || [])]);
 
 	let result = $state<{ correct: boolean; feedback: string } | null>(null);
 	let loading = $state(false);

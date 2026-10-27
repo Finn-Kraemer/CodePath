@@ -20,6 +20,7 @@
 		difficulty: string;
 		points: number;
 		config: any;
+		hint: string | null;
 		isCompleted: boolean;
 		isLocked: boolean;
 		supportUsed: boolean;
@@ -32,6 +33,26 @@
 	let loading = $state(true);
 	let error = $state('');
 	let supportUsed = $state(false);
+	let supportLoading = $state(false);
+
+	// Der Server merkt sich die Hilfestellung und liefert erst dann den Hinweis
+	async function requestSupport() {
+		if (!task) return;
+		supportLoading = true;
+		try {
+			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${taskSlug}/support`, {
+				method: 'POST'
+			});
+			if (!res.ok) throw new Error('Hilfestellung konnte nicht geladen werden');
+			const data = await res.json();
+			task.hint = data.hint;
+			supportUsed = data.supportUsed;
+		} catch (err: any) {
+			error = err.message;
+		} finally {
+			supportLoading = false;
+		}
+	}
 
 	const moduleSlug = page.params.slug;
 	const taskSlug = page.params.taskSlug;
@@ -189,9 +210,10 @@
 
 					{#if !supportUsed && !task.isCompleted && !task.isLocked}
 						<button
+							disabled={supportLoading}
 							onclick={() => {
 								if (confirm('Wenn Sie die Unterstützung nutzen, erhalten Sie für diese Aufgabe nur noch die hälfte der Punkte. Möchten Sie fortfahren?')) {
-									supportUsed = true;
+									requestSupport();
 								}
 							}}
 							class="w-full border border-institutional-gold/30 bg-white/5 py-4 font-mono text-[9px] font-bold tracking-[2px] text-institutional-gold uppercase transition-all hover:bg-white/10 rounded-none"
@@ -204,7 +226,7 @@
 					{:else}
 						<div class="animate-in fade-in slide-in-from-top-2 duration-500">
 							<p class="font-sans text-sm leading-relaxed italic text-slate-300">
-								"{task.config.support || task.config.hint ||
+								"{task.hint ||
 									'Prüfen Sie Ihre Eingaben sorgfältig, bevor Sie die Validierung starten.'}"
 							</p>
 							{#if supportUsed && !task.isCompleted && !task.isLocked}

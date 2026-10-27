@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,7 +44,7 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${admin.seed.username:admin}")
     private String adminUsername;
 
-    @Value("${admin.seed.password:admin123}")
+    @Value("${admin.seed.password:}")
     private String adminPassword;
 
     @Override
@@ -66,13 +68,27 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
         
+        String password = adminPassword;
+        if (password == null || password.isBlank()) {
+            // Kein Standardpasswort: ohne ADMIN_SEED_PASSWORD wird einmalig ein zufälliges erzeugt
+            password = generatePassword();
+            log.warn("ADMIN_SEED_PASSWORD ist nicht gesetzt. Erzeugtes Passwort für '{}': {}  (bitte notieren, wird nicht erneut angezeigt)",
+                    adminUsername, password);
+        }
+
         log.info("Creating initial admin user: {}", adminUsername);
         User admin = new User();
         admin.setUsername(adminUsername);
-        admin.setPasswordHash(passwordEncoder.encode(adminPassword));
+        admin.setPasswordHash(passwordEncoder.encode(password));
         admin.setRole(UserRole.ADMIN);
         admin.setDisplayName("System Admin");
         userRepository.save(admin);
+    }
+
+    private static String generatePassword() {
+        byte[] bytes = new byte[18];
+        new SecureRandom().nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
     private void loadContentFromJson() {

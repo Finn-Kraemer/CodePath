@@ -38,8 +38,18 @@ services:
       - "15672:15672"
       - "1883:1883"
       - "15675:15675"
-    command: >
-      bash -c "rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_web_mqtt && rabbitmq-server"
+    # Wie in der Haupt-docker-compose.yml: Nur-Lese-Nutzer für die Live-Updates im Browser anlegen
+    command:
+      - bash
+      - -c
+      - |
+        rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_web_mqtt
+        rabbitmq-server &
+        trap 'rabbitmqctl stop' TERM INT
+        until rabbitmqctl await_startup >/dev/null 2>&1; do sleep 2; done
+        rabbitmqctl add_user codepath-viewer codepath-viewer >/dev/null 2>&1 || true
+        rabbitmqctl set_permissions -p / codepath-viewer '^mqtt-subscription-.*' '^mqtt-subscription-.*' '^(amq\.topic|mqtt-subscription-.*)$$'
+        wait
     environment:
       RABBITMQ_DEFAULT_USER: codepath
       RABBITMQ_DEFAULT_PASS: codepath

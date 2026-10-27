@@ -4,107 +4,32 @@ CodePath ist eine interaktive Lernplattform zur IT-Berufsorientierung, die sich 
 
 ## 🚀 Schnelleinstieg
 
-Kopieren Sie diesen Inhalt in eine `docker-compose.yml` und führen Sie `docker compose up -d` aus:
-
-```yaml
-services:
-  postgres:
-    image: postgres:17
-    restart: on-failure
-    environment:
-      POSTGRES_DB: codepath
-      POSTGRES_USER: codepath
-      POSTGRES_PASSWORD: codepath
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U codepath"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    restart: on-failure
-    ports:
-      - "8082:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@local.com
-      PGADMIN_DEFAULT_PASSWORD: secret
-      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
-      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: "10"
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_CONFIG_DISABLE_LOGIN_BANNER: "True"
-    depends_on:
-      - postgres
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    restart: on-failure
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-      - "15675:15675"
-    command: >
-      bash -c "rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_web_mqtt && rabbitmq-server"
-    environment:
-      RABBITMQ_DEFAULT_USER: codepath
-      RABBITMQ_DEFAULT_PASS: codepath
-
-  backend:
-    image: ghcr.io/finn-kraemer/codepath-backend:latest
-    restart: on-failure
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/codepath
-      SPRING_DATASOURCE_USERNAME: codepath
-      SPRING_DATASOURCE_PASSWORD: codepath
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: codepath
-      SPRING_RABBITMQ_PASSWORD: codepath
-      JWT_SECRET: change-me-in-production-min-32-chars!!
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    depends_on:
-      - postgres
-      - rabbitmq
-
-  frontend:
-    image: ghcr.io/finn-kraemer/codepath-frontend:latest
-    restart: on-failure
-    ports:
-      - "80:80"
-    depends_on:
-      backend:
-        condition: service_healthy
-
-volumes:
-  postgres_data:
+```bash
+curl -O https://raw.githubusercontent.com/finn-kraemer/codepath/main/docker-compose.yml
+curl -o .env https://raw.githubusercontent.com/finn-kraemer/codepath/main/.env.example
+# .env öffnen und alle Werte setzen, z. B. mit: openssl rand -base64 48
+docker compose up -d
 ```
 
-- **Frontend**: [http://localhost](http://localhost)
-- **Standard-Admin**: `admin` / `admin123`
+Ohne gesetzte Secrets in `.env` startet der Stack nicht – es gibt bewusst keine Standardpasswörter.
+
+- **Frontend**: [http://localhost:8081](http://localhost:8081)
+- **Admin-Konto**: Benutzername `admin`. Das Passwort ist `ADMIN_SEED_PASSWORD` aus `.env`; ist es leer, wird beim ersten Start eines erzeugt und ins Log geschrieben: `docker compose logs backend | grep "Erzeugtes Passwort"`
 
 ---
 
 ## 🛠️ Infrastruktur-Zugang
 
-Für Verwaltung und Debugging stehen folgende Oberflächen zur Verfügung:
+Verwaltungsoberflächen sind nur auf dem Rechner selbst erreichbar (`127.0.0.1`), nicht im Schulnetz.
 
 ### Datenbank (pgAdmin 4)
+- **Start bei Bedarf**: `docker compose --profile tools up -d pgadmin`
 - **URL**: [http://localhost:8082](http://localhost:8082)
-- **Login**: `admin@local.com` / `secret`
-- **Verbindung zur DB**: Host: `postgres`, User/Pass/DB: `codepath`
+- **Verbindung zur DB**: Host `postgres`, User/DB `codepath`, Passwort `POSTGRES_PASSWORD` aus `.env`
 
 ### Message Broker (RabbitMQ)
-- **Management UI**: [http://localhost:15672](http://localhost:15672)
-- **Login**: `codepath` / `codepath`
-- **Features**: MQTT over WebSockets ist auf Port `15675` aktiv.
+- **Management UI**: [http://localhost:15672](http://localhost:15672), Login `codepath` / `RABBITMQ_PASSWORD` aus `.env`
+- **Live-Updates**: MQTT over WebSockets auf Port `15675`. Der Browser nutzt den Nur-Lese-Nutzer `codepath-viewer`, der Topics abonnieren, aber nichts veröffentlichen darf.
 
 ---
 
@@ -161,7 +86,7 @@ Die Plattform ist in verschiedene Module unterteilt, die jeweils einen IT-Bereic
     cd backend/dev-stack
     ./start.sh
     ```
-2.  **Backend**: `cd backend && ./mvnw spring-boot:run`
+2.  **Backend**: `cd backend && JWT_SECRET=$(openssl rand -base64 48) SPRING_DATASOURCE_PASSWORD=codepath SPRING_RABBITMQ_PASSWORD=codepath ./mvnw spring-boot:run` (die Passwörter passen zum lokalen Dev-Stack; alle drei Variablen sind Pflicht)
 3.  **Frontend**: `cd frontend && pnpm install && pnpm dev`
 
 ---
