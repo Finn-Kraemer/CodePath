@@ -1,0 +1,39 @@
+{
+  "slug": "d2",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Binär zu Dezimal",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 2,
+  "learningGoal": "",
+  "story": "Im Binärsystem hat jede Stelle einen Wert – von rechts nach links: 1, 2, 4, 8, 16 ...\n\n```\nStelle: 3    2    1    0\nWert:   8    4    2    1\nZahl:   1    0    1    1\n```",
+  "assignment": "Was ist die Binärzahl `1011` als Dezimalzahl?",
+  "hints": [
+    "Multipliziere jede Stelle mit ihrem Stellenwert: 1×8 + 0×4 + 1×2 + 1×1 = ?"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "9"
+      },
+      {
+        "id": "b",
+        "text": "10"
+      },
+      {
+        "id": "c",
+        "text": "11"
+      },
+      {
+        "id": "d",
+        "text": "13"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

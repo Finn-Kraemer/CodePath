@@ -1,0 +1,49 @@
+{
+  "slug": "a7",
+  "type": "FILL_CODE",
+  "title": "Stack in Python bauen",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 7,
+  "learningGoal": "",
+  "story": "Python-Listen funktionieren perfekt als Stack. `append()` legt obendrauf (push), `pop()` nimmt das oberste Element runter.",
+  "assignment": "Ergänze den Stack der den Browser-Verlauf simuliert.",
+  "hints": [
+    "append() fügt am Ende hinzu (oben auf den Stapel). pop() entfernt das letzte Element und gibt es zurück. [-1] liest das letzte Element ohne es zu entfernen."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "verlauf = []\n\n# Seiten besuchen (push)\nverlauf.___( \"google.com\")\nverlauf.___( \"youtube.com\")\nverlauf.___( \"reddit.com\")\n\nprint(\"Aktuell:\", verlauf[-1])\n\n# Zurück-Button (pop)\nverlauf.___()\nprint(\"Zurück zu:\", verlauf[-1])",
+    "blanks": [
+      {
+        "answers": [
+          "append"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "append"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "append"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "pop"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "Aktuell: reddit.com\nZurück zu: youtube.com\n"
+      }
+    ]
+  }
+}

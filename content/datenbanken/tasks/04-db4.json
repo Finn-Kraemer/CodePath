@@ -1,0 +1,39 @@
+{
+  "slug": "db4",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Was bedeutet NULL?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 4,
+  "learningGoal": "",
+  "story": "In der Schüler-Datenbank hat das Feld `email` bei manchen Einträgen den Wert `NULL`. Schüler 7 hat keine E-Mail angegeben.",
+  "assignment": "Was bedeutet NULL in einer Datenbank?",
+  "hints": [
+    "NULL ist weder 0 noch leer – es bedeutet: dieser Wert existiert nicht oder ist unbekannt. Ein Schüler ohne eingetragene E-Mail hat NULL, nicht \"\"."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Die Zahl 0"
+      },
+      {
+        "id": "b",
+        "text": "Einen leeren Text (\"\")"
+      },
+      {
+        "id": "c",
+        "text": "Kein Wert vorhanden – der Wert ist unbekannt oder fehlt"
+      },
+      {
+        "id": "d",
+        "text": "Einen Fehler in der Datenbank"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

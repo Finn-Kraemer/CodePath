@@ -1,0 +1,39 @@
+{
+  "slug": "s3",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Hashing vs. Verschlüsselung",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 3,
+  "learningGoal": "",
+  "story": "Zwei Entwickler streiten sich:\n\n- Anna speichert Passwörter als **Hash** (z.B. SHA-256)\n- Ben speichert sie **verschlüsselt** mit einem geheimen Schlüssel\n\nWer hat recht?",
+  "assignment": "Welche Methode ist für die Speicherung von Passwörtern besser – und warum?",
+  "hints": [
+    "Ein Hash ist eine Einbahnstraße: rein, aber nicht wieder raus. Wenn die Datenbank gehackt wird, stehen dort nur unleserliche Hashes statt echter Passwörter."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Verschlüsselung – weil man sie im Notfall wieder entschlüsseln kann"
+      },
+      {
+        "id": "b",
+        "text": "Hashing – weil ein Hash nicht rückgängig gemacht werden kann und die Datenbank das Passwort nie im Klartext kennt"
+      },
+      {
+        "id": "c",
+        "text": "Beides ist gleich gut"
+      },
+      {
+        "id": "d",
+        "text": "Keine – Passwörter sollten im Klartext gespeichert werden"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

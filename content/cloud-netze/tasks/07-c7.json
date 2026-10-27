@@ -1,0 +1,43 @@
+{
+  "slug": "c7",
+  "type": "FILL_CODE",
+  "title": "Ping-Analyse",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 7,
+  "learningGoal": "",
+  "story": "Du analysierst die Ping-Zeiten eines Schulservers (in Millisekunden). Unter 50ms ist gut, über 100ms ist problematisch:",
+  "assignment": "Ergänze den Code der die durchschnittliche Antwortzeit berechnet.",
+  "hints": [
+    "Initialisiere die Summe mit 0. += addiert zur bestehenden Summe. len() gibt die Anzahl der Elemente zurück."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "ping_zeiten = [12, 45, 8, 23, 67, 11]\n\ngesamt = ___\nfor z in ping_zeiten:\n    gesamt ___ z\n\ndurchschnitt = gesamt / ___(ping_zeiten)\nprint(durchschnitt)",
+    "blanks": [
+      {
+        "answers": [
+          "0"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "+="
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "len"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "27.666666666666668\n"
+      }
+    ]
+  }
+}

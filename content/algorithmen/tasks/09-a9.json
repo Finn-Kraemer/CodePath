@@ -1,0 +1,39 @@
+{
+  "slug": "a9",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Bubble Sort verstehen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 9,
+  "learningGoal": "",
+  "story": "Bubble Sort vergleicht immer zwei benachbarte Elemente und tauscht sie wenn sie falsch sortiert sind.\n\n```\nRunde 1: [5, 3, 8, 1] → [3, 5, 1, 8]\nRunde 2: [3, 5, 1, 8] → [3, 1, 5, 8]\nRunde 3: [3, 1, 5, 8] → [1, 3, 5, 8] ✓\n```",
+  "assignment": "Was passiert in jeder Runde von Bubble Sort?",
+  "hints": [
+    "Schau dir die Beispiele an: Nach Runde 1 ist 8 (das Größte) am Ende. Nach Runde 2 ist 5 an seiner Stelle. Die großen Werte 'blubbern' wie Luftblasen nach oben – daher der Name."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Die Liste wird in zwei Hälften geteilt und separat sortiert"
+      },
+      {
+        "id": "b",
+        "text": "Das größte noch unsortierte Element 'blubbert' an seine richtige Position am Ende"
+      },
+      {
+        "id": "c",
+        "text": "Ein zufälliges Element wird an die richtige Stelle gesetzt"
+      },
+      {
+        "id": "d",
+        "text": "Die Liste wird komplett neu angeordnet"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

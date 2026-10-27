@@ -1,0 +1,39 @@
+{
+  "slug": "c6",
+  "type": "MULTIPLE_CHOICE",
+  "title": "OSI-Modell: Welche Schicht?",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 6,
+  "learningGoal": "",
+  "story": "Das OSI-Modell teilt Netzwerkkommunikation in 7 Schichten: 1=Kabel, 2=MAC, 3=IP, 4=TCP/UDP, 5=Session, 6=Präsentation, 7=Anwendung (HTTP/DNS).",
+  "assignment": "Auf welcher Schicht arbeitet eine Firewall die IP-Adressen filtert?",
+  "hints": [
+    "IP-Adressen gehören zur Netzwerkschicht (Schicht 3). Bekannte Protokolle auf dieser Schicht: IP, ICMP (Ping). HTTP und DNS sind Schicht 7."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Schicht 1 (Bitübertragung) – sie arbeitet mit Kabeln und Signalen"
+      },
+      {
+        "id": "b",
+        "text": "Schicht 3 (Netzwerk) – sie analysiert IP-Adressen und Ports"
+      },
+      {
+        "id": "c",
+        "text": "Schicht 7 (Anwendung) – sie versteht HTTP und E-Mail"
+      },
+      {
+        "id": "d",
+        "text": "Schicht 5 (Sitzung) – sie verwaltet Verbindungen"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

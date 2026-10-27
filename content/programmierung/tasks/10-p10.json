@@ -1,0 +1,39 @@
+{
+  "slug": "p10",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Arrays: Index und Inhalt",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 10,
+  "learningGoal": "",
+  "story": "Dein Team speichert Highscores in einer Liste:\n\n```\nscores = [42, 87, 15, 99, 33]\n```\n\nVisualisiert sieht das so aus:\n\n```\nIndex:  0    1    2    3    4\nWert:  42   87   15   99   33\n```",
+  "assignment": "Was gibt `print(scores[3])` aus?",
+  "hints": [
+    "Listen in Python starten bei Index 0. scores[0]=42, scores[1]=87, scores[2]=15, scores[3]=? Zähle von links beginnend bei 0."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "15"
+      },
+      {
+        "id": "b",
+        "text": "87"
+      },
+      {
+        "id": "c",
+        "text": "99"
+      },
+      {
+        "id": "d",
+        "text": "33"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "slug": "ai4",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Supervised vs. Unsupervised Learning",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 4,
+  "learningGoal": "",
+  "story": "Eine KI soll Spam-Mails erkennen. Sie wird mit 10.000 E-Mails trainiert, die alle von Menschen als \\\"Spam\" oder \\\"Kein Spam\" markiert wurden.",
+  "assignment": "Welche Art von maschinellem Lernen wird hier verwendet?",
+  "hints": [
+    "Supervised = beaufsichtigt/beschriftet. Die KI bekommt Beispiele MIT den richtigen Antworten. Unsupervised = unbeschriftet – die KI muss selbst Muster finden."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Unsupervised Learning – weil die KI selbst entscheidet"
+      },
+      {
+        "id": "b",
+        "text": "Supervised Learning – weil die Trainingsdaten beschriftet (gelabelt) sind"
+      },
+      {
+        "id": "c",
+        "text": "Reinforcement Learning – weil die KI Belohnungen bekommt"
+      },
+      {
+        "id": "d",
+        "text": "Deep Learning – weil neuronale Netze genutzt werden"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

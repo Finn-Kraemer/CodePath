@@ -1,0 +1,39 @@
+{
+  "slug": "c4",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Cloud vs. lokaler Server",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 4,
+  "learningGoal": "",
+  "story": "Die Schule überlegt: Eigener Server im Keller oder Cloud? Was ist der größte praktische Vorteil der Cloud?",
+  "assignment": "Was ist ein echter Vorteil von Cloud-Lösungen für eine Schule?",
+  "hints": [
+    "Cloud bedeutet: Jemand anderes betreibt die Server. Der Vorteil ist ausgelagerte Verantwortung – aber man gibt auch Kontrolle ab."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Die Seite funktioniert immer auch ohne Internet"
+      },
+      {
+        "id": "b",
+        "text": "Es entstehen überhaupt keine Kosten"
+      },
+      {
+        "id": "c",
+        "text": "Wartung, Updates und Backups übernimmt der Anbieter – die Schule braucht kein eigenes IT-Team"
+      },
+      {
+        "id": "d",
+        "text": "Schülerdaten sind in der Cloud sicher vor allen Angriffen"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

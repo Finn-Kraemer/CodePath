@@ -1,0 +1,37 @@
+{
+  "slug": "w10",
+  "type": "FILL_CODE",
+  "title": "JSON parsen in Python",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 10,
+  "learningGoal": "",
+  "story": "Deine Web-App bekommt Daten von einer API als JSON-Text zurück. JSON ist das meistgenutzte Datenformat im Web:",
+  "assignment": "Ergänze die beiden Lücken damit der Name ausgegeben wird.",
+  "hints": [
+    "json.loads() (load string) wandelt einen JSON-Text in ein Python-Dictionary um. Dann kannst du wie gewohnt mit ['schlüssel'] darauf zugreifen."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "import json\n\nantwort = ''{'name': 'Anna', 'punkte': 42}''\n\ndaten = json.___(antwort)\nprint(daten[___])",
+    "blanks": [
+      {
+        "answers": [
+          "loads"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "'name'"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "Anna\n"
+      }
+    ]
+  }
+}

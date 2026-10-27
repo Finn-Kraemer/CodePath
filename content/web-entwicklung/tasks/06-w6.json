@@ -1,0 +1,39 @@
+{
+  "slug": "w6",
+  "type": "MULTIPLE_CHOICE",
+  "title": "CSS: Was ändert sich?",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 6,
+  "learningGoal": "",
+  "story": "Dein Kollege hat CSS zur Webseite hinzugefügt:\n\n```\np {\n  color: red;\n  font-size: 24px;\n  text-align: center;\n}\n```\n\nDie Seite hat 5 Absätze (`<p>`). Was passiert?",
+  "assignment": "Was bewirkt dieser CSS-Code?",
+  "hints": [
+    "Ein CSS-Selektor ohne # (id) oder . (Klasse) gilt für alle HTML-Elemente dieses Typs auf der gesamten Seite."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Nur das erste p-Element auf der Seite wird verändert"
+      },
+      {
+        "id": "b",
+        "text": "Alle p-Elemente werden rot, 24px groß und zentriert"
+      },
+      {
+        "id": "c",
+        "text": "Die gesamte Seite wird rot eingefärbt"
+      },
+      {
+        "id": "d",
+        "text": "Nichts – CSS braucht immer ein id-Attribut"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

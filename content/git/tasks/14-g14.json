@@ -1,0 +1,49 @@
+{
+  "slug": "g14",
+  "type": "PRACTICE",
+  "title": "Git-Workflow: Teamarbeit dokumentieren",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 14,
+  "learningGoal": "",
+  "story": "Dein Team entwickelt eine Schul-App auf GitHub. Du bist verantwortlich für den Login-Bereich. Dokumentiere den vollständigen Workflow von Anfang bis zum fertigen Feature auf GitHub.",
+  "assignment": "Beschreibe den kompletten Git-Workflow für dein Feature.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Deine Dokumentation muss enthalten:\n1. Start: Wie holst du den aktuellen Stand vom Team? (Befehl + Erklärung)\n2. Branch: Wie erstellst du deinen Feature-Branch?\n3. Entwicklung: Mindestens 3 sinnvolle Commit-Nachrichten mit git add + git commit\n4. Abschluss: Wie lädst du alles auf GitHub hoch?\n5. Integration: Wie kommt dein Feature in den main-Branch?\n6. Bonus: Was ist ein Pull Request auf GitHub und warum ist er besser als ein direkter Merge in main?",
+    "submissionNote": "Liste alle Befehle mit kurzer Erklärung was sie tun. Schreibe die Commit-Nachrichten so dass man in 6 Monaten noch versteht was du gemacht hast.",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Start: Wie holst du den aktuellen Stand vom Team? (Befehl + Erklärung)",
+        "points": 9
+      },
+      {
+        "id": "k2",
+        "label": "Branch: Wie erstellst du deinen Feature-Branch?",
+        "points": 9
+      },
+      {
+        "id": "k3",
+        "label": "Entwicklung: Mindestens 3 sinnvolle Commit-Nachrichten mit git add + git commit",
+        "points": 8
+      },
+      {
+        "id": "k4",
+        "label": "Abschluss: Wie lädst du alles auf GitHub hoch?",
+        "points": 8
+      },
+      {
+        "id": "k5",
+        "label": "Integration: Wie kommt dein Feature in den main-Branch?",
+        "points": 8
+      },
+      {
+        "id": "k6",
+        "label": "Bonus: Was ist ein Pull Request auf GitHub und warum ist er besser als ein direkter Merge in main?",
+        "points": 8
+      }
+    ]
+  }
+}

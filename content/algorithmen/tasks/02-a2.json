@@ -1,0 +1,39 @@
+{
+  "slug": "a2",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Lineare Suche verstehen",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 2,
+  "learningGoal": "",
+  "story": "Du hast eine unsortierte Liste mit 1000 Schülernamen. Du suchst 'Zoe'. Die lineare Suche geht jeden Namen der Reihe nach durch.",
+  "assignment": "Wie viele Vergleiche sind im schlimmsten Fall nötig?",
+  "hints": [
+    "Lineare Suche = von vorne nach hinten, Element für Element. Im schlimmsten Fall (worst case) ist das gesuchte Element ganz am Ende oder existiert gar nicht."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Immer genau 500 (die Mitte)"
+      },
+      {
+        "id": "b",
+        "text": "Immer 1 – Computer suchen sehr schnell"
+      },
+      {
+        "id": "c",
+        "text": "Bis zu 1000 – im schlechtesten Fall ist Zoe der letzte Eintrag oder gar nicht vorhanden"
+      },
+      {
+        "id": "d",
+        "text": "Genau 10 – Computer nutzen automatisch schlauere Verfahren"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

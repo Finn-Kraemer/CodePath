@@ -1,16 +1,11 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { auth } from '$lib/auth.svelte';
+	import type { ModuleReleaseView } from '$lib/api';
+	import CourseSelect from '$lib/components/CourseSelect.svelte';
+	import { courseSelection } from '$lib/courses.svelte';
 
-	interface Module {
-		id: number;
-		slug: string;
-		title: string;
-		isUnlocked: boolean;
-		iconEmoji: string;
-		availableUntil?: string;
-	}
+	type Module = ModuleReleaseView;
 
 	let modules = $state<Module[]>([]);
 	let loading = $state(true);
@@ -18,7 +13,7 @@
 
 	async function fetchModules() {
 		try {
-			const res = await auth.apiFetch('/api/admin/modules');
+			const res = await auth.apiFetch('/api/admin/modules' + courseSelection.query());
 			if (!res.ok) throw new Error('Unauthorized');
 			const data = await res.json();
 			modules = data;
@@ -34,9 +29,12 @@
 		processingIds.add(mod.id);
 
 		try {
-			const res = await auth.apiFetch(`/api/admin/modules/${mod.id}/toggle`, {
-				method: 'PUT'
-			});
+			const res = await auth.apiFetch(
+				`/api/admin/modules/${mod.id}/toggle${courseSelection.query()}`,
+				{
+					method: 'PUT'
+				}
+			);
 
 			if (res.ok) {
 				const data = await res.json();
@@ -54,10 +52,13 @@
 
 	async function setDeadline(mod: Module, time: string) {
 		try {
-			const res = await auth.apiFetch(`/api/admin/modules/${mod.id}/deadline`, {
-				method: 'PUT',
-				body: JSON.stringify({ deadline: time })
-			});
+			const res = await auth.apiFetch(
+				`/api/admin/modules/${mod.id}/deadline${courseSelection.query()}`,
+				{
+					method: 'PUT',
+					body: JSON.stringify({ deadline: time })
+				}
+			);
 			if (res.ok) {
 				// If it's a new time, we don't know the exact full ISO string yet from the server,
 				// but for the UI display, we can just fetch again or assume success
@@ -73,8 +74,6 @@
 		const date = new Date(isoString);
 		return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 	}
-
-	onMount(fetchModules);
 </script>
 
 <div class="flex flex-col gap-12">
@@ -87,7 +86,8 @@
 		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
 			Modul-Steuerung
 		</h1>
-		<p class="mt-4 text-slate-500">Aktivieren oder Deaktivieren der Lerninhalte und Zeitlimits.</p>
+		<p class="mt-4 text-slate-500">Module je Kurs freischalten und Fristen setzen.</p>
+		<div class="mt-6"><CourseSelect onchange={fetchModules} /></div>
 	</header>
 
 	{#if loading}
@@ -100,11 +100,12 @@
 		<div class="grid grid-cols-1 gap-8 md:grid-cols-2">
 			{#each modules as mod (mod.id)}
 				<div
+					data-module={mod.slug}
 					class="flex flex-col rounded-none border border-slate-200 bg-white shadow-sm transition-all hover:border-slate-300"
 				>
 					<div class="flex items-center justify-between border-b border-slate-50 p-8">
 						<div class="flex items-center gap-6">
-							<span class="text-4xl grayscale transition-all">{mod.iconEmoji}</span>
+							<span class="text-4xl grayscale transition-all">{mod.icon}</span>
 							<div>
 								<h3
 									class="font-sans text-sm font-bold tracking-tight text-institutional-navy uppercase"

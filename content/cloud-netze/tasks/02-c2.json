@@ -1,0 +1,39 @@
+{
+  "slug": "c2",
+  "type": "MULTIPLE_CHOICE",
+  "title": "IP-Adressen entziffern",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 2,
+  "learningGoal": "",
+  "story": "Jedes Gerät im Internet hat eine eindeutige IP-Adresse – wie eine Telefonnummer. Aber welche dieser Adressen ist gültig?",
+  "assignment": "Welche der folgenden ist eine gültige IPv4-Adresse?",
+  "hints": [
+    "Eine IPv4-Adresse besteht aus genau 4 Zahlen (0–255) getrennt durch Punkte. 999 ist zu groß, bei Option 2 fehlt ein Teil."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "999.1.1.1"
+      },
+      {
+        "id": "b",
+        "text": "192.168.1"
+      },
+      {
+        "id": "c",
+        "text": "192.168.1.100"
+      },
+      {
+        "id": "d",
+        "text": "hello.world.net.de"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

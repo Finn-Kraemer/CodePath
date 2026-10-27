@@ -1,0 +1,23 @@
+{
+  "slug": "a10",
+  "type": "CODE",
+  "title": "Bubble Sort implementieren",
+  "difficulty": "HARD",
+  "points": 20,
+  "sortOrder": 10,
+  "learningGoal": "",
+  "story": "Bubble Sort ist langsam bei großen Listen – aber perfekt zum Lernen. Jeder Entwickler kennt ihn. Die Logik ist einfach: immer benachbarte Paare vergleichen und tauschen.",
+  "assignment": "Implementiere Bubble Sort vollständig.",
+  "hints": [
+    "Python-Style Tausch: liste[j], liste[j+1] = liste[j+1], liste[j] – das tauscht beide Werte in einer Zeile ohne eine temporäre Variable."
+  ],
+  "explanation": "",
+  "config": {
+    "starterCode": "def bubble_sort(liste):\n    n = len(liste)\n    for i in range(n - 1):          # n-1 Runden reichen\n        for j in range(0, n - i - 1):  # Innere Schleife: Paare vergleichen\n            if liste[j] > liste[j + 1]:\n                # Tausche liste[j] und liste[j+1]\n                pass\n    return liste\n\nzahlen = [64, 34, 25, 12, 22, 11, 90]\nprint(bubble_sort(zahlen))",
+    "tests": [
+      {
+        "expectedOutput": "[11, 12, 22, 25, 34, 64, 90]\n"
+      }
+    ]
+  }
+}

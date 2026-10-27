@@ -1,0 +1,39 @@
+{
+  "slug": "db11",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Datenbankschema debuggen",
+  "difficulty": "HARD",
+  "points": 10,
+  "sortOrder": 11,
+  "learningGoal": "",
+  "story": "Ein Mitschüler hat dieses Schema für eine Chat-App designed:\n\n```\nnachrichten(id, text, absender_name, datum)\n```\n\nEr speichert den Namen direkt statt einer Nutzer-ID. Was ist das Problem?",
+  "assignment": "Warum ist dieses Datenbankschema schlecht designed?",
+  "hints": [
+    "Fremdschlüssel (Verweise auf andere Tabellen) sollten immer auf unveränderliche IDs zeigen, nicht auf Textwerte die sich ändern können."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Die Tabelle hat zu wenige Spalten"
+      },
+      {
+        "id": "b",
+        "text": "absender_name statt einer absender_id: Wenn ein Nutzer seinen Namen ändert, werden historische Nachrichten falsch verknüpft"
+      },
+      {
+        "id": "c",
+        "text": "Das Datum gehört nicht in eine Nachrichten-Tabelle"
+      },
+      {
+        "id": "d",
+        "text": "Es fehlen Attachment-Felder"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

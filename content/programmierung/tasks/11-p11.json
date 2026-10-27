@@ -1,0 +1,43 @@
+{
+  "slug": "p11",
+  "type": "FILL_CODE",
+  "title": "For-Schleife mit range()",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 11,
+  "learningGoal": "",
+  "story": "Der Countdown zur Raketenzündung soll rückwärts von 10 bis 1 laufen – dann startet die Rakete. Ergänze den fehlenden Code:",
+  "assignment": "Ergänze die drei Argumente von range() damit der Countdown rückwärts läuft.",
+  "hints": [
+    "range(start, stop, step): start=10, stop=0 (nicht mitgezählt, also hört es bei 1 auf), step=-1 damit es rückwärts zählt."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "for i in range(___, ___, ___):\n    print(i)\nprint(\"🚀 Start!\")",
+    "blanks": [
+      {
+        "answers": [
+          "10"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "0"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "-1"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\n🚀 Start!\n"
+      }
+    ]
+  }
+}

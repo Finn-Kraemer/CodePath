@@ -1,0 +1,39 @@
+{
+  "slug": "p4",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Zuweisungen nachvollziehen",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 4,
+  "learningGoal": "",
+  "story": "Ein Kollege hat diesen Code geschrieben. Ohne ihn auszuführen: Was gibt `print(ergebnis)` am Ende aus?\n\n```\nzahl = 10\nzahl = zahl + 5\nzahl = zahl * 2\nergebnis = zahl - 3\nprint(ergebnis)\n```",
+  "assignment": "Berechne das Ergebnis im Kopf – gehe Zeile für Zeile durch.",
+  "hints": [
+    "Zeile 1: zahl = 10. Zeile 2: zahl = 10+5 = 15. Zeile 3: zahl = 15×2 = 30. Zeile 4: ergebnis = 30-3 = ?"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "20"
+      },
+      {
+        "id": "b",
+        "text": "25"
+      },
+      {
+        "id": "c",
+        "text": "27"
+      },
+      {
+        "id": "d",
+        "text": "30"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

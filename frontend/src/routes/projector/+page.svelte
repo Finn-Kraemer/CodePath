@@ -36,18 +36,10 @@
 
 	async function fetchFullLeaderboard() {
 		try {
-			const res = await auth.apiFetch('/api/admin/students');
+			const res = await auth.apiFetch('/api/leaderboard');
 			if (res.ok) {
 				const data = await res.json();
-				leaderboard = data
-					.sort((a: any, b: any) => b.totalPoints - a.totalPoints)
-					.slice(0, 8)
-					.map((s: any, i: number) => ({
-						username: s.username,
-						displayName: s.displayName,
-						points: s.totalPoints,
-						rank: i + 1
-					}));
+				leaderboard = data.entries.slice(0, 8);
 			}
 		} catch (e) {
 			console.error('Leaderboard fetch failed', e);

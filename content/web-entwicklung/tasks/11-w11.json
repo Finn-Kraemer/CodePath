@@ -1,0 +1,39 @@
+{
+  "slug": "w11",
+  "type": "MULTIPLE_CHOICE",
+  "title": "API-Detektiv",
+  "difficulty": "HARD",
+  "points": 10,
+  "sortOrder": 11,
+  "learningGoal": "",
+  "story": "Du rufst eine Wetter-API auf und bekommst diese JSON-Antwort:\n\n```\n{\"stadt\": \"Berlin\", \"temperatur\": 18, \"wetter\": \"sonnig\"}\n```\n\nWie liest du die Temperatur aus nachdem du `data = json.loads(antwort)` ausgeführt hast?",
+  "assignment": "Wie greifst du in Python auf die Temperatur aus dieser JSON-Antwort zu?",
+  "hints": [
+    "JSON wird in Python als Dictionary geladen. Bei Dictionaries greift man mit ['schlüssel'] auf Werte zu – der Schlüssel ist ein String also mit Anführungszeichen."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "data.temperatur()"
+      },
+      {
+        "id": "b",
+        "text": "data[temperatur]"
+      },
+      {
+        "id": "c",
+        "text": "data['temperatur']"
+      },
+      {
+        "id": "d",
+        "text": "data->temperatur"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "slug": "c11",
+  "type": "PRACTICE",
+  "title": "Schulnetzwerk planen",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 11,
+  "learningGoal": "",
+  "story": "Eine neue Schule mit 30 Klassenräumen, 1.000 Schülern und 60 Lehrern soll ein modernes Netzwerk bekommen. Du wirst beauftragt, das Konzept zu erstellen.",
+  "assignment": "Plane das komplette Netzwerk für ein neues Schulgebäude.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Dein Netzwerkkonzept muss enthalten:\n1. Verbindungstypen: Was für Kabel/WLAN wo? (Klassenzimmer, Server-Raum, Verwaltung)\n2. Hardware: Wo stehen Router, Switches, Access Points?\n3. IP-Konzept: Wie teilst du die IP-Adressen auf? (Schüler-WLAN getrennt von Lehrer-Netzwerk?)\n4. Sicherheit: Wie schützt du das Netzwerk? (Firewall, Content-Filter für Schüler)\n5. Ausfallschutz: Was passiert wenn die Internetverbindung abbricht?\n6. Bonus: Welche Cloud-Dienste würdest du nutzen – und welche Datenschutz-Fragen (DSGVO) entstehen?",
+    "submissionNote": "Netzwerkplan als Text oder Skizze mit Begründungen.",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Verbindungstypen: Was für Kabel/WLAN wo? (Klassenzimmer, Server-Raum, Verwaltung)",
+        "points": 9
+      },
+      {
+        "id": "k2",
+        "label": "Hardware: Wo stehen Router, Switches, Access Points?",
+        "points": 9
+      },
+      {
+        "id": "k3",
+        "label": "IP-Konzept: Wie teilst du die IP-Adressen auf? (Schüler-WLAN getrennt von Lehrer-Netzwerk?)",
+        "points": 8
+      },
+      {
+        "id": "k4",
+        "label": "Sicherheit: Wie schützt du das Netzwerk? (Firewall, Content-Filter für Schüler)",
+        "points": 8
+      },
+      {
+        "id": "k5",
+        "label": "Ausfallschutz: Was passiert wenn die Internetverbindung abbricht?",
+        "points": 8
+      },
+      {
+        "id": "k6",
+        "label": "Bonus: Welche Cloud-Dienste würdest du nutzen – und welche Datenschutz-Fragen (DSGVO) entstehen?",
+        "points": 8
+      }
+    ]
+  }
+}

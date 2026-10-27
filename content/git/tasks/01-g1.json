@@ -1,0 +1,39 @@
+{
+  "slug": "g1",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Warum brauchen wir Git?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "",
+  "story": "Stell dir vor: Du und zwei Mitschüler arbeiten gleichzeitig an derselben Python-Datei. Einer speichert seine Version, der andere auch – und plötzlich sind Änderungen weg.",
+  "assignment": "Was ist das Hauptproblem ohne Versionskontrolle?",
+  "hints": [
+    "Stell dir vor zwei Personen tippen gleichzeitig in dasselbe Dokument. Was passiert mit den Änderungen des einen wenn der andere speichert?"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Code wird zu groß für eine Datei"
+      },
+      {
+        "id": "b",
+        "text": "Änderungen verschiedener Personen überschreiben sich – und es gibt keine Möglichkeit zurückzugehen"
+      },
+      {
+        "id": "c",
+        "text": "Python funktioniert nicht ohne Git"
+      },
+      {
+        "id": "d",
+        "text": "Dateien werden zu langsam gespeichert"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

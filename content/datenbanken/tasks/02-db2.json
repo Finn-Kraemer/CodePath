@@ -1,0 +1,40 @@
+{
+  "slug": "db2",
+  "type": "FILL_BLANK",
+  "title": "Deine erste SQL-Abfrage",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 2,
+  "learningGoal": "",
+  "story": "Du arbeitest in einem Supermarkt mit einer Produktdatenbank. Ergänze die SQL-Befehle:",
+  "assignment": "Ergänze die SQL-Schlüsselwörter.",
+  "hints": [
+    "SQL folgt einer festen Reihenfolge: SELECT (was?) FROM (woher?) WHERE (welche Bedingung?) ORDER BY (Reihenfolge)"
+  ],
+  "explanation": "",
+  "config": {
+    "template": "Alle Produkte anzeigen:\n___ * ___ produkte\n\nNur günstige Produkte (unter 1€):\nSELECT * FROM produkte ___ preis < 1.00\n\nProdukte nach Preis sortiert:\nSELECT * FROM produkte ORDER ___ preis",
+    "blanks": [
+      {
+        "answers": [
+          "SELECT"
+        ]
+      },
+      {
+        "answers": [
+          "FROM"
+        ]
+      },
+      {
+        "answers": [
+          "WHERE"
+        ]
+      },
+      {
+        "answers": [
+          "BY"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "slug": "sql-query-pro",
+  "type": "SQL",
+  "title": "Daten-Abfrage mit SQL",
+  "difficulty": "HARD",
+  "points": 25,
+  "sortOrder": 14,
+  "learningGoal": "",
+  "story": "In dieser Aufgabe arbeitest du mit einer echten Datenbank. Dir steht die Tabelle `mitarbeiter` zur Verfügung.\n\n**Tabelle: mitarbeiter**  \n- id (INT)  \n- name (VARCHAR)  \n- abteilung (VARCHAR)  \n- gehalt (INT)",
+  "assignment": "Schreibe eine Abfrage, die alle Mitarbeiter aus der Abteilung **'IT'** ausgibt, die ein Gehalt von **mehr als 5000** haben.",
+  "hints": [
+    "Prüfe die Spaltennamen genau: Nutze 'abteilung' für die Fachbereichs-Filterung und 'gehalt' für den Betrag."
+  ],
+  "explanation": "",
+  "config": {
+    "schemaSql": "CREATE TABLE mitarbeiter (id INT PRIMARY KEY, name VARCHAR(50), abteilung VARCHAR(50), gehalt INT); INSERT INTO mitarbeiter VALUES (1, 'Max', 'IT', 6000), (2, 'Lisa', 'Marketing', 4500), (3, 'Tim', 'IT', 4800), (4, 'Sarah', 'IT', 5200);",
+    "solutionSql": "SELECT * FROM mitarbeiter WHERE abteilung = 'IT' AND gehalt > 5000;",
+    "starterSql": "-- Tabelle: mitarbeiter (id, name, abteilung, gehalt)\nSELECT * FROM mitarbeiter WHERE ",
+    "orderMatters": false
+  }
+}

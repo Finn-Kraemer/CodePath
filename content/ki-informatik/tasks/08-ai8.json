@@ -1,0 +1,39 @@
+{
+  "slug": "ai8",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Konfusionsmatrix lesen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 8,
+  "learningGoal": "",
+  "story": "Dein KI-Modell soll Krankheiten erkennen. Von 100 Tests:\n\n- ✅ 40 kranke Patienten korrekt als krank erkannt\n- ❌ 10 kranke Patienten fälschlich als gesund eingestuft\n- ❌ 5 gesunde Patienten fälschlich als krank eingestuft\n- ✅ 45 gesunde Patienten korrekt als gesund erkannt",
+  "assignment": "Wie hoch ist die Genauigkeit (Accuracy) des Modells?",
+  "hints": [
+    "Accuracy = (korrekte Vorhersagen) / (alle Tests) = (richtig krank + richtig gesund) / 100 = (40 + 45) / 100 = ?"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "40%"
+      },
+      {
+        "id": "b",
+        "text": "80%"
+      },
+      {
+        "id": "c",
+        "text": "85%"
+      },
+      {
+        "id": "d",
+        "text": "90%"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

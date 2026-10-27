@@ -1,0 +1,23 @@
+{
+  "slug": "a12",
+  "type": "CODE",
+  "title": "Binärbaum in Python bauen",
+  "difficulty": "HARD",
+  "points": 20,
+  "sortOrder": 12,
+  "learningGoal": "",
+  "story": "Dateisysteme, Suchmaschinen und Datenbanken nutzen Baumstrukturen. Ein Binärbaum besteht aus Knoten, die jeweils einen Wert und Zeiger auf linkes und rechtes Kind speichern.",
+  "assignment": "Baue einen Binärbaum und implementiere die Inorder-Traversierung.",
+  "hints": [
+    "Inorder ist rekursiv: rufe zuerst inorder(links) auf, dann print(wert), dann inorder(rechts). Der Basisfall: if knoten is None: return. Das gibt die Werte in sortierter Reihenfolge aus!"
+  ],
+  "explanation": "",
+  "config": {
+    "starterCode": "class Knoten:\n    def __init__(self, wert):\n        self.wert = wert\n        self.links = None\n        self.rechts = None\n\ndef inorder(knoten):\n    # Basisfall: wenn knoten None ist → return\n    # Schritt 1: inorder(knoten.links)  – erst ganz links\n    # Schritt 2: print(knoten.wert)     – dann Wurzel\n    # Schritt 3: inorder(knoten.rechts) – dann rechts\n    pass\n\n# Baum aufbauen\nwurzel = Knoten(4)\nwurzel.links = Knoten(2)\nwurzel.rechts = Knoten(6)\nwurzel.links.links = Knoten(1)\nwurzel.links.rechts = Knoten(3)\n\ninorder(wurzel)\nprint()  # Zeilenumbruch",
+    "tests": [
+      {
+        "expectedOutput": "1 2 3 4 6 \n"
+      }
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "slug": "p6",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Boolean und Logik",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 6,
+  "learningGoal": "",
+  "story": "Du baust das Zutrittssystem für einen Club. Zutritt gibt es nur wenn jemand volljährig IST und einen gültigen Ausweis HAT:\n\n```\nvolljährig = True\nhat_ausweis = False\n\nzutritt = volljährig and hat_ausweis\nprint(zutritt)\n```",
+  "assignment": "Was gibt `print(zutritt)` aus – und warum?",
+  "hints": [
+    "AND (Konjunktion): True and True = True. True and False = False. False and True = False. Beide müssen True sein!"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "True – weil volljährig True ist"
+      },
+      {
+        "id": "b",
+        "text": "False – weil bei AND beide Bedingungen True sein müssen, hat_ausweis aber False ist"
+      },
+      {
+        "id": "c",
+        "text": "True – weil mindestens eine Bedingung True ist"
+      },
+      {
+        "id": "d",
+        "text": "Error – man kann Booleans nicht mit and verknüpfen"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

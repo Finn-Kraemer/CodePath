@@ -1,0 +1,39 @@
+{
+  "slug": "c1",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Warum lädt die Seite nicht?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "",
+  "story": "Dein erster Tag als Netzwerk-Techniker! Eine Lehrerin ruft an: \\\"Das Internet geht nicht!\" Du fährst zu ihr. Was ist dein erster Schritt?",
+  "assignment": "Du tippst www.schule.de ein – nichts passiert. Was prüfst du als erstes?",
+  "hints": [
+    "Diagnose-Regel: Starte immer mit der einfachsten Erklärung. Wenn keine Webseite lädt ist das Internet selbst das Problem – nicht die eine Seite."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Ob der Browser ein Update braucht"
+      },
+      {
+        "id": "b",
+        "text": "Ob die Internetverbindung funktioniert (andere Seite aufrufen / Ping)"
+      },
+      {
+        "id": "c",
+        "text": "Ob die Webseite überhaupt existiert"
+      },
+      {
+        "id": "d",
+        "text": "Ob der Arbeitsspeicher voll ist"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

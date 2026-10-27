@@ -1,0 +1,35 @@
+{
+  "slug": "s4",
+  "type": "FILL_BLANK",
+  "title": "2-Faktor-Authentifizierung",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 4,
+  "learningGoal": "",
+  "story": "Deine Schul-E-Mail bietet 2FA an. Viele Schüler fragen: \\\"Warum brauche ich das, ich habe doch schon ein Passwort?\" Erkläre es!",
+  "assignment": "Ergänze die Erklärung von 2FA.",
+  "hints": [
+    "2FA = Zwei-Faktor-Authentifizierung. Zwei verschiedene Arten von Beweisen: etwas das du weißt + etwas das du hast."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "Beim Login braucht man zwei verschiedene ___. Meistens ist das ein ___ (etwas das man weiß) und ein einmaliger ___ aufs Handy (etwas das man hat).",
+    "blanks": [
+      {
+        "answers": [
+          "Faktoren"
+        ]
+      },
+      {
+        "answers": [
+          "Passwort"
+        ]
+      },
+      {
+        "answers": [
+          "Code"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "slug": "w13",
+  "type": "PRACTICE",
+  "title": "Die Webseite für den Bürgermeister",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 13,
+  "learningGoal": "",
+  "story": "Der Bürgermeister deiner Stadt hat gehört dass du HTML und CSS kannst. Er beauftragt dich eine moderne Webseite für die Stadt zu bauen – Budget: 1 Seite!",
+  "assignment": "Entwirf eine vollständige, funktionierende HTML-Seite.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Erstelle eine Stadtwebseite mit:\n1. Korrekter HTML-Grundstruktur (DOCTYPE, html, head, body)\n2. Einer Überschrift (h1) mit dem Stadtnamen\n3. Einem Absatz (p) mit Begrüßungstext\n4. Einer ungeordneten Liste (ul/li) mit 3 Sehenswürdigkeiten\n5. Einem Link (a) zu einer anderen Webseite\n6. Mindestens 3 CSS-Regeln (z.B. Farbe, Schriftgröße, Hintergrund)",
+    "submissionNote": "Schreibe den vollständigen HTML-Code. Kommentiere deine CSS-Entscheidungen kurz.",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Korrekter HTML-Grundstruktur (DOCTYPE, html, head, body)",
+        "points": 9
+      },
+      {
+        "id": "k2",
+        "label": "Einer Überschrift (h1) mit dem Stadtnamen",
+        "points": 9
+      },
+      {
+        "id": "k3",
+        "label": "Einem Absatz (p) mit Begrüßungstext",
+        "points": 8
+      },
+      {
+        "id": "k4",
+        "label": "Einer ungeordneten Liste (ul/li) mit 3 Sehenswürdigkeiten",
+        "points": 8
+      },
+      {
+        "id": "k5",
+        "label": "Einem Link (a) zu einer anderen Webseite",
+        "points": 8
+      },
+      {
+        "id": "k6",
+        "label": "Mindestens 3 CSS-Regeln (z.B. Farbe, Schriftgröße, Hintergrund)",
+        "points": 8
+      }
+    ]
+  }
+}

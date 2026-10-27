@@ -1,0 +1,43 @@
+{
+  "slug": "ai9",
+  "type": "FILL_CODE",
+  "title": "KI-Genauigkeit berechnen",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 9,
+  "learningGoal": "",
+  "story": "Du evaluierst dein erstes KI-Modell. Es hat 10 Vorhersagen gemacht – vergleiche sie mit den richtigen Antworten:",
+  "assignment": "Ergänze den Code der die Genauigkeit deines Modells berechnet.",
+  "hints": [
+    "Zähle wie oft Vorhersage == richtige Antwort. Teile durch die Gesamtanzahl und multipliziere mit 100."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "vorhersagen = [1, 0, 1, 1, 0, 1, 0, 0, 1, 1]\nrichtig      = [1, 0, 1, 0, 0, 1, 1, 0, 1, 1]\n\nkorrekt = ___\nfor i in range(___(vorhersagen)):\n    if vorhersagen[i] ___ richtig[i]:\n        korrekt += 1\n\ngenauigkeit = korrekt / len(vorhersagen) * 100\nprint(f'Genauigkeit: {genauigkeit}%')",
+    "blanks": [
+      {
+        "answers": [
+          "0"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "len"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "=="
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "Genauigkeit: 80.0%\n"
+      }
+    ]
+  }
+}

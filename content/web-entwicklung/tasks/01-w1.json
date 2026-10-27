@@ -1,0 +1,39 @@
+{
+  "slug": "w1",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Wer fragt, wer antwortet?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "",
+  "story": "Wenn du \\\"youtube.com\" in deinen Browser tippst, passiert etwas im Hintergrund. Dein Browser und ein Computer irgendwo auf der Welt kommunizieren miteinander. Welches Prinzip steckt dahinter?",
+  "assignment": "Welche Aussage beschreibt das Client-Server-Prinzip richtig?",
+  "hints": [
+    "Denk an ein Restaurant: Der Gast (Client) bestellt, der Koch (Server) liefert."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Browser und Server tauschen gleichzeitig Daten aus"
+      },
+      {
+        "id": "b",
+        "text": "Der Browser (Client) stellt eine Anfrage – der Server schickt die Antwort zurück"
+      },
+      {
+        "id": "c",
+        "text": "Der Server schickt automatisch Webseiten an alle Nutzer"
+      },
+      {
+        "id": "d",
+        "text": "Client und Server sind dasselbe Gerät"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

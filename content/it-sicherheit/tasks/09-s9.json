@@ -1,0 +1,43 @@
+{
+  "slug": "s9",
+  "type": "FILL_CODE",
+  "title": "Passwort-Hash berechnen",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 9,
+  "learningGoal": "",
+  "story": "Statt Passwörter direkt zu speichern, speicherst du nur ihren Hash. Beim Login vergleichst du Hash mit Hash:",
+  "assignment": "Ergänze den Code der Passwörter als Hash speichert und vergleicht.",
+  "hints": [
+    "hashlib.new(''sha256'', daten).hexdigest() berechnet den Hash. Strings müssen erst mit .encode(''utf-8'') in Bytes umgewandelt werden."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "import hashlib\n\ndef passwort_hash(pw):\n    return hashlib.___(''sha256'', pw.___(''utf-8'')).hexdigest()\n\ngespeicherter_hash = passwort_hash('geheim123')\neingabe_hash = passwort_hash('geheim123')\n\nprint(gespeicherter_hash ___ eingabe_hash)",
+    "blanks": [
+      {
+        "answers": [
+          "new"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "encode"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "=="
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "True\n"
+      }
+    ]
+  }
+}

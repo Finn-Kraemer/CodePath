@@ -1,0 +1,23 @@
+{
+  "slug": "ai11",
+  "type": "CODE",
+  "title": "Entscheidungsbaum programmieren",
+  "difficulty": "HARD",
+  "points": 20,
+  "sortOrder": 11,
+  "learningGoal": "",
+  "story": "Ein Entscheidungsbaum ist der einfachste KI-Klassifikator: Er stellt nacheinander Ja/Nein-Fragen. Du baust einen der Tiere klassifiziert:",
+  "assignment": "Schreibe die vollständige Funktion `tier_klassifizieren(hat_fluegel, ist_saeugetier, lebt_im_wasser)`.",
+  "hints": [
+    "Prüfe die Bedingungen von oben nach unten mit if/elif/else. Beachte: Fledermaus und Vogel haben beide Flügel – unterscheide sie mit ist_saeugetier."
+  ],
+  "explanation": "",
+  "config": {
+    "starterCode": "def tier_klassifizieren(hat_fluegel, ist_saeugetier, lebt_im_wasser):\n    # Regeln (Entscheidungsbaum):\n    # hat_fluegel=True, ist_saeugetier=False → 'Vogel'\n    # hat_fluegel=True, ist_saeugetier=True  → 'Fledermaus'\n    # lebt_im_wasser=True, ist_saeugetier=True  → 'Delphin'\n    # lebt_im_wasser=True, ist_saeugetier=False → 'Fisch'\n    # Alle anderen Fälle → 'Hund'\n    pass\n\nprint(tier_klassifizieren(True, False, False))   # → Vogel\nprint(tier_klassifizieren(True, True, False))    # → Fledermaus\nprint(tier_klassifizieren(False, True, True))    # → Delphin\nprint(tier_klassifizieren(False, False, True))   # → Fisch\nprint(tier_klassifizieren(False, True, False))   # → Hund",
+    "tests": [
+      {
+        "expectedOutput": "Vogel\nFledermaus\nDelphin\nFisch\nHund\n"
+      }
+    ]
+  }
+}

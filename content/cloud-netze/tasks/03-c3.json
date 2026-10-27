@@ -1,0 +1,35 @@
+{
+  "slug": "c3",
+  "type": "FILL_BLANK",
+  "title": "DNS: Das Telefonbuch des Internets",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 3,
+  "learningGoal": "",
+  "story": "Du tippst \\\"google.com\" ein. Aber der Computer kennt keine Namen – er braucht eine IP-Adresse. Wer übersetzt?",
+  "assignment": "Ergänze die Erklärung von DNS.",
+  "hints": [
+    "DNS = Domain Name System. Es ist wie ein Telefonbuch: Du schlägst den Namen (google.com) nach und bekommst die Nummer (IP-Adresse)."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "Der ___ Server übersetzt einen Domainnamen (z.B. google.com) in eine ___ -Adresse. Ohne DNS müsste man sich für jede Webseite eine ___ -Adresse merken.",
+    "blanks": [
+      {
+        "answers": [
+          "DNS"
+        ]
+      },
+      {
+        "answers": [
+          "IP"
+        ]
+      },
+      {
+        "answers": [
+          "IP"
+        ]
+      }
+    ]
+  }
+}

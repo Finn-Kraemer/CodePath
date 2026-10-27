@@ -1,0 +1,49 @@
+{
+  "slug": "p8",
+  "type": "FILL_CODE",
+  "title": "If-Else: Notenberechnung",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 8,
+  "learningGoal": "",
+  "story": "Das Schulsystem braucht eine Funktion die Punkte in Notentexte umwandelt. Ergänze die fehlenden Vergleichsoperatoren und Schlüsselwörter:",
+  "assignment": "Ergänze die Lücken in der if-elif-else-Kette.",
+  "hints": [
+    "if startet die Kette, elif fügt weitere Bedingungen hinzu (sonst wenn), else ist der Standardfall wenn keine Bedingung zutrifft. elif ist die Kurzform von 'else if'."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "punkte = 78\n\n___ punkte >= 90:\n    print(\"Sehr gut\")\n___ punkte >= 75:\n    print(\"Gut\")\n___ punkte >= 60:\n    print(\"Befriedigend\")\n___:\n    print(\"Nicht bestanden\")",
+    "blanks": [
+      {
+        "answers": [
+          "if"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "elif"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "elif"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "else"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "Gut\n"
+      }
+    ]
+  }
+}

@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
+	import CourseSelect from '$lib/components/CourseSelect.svelte';
+	import { courseSelection } from '$lib/courses.svelte';
 
 	interface Student {
 		username: string;
@@ -15,7 +16,7 @@
 
 	async function fetchData() {
 		try {
-			const res = await auth.apiFetch('/api/admin/students');
+			const res = await auth.apiFetch('/api/admin/students' + courseSelection.query());
 			if (res.ok) {
 				const data = await res.json();
 				students = data.sort((a: Student, b: Student) => b.totalPoints - a.totalPoints);
@@ -26,8 +27,6 @@
 			loading = false;
 		}
 	}
-
-	onMount(fetchData);
 </script>
 
 <div class="mx-auto flex max-w-7xl flex-col gap-10 pb-24">
@@ -52,8 +51,11 @@
 			</h1>
 		</div>
 
-		<div class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-			Gesamt: {students.length} Accounts
+		<div class="flex flex-col items-end gap-3">
+			<CourseSelect onchange={fetchData} />
+			<div class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+				Gesamt: {students.length} Accounts
+			</div>
 		</div>
 	</header>
 

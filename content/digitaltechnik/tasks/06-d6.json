@@ -1,0 +1,40 @@
+{
+  "slug": "d6",
+  "type": "FILL_BLANK",
+  "title": "Huffman-Baum ablesen",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 6,
+  "learningGoal": "",
+  "story": "Gegeben ist dieser Huffman-Baum (Links = 0, Rechts = 1):\n\n```\n         [Wurzel]\n         /       \\\n        0         1\n       B         [Knoten]\n                 /       \\\n                0         1\n               A         [Knoten]\n                          /    \\\n                         0      1\n                         C      D\n```",
+  "assignment": "Lies die Codewörter für alle vier Symbole ab.",
+  "hints": [
+    "Verfolge den Pfad von der Wurzel zum Symbol. Links = 0, Rechts = 1. B ist direkt links → 0. A ist rechts dann links → 10. C ist rechts → rechts → links → 110."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "B = ___\nA = ___\nC = ___\nD = ___",
+    "blanks": [
+      {
+        "answers": [
+          "0"
+        ]
+      },
+      {
+        "answers": [
+          "10"
+        ]
+      },
+      {
+        "answers": [
+          "110"
+        ]
+      },
+      {
+        "answers": [
+          "111"
+        ]
+      }
+    ]
+  }
+}

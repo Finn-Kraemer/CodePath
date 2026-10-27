@@ -1,0 +1,39 @@
+{
+  "slug": "g5",
+  "type": "MULTIPLE_CHOICE",
+  "title": "git status lesen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 5,
+  "learningGoal": "",
+  "story": "Du tippst `git status` und siehst:\n\n```\nOn branch main\nChanges not staged for commit:\n  modified: app.py\n\nUntracked files:\n  neue_datei.py\n```",
+  "assignment": "Was bedeutet dieser Status?",
+  "hints": [
+    "'not staged' = geändert aber nicht in der Staging Area. 'Untracked' = Git weiß noch nichts von dieser Datei – sie wurde noch nie git add gemacht."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Beide Dateien sind im nächsten Commit enthalten"
+      },
+      {
+        "id": "b",
+        "text": "app.py wurde geändert aber noch nicht gestaged. neue_datei.py kennt Git noch gar nicht."
+      },
+      {
+        "id": "c",
+        "text": "Git hat einen Fehler – Dateien sollten automatisch gestaged werden"
+      },
+      {
+        "id": "d",
+        "text": "app.py wurde gelöscht"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

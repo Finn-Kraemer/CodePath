@@ -47,14 +47,15 @@
 	async function reject(id: number) {
 		if (
 			!confirm(
-				'Möchten Sie diese Abgabe wirklich ablehnen? Sie wird gelöscht und der Schüler kann erneut einreichen.'
+				'Möchten Sie diese Abgabe wirklich ablehnen? Die Abgabe geht zur Überarbeitung zurück.'
 			)
 		) {
 			return;
 		}
 		try {
 			const res = await auth.apiFetch(`/api/admin/submissions/${id}/reject`, {
-				method: 'DELETE'
+				method: 'PUT',
+				body: JSON.stringify({ comment: 'Bitte überarbeiten.' })
 			});
 			if (res.ok) {
 				submissions = submissions.filter((s) => s.id !== id);

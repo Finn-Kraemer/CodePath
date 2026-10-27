@@ -1,0 +1,39 @@
+{
+  "slug": "p1",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Pseudocode oder Programmiersprache?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "",
+  "story": "Bevor man Code schreibt, plant man den Algorithmus. Dein Lehrer zeigt dir zwei Versionen des selben Plans:\n\n**Version A:**\n\n```\nWENN Nutzer eingeloggt\n    zeige Dashboard\nSONST\n    zeige Login-Seite\n```\n\n**Version B:**\n\n```\nif user.is_logged_in():\n    render('dashboard.html')\nelse:\n    redirect('/login')\n```",
+  "assignment": "Was ist der Unterschied zwischen Version A und Version B?",
+  "hints": [
+    "Pseudocode beschreibt die Logik in verständlicher Sprache ohne sich um gültige Syntax zu kümmern. Er ist sprachunabhängig – man könnte ihn in Python, Java oder einer anderen Sprache umsetzen."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Version A ist Python, Version B ist JavaScript"
+      },
+      {
+        "id": "b",
+        "text": "Version A ist Pseudocode – strukturierter als Prosa, aber ohne gültige Syntax. Version B ist echter Programmcode."
+      },
+      {
+        "id": "c",
+        "text": "Beide sind Pseudocode – nur unterschiedlich formatiert"
+      },
+      {
+        "id": "d",
+        "text": "Version A ist ein Flussdiagramm in Textform"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

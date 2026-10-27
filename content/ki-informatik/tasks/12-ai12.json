@@ -1,0 +1,39 @@
+{
+  "slug": "ai12",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Ist das ethisch?",
+  "difficulty": "HARD",
+  "points": 10,
+  "sortOrder": 12,
+  "learningGoal": "",
+  "story": "In den USA nutzen manche Gerichte eine KI um zu entscheiden ob ein Angeklagter auf Bewährung freigelassen wird. Die KI wurde mit historischen Urteilsdaten trainiert.",
+  "assignment": "Was ist das größte Problem wenn KI über Freiheitsentzug entscheidet?",
+  "hints": [
+    "Historische Daten spiegeln historische Ungerechtigkeiten wider. Ein Algorithmus kann diese verstärken – und anders als ein Mensch kann er seine Entscheidung nicht erklären."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Die KI ist zu langsam für Gerichtsverfahren"
+      },
+      {
+        "id": "b",
+        "text": "Wenn historische Urteile diskriminierend waren lernt die KI diese Diskriminierung – und Menschen verlieren ihre Freiheit durch einen undurchsichtigen Algorithmus"
+      },
+      {
+        "id": "c",
+        "text": "Richter werden arbeitslos"
+      },
+      {
+        "id": "d",
+        "text": "KI kann keine juristischen Texte lesen"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

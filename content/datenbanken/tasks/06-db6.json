@@ -1,0 +1,35 @@
+{
+  "slug": "db6",
+  "type": "FILL_BLANK",
+  "title": "UPDATE und DELETE",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 6,
+  "learningGoal": "",
+  "story": "Eine Schülerin hat geheiratet und ihren Namen geändert. Eine Klasse verlässt die Schule. Ergänze die SQL-Befehle:",
+  "assignment": "Ergänze die SQL-Befehle.",
+  "hints": [
+    "UPDATE tabelle SET spalte = wert WHERE ... ändert Daten. DELETE FROM tabelle WHERE ... löscht Zeilen. ACHTUNG: Ohne WHERE werden ALLE Zeilen geändert/gelöscht!"
+  ],
+  "explanation": "",
+  "config": {
+    "template": "Namen ändern: ___ schueler ___ name = ''Anna Müller'' WHERE id = 5\nKlasse löschen: ___ FROM klassen WHERE bezeichnung = ''9b''",
+    "blanks": [
+      {
+        "answers": [
+          "UPDATE"
+        ]
+      },
+      {
+        "answers": [
+          "SET"
+        ]
+      },
+      {
+        "answers": [
+          "DELETE"
+        ]
+      }
+    ]
+  }
+}

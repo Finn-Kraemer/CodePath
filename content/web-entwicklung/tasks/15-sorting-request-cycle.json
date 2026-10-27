@@ -1,0 +1,46 @@
+{
+  "slug": "sorting-request-cycle",
+  "type": "SORTING",
+  "title": "HTTP Request-Response Zyklus",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 15,
+  "learningGoal": "",
+  "story": "Was passiert, wenn du eine Webseite aufrufst? Sortiere die Schritte in die zeitlich korrekte Reihenfolge.",
+  "assignment": "Bringen Sie die technischen Schritte einer Web-Anfrage in die richtige Reihenfolge.",
+  "hints": [
+    "Denken Sie an den Weg der Daten: Vom Client zum Server und wieder zurück."
+  ],
+  "explanation": "",
+  "config": {
+    "items": [
+      {
+        "id": "s1",
+        "text": "Browser sendet HTTP-Anfrage"
+      },
+      {
+        "id": "s2",
+        "text": "Server verarbeitet die Anfrage"
+      },
+      {
+        "id": "s3",
+        "text": "Server generiert die Antwort (HTML)"
+      },
+      {
+        "id": "s4",
+        "text": "Browser empfängt Daten"
+      },
+      {
+        "id": "s5",
+        "text": "Browser rendert die Webseite"
+      }
+    ],
+    "correctOrder": [
+      "s1",
+      "s2",
+      "s3",
+      "s4",
+      "s5"
+    ]
+  }
+}

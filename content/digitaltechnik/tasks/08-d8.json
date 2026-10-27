@@ -1,0 +1,39 @@
+{
+  "slug": "d8",
+  "type": "MULTIPLE_CHOICE",
+  "title": "De Morgans Gesetz",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 8,
+  "learningGoal": "",
+  "story": "De Morgans Gesetz sagt: `NOT (A AND B) = (NOT A) OR (NOT B)`\n\nDas bedeutet: Ein NAND-Gatter (NOT AND) ist dasselbe wie zwei NOT-Gatter gefolgt von einem OR-Gatter.",
+  "assignment": "Was ist laut De Morgan die Vereinfachung von `NOT (A OR B)`?",
+  "hints": [
+    "De Morgan 2. Gesetz: NOT(A OR B) = (NOT A) AND (NOT B). Merkhilfe: Beim Negieren einer Verknüpfung: OR wird zu AND, AND wird zu OR – und beide Eingänge werden negiert."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "(NOT A) AND (NOT B)"
+      },
+      {
+        "id": "b",
+        "text": "(NOT A) OR (NOT B)"
+      },
+      {
+        "id": "c",
+        "text": "NOT A AND B"
+      },
+      {
+        "id": "d",
+        "text": "A AND NOT B"
+      }
+    ],
+    "correct": [
+      "a"
+    ],
+    "multiple": false
+  }
+}

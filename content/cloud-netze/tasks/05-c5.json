@@ -1,0 +1,39 @@
+{
+  "slug": "c5",
+  "type": "MULTIPLE_CHOICE",
+  "title": "TCP vs. UDP",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 5,
+  "learningGoal": "",
+  "story": "TCP bestätigt jedes Paket und schickt es bei Verlust neu. UDP schickt einfach los ohne Bestätigung. Welches nutzen Video-Calls wie Zoom – und warum?",
+  "assignment": "Warum nutzen Video-Calls oft UDP statt TCP?",
+  "hints": [
+    "TCP wartet auf fehlende Pakete (zuverlässig aber langsamer). UDP schickt einfach drauflos (schnell aber unzuverlässig). Bei einem Live-Video: Lieber ein kurzer Pixelfehler als das Bild einfriert."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "UDP ist sicherer als TCP"
+      },
+      {
+        "id": "b",
+        "text": "Bei Live-Übertragungen ist Geschwindigkeit wichtiger als Vollständigkeit – ein kurzer Aussetzer ist besser als 2 Sekunden Wartezeit"
+      },
+      {
+        "id": "c",
+        "text": "TCP funktioniert nicht für Video-Übertragungen"
+      },
+      {
+        "id": "d",
+        "text": "UDP verbraucht weniger Strom"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

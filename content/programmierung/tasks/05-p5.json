@@ -1,0 +1,39 @@
+{
+  "slug": "p5",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Vergleichsoperatoren",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 5,
+  "learningGoal": "",
+  "story": "Du programmierst das Einlass-System für eine Veranstaltung. Es soll nur Personen ab 16 einlassen – und Personen bis einschließlich 16 sollen auch rein.\n\n```\nalter = 16\n\nif alter ___ 16:\n    print(\"Willkommen!\")\nelse:\n    print(\"Zutritt verweigert.\")\n```",
+  "assignment": "Welcher Vergleichsoperator muss in die Lücke damit auch 16-Jährige eingelassen werden?",
+  "hints": [
+    "Der Ausdruck 16 > 16 ist False – 16 ist nicht größer als 16. Der Ausdruck 16 >= 16 ist True – 16 ist größer ODER gleich 16. Welcher passt?"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "> (größer als)"
+      },
+      {
+        "id": "b",
+        "text": ">= (größer oder gleich)"
+      },
+      {
+        "id": "c",
+        "text": "== (gleich)"
+      },
+      {
+        "id": "d",
+        "text": "!= (ungleich)"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

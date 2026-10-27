@@ -1,0 +1,49 @@
+{
+  "slug": "d14",
+  "type": "PRACTICE",
+  "title": "Eigene Schaltung entwerfen",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 14,
+  "learningGoal": "",
+  "story": "Du bist Digitaltechnik-Ingenieur und entwirfst die Steuerungslogik für ein Smart-Home-System. Das System soll verschiedene Geräte je nach Bedingungen ein- und ausschalten.",
+  "assignment": "Entwirf eine vollständige boolesche Schaltung für das Smart-Home-System.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Dein Entwurf muss mindestens eines dieser Systeme vollständig beschreiben: Option A – Alarmanlage: Alarm auslösen wenn: (Bewegung erkannt UND Haus ist verriegelt) ODER Panik-Knopf gedrückt Option B – Automatische Heizung: Heizung einschalten wenn: Temperatur < 18°C UND (jemand ist zuhause ODER Timer ist aktiv) UND Heizung ist NICHT manuell deaktiviert Für dein gewähltes System musst du liefern: 1. Liste aller Eingangssignale (Variablen) und ihre möglichen Werte (0/1) 2. Vollständige Wahrheitstabelle (alle Eingangskombinationen) 3. Boolesche Formel für den Ausgang 4. Python-Code der die Logik umsetzt 5. Test mit mindestens 4 verschiedenen Eingaben 6. Bonus: Beschreibe wie du die Schaltung mit einem KV-Diagramm vereinfachen könntest",
+    "submissionNote": "Wahrheitstabelle + Formel + Python-Code + Testergebnisse. Bonus: KV-Vereinfachung.",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Liste aller Eingangssignale (Variablen) und ihre möglichen Werte (0/1)",
+        "points": 9
+      },
+      {
+        "id": "k2",
+        "label": "Vollständige Wahrheitstabelle (alle Eingangskombinationen)",
+        "points": 9
+      },
+      {
+        "id": "k3",
+        "label": "Boolesche Formel für den Ausgang",
+        "points": 8
+      },
+      {
+        "id": "k4",
+        "label": "Python-Code der die Logik umsetzt",
+        "points": 8
+      },
+      {
+        "id": "k5",
+        "label": "Test mit mindestens 4 verschiedenen Eingaben",
+        "points": 8
+      },
+      {
+        "id": "k6",
+        "label": "Bonus: Beschreibe wie du die Schaltung mit einem KV-Diagramm vereinfachen könntest",
+        "points": 8
+      }
+    ]
+  }
+}

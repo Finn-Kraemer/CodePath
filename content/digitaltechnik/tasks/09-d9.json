@@ -1,0 +1,40 @@
+{
+  "slug": "d9",
+  "type": "FILL_BLANK",
+  "title": "Schaltnetz: Wahrheitstabelle aufstellen",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 9,
+  "learningGoal": "",
+  "story": "Gegeben ist das Schaltnetz: `Y = (A AND B) OR C`\n\nFülle die fehlenden Ausgabewerte in der Wahrheitstabelle aus (0 = falsch, 1 = wahr):",
+  "assignment": "Ergänze die Ausgabe Y für alle vier Zeilen.",
+  "hints": [
+    "Zeile 1: (0 AND 0) OR 0 = 0 OR 0 = 0. Zeile 2: (0 AND 0) OR 1 = 0 OR 1 = 1. Zeile 3: (1 AND 1) OR 0 = 1 OR 0 = 1. Zeile 4: (1 AND 1) OR 1 = 1 OR 1 = 1."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "A | B | C | Y = (A AND B) OR C\n--|---|---|------------------\n0 | 0 | 0 | ___\n0 | 0 | 1 | ___\n1 | 1 | 0 | ___\n1 | 1 | 1 | ___",
+    "blanks": [
+      {
+        "answers": [
+          "0"
+        ]
+      },
+      {
+        "answers": [
+          "1"
+        ]
+      },
+      {
+        "answers": [
+          "1"
+        ]
+      },
+      {
+        "answers": [
+          "1"
+        ]
+      }
+    ]
+  }
+}

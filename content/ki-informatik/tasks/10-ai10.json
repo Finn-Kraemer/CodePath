@@ -1,0 +1,40 @@
+{
+  "slug": "ai10",
+  "type": "FILL_BLANK",
+  "title": "Neuronales Netz vereinfacht",
+  "difficulty": "HARD",
+  "points": 15,
+  "sortOrder": 10,
+  "learningGoal": "",
+  "story": "Neuronale Netze sind das Herz moderner KI. Sie haben drei Arten von Schichten – ähnlich wie das menschliche Gehirn:",
+  "assignment": "Ergänze die fehlenden Begriffe.",
+  "hints": [
+    "Input = Eingabe, Hidden = Versteckt (die mittleren Schichten), Output = Ausgabe. Backpropagation = Fehler-Rückwärts-Verteilung: Das Netz lernt aus seinen Fehlern."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "Die ___-Schicht empfängt die Rohdaten (z.B. Pixelwerte eines Bildes).\nDie ___-Schicht(en) in der Mitte extrahieren Muster wie Kanten und Formen.\nDie ___-Schicht gibt das Ergebnis aus (z.B. 'Katze' oder 'Hund').\nDas Netz lernt durch ___ : Es berechnet seinen Fehler und passt die Verbindungen rückwärts an.",
+    "blanks": [
+      {
+        "answers": [
+          "Input"
+        ]
+      },
+      {
+        "answers": [
+          "Hidden"
+        ]
+      },
+      {
+        "answers": [
+          "Output"
+        ]
+      },
+      {
+        "answers": [
+          "Backpropagation"
+        ]
+      }
+    ]
+  }
+}

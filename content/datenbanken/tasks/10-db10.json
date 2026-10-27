@@ -1,0 +1,49 @@
+{
+  "slug": "db10",
+  "type": "FILL_CODE",
+  "title": "JOIN in Python simulieren",
+  "difficulty": "HARD",
+  "points": 15,
+  "sortOrder": 10,
+  "learningGoal": "",
+  "story": "In SQL würde man schreiben: `SELECT s.name, k.bezeichnung FROM schueler s JOIN klassen k ON s.klasse_id = k.id`. Hier baust du das in Python nach:",
+  "assignment": "Ergänze den Code der Schüler mit ihrer Klassen-Bezeichnung verbindet.",
+  "hints": [
+    "s[2] ist die klasse_id. Nutze sie als Schlüssel im klassen-Dictionary – genau wie ein SQL JOIN über die ID verknüpft."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "schueler = [(1, 'Anna', 2), (2, 'Ben', 1), (3, 'Clara', 2)]\nklassen = {1: '8a', 2: '9b'}\n\n___ s ___ schueler:\n    klasse = klassen[s[___]]\n    print(f'{s[1]} ist in Klasse {___}')",
+    "blanks": [
+      {
+        "answers": [
+          "for"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "in"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "2"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "klasse"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "Anna ist in Klasse 9b\nBen ist in Klasse 8a\nClara ist in Klasse 9b\n"
+      }
+    ]
+  }
+}

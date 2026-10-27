@@ -1,0 +1,40 @@
+{
+  "slug": "w8",
+  "type": "FILL_BLANK",
+  "title": "Formular-Felder ergänzen",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 8,
+  "learningGoal": "",
+  "story": "Du baust das Login-Formular für die Schulwebseite. Welche Werte gehören in die Lücken?\n\n```\n<form action=\"/login\">\n  <___ type=\"text\" placeholder=\"Nutzername\">\n  <___ type=\"___\" placeholder=\"Passwort\">\n  <___ type=\"___\" value=\"Einloggen\">\n</form>\n```",
+  "assignment": "Welche Tags und Attribute fehlen im Login-Formular?",
+  "hints": [
+    "HTML-Formulare nutzen  für fast alles. Der Typ (type=) bestimmt das Verhalten: text zeigt den Text, password versteckt ihn."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "Textfeld-Tag: ___ | Passwortfeld-Tag: ___ | Passwort-Typ: ___ | Submit-Typ: ___",
+    "blanks": [
+      {
+        "answers": [
+          "input"
+        ]
+      },
+      {
+        "answers": [
+          "input"
+        ]
+      },
+      {
+        "answers": [
+          "password"
+        ]
+      },
+      {
+        "answers": [
+          "submit"
+        ]
+      }
+    ]
+  }
+}

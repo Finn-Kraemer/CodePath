@@ -1,0 +1,39 @@
+{
+  "slug": "ai7",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Prompt Engineering",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 7,
+  "learningGoal": "",
+  "story": "KI-Assistenten sind mächtig – aber nur wenn man sie richtig anspricht. Welcher dieser Prompts liefert die beste Hilfe?",
+  "assignment": "Welcher Prompt wird die hilfreichste Antwort von einer KI erhalten?",
+  "hints": [
+    "Gute Prompts enthalten: Wer bist du? (Kontext), Was brauchst du? (konkretes Ziel), Wie soll die Antwort sein? (Format, Niveau, Beispiele)."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Hausaufgaben"
+      },
+      {
+        "id": "b",
+        "text": "Hilf mir bitte"
+      },
+      {
+        "id": "c",
+        "text": "Ich bin Schüler in der 8. Klasse. Erkläre mir den Satz des Pythagoras einfach mit einem konkreten Beispiel."
+      },
+      {
+        "id": "d",
+        "text": "Erkläre Mathematik"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

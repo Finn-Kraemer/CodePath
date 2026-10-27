@@ -1,0 +1,39 @@
+{
+  "slug": "p9",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Match-Case verstehen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 9,
+  "learningGoal": "",
+  "story": "Du baust eine App die Wochentage erkennt. Dein Kollege schlägt vor match-case zu nutzen:\n\n```\ntag = \"Samstag\"\n\nmatch tag:\n    case \"Samstag\" | \"Sonntag\":\n        print(\"Wochenende!\")\n    case _:\n        print(\"Arbeitstag\")\n```",
+  "assignment": "Was gibt dieser Code aus – und was bedeutet `case _:`?",
+  "hints": [
+    "tag = \"Samstag\" passt auf case \"Samstag\" | \"Sonntag\" – das | bedeutet ODER. case _ ist wie else: der Auffangfall wenn kein anderes case gepasst hat."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Arbeitstag – weil Samstag kein Wochentag ist"
+      },
+      {
+        "id": "b",
+        "text": "Wochenende! – case _ ist der Default-Fall der greift wenn kein anderes case passt"
+      },
+      {
+        "id": "c",
+        "text": "Fehler – man kann keine Strings mit match vergleichen"
+      },
+      {
+        "id": "d",
+        "text": "Nichts – match-case gibt standardmäßig nichts aus"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

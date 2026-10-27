@@ -24,3 +24,5 @@ vite.config.ts.timestamp-*
 
 # Von scripts/copy-vendor.mjs erzeugt
 /static/vendor
+test-results/
+playwright-report/

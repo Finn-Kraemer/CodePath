@@ -7,3 +7,6 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Erzeugt vom Backend (OpenApiExportTest)
+src/lib/api/openapi.json

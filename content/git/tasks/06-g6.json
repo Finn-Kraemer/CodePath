@@ -1,0 +1,39 @@
+{
+  "slug": "g6",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Gute Commit-Nachrichten",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 6,
+  "learningGoal": "",
+  "story": "Du schaust dir die Commit-Historie eines Projekts an:\n\n```\nA: \"fix\"\nB: \"asdf\"\nC: \"Füge Login-Validierung für E-Mail-Format hinzu\"\nD: \"changes\"\n```",
+  "assignment": "Welche Commit-Nachricht ist professionell und nützlich?",
+  "hints": [
+    "Eine gute Commit-Nachricht beantwortet: Was wurde geändert? In 3 Monaten musst du noch verstehen was passiert ist – schreib für dein zukünftiges Ich."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "A – kurz und schnell"
+      },
+      {
+        "id": "b",
+        "text": "B – Entwickler wissen was es bedeutet"
+      },
+      {
+        "id": "c",
+        "text": "C – beschreibt präzise was geändert wurde"
+      },
+      {
+        "id": "d",
+        "text": "D – allgemein aber ausreichend"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

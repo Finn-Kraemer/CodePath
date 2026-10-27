@@ -1,114 +1,112 @@
 package de.codepath.backend;
 
-import tools.jackson.databind.ObjectMapper;
-import de.codepath.backend.auth.AuthRequest;
-import de.codepath.backend.users.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import de.codepath.backend.identity.Course;
+import de.codepath.backend.identity.User;
 import jakarta.servlet.http.Cookie;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@org.springframework.context.annotation.Import(TestcontainersConfiguration.class)
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@Transactional
-public class AuthIntegrationTest {
+class AuthIntegrationTest extends IntegrationTestBase {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setUp() {
-        userRepository.deleteAll();
+    private Cookie register(String username, String joinCode) throws Exception {
+        return mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(Map.of("username", username, "password", PASSWORD, "joinCode", joinCode))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.courseName").value("8a"))
+                .andReturn().getResponse().getCookie("CODEPATH_SESSION");
     }
 
     @Test
-    void shouldRegisterAndLogin() throws Exception {
-        AuthRequest registerRequest = AuthRequest.builder()
-                .username("testuser")
-                .password("password123")
-                .build();
+    void registrationNeedsAValidJoinCode() throws Exception {
+        Course course = course("8a");
+        mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(Map.of("username", "ohnecode", "password", PASSWORD))))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(Map.of("username", "falsch", "password", PASSWORD, "joinCode", "XXXXXX"))))
+                .andExpect(status().isBadRequest());
 
-        // 1. Register
-        mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.role").value("STUDENT"));
+        Cookie session = register("lena", course.getJoinCode().toLowerCase());
+        assertNotNull(session);
+        assertTrue(session.isHttpOnly());
 
-        // 2. Login legt eine Session (in PostgreSQL) an; der Browser bekommt nur das Cookie
-        Cookie sessionCookie = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getCookie("CODEPATH_SESSION");
-        assertNotNull(sessionCookie);
-        assertTrue(sessionCookie.isHttpOnly());
+        mvc.perform(get("/api/auth/me").cookie(session)).andExpect(status().isOk()).andExpect(jsonPath("$.username").value("lena"));
+        mvc.perform(post("/api/auth/logout").cookie(session).with(csrf())).andExpect(status().isOk());
+        mvc.perform(get("/api/auth/me").cookie(session)).andExpect(status().isUnauthorized());
+    }
 
-        mockMvc.perform(get("/api/auth/me").cookie(sessionCookie))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("testuser"));
+    @Test
+    void endedCourseCannotBeJoined() throws Exception {
+        Course course = course("8a");
+        courseService.endCourse(course.getId());
+        mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(Map.of("username", "zuspaet", "password", PASSWORD, "joinCode", course.getJoinCode()))))
+                .andExpect(status().isBadRequest());
+    }
 
-        // 3. Logout beendet die Session serverseitig
-        mockMvc.perform(post("/api/auth/logout").cookie(sessionCookie).with(csrf()))
-                .andExpect(status().isOk());
-        mockMvc.perform(get("/api/auth/me").cookie(sessionCookie))
-                .andExpect(status().isUnauthorized());
+    @Test
+    void loginIsRateLimited() throws Exception {
+        User user = student("tim", course("8a"));
+        for (int i = 0; i < 10; i++) {
+            mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                            .content(json.writeValueAsString(Map.of("username", user.getUsername(), "password", "falsch-" + i))))
+                    .andExpect(status().isUnauthorized());
+        }
+        // Auch das richtige Passwort wird für den Rest der Minute abgelehnt
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(Map.of("username", user.getUsername(), "password", PASSWORD))))
+                .andExpect(status().isTooManyRequests());
     }
 
     @Test
     void teacherCanEndAllStudentSessions() throws Exception {
-        AuthRequest student = AuthRequest.builder().username("schueler").password("password123").build();
-        Cookie sessionCookie = mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(student)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getCookie("CODEPATH_SESSION");
-        assertNotNull(sessionCookie);
-        mockMvc.perform(get("/api/auth/me").cookie(sessionCookie)).andExpect(status().isOk());
-
-        mockMvc.perform(post("/api/admin/sessions/logout-students")
-                        .with(user("lehrkraft").roles("ADMIN")).with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sessionsEnded").value(1));
-
-        mockMvc.perform(get("/api/auth/me").cookie(sessionCookie)).andExpect(status().isUnauthorized());
+        Course course = course("8a");
+        Cookie session = register("schueler", course.getJoinCode());
+        postAs(teacher(), "/api/admin/sessions/logout-students", null)
+                .andExpect(status().isOk()).andExpect(jsonPath("$.sessionsEnded").value(1));
+        mvc.perform(get("/api/auth/me").cookie(session)).andExpect(status().isUnauthorized());
     }
 
     @Test
-    void shouldRejectWrongPassword() throws Exception {
-        AuthRequest wrong = AuthRequest.builder().username("nobody").password("wrongpass").build();
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(wrong)))
-                .andExpect(status().isUnauthorized());
+    void protectedEndpointsNeedLoginAndTeacherRole() throws Exception {
+        mvc.perform(get("/api/modules")).andExpect(status().isUnauthorized());
+        User user = student("schueler", course("8a"));
+        getAs(as(user), "/api/admin/students").andExpect(status().isForbidden());
+        getAs(as(user), "/api/admin/submissions").andExpect(status().isForbidden());
+        postAs(as(user), "/api/admin/courses", Map.of("name", "x")).andExpect(status().isForbidden());
     }
 
     @Test
-    void shouldNotAccessProtectedEndpointWithoutToken() throws Exception {
-        mockMvc.perform(get("/api/modules"))
-                .andExpect(status().isUnauthorized());
+    void bulkAccountsAndEndingACourseDeletesStudentData() throws Exception {
+        Course course = course("9b");
+        var accounts = body(postAs(teacher(), "/api/admin/courses/" + course.getId() + "/accounts", Map.of("prefix", "9b", "count", 3))
+                .andExpect(status().isOk()));
+        assertEquals(3, accounts.size());
+        String username = accounts.get(0).get("username").asString();
+        String password = accounts.get(0).get("password").asString();
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(Map.of("username", username, "password", password))))
+                .andExpect(status().isOk());
+
+        unlock(course, "git");
+        User member = userRepository.findByUsername(username).orElseThrow();
+        postAs(as(member), "/api/modules/git/g1/submit", Map.of("selected", java.util.List.of("a"))).andExpect(status().isOk());
+
+        // Zeugnisse vor dem Beenden exportieren
+        mvc.perform(get("/api/admin/courses/" + course.getId() + "/certificates").with(teacher()))
+                .andExpect(status().isOk());
+        postAs(teacher(), "/api/admin/courses/" + course.getId() + "/end", null)
+                .andExpect(status().isOk()).andExpect(jsonPath("$.deletedAccounts").value(3));
+        assertTrue(userRepository.findByUsername(username).isEmpty());
+        assertEquals(0, jdbc.queryForObject("select count(*) from attempts", Integer.class));
     }
 }

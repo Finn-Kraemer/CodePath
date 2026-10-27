@@ -252,7 +252,9 @@
 															<p
 																class="mt-1 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
 															>
-																{task.type} · {task.points} PKT {#if task.supportUsed}(50%){/if}
+																{task.type} · {task.pointsEarned}/{task.points} PKT {#if task.hintsUsed}·
+																	{task.hintsUsed} Hinweis(e){/if}{#if task.solutionRevealed}
+																	· Lösung aufgedeckt{/if}
 															</p>
 														</div>
 													</div>

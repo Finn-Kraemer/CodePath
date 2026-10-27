@@ -1,0 +1,40 @@
+{
+  "slug": "w5",
+  "type": "FILL_BLANK",
+  "title": "Fehler 404 und Co.",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 5,
+  "learningGoal": "",
+  "story": "Beim Testen der neuen Webseite bekommst du verschiedene Antworten vom Server. Dein Chef fragt dich die Codes auswendig zu kennen. Welcher Code bedeutet was?",
+  "assignment": "Trage die richtigen HTTP-Statuscodes ein.",
+  "hints": [
+    "Merkhilfe: 2xx = Erfolg, 3xx = Weiterleitung, 4xx = Fehler des Nutzers, 5xx = Fehler des Servers."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "Alles OK → ___\nSeite dauerhaft umgezogen → ___\nSeite nicht gefunden → ___\nServerfehler → ___",
+    "blanks": [
+      {
+        "answers": [
+          "200"
+        ]
+      },
+      {
+        "answers": [
+          "301"
+        ]
+      },
+      {
+        "answers": [
+          "404"
+        ]
+      },
+      {
+        "answers": [
+          "500"
+        ]
+      }
+    ]
+  }
+}

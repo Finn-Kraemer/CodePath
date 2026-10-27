@@ -1,0 +1,43 @@
+{
+  "slug": "d13",
+  "type": "FILL_CODE",
+  "title": "Moore vs. Mealy – Ampelsteuerung",
+  "difficulty": "HARD",
+  "points": 15,
+  "sortOrder": 13,
+  "learningGoal": "",
+  "story": "Eine Ampel ist ein typisches Beispiel für einen Moore-Automaten: Die Ausgabe (Farbe) hängt nur vom **aktuellen Zustand** ab. Ergänze den fehlenden Zustandsübergang:",
+  "assignment": "Ergänze die Übergangsfunktion so dass die Reihenfolge ROT → ROTGELB → GRÜN → GELB → ROT stimmt.",
+  "hints": [
+    "ROT → ROTGELB → GRÜN → GELB → ROT. Jeder Zustand hat genau einen Nachfolger – das ist typisch für einen Moore-Automaten ohne externe Eingabe."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "def ampel_schritt(zustand):\n    if zustand == ___:\n        return \"ROTGELB\"\n    elif zustand == \"ROTGELB\":\n        return ___\n    elif zustand == \"GRÜN\":\n        return \"GELB\"\n    elif zustand == \"GELB\":\n        return ___\n\nzustand = \"ROT\"\nfor _ in range(4):\n    print(zustand)\n    zustand = ampel_schritt(zustand)",
+    "blanks": [
+      {
+        "answers": [
+          "\"ROT\""
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "\"GRÜN\""
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "\"ROT\""
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "ROT\nROTGELB\nGRÜN\nGELB\n"
+      }
+    ]
+  }
+}

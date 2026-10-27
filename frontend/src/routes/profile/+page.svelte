@@ -48,7 +48,7 @@
 		error = '';
 		success = '';
 		try {
-			const res = await auth.apiFetch('/api/users/profile/display-name', {
+			const res = await auth.apiFetch('/api/auth/me/display-name', {
 				method: 'PATCH',
 				body: JSON.stringify({ displayName: newDisplayName })
 			});
@@ -70,8 +70,8 @@
 			error = 'Passwörter stimmen nicht überein.';
 			return;
 		}
-		if (newPassword.length < 6) {
-			error = 'Passwort muss mindestens 6 Zeichen lang sein.';
+		if (newPassword.length < 8) {
+			error = 'Passwort muss mindestens 8 Zeichen lang sein.';
 			return;
 		}
 
@@ -79,7 +79,7 @@
 		error = '';
 		success = '';
 		try {
-			const res = await auth.apiFetch('/api/users/profile/password', {
+			const res = await auth.apiFetch('/api/auth/me/password', {
 				method: 'PATCH',
 				body: JSON.stringify({ password: newPassword })
 			});

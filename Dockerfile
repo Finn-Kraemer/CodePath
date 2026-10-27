@@ -14,6 +14,8 @@ COPY backend/mvnw backend/pom.xml ./
 COPY backend/.mvn .mvn
 RUN ./mvnw -q -B dependency:go-offline
 COPY backend/src src
+# Content-Pakete werden als Startinhalt ins JAR gepackt (siehe pom.xml)
+COPY content /build/content
 COPY --from=frontend /build/frontend/build src/main/resources/static
 RUN ./mvnw -q -B package -DskipTests
 

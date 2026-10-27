@@ -1,0 +1,26 @@
+{
+  "slug": "terminal-git-init",
+  "type": "TERMINAL",
+  "title": "Projekt-Setup im Terminal",
+  "difficulty": "HARD",
+  "points": 20,
+  "sortOrder": 15,
+  "learningGoal": "",
+  "story": "Du beginnst ein neues Projekt. Nutze das Terminal, um die Grundstruktur vorzubereiten.",
+  "assignment": "1. Erstellen Sie einen Ordner namens `website`. 2. Erstellen Sie darin eine Datei `index.html`. 3. Erstellen Sie eine weitere Datei `styles.css`.",
+  "hints": [
+    "Nutze die Befehle 'mkdir website' und 'touch dateiname'. Tippe 'submit' wenn du fertig bist."
+  ],
+  "explanation": "",
+  "config": {
+    "initialDirectories": [],
+    "initialFiles": {},
+    "expectedDirectories": [
+      "website"
+    ],
+    "expectedFiles": [
+      "website/index.html",
+      "website/styles.css"
+    ]
+  }
+}

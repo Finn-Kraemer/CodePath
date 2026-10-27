@@ -1,0 +1,50 @@
+{
+  "slug": "w4",
+  "type": "FILL_BLANK",
+  "title": "Baue eine Visitenkarte",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 4,
+  "learningGoal": "",
+  "story": "Dein Chef bittet dich, eine einfache HTML-Visitenkarte zu bauen. Die Grundstruktur ist da – aber welche Tags fehlen?",
+  "assignment": "Ergänze die fehlenden HTML-Tags.",
+  "hints": [
+    "html umschließt alles, body enthält sichtbare Inhalte, h1 ist eine große Überschrift, a ist ein Link (Anchor)."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "<!DOCTYPE html>\n<___>\n  <head><title>Max</title></head>\n  <___>\n    <___>Max Mustermann</___>\n    <p>Web-Entwickler</p>\n    <___ href='mailto:max@mail.de'>Schreib mir</___>\n  </body>\n</html>",
+    "blanks": [
+      {
+        "answers": [
+          "html"
+        ]
+      },
+      {
+        "answers": [
+          "body"
+        ]
+      },
+      {
+        "answers": [
+          "h1"
+        ]
+      },
+      {
+        "answers": [
+          "h1"
+        ]
+      },
+      {
+        "answers": [
+          "a"
+        ]
+      },
+      {
+        "answers": [
+          "a"
+        ]
+      }
+    ]
+  }
+}

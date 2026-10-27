@@ -1,0 +1,39 @@
+{
+  "slug": "s6",
+  "type": "MULTIPLE_CHOICE",
+  "title": "SQL Injection verstehen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 6,
+  "learningGoal": "",
+  "story": "Eine unsichere Login-Abfrage sieht so aus:\n\n```\nSELECT * FROM users\nWHERE name='${eingabe}'\nAND passwort='${pw}'\n```\n\nEin Angreifer gibt als Namen `admin'--` ein.",
+  "assignment": "Was passiert wenn ein Angreifer `admin'--` als Nutzernamen eingibt?",
+  "hints": [
+    "Das einfache Anführungszeichen '' beendet den String in der SQL-Abfrage. -- ist ein SQL-Kommentar der alles danach ignoriert – also auch die Passwortprüfung!"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Es gibt einen Fehler wegen des Sonderzeichens"
+      },
+      {
+        "id": "b",
+        "text": "Der Angreifer ist eingeloggt ohne das Passwort zu kennen"
+      },
+      {
+        "id": "c",
+        "text": "Die gesamte Datenbank wird gelöscht"
+      },
+      {
+        "id": "d",
+        "text": "Nichts – das Anführungszeichen ist harmlos"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

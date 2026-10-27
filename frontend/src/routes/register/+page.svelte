@@ -2,6 +2,12 @@
 	import { auth } from '$lib/auth.svelte';
 	import { goto } from '$app/navigation';
 
+	// Beitrittscode kann per Link vorbelegt werden: /register?code=ABC123
+	let joinCode = $state(
+		typeof window !== 'undefined'
+			? (new URLSearchParams(window.location.search).get('code') ?? '')
+			: ''
+	);
 	let username = $state('');
 	let password = $state('');
 	let confirmPassword = $state('');
@@ -23,7 +29,7 @@
 			const res = await fetch('/api/auth/register', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ username, password })
+				body: JSON.stringify({ username, password, joinCode })
 			});
 
 			if (!res.ok) {
@@ -67,6 +73,22 @@
 		<form class="space-y-8" onsubmit={handleRegister}>
 			<div>
 				<label
+					for="joinCode"
+					class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+					>Beitrittscode deines Kurses</label
+				>
+				<input
+					bind:value={joinCode}
+					type="text"
+					id="joinCode"
+					required
+					autocomplete="off"
+					class="w-full rounded-none border-slate-200 bg-slate-50 px-5 py-4 font-mono tracking-[4px] uppercase transition-all outline-none focus:border-institutional-navy focus:ring-0"
+					placeholder="z. B. K7P2QX"
+				/>
+			</div>
+			<div>
+				<label
 					for="username"
 					class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
 					>Nutzername</label
@@ -94,7 +116,7 @@
 					type="password"
 					id="password"
 					required
-					minlength="6"
+					minlength="8"
 					class="w-full rounded-none border-slate-200 bg-slate-50 px-5 py-4 transition-all outline-none focus:border-institutional-navy focus:ring-0"
 				/>
 			</div>

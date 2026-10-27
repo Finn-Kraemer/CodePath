@@ -1,0 +1,43 @@
+{
+  "slug": "ai6",
+  "type": "FILL_CODE",
+  "title": "Nearest Neighbor von Hand",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 6,
+  "learningGoal": "",
+  "story": "Der k-Nearest-Neighbor-Algorithmus ist einer der einfachsten KI-Algorithmen: Finde den Punkt der dem gesuchten Wert am nächsten ist. Finde den nächsten Nachbarn zur Zahl 6 in [1, 4, 7, 10, 15]:",
+  "assignment": "Vervollständige den einfachen kNN-Algorithmus.",
+  "hints": [
+    "abs() berechnet den absoluten Abstand (immer positiv): abs(7-6)=1, abs(4-6)=2. Der nächste Nachbar zu 6 hat den kleinsten Abstand."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "punkte = [1, 4, 7, 10, 15]\ngesucht = 6\n\nnaechster = ___[0]\nfor p in punkte:\n    if ___(p - gesucht) < ___(naechster - gesucht):\n        naechster = p\n\nprint(naechster)",
+    "blanks": [
+      {
+        "answers": [
+          "punkte"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "abs"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "abs"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "7\n"
+      }
+    ]
+  }
+}

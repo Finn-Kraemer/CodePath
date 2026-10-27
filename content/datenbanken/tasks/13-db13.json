@@ -1,0 +1,34 @@
+{
+  "slug": "db13",
+  "type": "PRACTICE",
+  "title": "Datenbank: Mini-Instagram",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 13,
+  "learningGoal": "",
+  "story": "Du baust das Backend von Mini-Instagram. Nutzer sollen Posts teilen, anderen folgen und Likes geben können.",
+  "assignment": "Entwirf das komplette Datenbankmodell für eine Social-Media-App.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Dein Modell muss abdecken:\n1. Nutzer können Posts erstellen\n2. Nutzer können anderen Nutzern folgen\n3. Nutzer können Posts liken\n\nFür jede Funktion:\n- Welche Tabellen brauchst du?\n- Welche Spalten und Datentypen?\n- Schreibe SQL für: Alle Posts der gefolgten Nutzer, neueste zuerst\n\nBonus: Wie zählst du Likes effizient? Denke an: Brauche ich eine extra Spalten oder eine extra Tabelle?",
+    "submissionNote": "Tabellen-Schema + Beziehungen + SQL-Abfrage + Bonus-Begründung",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Nutzer können Posts erstellen",
+        "points": 17
+      },
+      {
+        "id": "k2",
+        "label": "Nutzer können anderen Nutzern folgen",
+        "points": 17
+      },
+      {
+        "id": "k3",
+        "label": "Nutzer können Posts liken",
+        "points": 16
+      }
+    ]
+  }
+}

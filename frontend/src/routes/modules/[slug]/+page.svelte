@@ -1,53 +1,20 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { auth } from '$lib/auth.svelte';
-
-	interface Task {
-		slug: string;
-		title: string;
-		description: string;
-		type: string;
-		difficulty: string;
-		points: number;
-		isCompleted: boolean;
-		isLocked: boolean;
-		supportUsed: boolean;
-	}
-
-	let tasks = $state<Task[]>([]);
-	let loading = $state(true);
-	let error = $state('');
-
-	const difficultyPriority: Record<string, number> = {
-		EASY: 1,
-		MEDIUM: 2,
-		HARD: 3
-	};
-
-	let sortedTasks = $derived(
-		[...tasks].sort((a, b) => {
-			const priorityA = difficultyPriority[a.difficulty] || 99;
-			const priorityB = difficultyPriority[b.difficulty] || 99;
-			return priorityA - priorityB;
-		})
-	);
+	import { goto } from '$app/navigation';
+	import { api, ApiError, type ModuleDetail } from '$lib/api';
+	import { DIFFICULTY_LABELS, STATUS_LABELS, TYPE_LABELS } from '$lib/tasks/labels';
 
 	const slug = page.params.slug || '';
+	let detail = $state<ModuleDetail | null>(null);
+	let error = $state('');
 
 	onMount(async () => {
 		try {
-			const res = await auth.apiFetch(`/api/modules/${slug}`);
-			if (res.status === 403) {
-				import('$app/navigation').then((nav) => nav.goto('/modules'));
-				return;
-			}
-			if (!res.ok) throw new Error('Aufgaben konnten nicht geladen werden');
-			tasks = await res.json();
-		} catch (err: any) {
-			error = err.message;
-		} finally {
-			loading = false;
+			detail = await api<ModuleDetail>(`/api/modules/${slug}`);
+		} catch (e) {
+			if (e instanceof ApiError && e.status === 403) goto('/modules');
+			else error = (e as Error).message;
 		}
 	});
 
@@ -56,133 +23,98 @@
 		MEDIUM: 'border-amber-200 text-amber-700 bg-amber-50',
 		HARD: 'border-rose-200 text-rose-700 bg-rose-50'
 	};
+
+	function tone(status?: string, locked?: boolean) {
+		if (status === 'SOLVED') return 'border-green-200 bg-green-50/30';
+		if (status === 'PENDING_REVIEW') return 'border-blue-200 bg-blue-50/30';
+		if (locked) return 'border-red-200 bg-red-50/30';
+		return 'border-slate-200 bg-white shadow-sm hover:border-institutional-navy';
+	}
 </script>
+
+<svelte:head><title>{detail?.module?.title ?? 'Modul'} | CodePath</title></svelte:head>
 
 <div class="mx-auto max-w-5xl">
 	<div class="mb-12 border-b border-slate-200 pb-8">
 		<a
 			href="/modules"
-			class="mb-6 inline-flex items-center font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
+			class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
 		>
 			← Zurück zur Übersicht
 		</a>
 		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			Modul: {slug.replace('-', ' ')}
+			{detail?.module?.icon ?? ''}
+			{detail?.module?.title ?? ''}
 		</h1>
+		{#if detail?.module}
+			<p class="mt-4 text-slate-500">{detail.module.description}</p>
+			<p class="mt-2 font-mono text-xs text-slate-400">
+				{detail.module.completedTasks}/{detail.module.totalTasks} gelöst · {detail.module
+					.pointsEarned} von {detail.module.maxPoints} Punkten
+			</p>
+		{/if}
 	</div>
 
-	{#if loading}
+	{#if error}
+		<div class="border border-red-200 bg-red-50 p-8 font-mono text-sm text-red-700">{error}</div>
+	{:else if !detail}
 		<div class="flex justify-center py-24">
 			<div
 				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
 			></div>
 		</div>
-	{:else if error}
-		<div class="border border-red-200 bg-red-50 p-8 font-mono text-sm text-red-700">
-			<span class="font-bold">FEHLER:</span>
-			{error}
-		</div>
 	{:else}
-		<div class="space-y-4">
-			{#each sortedTasks as task (task.slug)}
-				<a
-					href={`/modules/${slug}/${task.slug}`}
-					class="group flex items-center justify-between rounded-none border p-8 transition-all
-                    {task.isLocked
-						? 'border-red-200 bg-red-50/30'
-						: task.isCompleted
-							? task.supportUsed
-								? 'border-amber-200 bg-amber-50/30'
-								: 'border-green-200 bg-green-50/30'
-							: 'border-slate-200 bg-white shadow-sm hover:border-institutional-navy'}"
-				>
-					<div class="flex items-center gap-8">
-						<div
-							class="flex h-14 w-14 items-center justify-center rounded-none font-mono text-[11px] font-black transition-colors
-                            {task.isLocked
-								? 'bg-red-600 text-white'
-								: task.isCompleted
-									? task.supportUsed
-										? 'bg-amber-500 text-white'
-										: 'bg-green-600 text-white'
-									: 'bg-slate-100 text-slate-400 group-hover:bg-institutional-navy group-hover:text-white'}"
-						>
-							{#if task.isLocked}
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-7 w-7"
-									viewBox="0 0 20 20"
-									fill="currentColor"
-								>
-									<path
-										fill-rule="evenodd"
-										d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-							{:else if task.isCompleted}
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-7 w-7"
-									viewBox="0 0 20 20"
-									fill="currentColor"
-								>
-									<path
-										fill-rule="evenodd"
-										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-							{:else}
-								{task.points}
-							{/if}
-						</div>
-
-						<div>
-							<h3
-								class="font-sans text-lg font-bold tracking-tight text-institutional-navy uppercase transition-colors group-hover:text-amber-700"
+		<ol class="space-y-4">
+			{#each detail.tasks ?? [] as task, i (task.slug)}
+				<li>
+					<a
+						href={`/modules/${slug}/${task.slug}`}
+						class="group flex items-center justify-between rounded-none border p-6 transition-all {tone(
+							task.status,
+							task.isLocked
+						)}"
+					>
+						<div class="flex items-center gap-6">
+							<div
+								class="flex h-12 w-12 items-center justify-center font-mono text-[11px] font-black {task.status ===
+								'SOLVED'
+									? 'bg-green-600 text-white'
+									: 'bg-slate-100 text-slate-500 group-hover:bg-institutional-navy group-hover:text-white'}"
 							>
-								{task.title}
-							</h3>
-							<div class="mt-2 flex items-center gap-4">
-								<span
-									class="border px-2 py-0.5 font-mono text-[9px] font-bold tracking-widest uppercase {difficultyColors[
-										task.difficulty
-									]}"
+								{task.status === 'SOLVED' ? '✓' : i + 1}
+							</div>
+							<div>
+								<h2
+									class="font-sans text-lg font-bold tracking-tight text-institutional-navy uppercase"
 								>
-									{task.difficulty}
-								</span>
-								<span
-									class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase italic"
-								>
-									{task.type.replace('_', ' ')}
-								</span>
-								{#if task.supportUsed && task.isCompleted}
+									{task.title}
+								</h2>
+								<div class="mt-2 flex flex-wrap items-center gap-3">
 									<span
-										class="bg-amber-100 px-2 py-0.5 font-mono text-[8px] font-bold tracking-wider text-amber-700 uppercase"
-										>Punktabzug aktiv</span
+										class="border px-2 py-0.5 font-mono text-[9px] font-bold tracking-widest uppercase {difficultyColors[
+											task.difficulty ?? ''
+										]}"
 									>
-								{/if}
+										{DIFFICULTY_LABELS[task.difficulty ?? ''] ?? task.difficulty}
+									</span>
+									<span
+										class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+										>{TYPE_LABELS[task.type ?? ''] ?? task.type}</span
+									>
+								</div>
 							</div>
 						</div>
-					</div>
-
-					<div class="flex items-center gap-4">
-						<span
-							class="font-sans text-[10px] font-black tracking-widest uppercase transition-colors
-                            {task.isLocked
-								? 'text-red-600'
-								: task.isCompleted
-									? task.supportUsed
-										? 'text-amber-600'
-										: 'text-green-600'
-									: 'text-slate-300 group-hover:text-institutional-navy'}"
-						>
-							{task.isLocked ? 'Gesperrt' : task.isCompleted ? 'Abgeschlossen' : 'Aufgabe lösen →'}
-						</span>
-					</div>
-				</a>
+						<div class="text-right font-mono text-[10px] font-black tracking-widest uppercase">
+							<div class="text-slate-500">{task.pointsEarned}/{task.points} P.</div>
+							<div class="mt-1 {task.status === 'SOLVED' ? 'text-green-600' : 'text-slate-400'}">
+								{task.isLocked && task.status !== 'FAILED'
+									? 'Gesperrt'
+									: STATUS_LABELS[task.status ?? 'OPEN']}
+							</div>
+						</div>
+					</a>
+				</li>
 			{/each}
-		</div>
+		</ol>
 	{/if}
 </div>

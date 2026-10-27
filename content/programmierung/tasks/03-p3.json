@@ -1,0 +1,39 @@
+{
+  "slug": "p3",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Variablen deklarieren",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 3,
+  "learningGoal": "",
+  "story": "Dein erster Tag als Junior-Entwickler! Du schaust dir diesen Code an:\n\n```\nname = \"Max\"\nalter = 15\nist_bereit = True\n\nprint(punkte)\n```\n\nDer Code stürzt mit einem Fehler ab. Kannst du erklären warum?",
+  "assignment": "Was ist die Ursache des Fehlers?",
+  "hints": [
+    "Variablen müssen vor ihrer Verwendung deklariert werden. Python wirft einen NameError wenn du eine Variable benutzt die noch keinen Wert erhalten hat."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "name ist kein gültiger Variablenname"
+      },
+      {
+        "id": "b",
+        "text": "True muss kleingeschrieben werden: true"
+      },
+      {
+        "id": "c",
+        "text": "Die Variable punkte wurde nie deklariert und initialisiert – sie ist undefiniert"
+      },
+      {
+        "id": "d",
+        "text": "print() kann keine Variablen ausgeben"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

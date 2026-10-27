@@ -1,0 +1,39 @@
+{
+  "slug": "ai1",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Ist das KI?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "",
+  "story": "Überall hört man von KI – aber was ist eigentlich der Unterschied zwischen einem normalen Programm und echter Künstlicher Intelligenz?",
+  "assignment": "Welches der folgenden Beispiele ist echte KI – und welches nicht?",
+  "hints": [
+    "Der Unterschied: Ein Taschenrechner folgt festen Regeln die Menschen programmiert haben. Eine KI lernt Regeln selbst aus Beispieldaten."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Ein Taschenrechner der 1000×1000 rechnet – das ist starke KI"
+      },
+      {
+        "id": "b",
+        "text": "Ein Spamfilter der aus Beispielen gelernt hat Spam zu erkennen – das ist KI"
+      },
+      {
+        "id": "c",
+        "text": "Beide sind KI weil beide Computer benutzen"
+      },
+      {
+        "id": "d",
+        "text": "Keines ist KI weil echte KI erst in der Zukunft existiert"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

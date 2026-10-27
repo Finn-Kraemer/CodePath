@@ -1,0 +1,23 @@
+{
+  "slug": "s10",
+  "type": "CODE",
+  "title": "Brute-Force: Caesar knacken",
+  "difficulty": "HARD",
+  "points": 20,
+  "sortOrder": 10,
+  "learningGoal": "",
+  "story": "Du baust ein Tool das zeigt wie schwach Caesar-Verschlüsselung ist. Es probiert automatisch alle 25 möglichen Versätze durch – ein echter Brute-Force-Angriff!",
+  "assignment": "Der Code probiert alle 25 möglichen Versätze durch. Ergänze die fehlenden Teile.",
+  "hints": [
+    "Der Code ist vollständig – führe ihn aus! Bei welchem Versatz erscheint lesbarer Text? Das ist ein echter Brute-Force-Angriff: alle Möglichkeiten ausprobieren bis man eine Lösung findet."
+  ],
+  "explanation": "",
+  "config": {
+    "starterCode": "def caesar_brute_force(text):\n    for versatz in range(1, 26):\n        ergebnis = \"\"\n        for zeichen in text:\n            if zeichen.isalpha():\n                basis = ord(''A'') if zeichen.isupper() else ord(''a'')\n                ergebnis += chr((ord(zeichen) - basis - versatz) % 26 + basis)\n            else:\n                ergebnis += zeichen\n        print(f'Versatz {versatz:2}: {ergebnis}')\n\ncaesar_brute_force('KHOOR')",
+    "tests": [
+      {
+        "expectedOutput": "Versatz  1: JGNNQ\nVersatz  2: IFMMP\nVersatz  3: HELLO\nVersatz  4: GDKKN\nVersatz  5: FCJJM\nVersatz  6: EBIIL\nVersatz  7: DAHHK\nVersatz  8: CZGGJ\nVersatz  9: BYFFI\nVersatz 10: AXEEH\nVersatz 11: ZWDDG\nVersatz 12: YVCCE\nVersatz 13: XUBBF\nVersatz 14: WTAAE\nVersatz 15: VS99D\nVersatz 16: UR88C\nVersatz 17: TQ77B\nVersatz 18: SP66A\nVersatz 19: RO559\nVersatz 20: QN448\nVersatz 21: PM337\nVersatz 22: OL226\nVersatz 23: NK115\nVersatz 24: MJ004\nVersatz 25: LIPWP\n"
+      }
+    ]
+  }
+}

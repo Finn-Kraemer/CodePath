@@ -1,212 +1,156 @@
-<!-- frontend/src/routes/admin/submissions/[id]/+page.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { auth } from '$lib/auth.svelte';
 	import { goto } from '$app/navigation';
+	import { api, type SubmissionDetail } from '$lib/api';
 	import PracticeReview from '$lib/components/editor/PracticeReview.svelte';
+	import Markdown from '$lib/Markdown.svelte';
 
 	const id = page.params.id;
+	let submission = $state<SubmissionDetail | null>(null);
+	let scores = $state<Record<string, number>>({});
+	let comment = $state('');
+	let lockTask = $state(false);
+	let error = $state('');
+	let busy = $state(false);
 
-	interface Submission {
-		id: number;
-		username: string;
-		displayName: string;
-		taskTitle: string;
-		moduleTitle: string;
-		submittedAt: string;
-		content: string;
-	}
+	const total = $derived(Object.values(scores).reduce((a, b) => a + (Number(b) || 0), 0));
 
-	let submission = $state<Submission | null>(null);
-	let loading = $state(true);
-	let rejectComment = $state('');
-	let showRejectInput = $state(false);
-	let lockAfterReject = $state(false);
-
-	async function fetchSubmission() {
+	onMount(async () => {
 		try {
-			const res = await auth.apiFetch(`/api/admin/submissions/${id}`);
-			if (res.ok) {
-				submission = await res.json();
-			}
+			submission = await api<SubmissionDetail>(`/api/admin/submissions/${id}`);
+			comment = submission.comment ?? '';
+			for (const c of submission.rubric) scores[c.id] = submission.scores?.[c.id] ?? c.points;
 		} catch (e) {
-			console.error(e);
-		} finally {
-			loading = false;
+			error = (e as Error).message;
 		}
-	}
+	});
 
-	async function approve(halfPoints: boolean = false) {
-		if (!submission) return;
+	async function approve() {
+		busy = true;
 		try {
-			const res = await auth.apiFetch(`/api/admin/submissions/${submission.id}/approve`, {
+			submission = await api<SubmissionDetail>(`/api/admin/submissions/${id}/approve`, {
 				method: 'PUT',
-				body: JSON.stringify({ halfPoints })
+				body: { scores, comment }
 			});
-			if (res.ok) {
-				goto('/admin/submissions');
-			}
+			goto('/admin/submissions');
 		} catch (e) {
-			console.error(e);
+			error = (e as Error).message;
+		} finally {
+			busy = false;
 		}
 	}
 
 	async function reject() {
-		if (!submission) return;
-		if (!rejectComment.trim()) {
-			alert('Bitte geben Sie einen Grund an.');
+		if (!comment.trim()) {
+			error = 'Bitte einen Kommentar schreiben, damit klar ist, was zu überarbeiten ist.';
 			return;
 		}
+		busy = true;
 		try {
-			const res = await auth.apiFetch(`/api/admin/submissions/${submission.id}/reject`, {
-				method: 'DELETE',
-				body: JSON.stringify({
-					comment: rejectComment,
-					lockTask: lockAfterReject
-				})
+			await api(`/api/admin/submissions/${id}/reject`, {
+				method: 'PUT',
+				body: { comment, lockTask }
 			});
-			if (res.ok) {
-				goto('/admin/submissions');
-			}
+			goto('/admin/submissions');
 		} catch (e) {
-			console.error(e);
+			error = (e as Error).message;
+		} finally {
+			busy = false;
 		}
 	}
-
-	onMount(fetchSubmission);
 </script>
 
-<div class="flex flex-col gap-12 pb-24">
-	<header class="border-b border-slate-200 pb-8">
-		<a
-			href="/admin/submissions"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
-			>← Zurück zum Prüfungszentrum</a
-		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			Leistungsnachweis Prüfen
-		</h1>
-	</header>
-
-	{#if loading}
-		<div class="flex justify-center py-24">
-			<div
-				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
-			></div>
-		</div>
-	{:else if !submission}
-		<div class="rounded-none border border-dashed border-slate-200 bg-white p-24 text-center">
-			<p class="font-serif text-sm text-slate-400 italic">
-				Abgabe wurde nicht gefunden oder bereits bearbeitet.
+<div class="mx-auto flex max-w-6xl flex-col gap-10 pb-24">
+	<a
+		href="/admin/submissions"
+		class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+		>← Zurück zu den Abgaben</a
+	>
+	{#if error}<div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">
+			{error}
+		</div>{/if}
+	{#if submission}
+		<header class="border-b border-slate-200 pb-6">
+			<p class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+				{submission.moduleTitle}
 			</p>
-		</div>
-	{:else}
-		<div
-			class="flex flex-col overflow-hidden rounded-none border border-slate-200 bg-white shadow-sm"
-		>
-			<!-- Header Section -->
-			<div class="flex items-center justify-between border-b border-slate-100 bg-slate-50 p-8">
-				<div>
-					<div class="mb-2 flex items-center gap-3">
-						<span class="font-sans text-lg font-black text-institutional-navy uppercase"
-							>{submission.displayName || submission.username}</span
-						>
-						<span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
-							>@{submission.username}</span
-						>
-					</div>
-					<p class="text-xs text-slate-500">
-						Aufgabe: <span class="font-bold tracking-tight text-slate-700 uppercase"
-							>{submission.taskTitle}</span
-						>
-						in
-						<span class="font-bold tracking-tight text-slate-700 uppercase"
-							>{submission.moduleTitle}</span
-						>
-					</p>
-				</div>
-				<p class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-					Eingang: {new Date(submission.submittedAt).toLocaleString('de-DE')}
-				</p>
-			</div>
+			<h1
+				class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy uppercase"
+			>
+				{submission.taskTitle}
+			</h1>
+			<p class="mt-2 text-sm text-slate-500">
+				{submission.displayName} (@{submission.username}) · {new Date(
+					submission.submittedAt
+				).toLocaleString('de-DE')} · Status: {submission.status}
+				{#if submission.hintsUsed > 0}· {submission.hintsUsed} Hinweis(e) genutzt (Punktabzug wird automatisch
+					berechnet){/if}
+			</p>
+		</header>
 
-			<!-- Content Preview -->
-			<div class="p-8">
-				<span
-					class="mb-4 block font-mono text-[9px] font-bold tracking-[3px] text-slate-400 uppercase"
-					>Abgegebene Ausarbeitung</span
-				>
+		<div class="grid grid-cols-1 gap-10 lg:grid-cols-5">
+			<div class="space-y-6 lg:col-span-3">
+				<details class="border border-slate-200 bg-white p-6 text-sm">
+					<summary class="cursor-pointer font-bold">Aufgabenstellung</summary>
+					<Markdown source={submission.instructions} class="mt-4" />
+				</details>
 				<PracticeReview content={submission.content} />
 			</div>
 
-			{#if showRejectInput}
-				<div class="border-t border-red-100 bg-red-50 p-8">
-					<h3 class="mb-4 font-sans text-xs font-black tracking-widest text-red-700 uppercase">
-						{lockAfterReject
-							? 'Begründung für endgültige Sperrung'
-							: 'Korrekturhinweis für den Schüler'}
-					</h3>
-					<textarea
-						bind:value={rejectComment}
-						placeholder={lockAfterReject
-							? 'Geben Sie an, warum diese Aufgabe endgültig gesperrt wird...'
-							: 'Beschreiben Sie hier, was der Schüler an seiner Lösung verbessern muss...'}
-						class="mb-4 w-full rounded-none border border-red-200 p-4 font-sans text-sm focus:border-red-400 focus:outline-none"
-						rows="4"
-					></textarea>
-					<div class="flex justify-end gap-4">
-						<button
-							onclick={() => (showRejectInput = false)}
-							class="px-6 py-2 font-mono text-[10px] font-bold text-slate-400 uppercase"
-						>
-							Abbrechen
-						</button>
-						<button
-							onclick={reject}
-							class="bg-red-700 px-8 py-3 font-mono text-[10px] font-bold text-white uppercase"
-						>
-							{lockAfterReject ? 'Endgültig Sperren' : 'Jetzt Ablehnen'}
-						</button>
+			<div class="space-y-6 lg:col-span-2">
+				<div class="border border-slate-200 bg-white p-6">
+					<h2
+						class="mb-4 font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
+					>
+						Bewertung nach Rubrik
+					</h2>
+					<div class="space-y-4">
+						{#each submission.rubric as criterion (criterion.id)}
+							<label class="block text-sm">
+								<span class="flex justify-between"
+									><span>{criterion.label}</span><span class="font-mono text-slate-400"
+										>max. {criterion.points}</span
+									></span
+								>
+								<input
+									type="number"
+									min="0"
+									max={criterion.points}
+									bind:value={scores[criterion.id]}
+									class="mt-1 w-full border-slate-200 font-mono"
+								/>
+							</label>
+						{/each}
 					</div>
+					<p class="mt-4 border-t border-slate-100 pt-4 text-right font-mono text-sm font-bold">
+						{total} / {submission.maxPoints} Punkte
+					</p>
 				</div>
-			{/if}
-
-			<!-- Actions -->
-			{#if !showRejectInput}
-				<div class="flex flex-wrap justify-end gap-4 border-t border-slate-100 bg-slate-50 p-8">
-					<button
-						onclick={() => {
-							lockAfterReject = true;
-							showRejectInput = true;
-						}}
-						class="rounded-none border border-red-600 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-red-600 uppercase transition-all hover:bg-red-600 hover:text-white"
+				<label class="block text-sm">
+					<span class="font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
+						>Kommentar für die Schülerin, den Schüler</span
 					>
-						Endgültig Sperren
-					</button>
-					<button
-						onclick={() => {
-							lockAfterReject = false;
-							showRejectInput = true;
-						}}
-						class="rounded-none border border-red-200 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-red-400 uppercase transition-all hover:bg-red-50"
+					<textarea bind:value={comment} rows="4" class="mt-2 w-full border-slate-200"></textarea>
+				</label>
+				<button
+					onclick={approve}
+					disabled={busy}
+					class="w-full bg-green-700 py-4 text-xs font-black tracking-[3px] text-white uppercase disabled:opacity-50"
+					>Annehmen ({total} Punkte)</button
+				>
+				<div class="border border-rose-200 p-4">
+					<label class="mb-3 flex items-center gap-2 text-sm"
+						><input type="checkbox" bind:checked={lockTask} /> Aufgabe danach endgültig sperren</label
 					>
-						Ablehnen (Korrektur)
-					</button>
 					<button
-						onclick={() => approve(true)}
-						class="rounded-none border border-amber-500 bg-white px-8 py-4 text-[10px] font-bold tracking-[3px] text-amber-600 uppercase transition-all hover:bg-amber-500 hover:text-white"
+						onclick={reject}
+						disabled={busy || submission.status === 'APPROVED'}
+						class="w-full border-2 border-rose-500 py-3 text-xs font-black tracking-[3px] text-rose-600 uppercase disabled:opacity-40"
+						>Zur Überarbeitung zurückgeben</button
 					>
-						Halbe Punkte
-					</button>
-					<button
-						onclick={() => approve(false)}
-						class="rounded-none bg-teal-700 px-8 py-4 text-[10px] font-bold tracking-[3px] text-white uppercase shadow-md transition-all hover:bg-teal-800"
-					>
-						Volle Punkte
-					</button>
 				</div>
-			{/if}
+			</div>
 		</div>
 	{/if}
 </div>

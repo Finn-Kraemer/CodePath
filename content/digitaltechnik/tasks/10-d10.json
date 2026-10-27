@@ -1,0 +1,39 @@
+{
+  "slug": "d10",
+  "type": "MULTIPLE_CHOICE",
+  "title": "KV-Diagramm: Gruppen erkennen",
+  "difficulty": "HARD",
+  "points": 10,
+  "sortOrder": 10,
+  "learningGoal": "",
+  "story": "Das folgende KV-Diagramm zeigt eine boolesche Funktion mit zwei Variablen A und B:\n\n```\n      B=0  B=1\nA=0 |  0  |  1  |\nA=1 |  1  |  1  |\n```\n\nDu siehst: Die drei Einsen bilden zwei überlappende Gruppen.",
+  "assignment": "Welcher minimierte Ausdruck beschreibt diese Funktion korrekt?",
+  "hints": [
+    "Gruppe 1: Die zwei 1en in Zeile A=1 (B ändert sich) → Term: A. Gruppe 2: Die zwei 1en in Spalte B=1 (A ändert sich) → Term: B. Beide Gruppen mit OR verbinden: Y = A OR B."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Y = A AND B"
+      },
+      {
+        "id": "b",
+        "text": "Y = A OR B"
+      },
+      {
+        "id": "c",
+        "text": "Y = NOT A AND B"
+      },
+      {
+        "id": "d",
+        "text": "Y = A AND NOT B"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}
