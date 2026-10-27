@@ -5,6 +5,7 @@ import de.codepath.backend.features.tasks.TaskService;
 import de.codepath.backend.features.tasks.TaskSubmissionService;
 import de.codepath.backend.features.tasks.SubmitRequest;
 import de.codepath.backend.features.tasks.SubmitResponse;
+import de.codepath.backend.features.tasks.SupportResponse;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserService;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +50,13 @@ public class ModuleController {
             @RequestBody SubmitRequest request) {
         User user = userService.getCurrentUser();
         return ResponseEntity.ok(taskSubmissionService.submitTask(moduleSlug, taskSlug, user, request));
+    }
+
+    @PostMapping("/{moduleSlug}/{taskSlug}/support")
+    public SupportResponse requestSupport(
+            @PathVariable("moduleSlug") String moduleSlug,
+            @PathVariable("taskSlug") String taskSlug) {
+        User user = userService.getCurrentUser();
+        return taskSubmissionService.requestSupport(moduleSlug, taskSlug, user);
     }
 }

@@ -31,8 +31,12 @@ Das Backend ist in Java mit Spring Boot realisiert und nutzt eine **Package-by-F
 - **RCE-Schutz:** 
     - **Whitelist-Validierung:** Nur Abfragen, die mit `SELECT`, `WITH` oder `VALUES` beginnen, sind erlaubt.
     - **Keyword-Blocking:** Gefährliche administrative Befehle (`CREATE`, `DROP`, `ALTER`, `CALL`, etc.) werden vor der Ausführung blockiert.
-    - **Read-Only Modus:** Die Datenbankverbindung wird vor der Ausführung des studentischen Codes explizit auf `setReadOnly(true)` gesetzt.
-- **DoS-Schutz:** Ein Query-Timeout von 3 Sekunden verhindert Ressourcen-Erschöpfung durch komplexe Abfragen.
+    - **Eingeschränkter Nutzer:** Schema und Musterlösung laufen als Owner, die Schülerabfrage als eigener H2-Nutzer mit reinem `SELECT`-Recht; admin-pflichtige Funktionen wie `FILE_READ`, `CSVREAD` oder `LINK_SCHEMA` schlagen damit fehl. Zusätzlich ist die Verbindung read-only.
+- **DoS-Schutz:** Query-Timeout von 2 Sekunden und höchstens 1.000 Ergebniszeilen.
+
+### Lösungen bleiben auf dem Server
+- `TaskConfigFilter` liefert je Aufgabentyp nur die Felder aus, die der Browser zum Anzeigen braucht. Lösungen und Hinweise werden nie mitgeschickt; der Hinweis kommt erst über `POST /api/modules/{modul}/{aufgabe}/support`, das die Hilfestellung serverseitig vermerkt.
+- Details und offene Punkte: `docs/phase-0.md`.
 
 ### 2. Datenmodell & Migrationen
 - **Flyway:** Verwaltet versionierte SQL-Migrationen.

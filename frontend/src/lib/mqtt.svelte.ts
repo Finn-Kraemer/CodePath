@@ -40,8 +40,10 @@ class MqttStore {
         };
 
         this.client.connect({
-            userName: 'codepath',
-            password: 'codepath',
+            // Öffentlicher Nur-Lese-Zugang: darf Topics abonnieren, aber nichts veröffentlichen.
+            // Wird beim Start des RabbitMQ-Containers angelegt (siehe docker-compose.yml).
+            userName: 'codepath-viewer',
+            password: 'codepath-viewer',
             onSuccess: () => {
                 console.log('MQTT verbunden');
                 this.isConnected = true;

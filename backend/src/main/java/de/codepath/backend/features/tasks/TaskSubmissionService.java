@@ -6,8 +6,10 @@ import de.codepath.backend.features.tasks.events.PracticeSubmissionEvent;
 import de.codepath.backend.features.tasks.events.TaskCompletionEvent;
 import de.codepath.backend.features.tasks.messaging.SubmissionProducer;
 import de.codepath.backend.features.messaging.RealtimeUpdateService;
+import de.codepath.backend.common.GlobalExceptionHandler.AccessDeniedException;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
+import de.codepath.backend.users.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +33,25 @@ public class TaskSubmissionService {
     private final SubmissionProducer submissionProducer;
     private final RealtimeUpdateService realtimeUpdateService;
 
+    // Ab so vielen Fehlversuchen wird die Lösung angezeigt; danach gibt es keine Punkte mehr.
+    // Gilt nur für Auswahl- und Lückenaufgaben – bei Code, SQL und Terminal gehört Ausprobieren dazu.
+    private static final int SOLUTION_REVEAL_ATTEMPTS = 3;
+    private static final Set<TaskType> REVEALS_SOLUTION = EnumSet.of(
+            TaskType.MULTIPLE_CHOICE, TaskType.FILL_BLANK, TaskType.SORTING);
+    private static final int FIRST_TRY_BONUS = 5;
+    // Obergrenze pro Abgabe, damit unplausible Client-Werte die Statistik nicht verzerren
+    private static final long MAX_TIME_PER_SUBMISSION_SECONDS = 3600;
+
+    private static final int SQL_MAX_ROWS = 1000;
+    private static final int SQL_TIMEOUT_SECONDS = 2;
+    private static final Pattern SQL_FORBIDDEN = Pattern.compile(
+            "\\b(CREATE|DROP|ALTER|CALL|EXECUTE|GRANT|REVOKE|TRUNCATE|DELETE|UPDATE|INSERT|MERGE|RUNSCRIPT|SCRIPT|SET|SHUTDOWN|BACKUP|LINK_SCHEMA|FILE_READ|FILE_WRITE|CSVREAD|CSVWRITE)\\b",
+            Pattern.CASE_INSENSITIVE);
+
     @Transactional
     public SubmitResponse submitTask(String moduleSlug, String taskSlug, User user, SubmitRequest request) {
-        Module module = moduleRepository.findBySlug(moduleSlug)
-                .orElseThrow(() -> new RuntimeException("Module not found"));
-        
+        Module module = findAccessibleModule(moduleSlug, user);
+
         // Check Deadline
         if (module.getAvailableUntil() != null && module.getAvailableUntil().isBefore(LocalDateTime.now())) {
             return SubmitResponse.builder()
@@ -43,17 +60,8 @@ public class TaskSubmissionService {
                     .build();
         }
 
-        Task task = taskRepository.findByModuleIdAndSlug(module.getId(), taskSlug)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-
-        // Get or create progress
-        UserTaskCompletion progress = completionRepository.findByUser_IdAndTask_Id(user.getId(), task.getId())
-                .orElseGet(() -> {
-                    UserTaskCompletion c = new UserTaskCompletion();
-                    c.setUser(user);
-                    c.setTask(task);
-                    return c;
-                });
+        Task task = findTask(module, taskSlug);
+        UserTaskCompletion progress = findOrCreateProgress(user, task);
 
         if (progress.isLocked()) {
             return SubmitResponse.builder()
@@ -63,34 +71,40 @@ public class TaskSubmissionService {
                     .build();
         }
 
-        // Update time spent locally for calculation, but don't save yet if using MQ
+        // Bearbeitungszeit dient nur noch der Statistik und beeinflusst keine Punkte mehr
         if (request.getTimeSpentSeconds() != null) {
-            progress.setTimeSpentSeconds(progress.getTimeSpentSeconds() + request.getTimeSpentSeconds());
+            long seconds = Math.clamp(request.getTimeSpentSeconds(), 0L, MAX_TIME_PER_SUBMISSION_SECONDS);
+            progress.setTimeSpentSeconds(progress.getTimeSpentSeconds() + seconds);
         }
 
+        // Ob Hilfe genutzt wurde, weiß nur der Server (siehe requestSupport) – der Client-Wert wird ignoriert
+        boolean supportUsed = progress.isSupportUsed();
         boolean isCorrect = validatePayload(task, request.getPayload());
 
         if (isCorrect) {
             if (task.getType() == TaskType.PRACTICE) {
-                return handlePracticeSubmission(task, user, request.getPayload(), request.isSupportUsed());
+                return handlePracticeSubmission(task, user, request.getPayload(), supportUsed);
             } else {
                 if (!progress.isCompleted()) {
                     // ASYNCHRONOUS COMPLETION
-                    int awardedPoints = calculatePoints(task, progress, request.isSupportUsed());
+                    int awardedPoints = calculatePoints(task, progress, supportUsed);
                     
                     submissionProducer.sendTaskCompletion(TaskCompletionEvent.builder()
                             .userId(user.getId())
                             .taskId(task.getId())
                             .pointsAwarded(awardedPoints)
-                            .supportUsed(request.isSupportUsed())
+                            .supportUsed(supportUsed)
                             .timeSpentSeconds(progress.getTimeSpentSeconds())
                             .build());
 
+                    String feedback = awardedPoints > 0
+                            ? "Super! Das war richtig. (Punkte werden im Hintergrund verarbeitet)"
+                            : "Richtig! Da die Lösung bereits angezeigt wurde, gibt es für diese Aufgabe keine Punkte.";
                     return SubmitResponse.builder()
                             .isCorrect(true)
                             .pointsAwarded(awardedPoints)
                             .failedAttempts(progress.getFailedAttempts())
-                            .feedback("Super! Das war richtig. (Punkte werden im Hintergrund verarbeitet)")
+                            .feedback(feedback)
                             .build();
                 } else {
                     return SubmitResponse.builder()
@@ -115,14 +129,18 @@ public class TaskSubmissionService {
             completionRepository.save(progress);
         }
 
+        // Der Hinweis kostet Punkte und wird deshalb nur nach einer angeforderten Hilfestellung mitgeschickt
+        String feedback = supportUsed
+                ? "Leider falsch. Tipp: " + TaskConfigFilter.hint(task).orElse("Probiere es noch einmal!")
+                : "Leider falsch. Probiere es noch einmal!";
         SubmitResponse.SubmitResponseBuilder responseBuilder = SubmitResponse.builder()
                 .isCorrect(false)
                 .isLocked(progress.isLocked())
                 .pointsAwarded(0)
                 .failedAttempts(progress.getFailedAttempts())
-                .feedback("Leider falsch. Tipp: " + task.getConfig().getOrDefault("hint", "Probiere es noch einmal!"));
+                .feedback(feedback);
 
-        if (progress.getFailedAttempts() >= 3) {
+        if (isSolutionRevealed(task, progress)) {
             responseBuilder.correctSolution(getSolution(task));
             if (progress.isLocked()) {
                 responseBuilder.feedback("Drei Fehlversuche. Diese Aufgabe wurde gesperrt.");
@@ -132,20 +150,64 @@ public class TaskSubmissionService {
         return responseBuilder.build();
     }
 
-    private int calculatePoints(Task task, UserTaskCompletion progress, boolean supportUsed) {
-        int points = task.getPoints();
-        
-        // Bonus for time (if < 60s and MCQ/Fill)
-        if (progress.getTimeSpentSeconds() < 60 && progress.getFailedAttempts() == 0) {
-            points += 5; // Fixed bonus for speed
-        }
-        
-        // Deduction for solution (if failed 3+ times)
-        if (progress.getFailedAttempts() >= 3) {
-            points = Math.max(1, points / 2);
+    /**
+     * Fordert die Hilfestellung an. Der Server merkt sich das und zieht beim Lösen die Hälfte der Punkte ab.
+     */
+    @Transactional
+    public SupportResponse requestSupport(String moduleSlug, String taskSlug, User user) {
+        Module module = findAccessibleModule(moduleSlug, user);
+        Task task = findTask(module, taskSlug);
+        UserTaskCompletion progress = findOrCreateProgress(user, task);
+
+        if (!progress.isCompleted() && !progress.isLocked() && !progress.isSupportUsed()) {
+            progress.setSupportUsed(true);
+            completionRepository.save(progress);
         }
 
-        // Additional deduction if support/help was used
+        return new SupportResponse(TaskConfigFilter.hint(task).orElse(null), progress.isSupportUsed());
+    }
+
+    private Module findAccessibleModule(String moduleSlug, User user) {
+        Module module = moduleRepository.findBySlug(moduleSlug)
+                .orElseThrow(() -> new RuntimeException("Module not found"));
+        if (user.getRole() != UserRole.ADMIN && !Boolean.TRUE.equals(module.getIsUnlocked())) {
+            throw new AccessDeniedException("Dieses Modul ist aktuell gesperrt.");
+        }
+        return module;
+    }
+
+    private Task findTask(Module module, String taskSlug) {
+        return taskRepository.findByModuleIdAndSlug(module.getId(), taskSlug)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+    }
+
+    private UserTaskCompletion findOrCreateProgress(User user, Task task) {
+        return completionRepository.findByUser_IdAndTask_Id(user.getId(), task.getId())
+                .orElseGet(() -> {
+                    UserTaskCompletion c = new UserTaskCompletion();
+                    c.setUser(user);
+                    c.setTask(task);
+                    return c;
+                });
+    }
+
+    private static boolean isSolutionRevealed(Task task, UserTaskCompletion progress) {
+        return REVEALS_SOLUTION.contains(task.getType()) && progress.getFailedAttempts() >= SOLUTION_REVEAL_ATTEMPTS;
+    }
+
+    private int calculatePoints(Task task, UserTaskCompletion progress, boolean supportUsed) {
+        // Wer die Lösung schon gesehen hat, soll sie nicht für Punkte abschreiben können
+        if (isSolutionRevealed(task, progress)) {
+            return 0;
+        }
+
+        int points = task.getPoints();
+
+        // Bonus nur für Lösen ohne Fehlversuch und ohne Hilfe (früher: Zeitbonus, der sich fälschen ließ)
+        if (progress.getFailedAttempts() == 0 && !supportUsed) {
+            points += FIRST_TRY_BONUS;
+        }
+
         if (supportUsed) {
             points = Math.max(1, points / 2);
         }
@@ -157,7 +219,7 @@ public class TaskSubmissionService {
         return switch (task.getType()) {
             case MULTIPLE_CHOICE -> "Korrekte Antworten: " + task.getConfig().get("correct");
             case FILL_BLANK -> "Lösung: " + ((List<?>) task.getConfig().get("blanks")).stream()
-                    .map(b -> ((Map<?, ?>) b).get("answer").toString())
+                    .map(TaskSubmissionService::blankAnswer)
                     .reduce((a, b) -> a + ", " + b).orElse("");
             case FILL_CODE, CODE -> "Erwartete Ausgabe: " + task.getConfig().get("expectedOutput");
             case SORTING -> "Richtige Reihenfolge: " + task.getConfig().get("correctOrder");
@@ -201,14 +263,16 @@ public class TaskSubmissionService {
         if (answers == null || blanks == null || answers.size() != blanks.size()) return false;
 
         for (int i = 0; i < blanks.size(); i++) {
-            Map<?, ?> blankConfig = (Map<?, ?>) blanks.get(i);
-            String expected = (String) blankConfig.get("answer");
-            Object caseSensitiveObj = blankConfig.get("caseSensitive");
-            boolean caseSensitive = caseSensitiveObj instanceof Boolean && (Boolean) caseSensitiveObj;
+            // Lücken sind entweder ein String (die Antwort) oder ein Objekt mit answer und caseSensitive
+            Object blank = blanks.get(i);
+            String expected = blankAnswer(blank);
+            boolean caseSensitive = blank instanceof Map<?, ?> blankConfig
+                    && Boolean.TRUE.equals(blankConfig.get("caseSensitive"));
             
-            String actual = answers.get(i) != null ? answers.get(i).toString() : "";
+            String actual = answers.get(i) != null ? answers.get(i).toString().trim() : "";
             
             if (expected == null) return false;
+            expected = expected.trim();
             
             if (caseSensitive) {
                 if (!expected.equals(actual)) return false;
@@ -217,6 +281,13 @@ public class TaskSubmissionService {
             }
         }
         return true;
+    }
+
+    private static String blankAnswer(Object blank) {
+        if (blank instanceof Map<?, ?> blankConfig) {
+            return blankConfig.get("answer") != null ? blankConfig.get("answer").toString() : null;
+        }
+        return blank != null ? blank.toString() : null;
     }
 
     private boolean validateCode(Task task, Map<String, Object> payload) {
@@ -241,57 +312,67 @@ public class TaskSubmissionService {
 
         if (studentQuery == null || solutionSql == null) return false;
 
-        // SECURITY: Whitelist check for student query
-        // Only allow SELECT, WITH, and basic query operations. Block everything else (CREATE, DROP, ALTER, CALL, etc.)
-        String sanitizedQuery = studentQuery.trim().toUpperCase();
-        if (!sanitizedQuery.startsWith("SELECT") && !sanitizedQuery.startsWith("WITH") && !sanitizedQuery.startsWith("VALUES")) {
-            log.warn("Blocked potentially dangerous SQL query: {}", studentQuery);
+        // Vorprüfung: nur eine einzelne lesende Abfrage. Die eigentliche Absicherung ist der
+        // eingeschränkte Datenbanknutzer weiter unten; die Prüfung hier liefert nur früh ein klares Nein.
+        String sanitizedQuery = stripTrailingSemicolon(studentQuery.trim());
+        String upperQuery = sanitizedQuery.toUpperCase(Locale.ROOT);
+        if (!upperQuery.startsWith("SELECT") && !upperQuery.startsWith("WITH") && !upperQuery.startsWith("VALUES")) {
+            log.warn("Blocked non-query SQL: {}", studentQuery);
             return false;
         }
-        
-        // Block dangerous keywords anywhere in the query (simple protection)
-        String[] forbidden = {"CREATE", "DROP", "ALTER", "CALL", "EXECUTE", "GRANT", "REVOKE", "TRUNCATE", "DELETE", "UPDATE", "INSERT", ";"};
-        for (String word : forbidden) {
-            if (sanitizedQuery.contains(word) && !sanitizedQuery.contains("'" + word + "'")) {
-                // Special check to avoid blocking keywords inside strings (imperfect but better than nothing)
-                // For a robust solution, a real SQL parser would be needed.
-                log.warn("Blocked SQL query containing forbidden keyword '{}': {}", word, studentQuery);
-                return false;
-            }
+        if (sanitizedQuery.contains(";") || SQL_FORBIDDEN.matcher(withoutStringLiterals(sanitizedQuery)).find()) {
+            log.warn("Blocked SQL query with forbidden statement or function: {}", studentQuery);
+            return false;
         }
 
-        // Use H2 in-memory for validation with security restrictions
-        String url = "jdbc:h2:mem:sql_val_" + UUID.randomUUID() + ";MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE";
-        
-        try (Connection conn = DriverManager.getConnection(url, "sa", "")) {
-            // 1. Setup Schema (while connection is in read-write mode)
-            if (schemaSql != null && !schemaSql.isBlank()) {
-                try (Statement stmt = conn.createStatement()) {
+        // Eigene In-Memory-Datenbank je Abgabe. Schema und Musterlösung laufen als Owner, die Schülerabfrage
+        // als Nutzer, der nur lesen darf – FILE_READ, LINK_SCHEMA, CSVREAD usw. brauchen Admin-Rechte.
+        String dbName = "sql_val_" + UUID.randomUUID().toString().replace("-", "");
+        String url = "jdbc:h2:mem:" + dbName + ";MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE";
+        String ownerPassword = UUID.randomUUID().toString();
+        String studentPassword = UUID.randomUUID().toString();
+
+        try (Connection owner = DriverManager.getConnection(url, "owner", ownerPassword)) {
+            List<Map<String, Object>> expectedResults;
+            try (Statement stmt = owner.createStatement()) {
+                if (schemaSql != null && !schemaSql.isBlank()) {
                     stmt.execute(schemaSql);
                 }
-            }
-
-            // 2. Execute Solution to get expected results
-            List<Map<String, Object>> expectedResults;
-            try (Statement stmt = conn.createStatement()) {
                 expectedResults = executeAndMap(stmt, solutionSql);
+                stmt.execute("CREATE USER student PASSWORD '" + studentPassword + "'");
+                stmt.execute("GRANT SELECT ON SCHEMA PUBLIC TO student");
             }
-            
-            // 3. SECURE: Set connection to read-only before executing student query
-            conn.setReadOnly(true);
-            
-            // 4. Execute Student Query with timeout to prevent DoS
-            try (Statement stmt = conn.createStatement()) {
-                stmt.setQueryTimeout(3); // 3 seconds limit
-                List<Map<String, Object>> studentResults = executeAndMap(stmt, studentQuery);
 
-                // 5. Compare results
+            try (Connection student = DriverManager.getConnection(url, "student", studentPassword);
+                 Statement stmt = student.createStatement()) {
+                student.setReadOnly(true);
+                stmt.setQueryTimeout(SQL_TIMEOUT_SECONDS);
+                // Eine Zeile mehr als erlaubt holen, um übergroße Ergebnisse zu erkennen
+                stmt.setMaxRows(SQL_MAX_ROWS + 1);
+                List<Map<String, Object>> studentResults = executeAndMap(stmt, sanitizedQuery);
+                if (studentResults.size() > SQL_MAX_ROWS) {
+                    log.warn("SQL result exceeds {} rows", SQL_MAX_ROWS);
+                    return false;
+                }
                 return Objects.equals(expectedResults, studentResults);
             }
+            // Die Datenbank verschwindet, sobald die letzte Verbindung geschlossen ist
         } catch (SQLException e) {
             log.warn("SQL Validation failed or blocked by security: {}", e.getMessage());
             return false;
         }
+    }
+
+    private static String stripTrailingSemicolon(String sql) {
+        String result = sql;
+        while (result.endsWith(";")) {
+            result = result.substring(0, result.length() - 1).trim();
+        }
+        return result;
+    }
+
+    private static String withoutStringLiterals(String sql) {
+        return sql.replaceAll("'([^']|'')*'", "''");
     }
 
     private List<Map<String, Object>> executeAndMap(Statement stmt, String sql) throws SQLException {

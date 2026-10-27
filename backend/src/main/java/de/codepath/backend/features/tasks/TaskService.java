@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,6 +58,8 @@ public class TaskService {
 
         UserTaskCompletion completion = completionRepository.findByUser_IdAndTask_Id(user.getId(), t.getId())
                 .orElse(null);
+        boolean supportUsed = completion != null && completion.isSupportUsed();
+        boolean hintVisible = supportUsed || (completion != null && (completion.isCompleted() || completion.isLocked()));
 
         return TaskResponse.builder()
                 .id(t.getId())
@@ -67,10 +70,11 @@ public class TaskService {
                 .type(t.getType().name())
                 .difficulty(t.getDifficulty().name())
                 .points(t.getPoints())
-                .config(t.getConfig())
+                .config(TaskConfigFilter.publicConfig(t, Objects.hash(user.getId(), t.getId())))
+                .hint(hintVisible ? TaskConfigFilter.hint(t).orElse(null) : null)
                 .isCompleted(completion != null && completion.isCompleted())
                 .isLocked(completion != null && completion.isLocked())
-                .supportUsed(completion != null && completion.isSupportUsed())
+                .supportUsed(supportUsed)
                 .submissionStatus(submissionStatus)
                 .submissionContent(submissionContent)
                 .adminComment(adminComment)

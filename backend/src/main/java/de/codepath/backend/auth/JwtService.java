@@ -3,6 +3,7 @@ package de.codepath.backend.auth;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,17 +15,34 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret:change-me-in-production-min-32-chars!!}")
+    // Früher als Standardwerte im Repo hinterlegt und damit öffentlich bekannt
+    private static final Set<String> KNOWN_INSECURE_SECRETS = Set.of(
+            "change-me-in-production-min-32-chars!!",
+            "dev-secret-min-32-characters-here"
+    );
+
+    @Value("${jwt.secret:}")
     private String secret;
 
     @Value("${jwt.expiration:86400000}")
     private long jwtExpiration;
+
+    @PostConstruct
+    void validateSecret() {
+        if (secret == null || secret.length() < 32) {
+            throw new IllegalStateException("JWT_SECRET muss gesetzt sein und mindestens 32 Zeichen lang sein (z. B. openssl rand -base64 48).");
+        }
+        if (KNOWN_INSECURE_SECRETS.contains(secret)) {
+            throw new IllegalStateException("JWT_SECRET verwendet einen öffentlich bekannten Standardwert. Bitte ein eigenes Secret setzen.");
+        }
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

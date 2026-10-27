@@ -21,6 +21,8 @@ public class TaskResponse {
     private String difficulty;
     private int points;
     private Map<String, Object> config;
+    // Nur gesetzt, wenn die Hilfestellung serverseitig angefordert wurde oder die Aufgabe abgeschlossen ist
+    private String hint;
     
     @JsonProperty("isCompleted")
     private boolean isCompleted;
