@@ -20,6 +20,262 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/content': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['overview'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/export': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['export'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/import': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['importZip'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/import-bundled': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['importBundled'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/modules': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['createModule'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/modules/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['updateModule'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/modules/{id}/tasks': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['createTask'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['task_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}/archived': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['archive'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}/check': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['check'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}/draft': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['saveDraft'];
+		post?: never;
+		delete: operations['discardDraft'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}/preview': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['preview'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}/preview/evaluate': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['evaluate'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}/preview/solution': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['solution'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}/publish': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['publish'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}/versions/{versionId}/restore': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['restore'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/courses': {
 		parameters: {
 			query?: never;
@@ -829,6 +1085,11 @@ export interface components {
 			role: string;
 			username: string;
 		};
+		CheckResult: {
+			dryRun: components['schemas']['DryRun'];
+			problems: string[];
+			valid: boolean;
+		};
 		CourseSummary: {
 			/** Format: date */
 			endsOn: string;
@@ -851,11 +1112,36 @@ export interface components {
 			endsOn?: string;
 			name: string;
 		};
+		CreateTaskRequest: {
+			slug?: string;
+			title?: string;
+			/** @enum {string} */
+			type?:
+				| 'MULTIPLE_CHOICE'
+				| 'FILL_BLANK'
+				| 'FILL_CODE'
+				| 'CODE'
+				| 'SORTING'
+				| 'SQL'
+				| 'TERMINAL'
+				| 'PRACTICE'
+				| 'MATCHING'
+				| 'PARSONS'
+				| 'NUMBER_CONVERT'
+				| 'HOTSPOT';
+		};
 		Criterion: {
 			id: string;
 			label: string;
 			/** Format: int32 */
 			points: number;
+		};
+		DryRun: {
+			passed: boolean;
+			sampleFeedback: string;
+			sampleOutcome: string;
+			wrongFeedback: string;
+			wrongOutcome: string;
 		};
 		GeneratedAccount: {
 			password: string;
@@ -867,6 +1153,17 @@ export interface components {
 			hintsTotal: number;
 			/** Format: int32 */
 			penaltyPercent: number;
+		};
+		ImportReport: {
+			errors: string[];
+			/** Format: int32 */
+			modulesCreated: number;
+			/** Format: int32 */
+			tasksCreated: number;
+			/** Format: int32 */
+			unchanged: number;
+			/** Format: int32 */
+			versionsPublished: number;
 		};
 		Leaderboard: {
 			entries: components['schemas']['LeaderboardEntry'][];
@@ -885,6 +1182,14 @@ export interface components {
 			module: components['schemas']['ModuleSummary'];
 			tasks: components['schemas']['TaskSummary'][];
 		};
+		ModuleFile: {
+			description: string;
+			icon: string;
+			slug: string;
+			/** Format: int32 */
+			sortOrder: number;
+			title: string;
+		};
 		ModuleReleaseView: {
 			/** Format: date-time */
 			availableUntil: string;
@@ -899,6 +1204,12 @@ export interface components {
 			/** Format: int32 */
 			taskCount: number;
 			title: string;
+		};
+		ModuleRow: {
+			/** Format: int64 */
+			id: number;
+			module: components['schemas']['ModuleFile'];
+			tasks: components['schemas']['TaskRow'][];
 		};
 		ModuleSummary: {
 			/** Format: date-time */
@@ -1083,6 +1394,96 @@ export interface components {
 			/** Format: int32 */
 			version: number;
 		};
+		TaskEditorView: {
+			archived: boolean;
+			/** Format: int32 */
+			currentVersion: number;
+			draft: components['schemas']['TaskFile'];
+			/** Format: int64 */
+			moduleId: number;
+			moduleSlug: string;
+			published: components['schemas']['TaskFile'];
+			/** Format: int64 */
+			taskId: number;
+			/** @enum {string} */
+			type:
+				| 'MULTIPLE_CHOICE'
+				| 'FILL_BLANK'
+				| 'FILL_CODE'
+				| 'CODE'
+				| 'SORTING'
+				| 'SQL'
+				| 'TERMINAL'
+				| 'PRACTICE'
+				| 'MATCHING'
+				| 'PARSONS'
+				| 'NUMBER_CONVERT'
+				| 'HOTSPOT';
+			versions: components['schemas']['VersionRow'][];
+		};
+		TaskFile: {
+			assignment: string;
+			config: {
+				[key: string]: unknown;
+			};
+			/** @enum {string} */
+			difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+			explanation: string;
+			hints: string[];
+			learningGoal: string;
+			/** Format: int32 */
+			points: number;
+			rules: {
+				[key: string]: unknown;
+			};
+			slug: string;
+			/** Format: int32 */
+			sortOrder: number;
+			story: string;
+			title: string;
+			/** @enum {string} */
+			type:
+				| 'MULTIPLE_CHOICE'
+				| 'FILL_BLANK'
+				| 'FILL_CODE'
+				| 'CODE'
+				| 'SORTING'
+				| 'SQL'
+				| 'TERMINAL'
+				| 'PRACTICE'
+				| 'MATCHING'
+				| 'PARSONS'
+				| 'NUMBER_CONVERT'
+				| 'HOTSPOT';
+		};
+		TaskRow: {
+			archived: boolean;
+			/** Format: int32 */
+			currentVersion: number;
+			hasDraft: boolean;
+			/** Format: int64 */
+			id: number;
+			/** Format: int32 */
+			points: number;
+			slug: string;
+			/** Format: int32 */
+			sortOrder: number;
+			title: string;
+			/** @enum {string} */
+			type:
+				| 'MULTIPLE_CHOICE'
+				| 'FILL_BLANK'
+				| 'FILL_CODE'
+				| 'CODE'
+				| 'SORTING'
+				| 'SQL'
+				| 'TERMINAL'
+				| 'PRACTICE'
+				| 'MATCHING'
+				| 'PARSONS'
+				| 'NUMBER_CONVERT'
+				| 'HOTSPOT';
+		};
 		TaskStatistic: {
 			/** Format: int64 */
 			attempts: number;
@@ -1115,6 +1516,19 @@ export interface components {
 			title: string;
 			type: string;
 		};
+		VersionRow: {
+			/** Format: int64 */
+			createdBy: number;
+			/** Format: int64 */
+			id: number;
+			/** Format: int32 */
+			points: number;
+			/** Format: date-time */
+			publishedAt: string;
+			title: string;
+			/** Format: int32 */
+			version: number;
+		};
 	};
 	responses: never;
 	parameters: never;
@@ -1145,6 +1559,404 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content?: never;
+			};
+		};
+	};
+	overview: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ModuleRow'][];
+				};
+			};
+		};
+	};
+	export: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	importZip: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: {
+			content: {
+				'multipart/form-data': {
+					/** Format: binary */
+					file: string;
+				};
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ImportReport'];
+				};
+			};
+		};
+	};
+	importBundled: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ImportReport'];
+				};
+			};
+		};
+	};
+	createModule: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ModuleFile'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ModuleRow'];
+				};
+			};
+		};
+	};
+	updateModule: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ModuleFile'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ModuleRow'];
+				};
+			};
+		};
+	};
+	createTask: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['CreateTaskRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskEditorView'];
+				};
+			};
+		};
+	};
+	task_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskEditorView'];
+				};
+			};
+		};
+	};
+	archive: {
+		parameters: {
+			query: {
+				value: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskEditorView'];
+				};
+			};
+		};
+	};
+	check: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['CheckResult'];
+				};
+			};
+		};
+	};
+	saveDraft: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['TaskFile'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskEditorView'];
+				};
+			};
+		};
+	};
+	discardDraft: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskEditorView'];
+				};
+			};
+		};
+	};
+	preview: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskDetail'];
+				};
+			};
+		};
+	};
+	evaluate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': {
+					[key: string]: unknown;
+				};
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['SubmitResult'];
+				};
+			};
+		};
+	};
+	solution: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': {
+						[key: string]: unknown;
+					};
+				};
+			};
+		};
+	};
+	publish: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskEditorView'];
+				};
+			};
+		};
+	};
+	restore: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+				versionId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskEditorView'];
+				};
 			};
 		};
 	};

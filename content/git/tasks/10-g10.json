@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 10,
-  "learningGoal": "",
+  "learningGoal": "Du kannst lokales und entferntes Repository unterscheiden.",
   "story": "Du hast lokal Commits gemacht. Dein Teamkollege auf der anderen Seite der Stadt soll deinen Code sehen und damit weiterarbeiten können.",
   "assignment": "Was ist der Unterschied zwischen lokalem Repository und Remote Repository (GitHub)?",
   "hints": [

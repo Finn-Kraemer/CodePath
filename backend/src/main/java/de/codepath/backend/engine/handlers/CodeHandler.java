@@ -75,4 +75,14 @@ public class CodeHandler implements TaskHandler {
     public Map<String, Object> wrongAnswer(TaskSpec spec, TaskContext context) {
         return Map.of("code", "print('falsch')");
     }
+
+    @Override
+    public Map<String, Object> template() {
+        return Map.of(
+                "starterCode", "zahl = int(input())\n# Gib das Doppelte aus\n",
+                "solution", "zahl = int(input())\nprint(zahl * 2)\n",
+                "tests", List.of(
+                        Map.of("stdin", "21", "expectedOutput", "42", "hidden", false),
+                        Map.of("stdin", "5", "expectedOutput", "10")));
+    }
 }

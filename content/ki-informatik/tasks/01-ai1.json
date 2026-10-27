@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 1,
-  "learningGoal": "",
+  "learningGoal": "Du kannst lernende Systeme von fest programmierten Regeln unterscheiden.",
   "story": "Überall hört man von KI – aber was ist eigentlich der Unterschied zwischen einem normalen Programm und echter Künstlicher Intelligenz?",
   "assignment": "Welches der folgenden Beispiele ist echte KI – und welches nicht?",
   "hints": [

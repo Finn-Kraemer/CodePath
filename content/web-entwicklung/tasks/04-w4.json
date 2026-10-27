@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 15,
   "sortOrder": 4,
-  "learningGoal": "",
+  "learningGoal": "Du kannst das Grundgerüst einer HTML-Seite mit passenden Tags aufbauen.",
   "story": "Dein Chef bittet dich, eine einfache HTML-Visitenkarte zu bauen. Die Grundstruktur ist da – aber welche Tags fehlen?",
   "assignment": "Ergänze die fehlenden HTML-Tags.",
   "hints": [

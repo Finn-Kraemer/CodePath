@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 8,
-  "learningGoal": "",
+  "learningGoal": "Du kannst eine Verzweigung mit if, elif und else schreiben.",
   "story": "Das Schulsystem braucht eine Funktion die Punkte in Notentexte umwandelt. Ergänze die fehlenden Vergleichsoperatoren und Schlüsselwörter:",
   "assignment": "Ergänze die Lücken in der if-elif-else-Kette.",
   "hints": [

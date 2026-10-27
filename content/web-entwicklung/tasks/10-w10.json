@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 10,
-  "learningGoal": "",
+  "learningGoal": "Du kannst JSON in Python einlesen und auf Werte zugreifen.",
   "story": "Deine Web-App bekommt Daten von einer API als JSON-Text zurück. JSON ist das meistgenutzte Datenformat im Web:",
   "assignment": "Ergänze die beiden Lücken damit der Name ausgegeben wird.",
   "hints": [

@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 6,
-  "learningGoal": "",
+  "learningGoal": "Du kannst boolesche Ausdrücke mit and, or und not auswerten.",
   "story": "Du baust das Zutrittssystem für einen Club. Zutritt gibt es nur wenn jemand volljährig IST und einen gültigen Ausweis HAT:\n\n```\nvolljährig = True\nhat_ausweis = False\n\nzutritt = volljährig and hat_ausweis\nprint(zutritt)\n```",
   "assignment": "Was gibt `print(zutritt)` aus – und warum?",
   "hints": [

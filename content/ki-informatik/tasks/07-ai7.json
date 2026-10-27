@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 7,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen präzisen Prompt mit Kontext und Ziel formulieren.",
   "story": "KI-Assistenten sind mächtig – aber nur wenn man sie richtig anspricht. Welcher dieser Prompts liefert die beste Hilfe?",
   "assignment": "Welcher Prompt wird die hilfreichste Antwort von einer KI erhalten?",
   "hints": [

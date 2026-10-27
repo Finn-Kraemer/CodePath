@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 8,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Datensätze in Python mit einer Bedingung filtern.",
   "story": "Bevor man echte Datenbanken nutzt, versteht man sie besser wenn man sie in Python nachbaut. Hier sind Schülerdaten als Liste von Dictionaries:",
   "assignment": "Vervollständige die Schleife die Schüler mit über 100 Punkten filtert.",
   "hints": [

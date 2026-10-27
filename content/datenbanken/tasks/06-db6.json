@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 6,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Daten mit UPDATE und DELETE gezielt ändern und löschen.",
   "story": "Eine Schülerin hat geheiratet und ihren Namen geändert. Eine Klasse verlässt die Schule. Ergänze die SQL-Befehle:",
   "assignment": "Ergänze die SQL-Befehle.",
   "hints": [

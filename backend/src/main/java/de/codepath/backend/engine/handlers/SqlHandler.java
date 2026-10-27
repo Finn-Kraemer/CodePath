@@ -114,4 +114,13 @@ public class SqlHandler implements TaskHandler {
     public Map<String, Object> wrongAnswer(TaskSpec spec, TaskContext context) {
         return Map.of("query", "SELECT 1 AS falsch");
     }
+
+    @Override
+    public Map<String, Object> template() {
+        return Map.of(
+                "schemaSql", "CREATE TABLE schueler (id INT, name VARCHAR(50), klasse VARCHAR(5));\nINSERT INTO schueler VALUES (1, 'Ana', '8a'), (2, 'Ben', '8b');",
+                "solutionSql", "SELECT name FROM schueler WHERE klasse = '8a'",
+                "starterSql", "SELECT ",
+                "orderMatters", false);
+    }
 }

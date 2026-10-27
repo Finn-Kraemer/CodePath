@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 5,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, wie ein JOIN Tabellen über Schlüssel verbindet.",
   "story": "Du hast zwei Tabellen: `nutzer` (id, name, email) und `bestellungen` (id, nutzer_id, betrag). Du willst den Namen und den Betrag zusammen sehen.",
   "assignment": "Wie verknüpfst du Daten aus zwei verschiedenen Tabellen?",
   "hints": [

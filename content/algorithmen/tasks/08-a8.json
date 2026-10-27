@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 8,
-  "learningGoal": "",
+  "learningGoal": "Du kannst eine Queue nach dem FIFO-Prinzip mit deque umsetzen.",
   "story": "Der Drucker in der Schule druckt Aufträge in der Reihenfolge wie sie ankommen. Wer zuerst druckt bekommt sein Dokument zuerst – das ist eine Queue (Warteschlange).",
   "assignment": "Ergänze die Queue-Simulation mit `collections.deque`.",
   "hints": [

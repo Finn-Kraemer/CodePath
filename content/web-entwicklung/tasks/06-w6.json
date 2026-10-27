@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 6,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Wirkung einfacher CSS-Regeln vorhersagen.",
   "story": "Dein Kollege hat CSS zur Webseite hinzugefügt:\n\n```\np {\n  color: red;\n  font-size: 24px;\n  text-align: center;\n}\n```\n\nDie Seite hat 5 Absätze (`<p>`). Was passiert?",
   "assignment": "Was bewirkt dieser CSS-Code?",
   "hints": [

@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 15,
   "sortOrder": 9,
-  "learningGoal": "",
+  "learningGoal": "Du kannst das Round-Robin-Verfahren zur Lastverteilung umsetzen.",
   "story": "Wenn eine Woche nach App-Launch 100.000 Nutzer gleichzeitig deine App nutzen, bricht ein Server zusammen. Ein Load Balancer verteilt die Last auf mehrere Server:",
   "assignment": "Ergänze den Round-Robin-Algorithmus der Anfragen gleichmäßig auf Server verteilt.",
   "hints": [

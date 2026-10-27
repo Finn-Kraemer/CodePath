@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 13,
-  "learningGoal": "",
+  "learningGoal": "Du kannst ein KI-System von den Daten bis zur Bewertung planen.",
   "story": "Du bist Gründer eines KI-Startups! Investors Day: Du hast 3 Minuten um deine Idee zu pitchen. Entwirf ein KI-System für ein Problem das dir wichtig ist.",
   "assignment": "Entwirf ein vollständiges KI-System für ein echtes Problem.",
   "hints": [],

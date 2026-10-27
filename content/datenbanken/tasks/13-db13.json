@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 13,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Beziehungen (1:n, n:m) in einem Datenmodell abbilden.",
   "story": "Du baust das Backend von Mini-Instagram. Nutzer sollen Posts teilen, anderen folgen und Likes geben können.",
   "assignment": "Entwirf das komplette Datenbankmodell für eine Social-Media-App.",
   "hints": [],

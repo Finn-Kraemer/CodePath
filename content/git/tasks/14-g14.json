@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 14,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen vollständigen Git-Workflow für eine Teamaufgabe beschreiben.",
   "story": "Dein Team entwickelt eine Schul-App auf GitHub. Du bist verantwortlich für den Login-Bereich. Dokumentiere den vollständigen Workflow von Anfang bis zum fertigen Feature auf GitHub.",
   "assignment": "Beschreibe den kompletten Git-Workflow für dein Feature.",
   "hints": [],

@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 5,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, wann UDP besser passt als TCP.",
   "story": "TCP bestätigt jedes Paket und schickt es bei Verlust neu. UDP schickt einfach los ohne Bestätigung. Welches nutzen Video-Calls wie Zoom – und warum?",
   "assignment": "Warum nutzen Video-Calls oft UDP statt TCP?",
   "hints": [

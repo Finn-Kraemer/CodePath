@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 8,
-  "learningGoal": "",
+  "learningGoal": "Du kannst aus einer Subnetzmaske die Zahl nutzbarer Adressen ableiten.",
   "story": "Die `/24` Notation bedeutet: die ersten 24 der 32 Bits einer IP-Adresse sind für das Netzwerk reserviert. Die restlichen Bits stehen für Geräte zur Verfügung.",
   "assignment": "Das Schulnetzwerk hat die Adresse `192.168.1.0/24`. Wie viele Geräte können maximal angeschlossen werden?",
   "hints": [

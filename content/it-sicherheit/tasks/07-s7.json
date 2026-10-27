@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 20,
   "sortOrder": 7,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Regeln für sichere Passwörter in einem Programm prüfen.",
   "story": "Du baust ein Tool für die Schulwebseite das prüft ob Passwörter sicher genug sind.",
   "assignment": "Schreibe die Funktion `passwort_check(pw)` die ein Passwort bewertet.",
   "hints": [

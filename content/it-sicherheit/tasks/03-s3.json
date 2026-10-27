@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 3,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, warum Passwörter gehasht und nicht verschlüsselt gespeichert werden.",
   "story": "Zwei Entwickler streiten sich:\n\n- Anna speichert Passwörter als **Hash** (z.B. SHA-256)\n- Ben speichert sie **verschlüsselt** mit einem geheimen Schlüssel\n\nWer hat recht?",
   "assignment": "Welche Methode ist für die Speicherung von Passwörtern besser – und warum?",
   "hints": [

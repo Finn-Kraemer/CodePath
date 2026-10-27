@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 2,
-  "learningGoal": "",
+  "learningGoal": "Du kannst beschreiben, was ein Git-Repository enthält.",
   "story": "Dein Lehrer spricht von einem 'Repo'. Alle anderen nicken – aber du fragst dich: Was ist das eigentlich?",
   "assignment": "Was ist ein Git-Repository?",
   "hints": [

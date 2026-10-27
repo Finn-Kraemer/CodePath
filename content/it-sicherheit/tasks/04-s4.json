@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 15,
   "sortOrder": 4,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, wie Zwei-Faktor-Authentifizierung zusätzlich schützt.",
   "story": "Deine Schul-E-Mail bietet 2FA an. Viele Schüler fragen: \\\"Warum brauche ich das, ich habe doch schon ein Passwort?\" Erkläre es!",
   "assignment": "Ergänze die Erklärung von 2FA.",
   "hints": [

@@ -77,4 +77,12 @@ public class FillCodeHandler implements TaskHandler {
     public Map<String, Object> wrongAnswer(TaskSpec spec, TaskContext context) {
         return Map.of("answers", Cfg.objects(spec.config(), "blanks").stream().map(b -> "xx_falsch").toList());
     }
+
+    @Override
+    public Map<String, Object> template() {
+        return Map.of(
+                "template", "for i in ___(3):\n    print(i)",
+                "blanks", List.of(Map.of("answers", List.of("range"), "caseSensitive", true)),
+                "tests", List.of(Map.of("expectedOutput", "0\n1\n2\n")));
+    }
 }

@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 2,
-  "learningGoal": "",
+  "learningGoal": "Du kannst beschreiben, wie eine KI aus Beispielen Muster lernt.",
   "story": "Du willst eine KI trainieren die Katzen von Hunden unterscheidet. Du gibst ihr 10.000 beschriftete Fotos. Was passiert im Training?",
   "assignment": "Was tut eine KI beim Training um Katzen von Hunden zu unterscheiden?",
   "hints": [

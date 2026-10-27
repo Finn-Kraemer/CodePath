@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 4,
-  "learningGoal": "",
+  "learningGoal": "Du kannst begründen, warum Halbieren bei sortierten Daten viel schneller ist als Durchzählen.",
   "story": "Du spielst 'Denk dir eine Zahl zwischen 1 und 1000'. Dein Freund rät immer die Mitte und bekommt 'zu groß' oder 'zu klein' als Antwort. Er halbiert jedes Mal den Suchbereich.",
   "assignment": "Warum ist diese Strategie viel besser als einfach von 1 bis 1000 zu zählen?",
   "hints": [

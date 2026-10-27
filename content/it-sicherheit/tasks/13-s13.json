@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 13,
-  "learningGoal": "",
+  "learningGoal": "Du kannst auf einen Angriff mit passenden Schutzmaßnahmen reagieren.",
   "story": "Alarm! Die Schulwebseite wurde gehackt. Der Angreifer hat Zugriff auf alle Schülerdaten bekommen. Erste Erkenntnisse: Das Admin-Passwort war \\\"schule123\", es gab kein HTTPS, und es waren keine Updates eingespielt.",
   "assignment": "Du bist das Blue Team. Reagiere auf den Angriff und schütze das System.",
   "hints": [],

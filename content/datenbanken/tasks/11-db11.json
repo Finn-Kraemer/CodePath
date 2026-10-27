@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 10,
   "sortOrder": 11,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Redundanz in einem Datenbankschema erkennen.",
   "story": "Ein Mitschüler hat dieses Schema für eine Chat-App designed:\n\n```\nnachrichten(id, text, absender_name, datum)\n```\n\nEr speichert den Namen direkt statt einer Nutzer-ID. Was ist das Problem?",
   "assignment": "Warum ist dieses Datenbankschema schlecht designed?",
   "hints": [

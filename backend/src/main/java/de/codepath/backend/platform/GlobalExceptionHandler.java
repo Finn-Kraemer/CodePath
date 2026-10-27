@@ -60,6 +60,12 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.NOT_FOUND, "Nicht gefunden.");
     }
 
+    /** Live-Updates: Der Browser hat die Verbindung geschlossen – kein Fehler. */
+    @ExceptionHandler(org.springframework.web.context.request.async.AsyncRequestNotUsableException.class)
+    public void handleClientGone() {
+        // nichts zu antworten
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleException(Exception e) {
         log.error("Unerwarteter Fehler", e);

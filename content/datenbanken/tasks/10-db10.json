@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 15,
   "sortOrder": 10,
-  "learningGoal": "",
+  "learningGoal": "Du kannst das Prinzip eines JOINs in Python nachbauen.",
   "story": "In SQL würde man schreiben: `SELECT s.name, k.bezeichnung FROM schueler s JOIN klassen k ON s.klasse_id = k.id`. Hier baust du das in Python nach:",
   "assignment": "Ergänze den Code der Schüler mit ihrer Klassen-Bezeichnung verbindet.",
   "hints": [

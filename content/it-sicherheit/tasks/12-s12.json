@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 12,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Sicherheitslücken einer Anwendung strukturiert dokumentieren.",
   "story": "Dein Mitschüler hat eine Login-App gebaut und bittet dich um einen Sicherheitscheck:\n\n```\n// Sein Code:\nconst query = `SELECT * FROM users\n  WHERE user='${eingabe}'\n  AND pass='${passwort}'`\n\nconst admin_pw = \"admin123\"  // Im Code gespeichert!\n// Kein HTTPS, kein Rate-Limiting, keine Fehlerbehandlung\n```",
   "assignment": "Erstelle einen professionellen Sicherheitsbericht.",
   "hints": [],

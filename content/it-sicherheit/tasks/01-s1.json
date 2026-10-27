@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 1,
-  "learningGoal": "",
+  "learningGoal": "Du kannst typische Warnsignale einer Phishing-Mail erkennen.",
   "story": "Du bekommst diese E-Mail:\n\n```\nVon: support@paypa1.com\nBetreff: Dein Konto wird in 24h gelöscht!!!\nInhalt: Klicke hier sofort:\nLink: http://paypal-sicher.xyz/login\n```",
   "assignment": "Wie viele Warnsignale findest du in dieser E-Mail?",
   "hints": [

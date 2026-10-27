@@ -124,4 +124,13 @@ public class TerminalHandler implements TaskHandler {
     public Map<String, Object> wrongAnswer(TaskSpec spec, TaskContext context) {
         return Map.of("commands", List.of("mkdir falsch"));
     }
+
+    @Override
+    public Map<String, Object> template() {
+        return Map.of(
+                "initialDirectories", List.of(),
+                "initialFiles", Map.of(),
+                "expectedDirectories", List.of("projekt"),
+                "expectedFiles", List.of("projekt/README.md"));
+    }
 }

@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 12,
-  "learningGoal": "",
+  "learningGoal": "Du kannst ein Datenbankschema mit Tabellen, Schlüsseln und Beziehungen entwerfen.",
   "story": "Du baust eine Team-App wo mehrere Nutzer Aufgaben erstellen, zuweisen und als erledigt markieren können. Entwirf das Datenbankmodell!",
   "assignment": "Entwirf ein vollständiges Datenbankschema für eine Team-To-Do-App.",
   "hints": [],

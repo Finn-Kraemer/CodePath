@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 5,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Caesar-Verschlüsselung umkehren.",
   "story": "Julius Caesar hat seine Nachrichten verschlüsselt indem er jeden Buchstaben um 3 Stellen verschoben hat (A→D, B→E...). Dekodiere \\\"KHOOR\":",
   "assignment": "Vervollständige die Dekodier-Funktion.",
   "hints": [

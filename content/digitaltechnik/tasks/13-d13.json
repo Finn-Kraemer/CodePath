@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 15,
   "sortOrder": 13,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Übergänge eines Zustandsautomaten für eine Ampel festlegen.",
   "story": "Eine Ampel ist ein typisches Beispiel für einen Moore-Automaten: Die Ausgabe (Farbe) hängt nur vom **aktuellen Zustand** ab. Ergänze den fehlenden Zustandsübergang:",
   "assignment": "Ergänze die Übergangsfunktion so dass die Reihenfolge ROT → ROTGELB → GRÜN → GELB → ROT stimmt.",
   "hints": [

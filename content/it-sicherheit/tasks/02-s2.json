@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 2,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Stärke von Passwörtern einschätzen.",
   "story": "Dein Chef bittet dich, Passwörter auf Sicherheit zu prüfen. Welches der folgenden Passwörter ist am sichersten?",
   "assignment": "Wähle das sicherste Passwort aus.",
   "hints": [

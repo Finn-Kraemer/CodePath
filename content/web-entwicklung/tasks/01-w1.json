@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 1,
-  "learningGoal": "",
+  "learningGoal": "Du kannst das Client-Server-Prinzip erklären.",
   "story": "Wenn du \\\"youtube.com\" in deinen Browser tippst, passiert etwas im Hintergrund. Dein Browser und ein Computer irgendwo auf der Welt kommunizieren miteinander. Welches Prinzip steckt dahinter?",
   "assignment": "Welche Aussage beschreibt das Client-Server-Prinzip richtig?",
   "hints": [

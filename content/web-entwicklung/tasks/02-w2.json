@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 2,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Bestandteile einer URL benennen und Fehler darin finden.",
   "story": "Dein Kollege schickt dir diesen Link und wundert sich warum er nicht funktioniert:\n\n```\nwww.meine-seite.de/shop/artikel\n```",
   "assignment": "Warum funktioniert diese URL nicht?",
   "hints": [

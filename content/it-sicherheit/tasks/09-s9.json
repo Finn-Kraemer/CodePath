@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 9,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Passwörter in Python hashen und vergleichen.",
   "story": "Statt Passwörter direkt zu speichern, speicherst du nur ihren Hash. Beim Login vergleichst du Hash mit Hash:",
   "assignment": "Ergänze den Code der Passwörter als Hash speichert und vergleicht.",
   "hints": [

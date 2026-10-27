@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 8,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Genauigkeit eines Modells aus einer Konfusionsmatrix berechnen.",
   "story": "Dein KI-Modell soll Krankheiten erkennen. Von 100 Tests:\n\n- ✅ 40 kranke Patienten korrekt als krank erkannt\n- ❌ 10 kranke Patienten fälschlich als gesund eingestuft\n- ❌ 5 gesunde Patienten fälschlich als krank eingestuft\n- ✅ 45 gesunde Patienten korrekt als gesund erkannt",
   "assignment": "Wie hoch ist die Genauigkeit (Accuracy) des Modells?",
   "hints": [

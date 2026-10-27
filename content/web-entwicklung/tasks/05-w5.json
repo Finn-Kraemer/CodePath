@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 5,
-  "learningGoal": "",
+  "learningGoal": "Du kannst häufige HTTP-Statuscodes ihrer Bedeutung zuordnen.",
   "story": "Beim Testen der neuen Webseite bekommst du verschiedene Antworten vom Server. Dein Chef fragt dich die Codes auswendig zu kennen. Welcher Code bedeutet was?",
   "assignment": "Trage die richtigen HTTP-Statuscodes ein.",
   "hints": [

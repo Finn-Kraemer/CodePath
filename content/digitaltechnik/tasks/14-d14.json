@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 14,
-  "learningGoal": "",
+  "learningGoal": "Du kannst eine Anforderung in eine boolesche Schaltung übersetzen.",
   "story": "Du bist Digitaltechnik-Ingenieur und entwirfst die Steuerungslogik für ein Smart-Home-System. Das System soll verschiedene Geräte je nach Bedingungen ein- und ausschalten.",
   "assignment": "Entwirf eine vollständige boolesche Schaltung für das Smart-Home-System.",
   "hints": [],

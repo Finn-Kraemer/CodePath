@@ -5,13 +5,14 @@
   "difficulty": "HARD",
   "points": 20,
   "sortOrder": 15,
-  "learningGoal": "",
+  "learningGoal": "Du kannst im Terminal Ordner und Dateien für ein Projekt anlegen.",
   "story": "Du beginnst ein neues Projekt. Nutze das Terminal, um die Grundstruktur vorzubereiten.",
-  "assignment": "1. Erstellen Sie einen Ordner namens `website`. 2. Erstellen Sie darin eine Datei `index.html`. 3. Erstellen Sie eine weitere Datei `styles.css`.",
+  "assignment": "1. Erstelle einen Ordner namens `website`.\n2. Erstelle darin eine Datei `index.html`.\n3. Erstelle dort außerdem eine Datei `styles.css`.\n\nTippe `help`, um alle Befehle zu sehen.",
   "hints": [
-    "Nutze die Befehle 'mkdir website' und 'touch dateiname'. Tippe 'submit' wenn du fertig bist."
+    "Mit `mkdir name` legst du einen Ordner an, mit `cd name` wechselst du hinein.",
+    "`touch datei` legt eine leere Datei an – auch mehrere auf einmal: `touch a.html b.css`."
   ],
-  "explanation": "",
+  "explanation": "Ordner legt man mit `mkdir` an, leere Dateien mit `touch`. Mit `cd` wechselt man das Verzeichnis, mit `ls` sieht man, was darin liegt. Genau so richten Entwicklerinnen und Entwickler jeden Tag neue Projekte ein.",
   "config": {
     "initialDirectories": [],
     "initialFiles": {},

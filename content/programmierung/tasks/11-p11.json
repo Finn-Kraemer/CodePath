@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 11,
-  "learningGoal": "",
+  "learningGoal": "Du kannst range() mit Start, Ende und Schrittweite einsetzen.",
   "story": "Der Countdown zur Raketenzündung soll rückwärts von 10 bis 1 laufen – dann startet die Rakete. Ergänze den fehlenden Code:",
   "assignment": "Ergänze die drei Argumente von range() damit der Countdown rückwärts läuft.",
   "hints": [

@@ -79,4 +79,12 @@ public class PracticeHandler implements TaskHandler {
     public Map<String, Object> wrongAnswer(TaskSpec spec, TaskContext context) {
         return Map.of("content", "");
     }
+
+    @Override
+    public Map<String, Object> template() {
+        return Map.of(
+                "instructions", "Beschreibe in eigenen Worten …",
+                "submissionNote", "",
+                "rubric", List.of(Map.of("id", "k1", "label", "Inhalt vollständig", "points", 10)));
+    }
 }

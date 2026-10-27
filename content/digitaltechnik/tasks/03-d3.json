@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 15,
   "sortOrder": 3,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Dezimalzahlen in Binärzahlen umrechnen.",
   "story": "Um 13 in Binär umzurechnen teilst du wiederholt durch 2 und notierst die Reste von unten nach oben:\n\n```\n13 ÷ 2 = 6  Rest 1\n 6 ÷ 2 = 3  Rest 0\n 3 ÷ 2 = 1  Rest 1\n 1 ÷ 2 = 0  Rest 1\n→ von unten lesen: 1101\n```",
   "assignment": "Rechne jetzt selbst: Was ist 10 (dezimal) als Binärzahl? Und was ist 7?",
   "hints": [

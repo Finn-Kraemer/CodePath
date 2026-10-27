@@ -98,4 +98,11 @@ public class FillBlankHandler implements TaskHandler {
     public Map<String, Object> wrongAnswer(TaskSpec spec, TaskContext context) {
         return Map.of("answers", Cfg.objects(spec.config(), "blanks").stream().map(b -> "falsch-" + BlankMatcher.lowerFirst(b) + "-x").toList());
     }
+
+    @Override
+    public Map<String, Object> template() {
+        return Map.of(
+                "template", "Ein ___ verbindet Rechner in einem Netzwerk.",
+                "blanks", List.of(Map.of("answers", List.of("Router", "Switch"))));
+    }
 }

@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 2,
-  "learningGoal": "",
+  "learningGoal": "Du kannst gültige von ungültigen IPv4-Adressen unterscheiden.",
   "story": "Jedes Gerät im Internet hat eine eindeutige IP-Adresse – wie eine Telefonnummer. Aber welche dieser Adressen ist gültig?",
   "assignment": "Welche der folgenden ist eine gültige IPv4-Adresse?",
   "hints": [

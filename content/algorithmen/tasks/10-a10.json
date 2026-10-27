@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 20,
   "sortOrder": 10,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Bubble Sort selbst programmieren.",
   "story": "Bubble Sort ist langsam bei großen Listen – aber perfekt zum Lernen. Jeder Entwickler kennt ihn. Die Logik ist einfach: immer benachbarte Paare vergleichen und tauschen.",
   "assignment": "Implementiere Bubble Sort vollständig.",
   "hints": [

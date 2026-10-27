@@ -26,7 +26,12 @@ test('Kurs anlegen, beitreten, Aufgabe lösen, Punkte sehen', async ({ browser }
 	expect(joinCode).toMatch(/^[A-Z0-9]{6}$/);
 
 	await teacher.goto('/admin/modules');
-	await teacher.getByLabel('Kurs').selectOption({ label: courseName });
+	// Auswahl lädt die Freigaben des Kurses neu – erst danach umschalten
+	await Promise.all([
+		teacher.waitForResponse((r) => r.url().includes('/api/admin/modules?courseId=')),
+		teacher.getByLabel('Kurs').selectOption({ label: courseName })
+	]);
+	await teacher.waitForLoadState('networkidle');
 	await teacher.locator('[data-module="git"]').getByRole('button', { name: 'Freigeben' }).click();
 	await expect(
 		teacher.locator('[data-module="git"]').getByRole('button', { name: 'Sperren' })

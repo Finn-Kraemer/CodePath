@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 1,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Pseudocode von echtem Programmcode unterscheiden.",
   "story": "Bevor man Code schreibt, plant man den Algorithmus. Dein Lehrer zeigt dir zwei Versionen des selben Plans:\n\n**Version A:**\n\n```\nWENN Nutzer eingeloggt\n    zeige Dashboard\nSONST\n    zeige Login-Seite\n```\n\n**Version B:**\n\n```\nif user.is_logged_in():\n    render('dashboard.html')\nelse:\n    redirect('/login')\n```",
   "assignment": "Was ist der Unterschied zwischen Version A und Version B?",
   "hints": [

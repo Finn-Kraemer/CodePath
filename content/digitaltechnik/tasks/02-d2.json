@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 2,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Binärzahlen in Dezimalzahlen umrechnen.",
   "story": "Im Binärsystem hat jede Stelle einen Wert – von rechts nach links: 1, 2, 4, 8, 16 ...\n\n```\nStelle: 3    2    1    0\nWert:   8    4    2    1\nZahl:   1    0    1    1\n```",
   "assignment": "Was ist die Binärzahl `1011` als Dezimalzahl?",
   "hints": [

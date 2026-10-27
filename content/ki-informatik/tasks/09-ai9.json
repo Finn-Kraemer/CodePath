@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 9,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Genauigkeit eines Modells in Python berechnen.",
   "story": "Du evaluierst dein erstes KI-Modell. Es hat 10 Vorhersagen gemacht – vergleiche sie mit den richtigen Antworten:",
   "assignment": "Ergänze den Code der die Genauigkeit deines Modells berechnet.",
   "hints": [

@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 10,
   "sortOrder": 11,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen Man-in-the-Middle-Angriff erkennen und Gegenmaßnahmen nennen.",
   "story": "Du sitzt im Café. Du verbindest dich mit dem WLAN \"Starbucks_Free\". Ein Angreifer hat dieses WLAN selbst erstellt und liest deinen gesamten Datenverkehr mit – deine Passwörter, Nachrichten, alles.",
   "assignment": "Wie nennt man diesen Angriff – und was schützt dich davor?",
   "hints": [

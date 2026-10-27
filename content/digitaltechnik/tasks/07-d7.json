@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 7,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Gatter in einer booleschen Formel erkennen und in der richtigen Reihenfolge auswerten.",
   "story": "Ein Wecker soll klingeln wenn: (es ist 7 Uhr UND der Wecker ist aktiviert) ODER der Test-Knopf gedrückt wird.\n\n```\nklingeln = (es_ist_7_uhr AND aktiviert) OR test_knopf\n```",
   "assignment": "Welche Gatter werden in dieser Formel kombiniert und in welcher Reihenfolge werden sie ausgewertet?",
   "hints": [

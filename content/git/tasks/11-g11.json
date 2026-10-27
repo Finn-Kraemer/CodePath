@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 15,
   "sortOrder": 11,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Änderungen mit push und pull austauschen.",
   "story": "Du hast lokal committed und willst deinen Code auf GitHub hochladen. Dein Teamkollege hat inzwischen neue Commits gepusht – du willst seine Änderungen holen.",
   "assignment": "Ergänze die Befehle für die Zusammenarbeit über GitHub.",
   "hints": [

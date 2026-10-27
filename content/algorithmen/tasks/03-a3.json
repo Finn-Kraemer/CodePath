@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 15,
   "sortOrder": 3,
-  "learningGoal": "",
+  "learningGoal": "Du kannst eine lineare Suche in Python schreiben.",
   "story": "Du baust eine Suchfunktion für das Schulverzeichnis. Implementiere die einfachste Suchmethode: von vorne nach hinten durch die Liste gehen.",
   "assignment": "Ergänze die lineare Suche.",
   "hints": [

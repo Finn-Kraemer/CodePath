@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 10,
   "sortOrder": 10,
-  "learningGoal": "",
+  "learningGoal": "Du kannst mit einem KV-Diagramm einen booleschen Ausdruck vereinfachen.",
   "story": "Das folgende KV-Diagramm zeigt eine boolesche Funktion mit zwei Variablen A und B:\n\n```\n      B=0  B=1\nA=0 |  0  |  1  |\nA=1 |  1  |  1  |\n```\n\nDu siehst: Die drei Einsen bilden zwei überlappende Gruppen.",
   "assignment": "Welcher minimierte Ausdruck beschreibt diese Funktion korrekt?",
   "hints": [

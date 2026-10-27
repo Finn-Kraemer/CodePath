@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 15,
   "sortOrder": 2,
-  "learningGoal": "",
+  "learningGoal": "Du kannst eine einfache SELECT-Abfrage mit FROM und WHERE schreiben.",
   "story": "Du arbeitest in einem Supermarkt mit einer Produktdatenbank. Ergänze die SQL-Befehle:",
   "assignment": "Ergänze die SQL-Schlüsselwörter.",
   "hints": [

@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 1,
-  "learningGoal": "",
+  "learningGoal": "Du kannst begründen, warum große Datenmengen in eine Datenbank statt in eine Tabellenkalkulation gehören.",
   "story": "Stell dir vor, Netflix würde alle Nutzer, Filme und Abos in einer Excel-Tabelle verwalten. Was wäre das größte Problem?",
   "assignment": "Wähle das Hauptproblem wenn Netflix eine Excel-Datei nutzen würde.",
   "hints": [

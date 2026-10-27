@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 3,
-  "learningGoal": "",
+  "learningGoal": "Du kannst vorhersagen, wie der Browser eine HTML-Seite darstellt.",
   "story": "Dein erster HTML-Code! Was zeigt der Browser an?\n\n```\n<h1>Meine Webseite</h1>\n<!-- Das ist ein Kommentar -->\n<p>Willkommen!</p>\n```",
   "assignment": "Was sieht der Nutzer im Browser wenn er diese Seite öffnet?",
   "hints": [

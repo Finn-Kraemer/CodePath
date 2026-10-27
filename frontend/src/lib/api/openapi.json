@@ -29,6 +29,505 @@
         "tags" : [ "classroom-admin-controller" ]
       }
     },
+    "/api/admin/content" : {
+      "get" : {
+        "operationId" : "overview",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ModuleRow"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/export" : {
+      "get" : {
+        "operationId" : "export",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/import" : {
+      "post" : {
+        "operationId" : "importZip",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportReport"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/import-bundled" : {
+      "post" : {
+        "operationId" : "importBundled",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportReport"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/modules" : {
+      "post" : {
+        "operationId" : "createModule",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModuleFile"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModuleRow"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/modules/{id}" : {
+      "put" : {
+        "operationId" : "updateModule",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModuleFile"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModuleRow"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/modules/{id}/tasks" : {
+      "post" : {
+        "operationId" : "createTask",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateTaskRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}" : {
+      "get" : {
+        "operationId" : "task_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/archived" : {
+      "put" : {
+        "operationId" : "archive",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "value",
+          "required" : true,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/check" : {
+      "post" : {
+        "operationId" : "check",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CheckResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/draft" : {
+      "delete" : {
+        "operationId" : "discardDraft",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      },
+      "put" : {
+        "operationId" : "saveDraft",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TaskFile"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/preview" : {
+      "get" : {
+        "operationId" : "preview",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "preview-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/preview/evaluate" : {
+      "post" : {
+        "operationId" : "evaluate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : { }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubmitResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "preview-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/preview/solution" : {
+      "get" : {
+        "operationId" : "solution",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : { }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "preview-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/publish" : {
+      "post" : {
+        "operationId" : "publish",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/versions/{versionId}/restore" : {
+      "post" : {
+        "operationId" : "restore",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "versionId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
     "/api/admin/courses" : {
       "get" : {
         "operationId" : "courses",
@@ -1458,6 +1957,24 @@
         },
         "required" : [ "courseName", "displayName", "role", "username" ]
       },
+      "CheckResult" : {
+        "type" : "object",
+        "properties" : {
+          "dryRun" : {
+            "$ref" : "#/components/schemas/DryRun"
+          },
+          "problems" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "valid" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "dryRun", "problems", "valid" ]
+      },
       "CourseSummary" : {
         "type" : "object",
         "properties" : {
@@ -1512,6 +2029,21 @@
         },
         "required" : [ "name" ]
       },
+      "CreateTaskRequest" : {
+        "type" : "object",
+        "properties" : {
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+          }
+        }
+      },
       "Criterion" : {
         "type" : "object",
         "properties" : {
@@ -1527,6 +2059,27 @@
           }
         },
         "required" : [ "id", "label", "points" ]
+      },
+      "DryRun" : {
+        "type" : "object",
+        "properties" : {
+          "passed" : {
+            "type" : "boolean"
+          },
+          "sampleFeedback" : {
+            "type" : "string"
+          },
+          "sampleOutcome" : {
+            "type" : "string"
+          },
+          "wrongFeedback" : {
+            "type" : "string"
+          },
+          "wrongOutcome" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "passed", "sampleFeedback", "sampleOutcome", "wrongFeedback", "wrongOutcome" ]
       },
       "GeneratedAccount" : {
         "type" : "object",
@@ -1559,6 +2112,34 @@
           }
         },
         "required" : [ "hints", "hintsTotal", "penaltyPercent" ]
+      },
+      "ImportReport" : {
+        "type" : "object",
+        "properties" : {
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "modulesCreated" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "tasksCreated" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "unchanged" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "versionsPublished" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "errors", "modulesCreated", "tasksCreated", "unchanged", "versionsPublished" ]
       },
       "Leaderboard" : {
         "type" : "object",
@@ -1616,6 +2197,28 @@
         },
         "required" : [ "module", "tasks" ]
       },
+      "ModuleFile" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "icon" : {
+            "type" : "string"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "sortOrder" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "icon", "slug", "sortOrder", "title" ]
+      },
       "ModuleReleaseView" : {
         "type" : "object",
         "properties" : {
@@ -1652,6 +2255,25 @@
           }
         },
         "required" : [ "availableUntil", "description", "icon", "id", "isUnlocked", "maxPoints", "slug", "taskCount", "title" ]
+      },
+      "ModuleRow" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "module" : {
+            "$ref" : "#/components/schemas/ModuleFile"
+          },
+          "tasks" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TaskRow"
+            }
+          }
+        },
+        "required" : [ "id", "module", "tasks" ]
       },
       "ModuleSummary" : {
         "type" : "object",
@@ -2097,6 +2719,138 @@
         },
         "required" : [ "assignment", "attemptsLeft", "config", "deadline", "difficulty", "explanation", "failedAttempts", "firstTryBonusPercent", "hintPenaltyPercent", "hints", "hintsTotal", "id", "isCompleted", "isLocked", "isOpen", "lastAnswer", "lastFeedback", "learningGoal", "maxAttempts", "moduleSlug", "moduleTitle", "points", "pointsEarned", "revealAllowed", "reviewComment", "slug", "solution", "solutionRevealed", "status", "story", "title", "type", "version" ]
       },
+      "TaskEditorView" : {
+        "type" : "object",
+        "properties" : {
+          "archived" : {
+            "type" : "boolean"
+          },
+          "currentVersion" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "draft" : {
+            "$ref" : "#/components/schemas/TaskFile"
+          },
+          "moduleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "published" : {
+            "$ref" : "#/components/schemas/TaskFile"
+          },
+          "taskId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+          },
+          "versions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VersionRow"
+            }
+          }
+        },
+        "required" : [ "archived", "currentVersion", "draft", "moduleId", "moduleSlug", "published", "taskId", "type", "versions" ]
+      },
+      "TaskFile" : {
+        "type" : "object",
+        "properties" : {
+          "assignment" : {
+            "type" : "string"
+          },
+          "config" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "difficulty" : {
+            "type" : "string",
+            "enum" : [ "EASY", "MEDIUM", "HARD" ]
+          },
+          "explanation" : {
+            "type" : "string"
+          },
+          "hints" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "learningGoal" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rules" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "sortOrder" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "story" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+          }
+        },
+        "required" : [ "assignment", "config", "difficulty", "explanation", "hints", "learningGoal", "points", "rules", "slug", "sortOrder", "story", "title", "type" ]
+      },
+      "TaskRow" : {
+        "type" : "object",
+        "properties" : {
+          "archived" : {
+            "type" : "boolean"
+          },
+          "currentVersion" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "hasDraft" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "sortOrder" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+          }
+        },
+        "required" : [ "archived", "currentVersion", "hasDraft", "id", "points", "slug", "sortOrder", "title", "type" ]
+      },
       "TaskStatistic" : {
         "type" : "object",
         "properties" : {
@@ -2174,6 +2928,35 @@
           }
         },
         "required" : [ "difficulty", "id", "isCompleted", "isLocked", "points", "pointsEarned", "slug", "status", "title", "type" ]
+      },
+      "VersionRow" : {
+        "type" : "object",
+        "properties" : {
+          "createdBy" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "publishedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "createdBy", "id", "points", "publishedAt", "title", "version" ]
       }
     }
   }

@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 14,
-  "learningGoal": "",
+  "learningGoal": "Du kannst für ein Problem eine passende Datenstruktur und einen Algorithmus begründet auswählen.",
   "story": "Du baust das Empfehlungssystem für die Lernplattform. Es soll Schülern automatisch die nächste passende Aufgabe empfehlen – nicht zu leicht, nicht zu schwer.",
   "assignment": "Entwirf deinen eigenen Algorithmus und wähle die passende Datenstruktur.",
   "hints": [],

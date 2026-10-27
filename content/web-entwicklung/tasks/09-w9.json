@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 9,
-  "learningGoal": "",
+  "learningGoal": "Du kannst nachvollziehen, wie JavaScript auf einen Klick reagiert.",
   "story": "Mit JavaScript kannst du Webseiten interaktiv machen. Was macht dieser Button?\n\n```\n<button onclick=\"alert('Hallo!')\">\n  Klick mich\n</button>\n```",
   "assignment": "Was passiert wenn der Nutzer auf den Button klickt?",
   "hints": [

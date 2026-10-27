@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 10,
   "sortOrder": 12,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, wie eine Webseite sich an verschiedene Bildschirme anpasst.",
   "story": "Ihr habt eine tolle Schulwebseite gebaut – aber beim Test auf dem Smartphone überlappen sich Texte und Buttons sind nicht klickbar. Das Problem ist mangelndes Responsive Design.",
   "assignment": "Die Webseite sieht auf dem Desktop super aus – auf dem Handy ist alles winzig und durcheinander. Was fehlt?",
   "hints": [

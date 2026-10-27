@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 20,
   "sortOrder": 10,
-  "learningGoal": "",
+  "learningGoal": "Du kannst den Aufbau einer HTTP-Anfrage mit Request-Zeile und Headern wiedergeben.",
   "story": "Du simulierst wie ein Browser eine HTTP-Anfrage aufbaut – genau das macht dein Browser unsichtbar jedes Mal wenn du eine URL aufrufst:",
   "assignment": "Schreibe eine Funktion die einen vollständigen HTTP GET-Request-String aufbaut.",
   "hints": [

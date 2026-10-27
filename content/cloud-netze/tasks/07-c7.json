@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 7,
-  "learningGoal": "",
+  "learningGoal": "Du kannst aus Ping-Messwerten eine durchschnittliche Antwortzeit berechnen.",
   "story": "Du analysierst die Ping-Zeiten eines Schulservers (in Millisekunden). Unter 50ms ist gut, über 100ms ist problematisch:",
   "assignment": "Ergänze den Code der die durchschnittliche Antwortzeit berechnet.",
   "hints": [

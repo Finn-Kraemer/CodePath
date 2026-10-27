@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 3,
-  "learningGoal": "",
+  "learningGoal": "Du kannst das Ergebnis einer SQL-Abfrage vorhersagen.",
   "story": "Du analysierst unbezahlte Bestellungen. Was liefert diese Abfrage?\n\n```\nSELECT kunde, betrag\nFROM bestellungen\nWHERE status = 'offen'\nORDER BY betrag DESC;\n```",
   "assignment": "Was sind die Ergebnisse dieser SQL-Abfrage?",
   "hints": [

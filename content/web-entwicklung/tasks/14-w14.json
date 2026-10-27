@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 14,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Endpunkte, Methoden und Statuscodes einer REST-API entwerfen.",
   "story": "Andere Entwickler wollen deine Noten-App nutzen. Dafür brauchst du eine API – eine Schnittstelle die andere Programme ansprechen können. Entwirf sie!",
   "assignment": "Entwirf eine REST-API für eine Schüler-Noten-App.",
   "hints": [],

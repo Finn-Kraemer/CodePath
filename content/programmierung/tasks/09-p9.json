@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 9,
-  "learningGoal": "",
+  "learningGoal": "Du kannst match-case lesen und den Platzhalter _ erklären.",
   "story": "Du baust eine App die Wochentage erkennt. Dein Kollege schlägt vor match-case zu nutzen:\n\n```\ntag = \"Samstag\"\n\nmatch tag:\n    case \"Samstag\" | \"Sonntag\":\n        print(\"Wochenende!\")\n    case _:\n        print(\"Arbeitstag\")\n```",
   "assignment": "Was gibt dieser Code aus – und was bedeutet `case _:`?",
   "hints": [

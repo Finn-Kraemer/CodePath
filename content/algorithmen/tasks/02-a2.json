@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 2,
-  "learningGoal": "",
+  "learningGoal": "Du kannst abschätzen, wie viele Vergleiche die lineare Suche im schlechtesten Fall braucht.",
   "story": "Du hast eine unsortierte Liste mit 1000 Schülernamen. Du suchst 'Zoe'. Die lineare Suche geht jeden Namen der Reihe nach durch.",
   "assignment": "Wie viele Vergleiche sind im schlimmsten Fall nötig?",
   "hints": [

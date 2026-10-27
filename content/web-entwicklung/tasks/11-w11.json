@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 10,
   "sortOrder": 11,
-  "learningGoal": "",
+  "learningGoal": "Du kannst verschachtelte Werte in einer API-Antwort finden.",
   "story": "Du rufst eine Wetter-API auf und bekommst diese JSON-Antwort:\n\n```\n{\"stadt\": \"Berlin\", \"temperatur\": 18, \"wetter\": \"sonnig\"}\n```\n\nWie liest du die Temperatur aus nachdem du `data = json.loads(antwort)` ausgeführt hast?",
   "assignment": "Wie greifst du in Python auf die Temperatur aus dieser JSON-Antwort zu?",
   "hints": [

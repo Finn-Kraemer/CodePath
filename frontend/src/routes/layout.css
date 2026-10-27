@@ -108,3 +108,39 @@ textarea {
 .markdown.inline p {
 	display: inline;
 }
+
+/* Formulare im Content-Editor */
+.ed-label {
+	display: block;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: rgb(100 116 139);
+}
+.ed-input {
+	margin-top: 0.25rem;
+	font-weight: 400;
+	text-transform: none;
+	letter-spacing: normal;
+	color: rgb(15 23 42);
+	width: 100%;
+	border: 1px solid rgb(226 232 240);
+	background: white;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.875rem;
+}
+.ed-input.mono {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.ed-button {
+	border: 1px solid rgb(203 213 225);
+	padding: 0.4rem 0.9rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+.ed-button:disabled {
+	opacity: 0.4;
+}

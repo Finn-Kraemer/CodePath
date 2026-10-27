@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 15,
   "sortOrder": 4,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen ersten Commit mit add und commit anlegen.",
   "story": "Du hast eine neue Datei `app.py` erstellt und willst sie in Git speichern. Was sind die Befehle in der richtigen Reihenfolge?",
   "assignment": "Ergänze die fehlenden Git-Befehle.",
   "hints": [

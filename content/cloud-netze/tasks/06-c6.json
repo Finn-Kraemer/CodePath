@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 6,
-  "learningGoal": "",
+  "learningGoal": "Du kannst eine Netzwerkfunktion der passenden OSI-Schicht zuordnen.",
   "story": "Das OSI-Modell teilt Netzwerkkommunikation in 7 Schichten: 1=Kabel, 2=MAC, 3=IP, 4=TCP/UDP, 5=Session, 6=Präsentation, 7=Anwendung (HTTP/DNS).",
   "assignment": "Auf welcher Schicht arbeitet eine Firewall die IP-Adressen filtert?",
   "hints": [

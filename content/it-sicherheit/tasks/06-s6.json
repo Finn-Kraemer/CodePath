@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 6,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, wie eine SQL-Injection eine Anmeldung umgeht.",
   "story": "Eine unsichere Login-Abfrage sieht so aus:\n\n```\nSELECT * FROM users\nWHERE name='${eingabe}'\nAND passwort='${pw}'\n```\n\nEin Angreifer gibt als Namen `admin'--` ein.",
   "assignment": "Was passiert wenn ein Angreifer `admin'--` als Nutzernamen eingibt?",
   "hints": [

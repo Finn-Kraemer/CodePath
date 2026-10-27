@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 3,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, warum eine Variable vor ihrer Verwendung einen Wert braucht.",
   "story": "Dein erster Tag als Junior-Entwickler! Du schaust dir diesen Code an:\n\n```\nname = \"Max\"\nalter = 15\nist_bereit = True\n\nprint(punkte)\n```\n\nDer Code stürzt mit einem Fehler ab. Kannst du erklären warum?",
   "assignment": "Was ist die Ursache des Fehlers?",
   "hints": [

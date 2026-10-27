@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 7,
-  "learningGoal": "",
+  "learningGoal": "Du kannst GROUP BY mit Zählfunktionen anwenden.",
   "story": "Du willst wissen wie viele Bestellungen jeder Kunde aufgegeben hat:\n\n```\nSELECT kunde, COUNT(*) as anzahl\nFROM bestellungen\nGROUP BY kunde\nORDER BY anzahl DESC;\n```",
   "assignment": "Was macht `GROUP BY kunde` in dieser Abfrage?",
   "hints": [

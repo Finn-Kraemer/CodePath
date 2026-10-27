@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 15,
   "sortOrder": 12,
-  "learningGoal": "",
+  "learningGoal": "Du kannst mit einer Schleife über ein Dictionary laufen.",
   "story": "Du baust ein Mini-Telefonbuch. Alle Kontakte sollen mit ihren Nummern ausgegeben werden. Das Dictionary speichert Name → Nummer:",
   "assignment": "Ergänze die drei Lücken damit alle Kontakte ausgegeben werden.",
   "hints": [

@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 20,
   "sortOrder": 5,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die binäre Suche selbst implementieren.",
   "story": "Die binäre Suche braucht eine **sortierte** Liste. Dafür ist sie dramatisch schneller als die lineare Suche: Bei 1 Million Elementen braucht sie maximal 20 Schritte statt 1 Million.",
   "assignment": "Implementiere die binäre Suche vollständig.",
   "hints": [

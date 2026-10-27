@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 7,
-  "learningGoal": "",
+  "learningGoal": "Du kannst begründen, warum neue Funktionen auf einem eigenen Branch entstehen.",
   "story": "Dein Team entwickelt eine App. Du willst ein neues Feature (Dark Mode) entwickeln ohne den funktionierenden Hauptcode zu gefährden.",
   "assignment": "Warum erstellt man dafür einen neuen Branch?",
   "hints": [

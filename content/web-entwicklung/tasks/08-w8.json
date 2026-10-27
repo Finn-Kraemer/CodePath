@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 8,
-  "learningGoal": "",
+  "learningGoal": "Du kannst ein HTML-Formular mit passenden Eingabefeldern bauen.",
   "story": "Du baust das Login-Formular für die Schulwebseite. Welche Werte gehören in die Lücken?\n\n```\n<form action=\"/login\">\n  <___ type=\"text\" placeholder=\"Nutzername\">\n  <___ type=\"___\" placeholder=\"Passwort\">\n  <___ type=\"___\" value=\"Einloggen\">\n</form>\n```",
   "assignment": "Welche Tags und Attribute fehlen im Login-Formular?",
   "hints": [

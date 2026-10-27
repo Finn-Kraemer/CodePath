@@ -5,13 +5,13 @@
   "difficulty": "MEDIUM",
   "points": 20,
   "sortOrder": 15,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Schritte einer Web-Anfrage vom Browser zum Server und zurück ordnen.",
   "story": "Was passiert, wenn du eine Webseite aufrufst? Sortiere die Schritte in die zeitlich korrekte Reihenfolge.",
-  "assignment": "Bringen Sie die technischen Schritte einer Web-Anfrage in die richtige Reihenfolge.",
+  "assignment": "Bringe die technischen Schritte einer Web-Anfrage in die richtige Reihenfolge.",
   "hints": [
-    "Denken Sie an den Weg der Daten: Vom Client zum Server und wieder zurück."
+    "Denk an den Weg der Daten: vom Client zum Server und wieder zurück."
   ],
-  "explanation": "",
+  "explanation": "Der Browser (Client) schickt eine HTTP-Anfrage, der Server verarbeitet sie und erzeugt eine Antwort, meist HTML. Der Browser empfängt die Daten und baut daraus die sichtbare Seite.",
   "config": {
     "items": [
       {

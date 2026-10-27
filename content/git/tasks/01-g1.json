@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 1,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, welches Problem Versionskontrolle löst.",
   "story": "Stell dir vor: Du und zwei Mitschüler arbeiten gleichzeitig an derselben Python-Datei. Einer speichert seine Version, der andere auch – und plötzlich sind Änderungen weg.",
   "assignment": "Was ist das Hauptproblem ohne Versionskontrolle?",
   "hints": [

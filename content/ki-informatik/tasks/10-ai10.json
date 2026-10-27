@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 15,
   "sortOrder": 10,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Bestandteile eines einfachen neuronalen Netzes benennen.",
   "story": "Neuronale Netze sind das Herz moderner KI. Sie haben drei Arten von Schichten – ähnlich wie das menschliche Gehirn:",
   "assignment": "Ergänze die fehlenden Begriffe.",
   "hints": [

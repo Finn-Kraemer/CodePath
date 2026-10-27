@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 15,
   "sortOrder": 12,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen Zustandsautomaten aus einer Zustandstabelle nachvollziehen.",
   "story": "Ein einfaches Zahlenschloss öffnet bei der Eingabe **1 → 0 → 1**. Hier ist seine Zustandstabelle:\n\n| Zustand | Eingabe | Nächster Zustand |\n|---|---|---|\n| Z0 (Start) | 1 | Z1 |\n| Z0 | 0 | Z0 |\n| Z1 | 0 | Z2 |\n| Z1 | 1 | Z1 |\n| Z2 | 1 | Z3 (OFFEN) |\n| Z2 | 0 | Z0 |",
   "assignment": "Welche Eingabefolge öffnet das Schloss – und in welchem Zustand landet man nach der Eingabe `1 → 1 → 0`?",
   "hints": [

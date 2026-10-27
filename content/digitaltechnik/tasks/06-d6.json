@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 6,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Codewörter aus einem Huffman-Baum ablesen.",
   "story": "Gegeben ist dieser Huffman-Baum (Links = 0, Rechts = 1):\n\n```\n         [Wurzel]\n         /       \\\n        0         1\n       B         [Knoten]\n                 /       \\\n                0         1\n               A         [Knoten]\n                          /    \\\n                         0      1\n                         C      D\n```",
   "assignment": "Lies die Codewörter für alle vier Symbole ab.",
   "hints": [

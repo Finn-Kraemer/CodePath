@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 9,
-  "learningGoal": "",
+  "learningGoal": "Du kannst beschreiben, was beim Zusammenführen zweier Branches passiert.",
   "story": "Dein Dark-Mode-Feature ist fertig und getestet. Jetzt soll es in den Hauptcode übernommen werden:\n\n```\ngit checkout main\ngit merge dark-mode\n```",
   "assignment": "Was passiert bei diesem Merge-Befehl?",
   "hints": [

@@ -92,4 +92,12 @@ public class SortingHandler implements TaskHandler {
         Collections.reverse(reversed);
         return Map.of("order", reversed);
     }
+
+    @Override
+    public Map<String, Object> template() {
+        return Map.of(
+                "items", List.of(Map.of("id", "s1", "text", "Erster Schritt"), Map.of("id", "s2", "text", "Zweiter Schritt"),
+                        Map.of("id", "s3", "text", "Dritter Schritt")),
+                "correctOrder", List.of("s1", "s2", "s3"));
+    }
 }

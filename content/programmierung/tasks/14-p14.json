@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 50,
   "sortOrder": 14,
-  "learningGoal": "",
+  "learningGoal": "Du kannst ein kleines Programm planen, umsetzen und deinen Entwurf erklären.",
   "story": "Du hast alle Grundbausteine gelernt: Algorithmen planen, Variablen, Datentypen, Vergleiche, if-else, match-case, Arrays und Schleifen. Zeit, alles zusammenzubringen!",
   "assignment": "Schreibe ein vollständiges Programm und erkläre deinen Entwurf.",
   "hints": [],

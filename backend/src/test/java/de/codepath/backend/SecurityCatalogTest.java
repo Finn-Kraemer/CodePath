@@ -203,6 +203,9 @@ class SecurityCatalogTest extends IntegrationTestBase {
         PublishedTask sql = contentService.publishedTask("datenbanken", "sql-query-pro");
         postAs(as(user), url(sql) + "/submit", Map.of("query", "SELECT FILE_READ('/etc/passwd')"))
                 .andExpect(jsonPath("$.outcome").value("INVALID"));
+        // Ohne Abteilungsfilter darf es nicht reichen (Testdaten enthalten Vertrieb mit hohem Gehalt)
+        postAs(as(user), url(sql) + "/submit", Map.of("query", "SELECT * FROM mitarbeiter WHERE gehalt > 5000"))
+                .andExpect(jsonPath("$.isCorrect").value(false));
         postAs(as(user), url(sql) + "/submit", Map.of("query", "SELECT * FROM mitarbeiter WHERE abteilung = 'IT' AND gehalt > 5000"))
                 .andExpect(jsonPath("$.isCorrect").value(true))
                 .andExpect(jsonPath("$.details.result.rowCount").value(2));

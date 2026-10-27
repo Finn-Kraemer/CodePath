@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 10,
   "sortOrder": 12,
-  "learningGoal": "",
+  "learningGoal": "Du kannst ethische Risiken automatisierter Entscheidungen benennen.",
   "story": "In den USA nutzen manche Gerichte eine KI um zu entscheiden ob ein Angeklagter auf Bewährung freigelassen wird. Die KI wurde mit historischen Urteilsdaten trainiert.",
   "assignment": "Was ist das größte Problem wenn KI über Freiheitsentzug entscheidet?",
   "hints": [

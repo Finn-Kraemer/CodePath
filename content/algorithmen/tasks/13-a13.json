@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 15,
   "sortOrder": 13,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen Graphen als Adjazenzliste speichern und mit Breitensuche durchlaufen.",
   "story": "Ein Graph besteht aus Knoten (Nodes) und Kanten (Edges). Soziale Netzwerke, Stadtpläne und das Internet sind Graphen. Ein einfacher Weg einen Graphen in Python darzustellen: als Dictionary von Nachbarlisten (Adjazenzliste).",
   "assignment": "Ergänze den Code der alle Nachbarn eines Knotens ausgibt und per BFS (Breitensuche) den Graphen durchsucht.",
   "hints": [

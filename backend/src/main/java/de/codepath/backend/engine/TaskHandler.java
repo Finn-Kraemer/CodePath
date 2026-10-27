@@ -29,6 +29,9 @@ public interface TaskHandler {
     /** Eine falsche Antwort für den Probelauf; muss als falsch bewertet werden. */
     Map<String, Object> wrongAnswer(TaskSpec spec, TaskContext context);
 
+    /** Beispielkonfiguration für neue Aufgaben im Editor. */
+    Map<String, Object> template();
+
     /** false = Lehrkraft bewertet (PRACTICE). */
     default boolean autoGraded() {
         return true;

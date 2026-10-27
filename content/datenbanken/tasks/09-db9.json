@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 9,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, warum Transaktionen „alles oder nichts“ ausführen.",
   "story": "Eine Banküberweisung besteht aus zwei SQL-Befehlen:\n\n1. Konto A: `UPDATE konten SET guthaben = guthaben - 100 WHERE id = 1`\n2. Konto B: `UPDATE konten SET guthaben = guthaben + 100 WHERE id = 2`\n\nNach Schritt 1 fällt der Server aus. Das Geld ist weg – aber nie angekommen!",
   "assignment": "Wie lösen Datenbanken das Problem einer unterbrochenen Überweisung?",
   "hints": [

@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 4,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, dass NULL „unbekannt“ bedeutet und nicht 0 oder leer.",
   "story": "In der Schüler-Datenbank hat das Feld `email` bei manchen Einträgen den Wert `NULL`. Schüler 7 hat keine E-Mail angegeben.",
   "assignment": "Was bedeutet NULL in einer Datenbank?",
   "hints": [

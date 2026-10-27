@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 5,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, warum häufige Zeichen mit kurzen Codes Speicher sparen.",
   "story": "In einem deutschen Text kommt das **E** mit 18% Häufigkeit vor, das **Y** nur mit 0,04%.\n\nDer Huffman-Algorithmus weist häufigen Symbolen kurze Bitmuster zu, seltenen längere.",
   "assignment": "Warum spart ein variabler Huffman-Code im Vergleich zu einem festen Code Speicher?",
   "hints": [

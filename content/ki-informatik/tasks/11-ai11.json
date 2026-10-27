@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 20,
   "sortOrder": 11,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen Entscheidungsbaum als verschachtelte Bedingungen programmieren.",
   "story": "Ein Entscheidungsbaum ist der einfachste KI-Klassifikator: Er stellt nacheinander Ja/Nein-Fragen. Du baust einen der Tiere klassifiziert:",
   "assignment": "Schreibe die vollständige Funktion `tier_klassifizieren(hat_fluegel, ist_saeugetier, lebt_im_wasser)`.",
   "hints": [

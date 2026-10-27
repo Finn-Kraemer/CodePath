@@ -86,4 +86,14 @@ public class MultipleChoiceHandler implements TaskHandler {
                 .<Map<String, Object>>map(id -> Map.of("selected", List.of(id)))
                 .orElse(Map.of("selected", List.of()));
     }
+
+    @Override
+    public Map<String, Object> template() {
+        return Map.of(
+                "options", List.of(
+                        Map.of("id", "a", "text", "Richtige Antwort", "explanation", "Warum das stimmt"),
+                        Map.of("id", "b", "text", "Falsche Antwort", "explanation", "Warum das nicht stimmt")),
+                "correct", List.of("a"),
+                "multiple", false);
+    }
 }

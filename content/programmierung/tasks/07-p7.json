@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 7,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Datentypen int, float, str und bool erkennen.",
   "story": "Du debuggst Code und willst wissen welchen Datentyp verschiedene Werte haben. Python hat dafür die Funktion `type()`.\n\n```\nprint(type(42))        # ???\nprint(type(3.14))      # ???\nprint(type(\"A\"))       # ???\nprint(type(True))      # ???\n```",
   "assignment": "Welche Ausgabe ist korrekt für alle vier Zeilen?",
   "hints": [

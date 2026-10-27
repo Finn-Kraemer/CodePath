@@ -11,11 +11,16 @@
 	let loading = $state(true);
 	let processingIds = new SvelteSet<number>();
 
+	// Nur die Antwort der letzten Anfrage zählt (Kurswechsel während eine Anfrage läuft)
+	let latestRequest = 0;
+
 	async function fetchModules() {
+		const request = ++latestRequest;
 		try {
 			const res = await auth.apiFetch('/api/admin/modules' + courseSelection.query());
 			if (!res.ok) throw new Error('Unauthorized');
 			const data = await res.json();
+			if (request !== latestRequest) return;
 			modules = data;
 		} catch (e) {
 			console.error(e);

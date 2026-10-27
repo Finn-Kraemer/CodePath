@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 2,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Symbole eines Flussdiagramms lesen.",
   "story": "Im Programmablaufplan (Flussdiagramm) hat jede Form eine eigene Bedeutung. Dein Chef fragt dich beim Code-Review: *\"Welche Form nutzt man für eine Ja/Nein-Entscheidung?\"*",
   "assignment": "Welche Form stellt eine Verzweigung (Entscheidung) im Flussdiagramm dar?",
   "hints": [

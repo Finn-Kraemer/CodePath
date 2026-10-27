@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 7,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen Stack mit einer Python-Liste umsetzen.",
   "story": "Python-Listen funktionieren perfekt als Stack. `append()` legt obendrauf (push), `pop()` nimmt das oberste Element runter.",
   "assignment": "Ergänze den Stack der den Browser-Verlauf simuliert.",
   "hints": [

@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 6,
-  "learningGoal": "",
+  "learningGoal": "Du kannst eine aussagekräftige Commit-Nachricht schreiben.",
   "story": "Du schaust dir die Commit-Historie eines Projekts an:\n\n```\nA: \"fix\"\nB: \"asdf\"\nC: \"Füge Login-Validierung für E-Mail-Format hinzu\"\nD: \"changes\"\n```",
   "assignment": "Welche Commit-Nachricht ist professionell und nützlich?",
   "hints": [

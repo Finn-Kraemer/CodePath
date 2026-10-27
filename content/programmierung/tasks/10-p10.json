@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 10,
-  "learningGoal": "",
+  "learningGoal": "Du kannst über einen Index auf Listenelemente zugreifen und weißt, dass bei 0 gezählt wird.",
   "story": "Dein Team speichert Highscores in einer Liste:\n\n```\nscores = [42, 87, 15, 99, 33]\n```\n\nVisualisiert sieht das so aus:\n\n```\nIndex:  0    1    2    3    4\nWert:  42   87   15   99   33\n```",
   "assignment": "Was gibt `print(scores[3])` aus?",
   "hints": [

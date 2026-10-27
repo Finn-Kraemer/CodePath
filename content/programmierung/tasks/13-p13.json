@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 20,
   "sortOrder": 13,
-  "learningGoal": "",
+  "learningGoal": "Du kannst Schleifen, Modulo und Verzweigungen in einem Programm kombinieren.",
   "story": "FizzBuzz ist der bekannteste Programmiertest überhaupt. Er kombiniert Schleifen, Modulo und if-elif-else. Zahlen 1–15: Vielfache von 3 → \"Fizz\", Vielfache von 5 → \"Buzz\", beides → \"FizzBuzz\", sonst die Zahl selbst.",
   "assignment": "Implementiere die FizzBuzz-Logik vollständig.",
   "hints": [

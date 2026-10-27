@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 6,
-  "learningGoal": "",
+  "learningGoal": "Du kannst den Nächste-Nachbarn-Algorithmus in Python nachvollziehen.",
   "story": "Der k-Nearest-Neighbor-Algorithmus ist einer der einfachsten KI-Algorithmen: Finde den Punkt der dem gesuchten Wert am nächsten ist. Finde den nächsten Nachbarn zur Zahl 6 in [1, 4, 7, 10, 15]:",
   "assignment": "Vervollständige den einfachen kNN-Algorithmus.",
   "hints": [

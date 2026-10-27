@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 10,
   "sortOrder": 7,
-  "learningGoal": "",
+  "learningGoal": "Du kannst erklären, warum Passwörter per POST und nicht per GET übertragen werden.",
   "story": "Eine Suchmaschine nutzt `GET /suche?q=Python` – deine Suchanfrage steht direkt in der URL. Ein Login-Formular schickt Nutzername und Passwort per `POST` im unsichtbaren Body.",
   "assignment": "Warum ist POST für das Login besser als GET?",
   "hints": [

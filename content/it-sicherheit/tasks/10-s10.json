@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 20,
   "sortOrder": 10,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen Brute-Force-Angriff auf die Caesar-Verschlüsselung programmieren.",
   "story": "Du baust ein Tool das zeigt wie schwach Caesar-Verschlüsselung ist. Es probiert automatisch alle 25 möglichen Versätze durch – ein echter Brute-Force-Angriff!",
   "assignment": "Der Code probiert alle 25 möglichen Versätze durch. Ergänze die fehlenden Teile.",
   "hints": [

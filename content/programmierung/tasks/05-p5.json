@@ -5,7 +5,7 @@
   "difficulty": "EASY",
   "points": 10,
   "sortOrder": 5,
-  "learningGoal": "",
+  "learningGoal": "Du kannst den passenden Vergleichsoperator für eine Bedingung wählen.",
   "story": "Du programmierst das Einlass-System für eine Veranstaltung. Es soll nur Personen ab 16 einlassen – und Personen bis einschließlich 16 sollen auch rein.\n\n```\nalter = 16\n\nif alter ___ 16:\n    print(\"Willkommen!\")\nelse:\n    print(\"Zutritt verweigert.\")\n```",
   "assignment": "Welcher Vergleichsoperator muss in die Lücke damit auch 16-Jährige eingelassen werden?",
   "hints": [

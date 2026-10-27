@@ -5,7 +5,7 @@
   "difficulty": "HARD",
   "points": 20,
   "sortOrder": 12,
-  "learningGoal": "",
+  "learningGoal": "Du kannst einen Binärbaum in Python bauen und inorder durchlaufen.",
   "story": "Dateisysteme, Suchmaschinen und Datenbanken nutzen Baumstrukturen. Ein Binärbaum besteht aus Knoten, die jeweils einen Wert und Zeiger auf linkes und rechtes Kind speichern.",
   "assignment": "Baue einen Binärbaum und implementiere die Inorder-Traversierung.",
   "hints": [

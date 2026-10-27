@@ -5,7 +5,7 @@
   "difficulty": "MEDIUM",
   "points": 15,
   "sortOrder": 9,
-  "learningGoal": "",
+  "learningGoal": "Du kannst die Wahrheitstabelle einer Schaltung aufstellen.",
   "story": "Gegeben ist das Schaltnetz: `Y = (A AND B) OR C`\n\nFülle die fehlenden Ausgabewerte in der Wahrheitstabelle aus (0 = falsch, 1 = wahr):",
   "assignment": "Ergänze die Ausgabe Y für alle vier Zeilen.",
   "hints": [
