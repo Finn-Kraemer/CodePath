@@ -13,10 +13,10 @@
 		// Load Monaco
 		if (!(window as any).monaco) {
 			const loaderScript = document.createElement('script');
-			loaderScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js';
+			loaderScript.src = '/vendor/monaco/vs/loader.js';
 			loaderScript.onload = () => {
 				(window as any).require.config({
-					paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }
+					paths: { vs: '/vendor/monaco/vs' }
 				});
 				(window as any).require(['vs/editor/editor.main'], () => {
 					initEditor();
@@ -55,7 +55,7 @@
 		try {
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
-				body: JSON.stringify({ 
+				body: JSON.stringify({
 					payload: { result: query }, // Sending the query as 'result' for the simplified backend check
 					supportUsed
 				})
@@ -78,7 +78,7 @@
 	}
 </script>
 
-<div class="border border-slate-200 bg-white p-10 shadow-sm rounded-none">
+<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
 	<h3 class="mb-8 font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase">
 		SQL-Datenbank Abfrage:
 	</h3>
@@ -86,19 +86,24 @@
 	<div class="mb-10">
 		<div
 			bind:this={editorElement}
-			class="h-64 w-full border-4 border-slate-800 bg-slate-900 shadow-inner rounded-none"
+			class="h-64 w-full rounded-none border-4 border-slate-800 bg-slate-900 shadow-inner"
 		></div>
 	</div>
 
 	{#if result}
 		<div
-			class="mb-8 border p-6 font-mono text-xs rounded-none
-            {result.correct ? 'border-green-200 bg-green-50 text-green-700' : 'border-rose-200 bg-rose-50 text-rose-700'}"
+			class="mb-8 rounded-none border p-6 font-mono text-xs
+            {result.correct
+				? 'border-green-200 bg-green-50 text-green-700'
+				: 'border-rose-200 bg-rose-50 text-rose-700'}"
 		>
 			<div class="flex items-center gap-4">
-				<span class="text-xl font-bold">{result.correct ? '✓' : (result.isLocked ? '🔒' : '✗')}</span>
+				<span class="text-xl font-bold">{result.correct ? '✓' : result.isLocked ? '🔒' : '✗'}</span>
 				<div>
-					<span class="font-bold uppercase tracking-widest">{result.correct ? 'ERGEBNIS:' : 'HINWEIS:'}</span> {result.feedback}
+					<span class="font-bold tracking-widest uppercase"
+						>{result.correct ? 'ERGEBNIS:' : 'HINWEIS:'}</span
+					>
+					{result.feedback}
 				</div>
 			</div>
 		</div>
@@ -107,8 +112,14 @@
 	<button
 		onclick={handleSubmit}
 		disabled={loading || task.isCompleted || task.isLocked}
-		class="w-full bg-institutional-navy py-6 font-sans text-[11px] font-bold tracking-[4px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
+		class="w-full rounded-none bg-institutional-navy py-6 font-sans text-[11px] font-bold tracking-[4px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20"
 	>
-		{loading ? 'Query wird ausgeführt...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Abfrage bereits erfolgreich validiert' : 'SQL-Query ausführen'}
+		{loading
+			? 'Query wird ausgeführt...'
+			: task.isLocked
+				? 'Aufgabe gesperrt'
+				: task.isCompleted
+					? 'Abfrage bereits erfolgreich validiert'
+					: 'SQL-Query ausführen'}
 	</button>
 </div>

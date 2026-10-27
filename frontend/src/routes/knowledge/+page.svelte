@@ -40,9 +40,7 @@
 			const res = await auth.apiFetch('/api/modules');
 			if (res.ok) {
 				const modulesData: ApiModule[] = await res.json();
-				unlockedModuleSlugs = new Set(
-					modulesData.filter((m) => m.isUnlocked).map((m) => m.slug)
-				);
+				unlockedModuleSlugs = new Set(modulesData.filter((m) => m.isUnlocked).map((m) => m.slug));
 			}
 		} catch (e) {
 			console.error('Failed to load knowledge base data', e);
@@ -75,12 +73,16 @@
 		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
 			Wissensdatenbank
 		</h1>
-		<p class="mt-4 text-slate-500">Zentrale Informationsquelle für IT-Konzepte und Syntax-Referenzen.</p>
+		<p class="mt-4 text-slate-500">
+			Zentrale Informationsquelle für IT-Konzepte und Syntax-Referenzen.
+		</p>
 	</header>
 
 	{#if loading}
 		<div class="flex justify-center py-24">
-			<div class="h-12 w-12 border-4 border-slate-200 border-t-institutional-navy animate-spin"></div>
+			<div
+				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
+			></div>
 		</div>
 	{:else}
 		<div class="grid grid-cols-1 gap-12 lg:grid-cols-4">
@@ -89,7 +91,7 @@
 				{#each filteredCategoryEntries as [id, cat] (id)}
 					<button
 						onclick={() => (selectedCategory = id)}
-						class="flex w-full items-center justify-start text-left gap-4 border-l-4 p-5 font-sans text-xs font-bold tracking-widest uppercase transition-all
+						class="flex w-full items-center justify-start gap-4 border-l-4 p-5 text-left font-sans text-xs font-bold tracking-widest uppercase transition-all
                         {selectedCategory === id
 							? 'border-institutional-gold bg-amber-50 text-institutional-gold shadow-sm'
 							: 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'}"
@@ -110,21 +112,27 @@
 			<div class="lg:col-span-3">
 				{#if currentCategory}
 					{@const Content = currentCategory.default}
-					<div class="border border-slate-200 bg-white p-12 shadow-sm rounded-none">
+					<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
 						<div class="mb-16 flex items-center gap-6">
 							<span class="text-5xl">{currentCategory.metadata.icon}</span>
-							<h2 class="font-sans text-3xl font-extrabold text-institutional-navy uppercase tracking-tight">
+							<h2
+								class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy uppercase"
+							>
 								{currentCategory.metadata.title}
 							</h2>
 						</div>
 
-						<article class="prose prose-slate max-w-none prose-headings:text-institutional-navy prose-a:text-institutional-gold">
+						<article
+							class="prose max-w-none prose-slate prose-headings:text-institutional-navy prose-a:text-institutional-gold"
+						>
 							<Content />
 						</article>
 					</div>
 				{:else}
 					<div class="flex h-64 items-center justify-center border border-dashed border-slate-300">
-						<p class="text-slate-400 italic">Wähle eine Kategorie aus oder warte auf Freischaltung.</p>
+						<p class="text-slate-400 italic">
+							Wähle eine Kategorie aus oder warte auf Freischaltung.
+						</p>
 					</div>
 				{/if}
 			</div>
@@ -143,7 +151,8 @@
 
 	:global(.prose code) {
 		color: #2dd4bf !important;
-		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+		font-family:
+			ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
 			monospace !important;
 	}
 </style>

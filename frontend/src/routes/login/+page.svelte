@@ -25,7 +25,7 @@
 			}
 
 			const data = await res.json();
-			auth.login(data.token, { username: data.username, role: data.role });
+			auth.login({ username: data.username, role: data.role, displayName: data.displayName });
 			goto('/modules');
 		} catch (err: any) {
 			error = err.message;
@@ -36,21 +36,22 @@
 </script>
 
 <div class="mx-auto mt-12 max-w-lg">
-	<div class="border border-slate-200 bg-white p-12 shadow-sm rounded-none">
+	<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
 		<div class="mb-12 text-center">
-			<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy uppercase">
+			<h1
+				class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy uppercase"
+			>
 				Login
 			</h1>
-			<p class="mt-3 text-[10px] font-bold tracking-[4px] text-slate-400 uppercase">
-				CodePath
-			</p>
+			<p class="mt-3 text-[10px] font-bold tracking-[4px] text-slate-400 uppercase">CodePath</p>
 		</div>
 
 		{#if error}
 			<div
-				class="mb-10 border border-red-200 bg-red-50 p-6 font-mono text-xs text-red-600 rounded-none"
+				class="mb-10 rounded-none border border-red-200 bg-red-50 p-6 font-mono text-xs text-red-600"
 			>
-				<span class="font-bold uppercase tracking-widest">Fehler:</span> {error}
+				<span class="font-bold tracking-widest uppercase">Fehler:</span>
+				{error}
 			</div>
 		{/if}
 
@@ -66,7 +67,7 @@
 					type="text"
 					id="username"
 					required
-					class="w-full border-slate-200 bg-slate-50 px-5 py-4 transition-all outline-none focus:border-institutional-navy focus:ring-0 rounded-none"
+					class="w-full rounded-none border-slate-200 bg-slate-50 px-5 py-4 transition-all outline-none focus:border-institutional-navy focus:ring-0"
 					placeholder="max.mustermann"
 				/>
 			</div>
@@ -82,14 +83,14 @@
 					type="password"
 					id="password"
 					required
-					class="w-full border-slate-200 bg-slate-50 px-5 py-4 transition-all outline-none focus:border-institutional-navy focus:ring-0 rounded-none"
+					class="w-full rounded-none border-slate-200 bg-slate-50 px-5 py-4 transition-all outline-none focus:border-institutional-navy focus:ring-0"
 				/>
 			</div>
 
 			<button
 				type="submit"
 				disabled={loading}
-				class="w-full bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-95 disabled:opacity-50 rounded-none"
+				class="w-full rounded-none bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-95 disabled:opacity-50"
 			>
 				{loading ? 'Verifizierung...' : 'Anmelden'}
 			</button>

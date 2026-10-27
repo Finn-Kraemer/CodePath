@@ -23,7 +23,7 @@
 		try {
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
-				body: JSON.stringify({ 
+				body: JSON.stringify({
 					payload: { answers },
 					supportUsed
 				})
@@ -40,13 +40,13 @@
 	}
 </script>
 
-<div class="border border-slate-200 bg-white p-10 shadow-sm rounded-none">
+<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
 	<h3 class="mb-8 font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase">
 		Vervollständigung:
 	</h3>
 
 	<div
-		class="mb-10 border border-slate-100 bg-slate-50 p-8 font-mono text-sm leading-loose rounded-none"
+		class="mb-10 rounded-none border border-slate-100 bg-slate-50 p-8 font-mono text-sm leading-loose"
 	>
 		{#each parts as part, i (i)}
 			{part}
@@ -55,7 +55,7 @@
 					bind:value={answers[i]}
 					disabled={task.isCompleted || task.isLocked}
 					type="text"
-					class="mx-2 min-w-[100px] border-b-2 border-slate-300 bg-white px-3 py-1 text-institutional-navy outline-none transition-colors focus:border-institutional-navy disabled:opacity-50 rounded-none"
+					class="mx-2 min-w-[100px] rounded-none border-b-2 border-slate-300 bg-white px-3 py-1 text-institutional-navy transition-colors outline-none focus:border-institutional-navy disabled:opacity-50"
 					placeholder="..."
 				/>
 			{/if}
@@ -64,13 +64,18 @@
 
 	{#if result}
 		<div
-			class="mb-8 border p-6 font-mono text-xs rounded-none
-            {result.correct ? 'border-green-200 bg-green-50 text-green-700' : 'border-rose-200 bg-rose-50 text-rose-700'}"
+			class="mb-8 rounded-none border p-6 font-mono text-xs
+            {result.correct
+				? 'border-green-200 bg-green-50 text-green-700'
+				: 'border-rose-200 bg-rose-50 text-rose-700'}"
 		>
 			<div class="flex items-center gap-4">
-				<span class="text-xl font-bold">{result.correct ? '✓' : (result.isLocked ? '🔒' : '✗')}</span>
+				<span class="text-xl font-bold">{result.correct ? '✓' : result.isLocked ? '🔒' : '✗'}</span>
 				<div>
-					<span class="font-bold uppercase tracking-widest">{result.correct ? 'Ergebnis:' : 'Hinweis:'}</span> {result.feedback}
+					<span class="font-bold tracking-widest uppercase"
+						>{result.correct ? 'Ergebnis:' : 'Hinweis:'}</span
+					>
+					{result.feedback}
 				</div>
 			</div>
 		</div>
@@ -79,8 +84,14 @@
 	<button
 		onclick={handleSubmit}
 		disabled={loading || answers.some((a) => !a) || task.isCompleted || task.isLocked}
-		class="w-full bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
+		class="w-full rounded-none bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20"
 	>
-		{loading ? 'Prüfung läuft...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Eintrag bereits validiert' : 'Prüfungsantwort absenden'}
+		{loading
+			? 'Prüfung läuft...'
+			: task.isLocked
+				? 'Aufgabe gesperrt'
+				: task.isCompleted
+					? 'Eintrag bereits validiert'
+					: 'Prüfungsantwort absenden'}
 	</button>
 </div>

@@ -1,11 +1,13 @@
 package de.codepath.backend.auth;
 
+import de.codepath.backend.users.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,35 +16,31 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRequest request, HttpServletResponse response) {
-        AuthResponse authResponse = authService.register(request);
-        addJwtCookie(response, authResponse.getToken(), 24 * 60 * 60);
-        return ResponseEntity.ok(authResponse);
+    public AuthResponse register(@Valid @RequestBody AuthRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        return authService.register(request, httpRequest, httpResponse);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request, HttpServletResponse response) {
-        AuthResponse authResponse = authService.login(request);
-        addJwtCookie(response, authResponse.getToken(), 24 * 60 * 60);
-        return ResponseEntity.ok(authResponse);
+    public AuthResponse login(@Valid @RequestBody AuthRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        return authService.login(request, httpRequest, httpResponse);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
-        addJwtCookie(response, "", 0);
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
         return ResponseEntity.ok().build();
     }
 
-    private void addJwtCookie(HttpServletResponse response, String token, long maxAge) {
-        ResponseCookie cookie = ResponseCookie.from("jwt", token)
-                .httpOnly(true)
-                .secure(false) // Set to true in production with HTTPS
-                .path("/")
-                .maxAge(maxAge)
-                .sameSite("Strict")
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    /** Liefert den angemeldeten Nutzer; 401, wenn die Session abgelaufen ist. */
+    @GetMapping("/me")
+    public AuthResponse me() {
+        return authService.toResponse(userService.getCurrentUser());
     }
 }

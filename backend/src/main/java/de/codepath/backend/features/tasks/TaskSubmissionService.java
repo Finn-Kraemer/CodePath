@@ -2,9 +2,6 @@ package de.codepath.backend.features.tasks;
 
 import de.codepath.backend.features.modules.Module;
 import de.codepath.backend.features.modules.ModuleRepository;
-import de.codepath.backend.features.tasks.events.PracticeSubmissionEvent;
-import de.codepath.backend.features.tasks.events.TaskCompletionEvent;
-import de.codepath.backend.features.tasks.messaging.SubmissionProducer;
 import de.codepath.backend.features.messaging.RealtimeUpdateService;
 import de.codepath.backend.common.GlobalExceptionHandler.AccessDeniedException;
 import de.codepath.backend.users.User;
@@ -30,7 +27,6 @@ public class TaskSubmissionService {
     private final PracticeSubmissionRepository practiceSubmissionRepository;
     private final UserRepository userRepository;
     private final ModuleRepository moduleRepository;
-    private final SubmissionProducer submissionProducer;
     private final RealtimeUpdateService realtimeUpdateService;
 
     // Ab so vielen Fehlversuchen wird die Lösung angezeigt; danach gibt es keine Punkte mehr.
@@ -86,19 +82,30 @@ public class TaskSubmissionService {
                 return handlePracticeSubmission(task, user, request.getPayload(), supportUsed);
             } else {
                 if (!progress.isCompleted()) {
-                    // ASYNCHRONOUS COMPLETION
+                    // Synchron in derselben Transaktion (ADR-1); die Zeilensperre auf dem Nutzer verhindert,
+                    // dass zwei gleichzeitige Abgaben die Punkte doppelt vergeben
+                    User lockedUser = userRepository.findByIdForUpdate(user.getId()).orElseThrow();
+                    // Skalare Abfrage geht an die Datenbank, nicht an den Cache der Persistenz
+                    if (completionRepository.isCompleted(user.getId(), task.getId())) {
+                        return SubmitResponse.builder()
+                                .isCorrect(true)
+                                .pointsAwarded(0)
+                                .failedAttempts(progress.getFailedAttempts())
+                                .feedback("Korrekt! Du hast diese Aufgabe bereits gelöst.")
+                                .build();
+                    }
+
                     int awardedPoints = calculatePoints(task, progress, supportUsed);
-                    
-                    submissionProducer.sendTaskCompletion(TaskCompletionEvent.builder()
-                            .userId(user.getId())
-                            .taskId(task.getId())
-                            .pointsAwarded(awardedPoints)
-                            .supportUsed(supportUsed)
-                            .timeSpentSeconds(progress.getTimeSpentSeconds())
-                            .build());
+                    progress.setCompleted(true);
+                    progress.setCompletedAt(LocalDateTime.now());
+                    progress.setPointsAwarded(awardedPoints);
+                    completionRepository.save(progress);
+                    lockedUser.setTotalPoints(lockedUser.getTotalPoints() + awardedPoints);
+                    userRepository.save(lockedUser);
+                    realtimeUpdateService.publishLeaderboardUpdate();
 
                     String feedback = awardedPoints > 0
-                            ? "Super! Das war richtig. (Punkte werden im Hintergrund verarbeitet)"
+                            ? "Super! Das war richtig."
                             : "Richtig! Da die Lösung bereits angezeigt wurde, gibt es für diese Aufgabe keine Punkte.";
                     return SubmitResponse.builder()
                             .isCorrect(true)
@@ -417,13 +424,14 @@ public class TaskSubmissionService {
             content = (String) payload.get("practiceContent");
         }
 
-        // Sende an RabbitMQ Queue anstatt direkt in die DB zu speichern
-        submissionProducer.sendPracticeSubmission(PracticeSubmissionEvent.builder()
-                .userId(user.getId())
-                .taskId(task.getId())
-                .content(content)
-                .supportUsed(supportUsed)
-                .build());
+        PracticeSubmission submission = new PracticeSubmission();
+        submission.setTask(task);
+        submission.setUser(user);
+        submission.setStatus(SubmissionStatus.PENDING);
+        submission.setContent(content);
+        submission.setSupportUsed(supportUsed);
+        submission.setSubmittedAt(LocalDateTime.now());
+        practiceSubmissionRepository.save(submission);
 
         return SubmitResponse.builder()
                 .isCorrect(true)

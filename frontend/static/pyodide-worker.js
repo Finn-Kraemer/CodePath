@@ -1,10 +1,11 @@
 // frontend/static/pyodide-worker.js
-importScripts("https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js");
+// Lokal gebündelt (scripts/copy-vendor.mjs), damit Code-Aufgaben auch ohne Internet laufen
+importScripts("/vendor/pyodide/pyodide.js");
 
 let pyodide;
 
 async function loadPyodideAndPackages() {
-    pyodide = await loadPyodide();
+    pyodide = await loadPyodide({ indexURL: "/vendor/pyodide/" });
     self.postMessage({ type: 'ready' });
 }
 

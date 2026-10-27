@@ -1,6 +1,6 @@
 # ADR-1: Modularer Monolith ohne Message Broker
 
-**Status:** Vorgeschlagen
+**Status:** Akzeptiert, umgesetzt in Phase 1
 
 **Kontext:** 90 Schüler, höchstens 5 Abgaben pro Sekunde, eine Person im Betrieb. Die asynchrone Punktevergabe über RabbitMQ öffnet ein Zeitfenster, in dem die Antwort „richtig“ lautet, der Fortschritt aber noch nicht gespeichert ist.
 

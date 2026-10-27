@@ -34,12 +34,12 @@ hole die Pizza aus dem Ofen
 
 Eine **grafische Darstellung** eines Algorithmus mit genormten Symbolen:
 
-| Symbol | Form | Bedeutung |
-|---|---|---|
-| Start / Ende | Abgerundetes Rechteck (Oval) | Beginn oder Ende des Programms |
-| Anweisung | Rechteck | Eine Aktion ausführen |
-| Verzweigung | Raute | Eine Ja/Nein-Entscheidung |
-| Ein- / Ausgabe | Parallelogramm | Daten lesen oder ausgeben |
+| Symbol         | Form                         | Bedeutung                      |
+| -------------- | ---------------------------- | ------------------------------ |
+| Start / Ende   | Abgerundetes Rechteck (Oval) | Beginn oder Ende des Programms |
+| Anweisung      | Rechteck                     | Eine Aktion ausführen          |
+| Verzweigung    | Raute                        | Eine Ja/Nein-Entscheidung      |
+| Ein- / Ausgabe | Parallelogramm               | Daten lesen oder ausgeben      |
 
 **Flussdiagramm – Tiefkühlpizza backen:**
 
@@ -106,38 +106,38 @@ print("Hallo Welt")   # Gibt Text auf dem Bildschirm aus
 
 ### Arithmetische Operatoren
 
-| Operator | Bedeutung | Beispiel | Ergebnis |
-|---|---|---|---|
-| `+` | Addition | `5 + 3` | `8` |
-| `-` | Subtraktion | `10 - 4` | `6` |
-| `*` | Multiplikation | `3 * 7` | `21` |
-| `/` | Division | `10 / 4` | `2.5` |
-| `//` | Ganzzahldivision | `10 // 4` | `2` |
-| `%` | Modulo (Divisionsrest) | `10 % 3` | `1` |
-| `**` | Potenz | `2 ** 8` | `256` |
+| Operator | Bedeutung              | Beispiel  | Ergebnis |
+| -------- | ---------------------- | --------- | -------- |
+| `+`      | Addition               | `5 + 3`   | `8`      |
+| `-`      | Subtraktion            | `10 - 4`  | `6`      |
+| `*`      | Multiplikation         | `3 * 7`   | `21`     |
+| `/`      | Division               | `10 / 4`  | `2.5`    |
+| `//`     | Ganzzahldivision       | `10 // 4` | `2`      |
+| `%`      | Modulo (Divisionsrest) | `10 % 3`  | `1`      |
+| `**`     | Potenz                 | `2 ** 8`  | `256`    |
 
 ### Vergleichsoperatoren
 
 Vergleiche geben immer `True` oder `False` zurück.
 
-| Operator | Bedeutung | Beispiel | Ergebnis |
-|---|---|---|---|
-| `==` | Gleichheit | `5 == 5` | `True` |
-| `!=` | Ungleichheit | `5 != 3` | `True` |
-| `>` | Größer als | `7 > 3` | `True` |
-| `>=` | Größer oder gleich | `5 >= 5` | `True` |
-| `<` | Kleiner als | `2 < 9` | `True` |
-| `<=` | Kleiner oder gleich | `4 <= 3` | `False` |
+| Operator | Bedeutung           | Beispiel | Ergebnis |
+| -------- | ------------------- | -------- | -------- |
+| `==`     | Gleichheit          | `5 == 5` | `True`   |
+| `!=`     | Ungleichheit        | `5 != 3` | `True`   |
+| `>`      | Größer als          | `7 > 3`  | `True`   |
+| `>=`     | Größer oder gleich  | `5 >= 5` | `True`   |
+| `<`      | Kleiner als         | `2 < 9`  | `True`   |
+| `<=`     | Kleiner oder gleich | `4 <= 3` | `False`  |
 
 > ⚠️ **Wichtig:** `=` ist die **Zuweisung** (Wert speichern). `==` ist der **Vergleich** (sind zwei Werte gleich?). Diese zu verwechseln ist ein häufiger Anfängerfehler!
 
 ### Logische Operatoren
 
-| Operator | Bedeutung | Beispiel | Ergebnis |
-|---|---|---|---|
-| `and` | Konjunktion – **beide** müssen `True` sein | `True and False` | `False` |
-| `or` | Disjunktion – **mindestens einer** muss `True` sein | `True or False` | `True` |
-| `not` | Negation – kehrt den Wert um | `not True` | `False` |
+| Operator | Bedeutung                                           | Beispiel         | Ergebnis |
+| -------- | --------------------------------------------------- | ---------------- | -------- |
+| `and`    | Konjunktion – **beide** müssen `True` sein          | `True and False` | `False`  |
+| `or`     | Disjunktion – **mindestens einer** muss `True` sein | `True or False`  | `True`   |
+| `not`    | Negation – kehrt den Wert um                        | `not True`       | `False`  |
 
 ---
 
@@ -159,6 +159,7 @@ print(unbekannt)   # → NameError: name 'unbekannt' is not defined
 ```
 
 **Benennungsregeln:**
+
 - Nur Buchstaben, Zahlen und `_` (kein Leerzeichen, kein `-`)
 - Darf **nicht** mit einer Zahl beginnen: `2name` ❌ → `name2` ✓
 - Groß-/Kleinschreibung beachten: `zahl` ≠ `Zahl` ≠ `ZAHL`
@@ -200,6 +201,7 @@ print("Tschüss!")
 ```
 
 **Ausgabe:**
+
 ```
 Hallo Lisa
 Noch 2 Jahr(e) bis zur Volljährigkeit.
@@ -210,13 +212,13 @@ Tschüss!
 
 ## 6. Datentypen
 
-| Typ | Python-Name | Beispiel | Beschreibung |
-|---|---|---|---|
-| Ganzzahl | `int` | `42`, `-7`, `0` | Ganze Zahlen ohne Komma |
-| Kommazahl | `float` | `3.14`, `-0.5` | Zahlen mit Dezimalstelle |
-| Text | `str` | `"Hallo"`, `'Max'` | Zeichenkette in Anführungszeichen |
-| Wahrheitswert | `bool` | `True`, `False` | Nur zwei mögliche Werte |
-| Zeichen | `char` | `"A"`, `"7"` | Ein einzelnes Zeichen (in Python: `str` der Länge 1) |
+| Typ           | Python-Name | Beispiel           | Beschreibung                                         |
+| ------------- | ----------- | ------------------ | ---------------------------------------------------- |
+| Ganzzahl      | `int`       | `42`, `-7`, `0`    | Ganze Zahlen ohne Komma                              |
+| Kommazahl     | `float`     | `3.14`, `-0.5`     | Zahlen mit Dezimalstelle                             |
+| Text          | `str`       | `"Hallo"`, `'Max'` | Zeichenkette in Anführungszeichen                    |
+| Wahrheitswert | `bool`      | `True`, `False`    | Nur zwei mögliche Werte                              |
+| Zeichen       | `char`      | `"A"`, `"7"`       | Ein einzelnes Zeichen (in Python: `str` der Länge 1) |
 
 ```python
 print(type(42))       # <class 'int'>
@@ -237,28 +239,28 @@ ist_gleich = 3 == 7    # False
 
 **AND – Konjunktion** (beide müssen wahr sein):
 
-| A | B | A `and` B |
-|---|---|---|
-| True | True | **True** |
-| True | False | False |
-| False | True | False |
-| False | False | False |
+| A     | B     | A `and` B |
+| ----- | ----- | --------- |
+| True  | True  | **True**  |
+| True  | False | False     |
+| False | True  | False     |
+| False | False | False     |
 
 **OR – Disjunktion** (mindestens einer muss wahr sein):
 
-| A | B | A `or` B |
-|---|---|---|
-| True | True | **True** |
-| True | False | **True** |
-| False | True | **True** |
-| False | False | False |
+| A     | B     | A `or` B |
+| ----- | ----- | -------- |
+| True  | True  | **True** |
+| True  | False | **True** |
+| False | True  | **True** |
+| False | False | False    |
 
 **NOT – Negation** (kehrt den Wert um):
 
-| A | `not` A |
-|---|---|
-| True | False |
-| False | True |
+| A     | `not` A |
+| ----- | ------- |
+| True  | False   |
+| False | True    |
 
 ```python
 regen  = True
@@ -363,11 +365,11 @@ match punkte // 10:   # 78 // 10 = 7
 
 In der Logik nennt man die Verknüpfungen von Wahrheitswerten:
 
-| Logik | Python | Bedeutung |
-|---|---|---|
-| **Konjunktion** (A ∧ B) | `A and B` | Beide wahr |
-| **Disjunktion** (A ∨ B) | `A or B` | Mindestens einer wahr |
-| **Negation** (¬A) | `not A` | Gegenteil |
+| Logik                   | Python    | Bedeutung             |
+| ----------------------- | --------- | --------------------- |
+| **Konjunktion** (A ∧ B) | `A and B` | Beide wahr            |
+| **Disjunktion** (A ∨ B) | `A or B`  | Mindestens einer wahr |
+| **Negation** (¬A)       | `not A`   | Gegenteil             |
 
 ```python
 hat_ticket  = True

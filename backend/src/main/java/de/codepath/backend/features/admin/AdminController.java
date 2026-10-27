@@ -18,6 +18,12 @@ public class AdminController {
 
     private final AdminService adminService;
     private final UserService userService;
+    private final SessionAdminService sessionAdminService;
+
+    @PostMapping("/sessions/logout-students")
+    public Map<String, Integer> logoutAllStudents() {
+        return Map.of("sessionsEnded", sessionAdminService.logoutAllStudents());
+    }
 
     @GetMapping("/modules")
     public List<ModuleResponse> getModulesForAdmin() {

@@ -1,0 +1,20 @@
+# Optionaler TLS-Proxy:
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.tls.yml up -d
+# In .env COOKIE_SECURE=true setzen.
+services:
+  app:
+    ports: !reset []
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - app
+
+volumes:
+  caddy_data:

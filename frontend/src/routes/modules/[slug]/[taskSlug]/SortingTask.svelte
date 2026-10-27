@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { auth } from '$lib/auth.svelte';
-	import { dndzone } from 'svelte-dnd-action';
+	import { dndzone, type DndEvent } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
 
 	let { task, moduleSlug, supportUsed = false } = $props();
@@ -13,11 +13,11 @@
 
 	const flipDurationMs = 300;
 
-	function handleDndConsider(e: CustomEvent<GenericDndEvent<any>>) {
+	function handleDndConsider(e: CustomEvent<DndEvent<{ id: number; text: string }>>) {
 		items = e.detail.items;
 	}
 
-	function handleDndFinalize(e: CustomEvent<GenericDndEvent<any>>) {
+	function handleDndFinalize(e: CustomEvent<DndEvent<{ id: number; text: string }>>) {
 		items = e.detail.items;
 	}
 
@@ -43,25 +43,29 @@
 	}
 </script>
 
-<div class="border border-slate-200 bg-white p-10 shadow-sm rounded-none">
+<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
 	<h3 class="mb-8 font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase">
 		Sortier-Aufgabe:
 	</h3>
 
-	<p class="mb-6 text-sm text-slate-500 italic">Bringen Sie die Elemente in die richtige Reihenfolge (Drag & Drop):</p>
+	<p class="mb-6 text-sm text-slate-500 italic">
+		Bringen Sie die Elemente in die richtige Reihenfolge (Drag & Drop):
+	</p>
 
 	<div
 		use:dndzone={{ items, flipDurationMs, dropTargetStyle: {} }}
 		onconsider={handleDndConsider}
 		onfinalize={handleDndFinalize}
-		class="mb-10 space-y-2 min-h-[50px]"
+		class="mb-10 min-h-[50px] space-y-2"
 	>
 		{#each items as item (item.id)}
 			<div
 				animate:flip={{ duration: flipDurationMs }}
-				class="flex items-center gap-4 border-2 border-slate-100 bg-slate-50 p-5 cursor-move hover:border-institutional-navy transition-all rounded-none shadow-sm"
+				class="flex cursor-move items-center gap-4 rounded-none border-2 border-slate-100 bg-slate-50 p-5 shadow-sm transition-all hover:border-institutional-navy"
 			>
-				<div class="flex h-8 w-8 items-center justify-center bg-institutional-navy text-white font-mono text-xs font-bold">
+				<div
+					class="flex h-8 w-8 items-center justify-center bg-institutional-navy font-mono text-xs font-bold text-white"
+				>
 					::
 				</div>
 				<span class="font-sans text-sm font-bold text-slate-700">{item.text}</span>
@@ -71,13 +75,18 @@
 
 	{#if result}
 		<div
-			class="mb-8 border p-6 font-mono text-xs rounded-none
-            {result.correct ? 'border-green-200 bg-green-50 text-green-700' : 'border-rose-200 bg-rose-50 text-rose-700'}"
+			class="mb-8 rounded-none border p-6 font-mono text-xs
+            {result.correct
+				? 'border-green-200 bg-green-50 text-green-700'
+				: 'border-rose-200 bg-rose-50 text-rose-700'}"
 		>
 			<div class="flex items-center gap-4">
 				<span class="text-xl font-bold">{result.correct ? '✓' : '✗'}</span>
 				<div>
-					<span class="font-bold uppercase tracking-widest">{result.correct ? 'Korrekt:' : 'Hinweis:'}</span> {result.feedback}
+					<span class="font-bold tracking-widest uppercase"
+						>{result.correct ? 'Korrekt:' : 'Hinweis:'}</span
+					>
+					{result.feedback}
 				</div>
 			</div>
 		</div>
@@ -86,8 +95,12 @@
 	<button
 		onclick={handleSubmit}
 		disabled={loading || task.isCompleted || task.isLocked}
-		class="w-full bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
+		class="w-full rounded-none bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20"
 	>
-		{loading ? 'Prüfung läuft...' : task.isCompleted ? 'Bereits erfolgreich sortiert' : 'Reihenfolge validieren'}
+		{loading
+			? 'Prüfung läuft...'
+			: task.isCompleted
+				? 'Bereits erfolgreich sortiert'
+				: 'Reihenfolge validieren'}
 	</button>
 </div>

@@ -138,7 +138,7 @@
 					</p>
 
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-						{#each ['Embedded Systems', 'Internet Engineering', 'Medieninformatik', 'Wirtschaftsinformatik'] as field}
+						{#each ['Embedded Systems', 'Internet Engineering', 'Medieninformatik', 'Wirtschaftsinformatik'] as field (field)}
 							<div
 								class="border border-white/10 bg-white/5 p-4 font-mono text-[11px] tracking-wider uppercase"
 							>
@@ -427,7 +427,7 @@
 					</h3>
 
 					<div class="space-y-4 font-mono">
-						{#each [{ range: '100% - 92%', label: 'Sehr Gut', grade: '1' }, { range: '91% - 81%', label: 'Gut', grade: '2' }, { range: '80% - 67%', label: 'Befriedigend', grade: '3' }, { range: '66% - 50%', label: 'Ausreichend', grade: '4' }, { range: '49% - 30%', label: 'Mangelhaft', grade: '5' }, { range: '< 30%', label: 'Ungenügend', grade: '6' }] as level}
+						{#each [{ range: '100% - 92%', label: 'Sehr Gut', grade: '1' }, { range: '91% - 81%', label: 'Gut', grade: '2' }, { range: '80% - 67%', label: 'Befriedigend', grade: '3' }, { range: '66% - 50%', label: 'Ausreichend', grade: '4' }, { range: '49% - 30%', label: 'Mangelhaft', grade: '5' }, { range: '< 30%', label: 'Ungenügend', grade: '6' }] as level (level.grade)}
 							<div class="grid grid-cols-3 items-center border-b border-slate-50 pb-2 text-[11px]">
 								<span class="text-slate-400">{level.range}</span>
 								<span class="text-center font-bold text-institutional-navy uppercase"

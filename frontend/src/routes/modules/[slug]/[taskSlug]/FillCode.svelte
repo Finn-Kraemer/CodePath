@@ -9,7 +9,7 @@
 	let result = $state<{ correct: boolean; feedback: string; isLocked?: boolean } | null>(null);
 	let loading = $state(false);
 	let pyodideReady = $state(false);
-	
+
 	let worker: Worker | null = null;
 	let executionTimeout: any = null;
 
@@ -24,11 +24,11 @@
 	function initWorker() {
 		if (worker) worker.terminate();
 		pyodideReady = false;
-		
+
 		worker = new Worker('/pyodide-worker.js');
 		worker.onmessage = (event) => {
 			const { type, stdout, error: workerError } = event.data;
-			
+
 			if (type === 'ready') {
 				pyodideReady = true;
 			} else if (type === 'result' || type === 'error') {
@@ -60,7 +60,7 @@
 		try {
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
-				body: JSON.stringify({ 
+				body: JSON.stringify({
 					payload: { output: stdout },
 					supportUsed
 				})
@@ -93,32 +93,33 @@
 
 		// Start execution with timeout
 		worker.postMessage({ type: 'run', code: finalCode });
-		
+
 		executionTimeout = setTimeout(() => {
 			if (loading) {
 				worker?.terminate();
 				loading = false;
-				output = "TIMEOUT: Die Code-Ausführung hat zu lange gedauert (evtl. Endlosschleife).";
-				result = { correct: false, feedback: "Ausführung abgebrochen." };
+				output = 'TIMEOUT: Die Code-Ausführung hat zu lange gedauert (evtl. Endlosschleife).';
+				result = { correct: false, feedback: 'Ausführung abgebrochen.' };
 				initWorker(); // Restart worker for next attempt
 			}
 		}, 5000);
 	}
 </script>
 
-<div class="border border-slate-200 bg-white p-10 shadow-sm rounded-none">
+<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
 	<h3 class="mb-8 font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase">
 		Syntax-Vervollständigung:
 	</h3>
 
 	<div
-		class="relative mb-10 border-4 border-slate-800 bg-slate-900 p-10 font-mono text-sm leading-relaxed text-teal-400 rounded-none shadow-inner"
+		class="relative mb-10 rounded-none border-4 border-slate-800 bg-slate-900 p-10 font-mono text-sm leading-relaxed text-teal-400 shadow-inner"
 	>
-		<pre class="whitespace-pre-wrap">{#each parts as part, i (i)}{part}{#if i < parts.length - 1}<input
+		<pre
+			class="whitespace-pre-wrap">{#each parts as part, i (i)}{part}{#if i < parts.length - 1}<input
 						bind:value={answers[i]}
 						disabled={task.isCompleted || task.isLocked || loading}
 						type="text"
-						class="mx-2 min-w-[80px] border-b-2 border-teal-500 bg-slate-800 px-3 py-1 text-white outline-none transition-colors focus:border-white disabled:opacity-50 rounded-none"
+						class="mx-2 min-w-[80px] rounded-none border-b-2 border-teal-500 bg-slate-800 px-3 py-1 text-white transition-colors outline-none focus:border-white disabled:opacity-50"
 						placeholder="..."
 					/>{/if}{/each}</pre>
 
@@ -127,7 +128,7 @@
 				class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-sm"
 			>
 				<div
-					class="mb-4 h-10 w-10 border-4 border-teal-500 border-t-transparent animate-spin"
+					class="mb-4 h-10 w-10 animate-spin border-4 border-teal-500 border-t-transparent"
 				></div>
 				<p class="font-mono text-[10px] tracking-widest text-teal-500 uppercase">
 					Initialisierung Code-Umgebung...
@@ -139,28 +140,34 @@
 	{#if output || result}
 		<div class="mb-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
 			<div>
-				<h4 class="mb-4 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">System-Ausgabe</h4>
+				<h4 class="mb-4 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+					System-Ausgabe
+				</h4>
 				<div
-					class="h-32 overflow-y-auto whitespace-pre border border-slate-100 bg-slate-50 p-6 font-mono text-xs text-slate-600 rounded-none"
+					class="h-32 overflow-y-auto rounded-none border border-slate-100 bg-slate-50 p-6 font-mono text-xs whitespace-pre text-slate-600"
 				>
 					{output || 'Keine Ausgabe registriert'}
 				</div>
 			</div>
 			<div>
-				<h4 class="mb-4 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">Validierung</h4>
+				<h4 class="mb-4 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+					Validierung
+				</h4>
 				{#if result}
 					<div
-						class="flex h-32 flex-col items-center justify-center border p-6 font-mono text-xs text-center rounded-none
+						class="flex h-32 flex-col items-center justify-center rounded-none border p-6 text-center font-mono text-xs
                         {result.correct
 							? 'border-green-200 bg-green-50 text-green-700'
 							: 'border-rose-200 bg-rose-50 text-rose-700'}"
 					>
-						<span class="mb-2 text-xl font-bold">{result.correct ? '✓' : (result.isLocked ? '🔒' : '✗')}</span>
+						<span class="mb-2 text-xl font-bold"
+							>{result.correct ? '✓' : result.isLocked ? '🔒' : '✗'}</span
+						>
 						{result.feedback}
 					</div>
 				{:else}
 					<div
-						class="flex h-32 items-center justify-center border border-dashed border-slate-200 bg-slate-50 px-6 text-center font-mono text-xs text-slate-400 italic rounded-none"
+						class="flex h-32 items-center justify-center rounded-none border border-dashed border-slate-200 bg-slate-50 px-6 text-center font-mono text-xs text-slate-400 italic"
 					>
 						Warten auf Code-Ausführung...
 					</div>
@@ -171,9 +178,19 @@
 
 	<button
 		onclick={handleSubmit}
-		disabled={loading || !pyodideReady || answers.some((a) => !a) || task.isCompleted || task.isLocked}
-		class="w-full bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
+		disabled={loading ||
+			!pyodideReady ||
+			answers.some((a) => !a) ||
+			task.isCompleted ||
+			task.isLocked}
+		class="w-full rounded-none bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20"
 	>
-		{loading ? 'Prüfprozess läuft...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Skript bereits verifiziert' : 'Skript ausführen & validieren'}
+		{loading
+			? 'Prüfprozess läuft...'
+			: task.isLocked
+				? 'Aufgabe gesperrt'
+				: task.isCompleted
+					? 'Skript bereits verifiziert'
+					: 'Skript ausführen & validieren'}
 	</button>
 </div>

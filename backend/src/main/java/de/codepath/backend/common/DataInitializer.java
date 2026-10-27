@@ -1,6 +1,6 @@
 package de.codepath.backend.common;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import de.codepath.backend.features.modules.Module;
 import de.codepath.backend.features.modules.ModuleRepository;
 import de.codepath.backend.features.tasks.Difficulty;

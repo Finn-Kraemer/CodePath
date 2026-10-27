@@ -13,6 +13,7 @@ Wenn du eine große Datei (z.B. ein Video) verschickst, wird diese nicht am Stü
 
 Ein lokaler Server steht direkt bei dir (z.B. in der Schule). Du musst dich um alles selbst kümmern.
 Die **Cloud** bietet Vorteile:
+
 - **Wartung:** Der Anbieter spielt Sicherheitsupdates ein.
 - **Backups:** Deine Daten werden automatisch gesichert.
 - **Kosten:** Du zahlst nur das, was du wirklich nutzt.

@@ -7,13 +7,10 @@ import de.codepath.backend.features.tasks.*;
 import de.codepath.backend.users.User;
 import de.codepath.backend.users.UserRepository;
 import de.codepath.backend.users.UserRole;
-import de.codepath.backend.features.messaging.RealtimeUpdateService;
-import de.codepath.backend.features.tasks.messaging.SubmissionProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,15 +20,10 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@org.springframework.context.annotation.Import(TestcontainersConfiguration.class)
 @ActiveProfiles("test")
 @Transactional
 public class TaskSubmissionTest {
-
-    @MockBean
-    private RealtimeUpdateService realtimeUpdateService;
-
-    @MockBean
-    private SubmissionProducer submissionProducer;
 
     @Autowired
     private TaskSubmissionService submissionService;

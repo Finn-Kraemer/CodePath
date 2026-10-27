@@ -1,0 +1,9 @@
+# TLS vor CodePath. Domain anpassen; Caddy holt das Zertifikat automatisch.
+# Im Schulnetz ohne öffentliche Domain: "tls internal" verwenden.
+codepath.example.de {
+	encode zstd gzip
+	reverse_proxy app:8080 {
+		# Live-Updates (Server-Sent Events) nicht puffern
+		flush_interval -1
+	}
+}

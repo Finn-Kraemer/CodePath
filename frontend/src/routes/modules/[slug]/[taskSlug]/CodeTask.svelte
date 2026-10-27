@@ -10,18 +10,18 @@
 	let result = $state<{ correct: boolean; feedback: string; isLocked?: boolean } | null>(null);
 	let loading = $state(false);
 	let pyodideReady = $state(false);
-	
+
 	let worker: Worker | null = null;
 	let executionTimeout: any = null;
 
 	function initWorker() {
 		if (worker) worker.terminate();
 		pyodideReady = false;
-		
+
 		worker = new Worker('/pyodide-worker.js');
 		worker.onmessage = (event) => {
 			const { type, stdout, error: workerError } = event.data;
-			
+
 			if (type === 'ready') {
 				pyodideReady = true;
 			} else if (type === 'result' || type === 'error') {
@@ -35,10 +35,10 @@
 		// Load Monaco
 		if (!(window as any).monaco) {
 			const loaderScript = document.createElement('script');
-			loaderScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js';
+			loaderScript.src = '/vendor/monaco/vs/loader.js';
 			loaderScript.onload = () => {
 				(window as any).require.config({
-					paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }
+					paths: { vs: '/vendor/monaco/vs' }
 				});
 				(window as any).require(['vs/editor/editor.main'], () => {
 					initEditor();
@@ -86,7 +86,7 @@
 		try {
 			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${task.slug}/submit`, {
 				method: 'POST',
-				body: JSON.stringify({ 
+				body: JSON.stringify({
 					payload: { output: stdout },
 					supportUsed
 				})
@@ -117,20 +117,20 @@
 
 		// Start execution with timeout
 		worker.postMessage({ type: 'run', code: code });
-		
+
 		executionTimeout = setTimeout(() => {
 			if (loading) {
 				worker?.terminate();
 				loading = false;
-				output = "TIMEOUT: Die Code-Ausführung hat zu lange gedauert (evtl. Endlosschleife).";
-				result = { correct: false, feedback: "Ausführung abgebrochen." };
+				output = 'TIMEOUT: Die Code-Ausführung hat zu lange gedauert (evtl. Endlosschleife).';
+				result = { correct: false, feedback: 'Ausführung abgebrochen.' };
 				initWorker(); // Restart worker
 			}
 		}, 5000);
 	}
 </script>
 
-<div class="border border-slate-200 bg-white p-10 shadow-sm rounded-none">
+<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
 	<h3 class="mb-8 font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase">
 		Python-Entwicklungsumgebung:
 	</h3>
@@ -138,7 +138,7 @@
 	<div class="relative mb-10">
 		<div
 			bind:this={editorElement}
-			class="h-96 w-full border-4 border-slate-800 bg-slate-900 shadow-inner rounded-none"
+			class="h-96 w-full rounded-none border-4 border-slate-800 bg-slate-900 shadow-inner"
 		></div>
 
 		{#if !pyodideReady}
@@ -146,9 +146,9 @@
 				class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-sm"
 			>
 				<div
-					class="mb-4 h-10 w-10 border-4 border-teal-500 border-t-transparent animate-spin"
+					class="mb-4 h-10 w-10 animate-spin border-4 border-teal-500 border-t-transparent"
 				></div>
-				<p class="font-mono text-[10px] tracking-widest text-teal-500 uppercase px-6 text-center">
+				<p class="px-6 text-center font-mono text-[10px] tracking-widest text-teal-500 uppercase">
 					System-Bootstrapping...
 				</p>
 			</div>
@@ -161,7 +161,7 @@
 				Konsolenausgabe
 			</h4>
 			<div
-				class="h-40 overflow-y-auto whitespace-pre border border-slate-100 bg-slate-50 p-6 font-mono text-xs text-slate-600 rounded-none shadow-inner"
+				class="h-40 overflow-y-auto rounded-none border border-slate-100 bg-slate-50 p-6 font-mono text-xs whitespace-pre text-slate-600 shadow-inner"
 			>
 				{output || 'System bereit.'}
 			</div>
@@ -172,17 +172,19 @@
 			</h4>
 			{#if result}
 				<div
-					class="flex h-40 flex-col items-center justify-center border p-8 font-mono text-xs text-center rounded-none
+					class="flex h-40 flex-col items-center justify-center rounded-none border p-8 text-center font-mono text-xs
                     {result.correct
 						? 'border-green-200 bg-green-50 text-green-700'
 						: 'border-rose-200 bg-rose-50 text-rose-700'}"
 				>
-					<span class="mb-3 text-2xl font-black">{result.correct ? 'ERFOLG' : (result.isLocked ? 'GESPERRT' : 'FEHLER')}</span>
+					<span class="mb-3 text-2xl font-black"
+						>{result.correct ? 'ERFOLG' : result.isLocked ? 'GESPERRT' : 'FEHLER'}</span
+					>
 					<p class="leading-relaxed">{result.feedback}</p>
 				</div>
 			{:else}
 				<div
-					class="flex h-40 items-center justify-center border border-dashed border-slate-200 bg-slate-50 p-8 text-center font-mono text-xs text-slate-400 italic rounded-none"
+					class="flex h-40 items-center justify-center rounded-none border border-dashed border-slate-200 bg-slate-50 p-8 text-center font-mono text-xs text-slate-400 italic"
 				>
 					Führen Sie das Skript zur Validierung aus.
 				</div>
@@ -193,8 +195,14 @@
 	<button
 		onclick={runCode}
 		disabled={loading || !pyodideReady || task.isCompleted || task.isLocked}
-		class="w-full bg-institutional-navy py-6 font-sans text-[11px] font-bold tracking-[4px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
+		class="w-full rounded-none bg-institutional-navy py-6 font-sans text-[11px] font-bold tracking-[4px] text-white uppercase shadow-sm transition-all hover:opacity-90 disabled:opacity-20"
 	>
-		{loading ? 'Skript wird ausgeführt...' : task.isLocked ? 'Aufgabe gesperrt' : task.isCompleted ? 'Validierung bereits abgeschlossen' : 'Code ausführen & prüfen'}
+		{loading
+			? 'Skript wird ausgeführt...'
+			: task.isLocked
+				? 'Aufgabe gesperrt'
+				: task.isCompleted
+					? 'Validierung bereits abgeschlossen'
+					: 'Code ausführen & prüfen'}
 	</button>
 </div>

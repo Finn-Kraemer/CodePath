@@ -39,7 +39,7 @@
 		try {
 			const res = await auth.apiFetch(`/api/modules/${slug}`);
 			if (res.status === 403) {
-				import('$app/navigation').then(nav => nav.goto('/modules'));
+				import('$app/navigation').then((nav) => nav.goto('/modules'));
 				return;
 			}
 			if (!res.ok) throw new Error('Aufgaben konnten nicht geladen werden');
@@ -73,29 +73,32 @@
 
 	{#if loading}
 		<div class="flex justify-center py-24">
-			<div class="h-12 w-12 border-4 border-slate-200 border-t-institutional-navy animate-spin"></div>
+			<div
+				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
+			></div>
 		</div>
 	{:else if error}
-		<div class="border border-red-200 bg-red-50 p-8 text-red-700 font-mono text-sm">
-			<span class="font-bold">FEHLER:</span> {error}
+		<div class="border border-red-200 bg-red-50 p-8 font-mono text-sm text-red-700">
+			<span class="font-bold">FEHLER:</span>
+			{error}
 		</div>
 	{:else}
 		<div class="space-y-4">
 			{#each sortedTasks as task (task.slug)}
 				<a
 					href={`/modules/${slug}/${task.slug}`}
-					class="group flex items-center justify-between border p-8 transition-all rounded-none
+					class="group flex items-center justify-between rounded-none border p-8 transition-all
                     {task.isLocked
 						? 'border-red-200 bg-red-50/30'
 						: task.isCompleted
 							? task.supportUsed
 								? 'border-amber-200 bg-amber-50/30'
 								: 'border-green-200 bg-green-50/30'
-							: 'border-slate-200 bg-white hover:border-institutional-navy shadow-sm'}"
+							: 'border-slate-200 bg-white shadow-sm hover:border-institutional-navy'}"
 				>
 					<div class="flex items-center gap-8">
 						<div
-							class="flex h-14 w-14 items-center justify-center font-mono text-[11px] font-black transition-colors rounded-none
+							class="flex h-14 w-14 items-center justify-center rounded-none font-mono text-[11px] font-black transition-colors
                             {task.isLocked
 								? 'bg-red-600 text-white'
 								: task.isCompleted
@@ -105,12 +108,30 @@
 									: 'bg-slate-100 text-slate-400 group-hover:bg-institutional-navy group-hover:text-white'}"
 						>
 							{#if task.isLocked}
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
-									<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-7 w-7"
+									viewBox="0 0 20 20"
+									fill="currentColor"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+										clip-rule="evenodd"
+									/>
 								</svg>
 							{:else if task.isCompleted}
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
-									<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-7 w-7"
+									viewBox="0 0 20 20"
+									fill="currentColor"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+										clip-rule="evenodd"
+									/>
 								</svg>
 							{:else}
 								{task.points}
@@ -118,26 +139,45 @@
 						</div>
 
 						<div>
-							<h3 class="font-sans text-lg font-bold tracking-tight text-institutional-navy uppercase transition-colors group-hover:text-amber-700">
+							<h3
+								class="font-sans text-lg font-bold tracking-tight text-institutional-navy uppercase transition-colors group-hover:text-amber-700"
+							>
 								{task.title}
 							</h3>
 							<div class="mt-2 flex items-center gap-4">
-								<span class="border px-2 py-0.5 font-mono text-[9px] font-bold tracking-widest uppercase {difficultyColors[task.difficulty]}">
+								<span
+									class="border px-2 py-0.5 font-mono text-[9px] font-bold tracking-widest uppercase {difficultyColors[
+										task.difficulty
+									]}"
+								>
 									{task.difficulty}
 								</span>
-								<span class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase italic">
+								<span
+									class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase italic"
+								>
 									{task.type.replace('_', ' ')}
 								</span>
 								{#if task.supportUsed && task.isCompleted}
-									<span class="bg-amber-100 text-amber-700 font-mono text-[8px] font-bold px-2 py-0.5 tracking-wider uppercase">Punktabzug aktiv</span>
+									<span
+										class="bg-amber-100 px-2 py-0.5 font-mono text-[8px] font-bold tracking-wider text-amber-700 uppercase"
+										>Punktabzug aktiv</span
+									>
 								{/if}
 							</div>
 						</div>
 					</div>
 
 					<div class="flex items-center gap-4">
-						<span class="font-sans text-[10px] font-black tracking-widest uppercase transition-colors
-                            {task.isLocked ? 'text-red-600' : task.isCompleted ? (task.supportUsed ? 'text-amber-600' : 'text-green-600') : 'text-slate-300 group-hover:text-institutional-navy'}">
+						<span
+							class="font-sans text-[10px] font-black tracking-widest uppercase transition-colors
+                            {task.isLocked
+								? 'text-red-600'
+								: task.isCompleted
+									? task.supportUsed
+										? 'text-amber-600'
+										: 'text-green-600'
+									: 'text-slate-300 group-hover:text-institutional-navy'}"
+						>
 							{task.isLocked ? 'Gesperrt' : task.isCompleted ? 'Abgeschlossen' : 'Aufgabe lösen →'}
 						</span>
 					</div>
