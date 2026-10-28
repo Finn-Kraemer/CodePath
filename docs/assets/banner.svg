@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="CodePath – Berufsorientierung IT">
+  <defs>
+    <pattern id="raster" width="76" height="76" patternUnits="userSpaceOnUse">
+      <path d="M 76 0 L 0 0 0 76" fill="none" stroke="#1e293b" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="320" fill="#0f172a"/>
+  <rect x="420" width="860" height="320" fill="url(#raster)"/>
+  <circle cx="1210" cy="330" r="190" fill="#1c1f2e"/>
+  <rect y="316" width="1280" height="4" fill="#b45309"/>
+
+  <g transform="translate(80 92)">
+    <rect width="96" height="96" fill="#ffffff"/>
+    <g transform="translate(18 18) scale(2.5)" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m18 16 4-4-4-4"/>
+      <path d="m6 8-4 4 4 4"/>
+      <path d="m14.5 4-5 16"/>
+    </g>
+  </g>
+
+  <g font-family="Inter, 'Helvetica Neue', Arial, sans-serif">
+    <text x="208" y="150" fill="#ffffff" font-size="76" font-weight="900" letter-spacing="-2">CODEPATH</text>
+    <text x="211" y="186" fill="#b45309" font-size="15" font-weight="700" letter-spacing="7">BERUFSORIENTIERUNG IT</text>
+    <text x="80" y="262" fill="#cbd5e1" font-size="22" font-weight="400">Interaktive Lernplattform für die Klassen 7–9 · selbst gehostet · offline-fähig</text>
+  </g>
+</svg>

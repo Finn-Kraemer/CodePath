@@ -1,5 +1,5 @@
 # CodePath: zwei Container – Anwendung und PostgreSQL. Optional ein dritter, der Code-Runner
-# (Profil "runner", siehe docs/phase-4.md): bewertet Python-Aufgaben serverseitig.
+# (Profil "runner", siehe docs/betrieb.md): bewertet Python-Aufgaben serverseitig.
 # Secrets kommen aus der Datei .env (Vorlage: .env.example). Ohne sie startet der Stack nicht.
 services:
   postgres:
