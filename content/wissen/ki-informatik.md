@@ -1,6 +1,7 @@
 ---
 title: KI & Informatik
 icon: 🤖
+module: ki-informatik
 ---
 
 # Künstliche Intelligenz (KI)

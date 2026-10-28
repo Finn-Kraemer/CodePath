@@ -29,7 +29,7 @@ test('Startseite bearbeiten und veröffentlichen', async ({ page, browser }) => 
 	await expect(visitor.getByRole('heading', { name: title })).toHaveCount(0);
 
 	await page.getByRole('button', { name: 'Veröffentlichen' }).click();
-	await expect(page.getByRole('status')).toContainText('veröffentlicht');
+	await expect(page.getByRole('status')).toContainText('Veröffentlicht');
 
 	await visitor.reload();
 	await expect(visitor.getByRole('heading', { name: title })).toBeVisible();

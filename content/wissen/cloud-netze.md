@@ -1,6 +1,7 @@
 ---
 title: Cloud & Netzwerke
 icon: ☁️
+module: cloud-netze
 ---
 
 # Cloud & Netzwerke

@@ -1,6 +1,7 @@
 ---
 title: IT-Sicherheit
 icon: 🔒
+module: it-sicherheit
 ---
 
 # IT-Sicherheit

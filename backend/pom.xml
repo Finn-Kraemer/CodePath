@@ -136,6 +136,7 @@
 					<include>*/module.json</include>
 					<include>*/tasks/*.json</include>
 					<include>*/media/*</include>
+					<include>wissen/*.md</include>
 				</includes>
 			</resource>
 		</resources>

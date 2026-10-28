@@ -1,6 +1,7 @@
 ---
 title: Datenbanken (SQL)
 icon: 🗄️
+module: datenbanken
 ---
 
 # Datenbanken (SQL)

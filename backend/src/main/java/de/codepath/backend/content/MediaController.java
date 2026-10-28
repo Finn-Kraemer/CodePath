@@ -2,7 +2,7 @@ package de.codepath.backend.content;
 
 import de.codepath.backend.identity.UserService;
 import de.codepath.backend.platform.ApiException;
-import de.codepath.backend.platform.settings.HomepageService;
+import de.codepath.backend.platform.media.MediaUsage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
@@ -24,16 +24,16 @@ public class MediaController {
 
     private final MediaService mediaService;
     private final UserService userService;
-    private final HomepageService homepageService;
+    private final List<MediaUsage> mediaUsages;
 
     /**
-     * Bilder für angemeldete Nutzer; ohne Anmeldung nur die der veröffentlichten Startseite.
+     * Bilder für angemeldete Nutzer; ohne Anmeldung nur die öffentlicher Seiten (Startseite, eigene Seiten).
      * Der Inhalt zu einem Schlüssel ändert sich nie – daher lange cachen.
      */
     @GetMapping("/api/media/{key}")
     public ResponseEntity<byte[]> media(@PathVariable("key") String key, Authentication authentication) {
         boolean anonymous = authentication == null || authentication instanceof AnonymousAuthenticationToken;
-        if (anonymous && !homepageService.isPublicMedia(key)) {
+        if (anonymous && mediaUsages.stream().noneMatch(u -> u.isPublic(key))) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Bitte anmelden.");
         }
         MediaFile file = mediaService.get(key).orElseThrow(() -> ApiException.notFound("Bild nicht gefunden."));

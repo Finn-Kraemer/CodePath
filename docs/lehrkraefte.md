@@ -67,6 +67,14 @@ Jede Aufgabe hat eine kurze Geschichte, einen Auftrag und ein Lernziel. Pro Aufg
 
 *Entwurf speichern* sichert den Stand nur für dich, erst *Veröffentlichen* zeigt ihn allen. *Änderungen verwerfen* kehrt zur Live-Fassung zurück, *Auf Standard zurücksetzen* stellt die mitgelieferte Startseite wieder her. Ein neuer Build oder Neustart ist dafür nicht nötig.
 
+### Eigene Seiten
+
+**Leitstand → Seiten.** Neue Seiten wie „Anfahrt“, „Ablauf“ oder „Kontakt“ anlegen: Titel eingeben, die Adresse (`/seiten/…`) wird vorgeschlagen. Bearbeitet wird mit demselben Abschnitts-Editor wie die Startseite, ebenfalls mit Entwurf und *Veröffentlichen*. In den Einstellungen jeder Seite legst du fest, ob sie **nur für Angemeldete** oder **für alle** sichtbar ist und ob sie **im Menü** erscheint; die Reihenfolge im Menü stellst du in der Seitenliste mit ↑/↓ ein. *Offline nehmen* versteckt eine Seite wieder, ohne den Entwurf zu verlieren.
+
+### Wissensdatenbank bearbeiten
+
+**Leitstand → Wissensdatenbank** (oder *Artikel bearbeiten* in der Wissensdatenbank). Artikel werden in Markdown geschrieben, rechts steht die Vorschau; *Bild einfügen* setzt ein Bild aus der Medienverwaltung an die Cursorposition. Pro Artikel wählst du, wann Schüler ihn sehen: **immer** (Grundlagen) oder **erst, wenn ein bestimmtes Modul freigegeben ist**. Neue Artikel sind zunächst Entwurf und nur für dich sichtbar, bis du *Veröffentlicht* anhakst. Gelöschte mitgelieferte Artikel kommen bei Updates nicht zurück.
+
 ### Fortschritt verfolgen
 
 | Ansicht | Zeigt |

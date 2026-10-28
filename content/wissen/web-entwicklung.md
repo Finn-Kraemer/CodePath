@@ -1,6 +1,7 @@
 ---
 title: Web-Entwicklung
 icon: 🌐
+module: web-entwicklung
 ---
 
 # Web-Entwicklung

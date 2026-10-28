@@ -21,6 +21,11 @@ export type SubmissionDetail = Schemas['SubmissionDetail'];
 export type TaskStatistic = Schemas['TaskStatistic'];
 export type AttemptView = Schemas['AttemptView'];
 export type MediaInfo = Schemas['MediaInfo'];
+export type PageSummary = Schemas['PageSummary'];
+export type NavLink = Schemas['NavLink'];
+export type ArticleAdmin = Schemas['ArticleAdmin'];
+export type ArticleSummary = Schemas['ArticleSummary'];
+export type ArticleView = Schemas['ArticleView'];
 
 export class ApiError extends Error {
 	constructor(
