@@ -2,6 +2,8 @@
 
 Aufgaben für Fortgeschrittene und als Abschlusstest: Schülerinnen und Schüler untersuchen eine kleine Web-App in einem eigenen Tab mit den Entwicklerwerkzeugen des Browsers (Konsole, Inspektor, Netzwerkanalyse, Web-Speicher) und finden unterwegs die Teile eines Codes. Jedes Szenario verlangt mehrere Werkzeuge nacheinander; ein einzelner Befehl oder Blick reicht nicht.
 
+![Aufgabe „Der Schul-Shop“ im Browser-Labor](assets/screenshots/browser-labor.png)
+
 ## Szenarien
 
 | Szenario | Teile | Weg |
