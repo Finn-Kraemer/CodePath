@@ -235,7 +235,7 @@ def main():
     if len(TOKEN) < 16:
         sys.exit("RUNNER_TOKEN fehlt oder ist kürzer als 16 Zeichen.")
     if not healthy():
-        sys.exit("Die Sandbox funktioniert nicht (siehe docs/phase-4.md: user namespaces, seccomp).")
+        sys.exit("Die Sandbox funktioniert nicht (siehe docs/betrieb.md, Abschnitt Code-Runner: user namespaces, seccomp).")
     try:
         if execute("import time; time.sleep(30)", "", BASE_UID, wall_seconds=1)["status"] != "TIMEOUT":
             raise SandboxError("Zeitlimit greift nicht")

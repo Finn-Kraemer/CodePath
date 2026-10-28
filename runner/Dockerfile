@@ -1,4 +1,4 @@
-# CodePath Code-Runner: Python-Abgaben in bubblewrap ausführen (ADR-4, docs/phase-4.md)
+# CodePath Code-Runner: Python-Abgaben in bubblewrap ausführen (ADR-4, docs/betrieb.md)
 FROM python:3.13-slim
 RUN apt-get update \
     && apt-get install -y --no-install-recommends bubblewrap \

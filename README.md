@@ -1,74 +1,104 @@
-# CodePath
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="CodePath – Berufsorientierung IT" width="100%">
+</p>
 
-CodePath ist eine interaktive Lernplattform zur IT-Berufsorientierung für Schülerinnen und Schüler der Klassen 7–9. Sie erkunden IT-Berufsfelder über praxisnahe Aufgaben; die Lehrkraft schaltet Module frei, bewertet Praxisabgaben und stellt Teilnahmebestätigungen aus.
+<p align="center">
+  <a href="https://github.com/Finn-Kraemer/CodePath/actions/workflows/ci.yml"><img src="https://github.com/Finn-Kraemer/CodePath/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/Java-25-0f172a" alt="Java 25">
+  <img src="https://img.shields.io/badge/Spring_Boot-4.1-0f172a" alt="Spring Boot 4.1">
+  <img src="https://img.shields.io/badge/SvelteKit-2-0f172a" alt="SvelteKit 2">
+  <img src="https://img.shields.io/badge/PostgreSQL-17-0f172a" alt="PostgreSQL 17">
+  <img src="https://img.shields.io/badge/Aufgaben-132-b45309" alt="132 Aufgaben">
+</p>
 
-## 🚀 Schnelleinstieg
+**CodePath** ist eine Lernplattform für den IT-Berufsorientierungstag. Schülerinnen und Schüler der Klassen 7–9 schlüpfen in echte IT-Berufe – Entwicklerin, Datenbankadmin, Sicherheitsanalyst – und lösen Aufgaben, die sich wie die Arbeit dort anfühlen: Code schreiben, Datenbanken abfragen, Schaltungen bauen, Phishing-Mails entlarven, eine kaputte Web-App mit den Entwicklerwerkzeugen untersuchen.
+
+Die Lehrkraft eröffnet einen Kurs, schaltet Module frei, verfolgt den Fortschritt live, bewertet Praxisabgaben und stellt Teilnahmebestätigungen aus. CodePath läuft auf einem Schulserver oder Laptop – zwei Container, keine Cloud, nach der Installation komplett offline.
+
+---
+
+## ◼ Auf einen Blick
+
+| | |
+|---|---|
+| **10 Module, 132 Aufgaben** | Programmierung, Web-Entwicklung, IT-Sicherheit, Datenbanken, Künstliche Intelligenz, Cloud & Netzwerke, Algorithmen, Git, Digitaltechnik – und ein Abschlusstest |
+| **15 Aufgabentypen** | von Auswahl und Lückentext über Python, SQL und Terminal bis zu Logikgattern, Markieren im Bild und dem Browser-Labor ([Übersicht](docs/aufgabentypen.md)) |
+| **Fair bewertet** | ausschließlich auf dem Server; Lösungen erreichen nie den Browser, Codes und Zahlen sind je Person verschieden |
+| **Für den Unterricht gebaut** | Kurse mit Beitrittscode, Freigaben und Fristen, gestufte Hinweise, Live-Rangliste für den Beamer, Rubrik-Bewertung |
+| **Inhalte ohne Programmieren** | Editor mit Vorschau und Probelauf, Versionen, Bilder-Upload, Export und Import als ZIP |
+| **Datensparsam** | selbst gehostet, keine Fremdabrufe, Kurs beenden löscht alle Schülerdaten |
+
+## ◼ Einblicke
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/assets/screenshots/module.png" alt="Modulübersicht"><br><sub><b>LERNMODULE</b> · jedes Modul ist ein Berufsfeld mit eigener Geschichte</sub></td>
+    <td width="50%"><img src="docs/assets/screenshots/logikgatter.png" alt="Logikgatter-Aufgabe"><br><sub><b>LOGIKGATTER</b> · Schaltplan und Wahrheitstabelle rechnen live mit</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/screenshots/bild-markieren.png" alt="Markieren im Bild"><br><sub><b>IM BILD MARKIEREN</b> · Sicherheitsrisiken am Arbeitsplatz finden</sub></td>
+    <td><img src="docs/assets/screenshots/beamer.png" alt="Beamer-Ansicht"><br><sub><b>BEAMER-MODUS</b> · Live-Rangliste und Mitteilungen für den Raum</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/screenshots/control-center.png" alt="Control Center"><br><sub><b>CONTROL CENTER</b> · Kurse, Abgaben, Freigaben und Auswertung</sub></td>
+    <td><img src="docs/assets/screenshots/editor.png" alt="Inhalte-Editor"><br><sub><b>EDITOR</b> · Aufgaben anlegen, prüfen und veröffentlichen – ohne Deployment</sub></td>
+  </tr>
+</table>
+
+## ◼ Schnellstart
+
+Voraussetzung: ein Rechner mit Docker und Docker Compose.
 
 ```bash
 curl -O https://raw.githubusercontent.com/finn-kraemer/codepath/main/docker-compose.yml
 curl -o .env https://raw.githubusercontent.com/finn-kraemer/codepath/main/.env.example
-# .env öffnen und POSTGRES_PASSWORD setzen, z. B. mit: openssl rand -base64 32
+# In .env POSTGRES_PASSWORD setzen, z. B.: openssl rand -base64 32
 docker compose up -d
 ```
 
-CodePath besteht aus zwei Containern: der Anwendung (API und Oberfläche) und PostgreSQL. Ohne `POSTGRES_PASSWORD` in `.env` startet der Stack nicht – es gibt bewusst keine Standardpasswörter.
+| | |
+|---|---|
+| **Oberfläche** | [http://localhost:8080](http://localhost:8080) |
+| **Anmeldung Lehrkraft** | Benutzer `admin`, Passwort aus `ADMIN_SEED_PASSWORD` – leer gelassen, steht es im Log: `docker compose logs app \| grep "Erzeugtes Passwort"` |
+| **Erster Kurs** | Leitstand → *Kurse & Konten* → Kurs anlegen → Beitrittscode an die Klasse geben |
 
-- **Oberfläche**: [http://localhost:8080](http://localhost:8080)
-- **Admin-Konto**: Benutzername `admin`. Das Passwort ist `ADMIN_SEED_PASSWORD` aus `.env`; ist es leer, wird beim ersten Start eines erzeugt und ins Log geschrieben: `docker compose logs app | grep "Erzeugtes Passwort"`
-- **Update**: `docker compose pull && docker compose up -d`
-- **Backup**: `./deploy/backup.sh` (schreibt `backups/codepath-<datum>.sql.gz`)
-- **TLS**: `docker compose -f docker-compose.yml -f deploy/docker-compose.tls.yml up -d` mit Caddy davor; Domain in `deploy/Caddyfile` eintragen und `COOKIE_SECURE=true` setzen.
+Es gibt bewusst keine Standardpasswörter: Ohne `POSTGRES_PASSWORD` startet der Stack nicht. Für HTTPS, Backups, Updates und den optionalen Code-Runner siehe **[Betriebshandbuch](docs/betrieb.md)**.
 
-- **Code-Aufgaben mit Punkten** (optional): dritter Container `runner`, der Python-Abgaben in einer Sandbox ausführt – einschalten wie in `docs/phase-4.md` beschrieben. Ohne ihn sind Code-Aufgaben Übungen ohne Punkte.
+## ◼ Dokumentation
 
-Nach der Installation läuft CodePath vollständig offline: Monaco-Editor, Pyodide und Schriften sind im Image enthalten.
+| Für | Dokument |
+|---|---|
+| Lehrkräfte | **[Handbuch für Lehrkräfte](docs/lehrkraefte.md)** – Kurs vorbereiten, Unterricht begleiten, bewerten, Inhalte pflegen |
+| Alle, die Aufgaben auswählen oder schreiben | **[Aufgabentypen](docs/aufgabentypen.md)** – was jeder Typ prüft und wie er bewertet; Format in [`content/README.md`](content/README.md) |
+| IT-Betreuung | **[Betriebshandbuch](docs/betrieb.md)** – Installation, Konfiguration, HTTPS, Backup, Update, Code-Runner, Fehlersuche |
+| Datenschutz und Sicherheit | **[Sicherheit und Datenschutz](docs/sicherheit.md)** |
+| Entwicklung | **[Entwicklerhandbuch](docs/entwicklung.md)** – Architektur, lokale Umgebung, Tests, neue Aufgabentypen |
+| Hintergrund | [Architekturentscheidungen](docs/adr/) · [Browser-Labor](docs/browser-labor.md) · [Änderungsprotokoll](CHANGELOG.md) · [Historie der Überarbeitung](docs/historie/) |
 
-### Datenbank ansehen (optional)
+Alle Dokumente im Überblick: **[docs/](docs/README.md)**.
 
-`docker compose --profile tools up -d pgadmin` startet pgAdmin auf [http://localhost:8082](http://localhost:8082) (nur auf diesem Rechner erreichbar). Verbindung: Host `postgres`, User/DB `codepath`, Passwort aus `.env`.
+## ◼ Technik
 
----
+```
+            Browser (SvelteKit, statisch)
+                        │  HTTPS, Session-Cookie, Server-Sent Events
+┌───────────────────────┴───────────────────────┐
+│  app   Spring Boot 4.1 · Java 25              │──── runner (optional)
+│        API · Bewertung · Live-Updates · UI    │     Python in bubblewrap-Sandbox
+└───────────────────────┬───────────────────────┘
+                        │
+                 PostgreSQL 17
+     Daten · Sessions · Aufgabenversionen · Bilder
+```
 
-## 🏗️ Architektur
+Ein modularer Monolith (ADR-1): eine Anwendung, eine Datenbank, keine Message-Broker. Monaco-Editor, Pyodide und Schriften sind gebündelt, damit CodePath auch ohne Internet läuft. Details im [Entwicklerhandbuch](docs/entwicklung.md).
 
-Ein modularer Monolith (siehe `docs/adr/`): Eine Spring-Boot-Anwendung liefert API, Live-Updates und das statisch gebaute Frontend aus, dazu PostgreSQL.
-
-- **Backend:** Java 25, Spring Boot 4.1, Spring Security mit serverseitigen Sessions (Spring Session JDBC), Flyway, PostgreSQL 17
-- **Code-Runner (optional):** Python-Dienst mit bubblewrap-Sandbox (`runner/`, ADR-4)
-- **Live-Updates:** Server-Sent Events unter `/api/events` (Leaderboard, Ankündigungen)
-- **Frontend:** SvelteKit 2 mit Svelte 5 (adapter-static), Tailwind CSS 4, Monaco, TipTap, Pyodide – alles lokal gebündelt
-- **Tests:** JUnit 5 mit Testcontainers (PostgreSQL), Vitest; CI über GitHub Actions auf jedem Pull Request
-
----
-
-## 💻 Entwicklung
-
-Voraussetzungen: Java 25, Node.js 22 mit pnpm, Docker.
+## ◼ Mitentwickeln
 
 ```bash
-# Datenbank
-cd backend/dev-stack && ./start.sh
-
-# Backend (http://localhost:8080)
+cd backend/dev-stack && ./start.sh                                  # PostgreSQL
 cd backend && SPRING_DATASOURCE_PASSWORD=codepath ./mvnw spring-boot:run
-
-# Frontend mit Hot Reload (http://localhost:5173, leitet /api an das Backend weiter)
-cd frontend && pnpm install && pnpm dev
+cd frontend && pnpm install && pnpm dev                             # http://localhost:5173
 ```
 
-Prüfen wie in der CI:
-
-```bash
-cd backend && ./mvnw verify                    # Tests gegen PostgreSQL (Testcontainers, braucht Docker)
-cd frontend && pnpm lint && pnpm check && pnpm test && pnpm build
-```
-
-Das Docker-Image baut `docker build -t codepath .` im Wurzelverzeichnis.
-
----
-
-## 📚 Dokumentation
-
-- `docs/adr/` – Architekturentscheidungen
-- `docs/phase-0.md` … – was in welcher Phase der Überarbeitung umgesetzt wurde
-- `AI.md` – technische Details zu Sicherheit und Implementierung
+Vor einem Pull Request laufen dieselben Prüfungen wie in der CI: `./mvnw verify` im Backend, `pnpm lint && pnpm check && pnpm test` im Frontend, `python content/validate.py` für Inhalte. Mehr im [Entwicklerhandbuch](docs/entwicklung.md).

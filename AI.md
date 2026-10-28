@@ -1,6 +1,6 @@
 # CodePath – Technische Dokumentation (AI.md)
 
-Stand: CodePath 2.0 (Phasen 0–5 der Überarbeitung). Was sich in welcher Phase geändert hat, steht in `docs/phase-*.md`, die Entscheidungen in `docs/adr/`.
+Stand: CodePath 2.0 (Phasen 0–5 der Überarbeitung). Was sich in welcher Phase geändert hat, steht in `docs/historie/`, die Entscheidungen in `docs/adr/`.
 
 ## Architektur
 
@@ -51,7 +51,7 @@ Content-Pakete unter `content/<modul>/` (`module.json`, `tasks/NN-slug.json`, Ma
 
 ## Medien
 
-Bilder liegen in PostgreSQL, Schlüssel = SHA-256 + Endung (ADR-7). Upload nur für die Lehrkraft, nur PNG/JPEG/GIF/WebP bis 2 MB, Auslieferung unter `/api/media/` mit restriktiver CSP. Markdown zeigt nur diese Bilder. Details: `docs/medien-und-neue-typen.md`.
+Bilder liegen in PostgreSQL, Schlüssel = SHA-256 + Endung (ADR-7). Upload nur für die Lehrkraft, nur PNG/JPEG/GIF/WebP bis 2 MB, Auslieferung unter `/api/media/` mit restriktiver CSP. Markdown zeigt nur diese Bilder. Details: `docs/historie/medien-und-neue-typen.md`.
 
 ## Live-Updates
 
