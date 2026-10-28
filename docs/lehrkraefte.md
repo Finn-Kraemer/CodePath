@@ -73,7 +73,7 @@ Jede Aufgabe hat eine kurze Geschichte, einen Auftrag und ein Lernziel. Pro Aufg
 
 ### Wissensdatenbank bearbeiten
 
-**Leitstand → Wissensdatenbank** (oder *Artikel bearbeiten* in der Wissensdatenbank). Artikel werden in Markdown geschrieben, rechts steht die Vorschau; *Bild einfügen* setzt ein Bild aus der Medienverwaltung an die Cursorposition. Pro Artikel wählst du, wann Schüler ihn sehen: **immer** (Grundlagen) oder **erst, wenn ein bestimmtes Modul freigegeben ist**. Neue Artikel sind zunächst Entwurf und nur für dich sichtbar, bis du *Veröffentlicht* anhakst. Gelöschte mitgelieferte Artikel kommen bei Updates nicht zurück.
+**Leitstand → Wissensdatenbank** (oder *Artikel bearbeiten* in der Wissensdatenbank). Artikel werden in Markdown geschrieben, rechts steht die Vorschau; *Bild einfügen* setzt ein Bild aus der Medienverwaltung an die Cursorposition. Pro Artikel wählst du, wann Schüler ihn sehen: **immer** (Grundlagen) oder **erst, wenn ein bestimmtes Modul freigegeben ist**. Neue Artikel sind zunächst Entwurf und nur für dich sichtbar, bis du *Veröffentlicht* anhakst. Mitgelieferte Artikel, die du nicht verändert hast, werden bei Updates auf die neue Fassung gebracht; sobald du einen Artikel bearbeitest, bleibt deine Fassung erhalten. Gelöschte mitgelieferte Artikel kommen bei Updates nicht zurück.
 
 ### Fortschritt verfolgen
 

@@ -16,12 +16,14 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - **Einzelne Aufgaben freischalten oder sperren** je Kurs, unabhängig vom Modul. Aufgabenzahl, Punkte, Fortschritt und Teilnahmebestätigung zählen nur die sichtbaren Aufgaben.
 - **Aufgaben umsortieren** im Editor per Ziehen oder ▲▼; Importe überschreiben die Reihenfolge nicht mehr.
 - **Python-Werkbank für Praxisaufgaben**: Editor mit Eingaben und Ausführen im Browser (10 s), Code wird mit abgegeben und lässt sich in der Bewertung ausführen. Aktiv in *Dein erstes vollständiges Programm*.
+- **Wissensdatenbank ausgebaut**: Alle Modulartikel erklären jetzt, was die Aufgaben voraussetzen (u. a. Subnetze, OSI, TCP/UDP, HTTP, Transaktionen, Beziehungen, Branches und Merge-Konflikte, Hashing, Firewall-Regeln, Konfusionsmatrix, neuronale Netze, CSS, JavaScript, REST-APIs, while-Schleifen, Dictionaries, Fehlermeldungen, Hexadezimal). Neu: *So funktioniert CodePath* (Punkte, Versuche, Hinweise, Aufgabentypen) und *Browser-Entwicklerwerkzeuge* für das Browser-Labor. Vollständige Lösungen zu Programmieraufgaben stehen nicht in den Artikeln.
 - Neue Dokumentation: Handbücher für Lehrkräfte, Betrieb, Sicherheit und Entwicklung, Übersicht der Aufgabentypen.
 
 ### Verbessert
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update
+- Migration V19 merkt sich, welcher mitgelieferte Text in einem Wissensartikel steht. Artikel, die niemand im Browser geändert hat, bekommen beim Start die neue Fassung; bearbeitete Artikel bleiben unverändert.
 - Migration V18 ergänzt eine Kurzbeschreibung für eigene Seiten.
 - Migration V17 legt Tabellen für eigene Seiten und die Wissensdatenbank an. Die bisher fest eingebauten Wissensartikel werden beim Start einmalig übernommen (`content/wissen/`); Sichtbarkeit wie bisher (Grundlagen immer, sonst mit dem gleichnamigen Modul).
 - Migration V16 entfernt die nie genutzte Einstellung `frontpage_config`. Solange nichts veröffentlicht ist, zeigt die Startseite den bisherigen Inhalt.

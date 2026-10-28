@@ -456,19 +456,17 @@ for i, frucht in enumerate(früchte):
 
 ### Modulo in Schleifen
 
-Der `%`-Operator ist besonders nützlich um Muster in Schleifen zu erkennen:
+Der `%`-Operator liefert den **Rest** einer Division. Damit erkennst du, ob eine Zahl durch eine andere teilbar ist: `zahl % 3 == 0` heißt „ohne Rest durch 3 teilbar“.
 
 ```python
-for i in range(1, 16):
-    if i % 3 == 0 and i % 5 == 0:
-        print("FizzBuzz")
-    elif i % 3 == 0:
-        print("Fizz")
-    elif i % 5 == 0:
-        print("Buzz")
+for i in range(1, 11):
+    if i % 2 == 0:
+        print(i, "ist gerade")
     else:
-        print(i)
+        print(i, "ist ungerade")
 ```
+
+Bei mehreren Bedingungen kommt es auf die **Reihenfolge** an: `if`/`elif` prüft von oben nach unten und nimmt den **ersten** zutreffenden Fall. Die speziellste Bedingung (z. B. „durch 3 **und** durch 5 teilbar“) muss deshalb zuerst geprüft werden, sonst wird sie nie erreicht.
 
 ---
 
@@ -487,3 +485,168 @@ def begruessung(name, alter):
 print(begruessung("Max", 15))        # → Hallo, Max!
 print(begruessung("Dr. Müller", 42)) # → Guten Tag, Dr. Müller!
 ```
+
+Variablen, die **innerhalb** einer Funktion entstehen, gibt es nur dort (**lokale Variablen**). `return` beendet die Funktion sofort; ohne `return` gibt sie `None` zurück.
+
+> ⚠️ `print` zeigt etwas an, `return` gibt einen Wert an den Aufrufer zurück. Wer das Ergebnis weiterverwenden will, braucht `return`.
+
+---
+
+## 13. While-Schleife
+
+Die `while`-Schleife wiederholt Code, **solange** eine Bedingung wahr ist. Man nimmt sie, wenn vorher nicht feststeht, wie viele Durchläufe nötig sind.
+
+```python
+kontostand = 100
+jahre = 0
+while kontostand < 200:
+    kontostand = kontostand * 1.1   # 10 % Zinsen
+    jahre += 1
+print(f"Nach {jahre} Jahren verdoppelt")   # → Nach 8 Jahren verdoppelt
+```
+
+> ⚠️ Irgendetwas in der Schleife muss die Bedingung irgendwann falsch machen – sonst läuft sie **endlos**.
+
+| Schlüsselwort | Wirkung                                                  |
+| ------------- | -------------------------------------------------------- |
+| `break`       | Schleife sofort verlassen                                |
+| `continue`    | Rest dieses Durchlaufs überspringen, mit dem nächsten weitermachen |
+
+**`for` oder `while`?** Anzahl bekannt oder über eine Liste laufen → `for`. Wiederholen, bis etwas eintritt → `while`.
+
+### Einrückung
+
+Python erkennt an der **Einrückung** (4 Leerzeichen), welche Zeilen zu einer Schleife, Verzweigung oder Funktion gehören. Nach jeder Zeile mit `:` folgt ein eingerückter Block.
+
+```python
+zahl = 3
+while zahl > 0:
+    print(zahl)        # gehört zur Schleife
+    zahl -= 1          # gehört zur Schleife
+print("Start!")        # nicht eingerückt: erst nach der Schleife
+```
+
+---
+
+## 14. Texte (Strings)
+
+```python
+name = "Lena"
+print(len(name))           # → 4         Länge
+print(name[0])             # → L         erstes Zeichen
+print(name.upper())        # → LENA      Großbuchstaben
+print(name.lower())        # → lena      Kleinbuchstaben
+print("en" in name)        # → True      enthalten?
+print("Hallo " + name)     # → Hallo Lena   Verketten mit +
+print(name * 3)            # → LenaLenaLena
+print("a,b,c".split(","))  # → ['a', 'b', 'c']   aufteilen
+print("  hi  ".strip())    # → hi        Leerzeichen am Rand entfernen
+```
+
+### f-Strings
+
+Mit einem `f` vor dem Text setzt du Werte direkt in `{ }` ein:
+
+```python
+punkte = 87.456
+print(f"{name} hat {punkte} Punkte")      # → Lena hat 87.456 Punkte
+print(f"{name} hat {punkte:.1f} Punkte")  # → Lena hat 87.5 Punkte (1 Nachkommastelle)
+```
+
+---
+
+## 15. Eingabe und Typumwandlung
+
+`input()` liest eine Eingabe – und liefert **immer einen Text** (`str`), auch wenn eine Zahl eingegeben wurde.
+
+```python
+alter = input("Wie alt bist du? ")   # z. B. "15" – ein Text!
+alter = int(alter)                    # jetzt die Zahl 15
+print(alter + 1)                      # → 16
+```
+
+| Funktion  | Umwandlung                     | Beispiel                 |
+| --------- | ------------------------------ | ------------------------ |
+| `int()`   | in eine ganze Zahl             | `int("42")` → `42`       |
+| `float()` | in eine Kommazahl              | `float("3.5")` → `3.5`   |
+| `str()`   | in einen Text                  | `str(42)` → `"42"`       |
+| `bool()`  | in einen Wahrheitswert         | `bool(0)` → `False`      |
+
+> ⚠️ `"5" + "3"` ergibt `"53"` (Texte werden aneinandergehängt), `5 + 3` ergibt `8`. Und `"5" + 3` ist ein Fehler.
+
+---
+
+## 16. Dictionaries
+
+Ein **Dictionary** speichert **Schlüssel-Wert-Paare**. Statt über eine Position greifst du über einen Namen zu – wie in einem Wörterbuch.
+
+```python
+schueler = {"name": "Max", "klasse": "8a", "note": 2}
+
+print(schueler["name"])         # → Max
+schueler["note"] = 1            # Wert ändern
+schueler["email"] = "max@x.de"  # neuen Eintrag hinzufügen
+print("klasse" in schueler)     # → True  (Schlüssel vorhanden?)
+print(schueler.get("alter", 0)) # → 0     (Standardwert, falls Schlüssel fehlt)
+```
+
+### Über ein Dictionary laufen
+
+```python
+lager = {"Äpfel": 12, "Birnen": 0, "Kiwis": 5}
+
+for ware in lager:                     # nur die Schlüssel
+    print(ware)
+
+for ware, anzahl in lager.items():     # Schlüssel und Wert zusammen
+    if anzahl == 0:
+        print(f"{ware} ist ausverkauft")
+```
+
+| Methode       | Liefert                         |
+| ------------- | ------------------------------- |
+| `.keys()`     | alle Schlüssel                  |
+| `.values()`   | alle Werte                      |
+| `.items()`    | alle Paare `(schlüssel, wert)`  |
+
+Oft hat man eine **Liste von Dictionaries** – wie Zeilen einer Tabelle:
+
+```python
+klasse = [
+    {"name": "Lena", "punkte": 92},
+    {"name": "Tom", "punkte": 78},
+]
+for s in klasse:
+    print(s["name"], s["punkte"])
+```
+
+---
+
+## 17. Fehlermeldungen verstehen
+
+Python zeigt bei Fehlern einen **Traceback**. Lies ihn von **unten nach oben**: Die letzte Zeile nennt Art und Grund, darüber steht die Zeilennummer.
+
+```
+Traceback (most recent call last):
+  File "main.py", line 3, in <module>
+    print(summe / anzahl)
+ZeroDivisionError: division by zero
+```
+
+| Fehler                | Bedeutung                                          | Typische Ursache                                  |
+| --------------------- | -------------------------------------------------- | ------------------------------------------------- |
+| `SyntaxError`         | Code ist kein gültiges Python                      | fehlender `:`, Klammer oder Anführungszeichen      |
+| `IndentationError`    | Einrückung stimmt nicht                            | Block nach `:` nicht eingerückt, Tabs und Leerzeichen gemischt |
+| `NameError`           | Name unbekannt                                     | Tippfehler, Variable noch nicht angelegt           |
+| `TypeError`           | Datentypen passen nicht zusammen                   | `"Alter: " + 15` → besser `f"Alter: {15}"`         |
+| `ValueError`          | Wert ungeeignet                                    | `int("zwölf")`                                     |
+| `IndexError`          | Index außerhalb der Liste                          | `liste[5]` bei nur 5 Elementen (letzter Index ist 4) |
+| `KeyError`            | Schlüssel nicht im Dictionary                      | Tippfehler beim Schlüssel, Groß-/Kleinschreibung   |
+| `ZeroDivisionError`   | Division durch 0                                   | leere Liste beim Durchschnitt                      |
+
+**Debugging-Tipps:**
+
+1. Fehlermeldung genau lesen – Zeile und Art des Fehlers.
+2. Mit `print()` Zwischenwerte ausgeben: Hat die Variable den Wert, den du erwartest?
+3. Code in kleinen Schritten schreiben und jeden Schritt testen.
+4. Gleich und zugewiesen nicht verwechseln: `=` weist zu, `==` vergleicht.
