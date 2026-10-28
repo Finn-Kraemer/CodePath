@@ -177,6 +177,109 @@ class HandlersTest {
             assertTrue(sim.files().isEmpty());
             assertTrue(sim.execute("rm nichtda").startsWith("rm:"));
         }
+
+        final Map<String, Object> logTask = Map.of(
+                "initialFiles", Map.of("server.log", "INFO ok\nERROR {{dienst}} weg\nINFO ok\n", "notiz.txt", "Code: {{code}}"),
+                "variants", List.of(Map.of("dienst", "Datenbank"), Map.of("dienst", "Drucker"), Map.of("dienst", "Mailserver")),
+                "answer", "{{dienst}}",
+                "answerLabel", "Welcher Dienst ist ausgefallen?",
+                "solution", List.of("grep ERROR server.log"));
+
+        @Test
+        void answerIsCheckedAndDiffersPerPerson() {
+            TaskSpec s = spec(TaskType.TERMINAL, 10, logTask);
+            Map<String, Object> view = handler.publicView(s, CONTEXT);
+            assertEquals("Welcher Dienst ist ausgefallen?", view.get("answerLabel"));
+            assertFalse(view.toString().contains("answer="), "Antwort darf nicht an den Browser: " + view);
+            @SuppressWarnings("unchecked")
+            Map<String, String> files = (Map<String, String>) view.get("initialFiles");
+            String service = files.get("server.log").split("\n")[1].substring("ERROR ".length()).replace(" weg", "");
+            assertFalse(files.get("notiz.txt").contains("{{"), "Platzhalter ersetzt");
+
+            assertTrue(handler.evaluate(s, Map.of("commands", List.of("grep ERROR server.log"), "answer", " " + service.toLowerCase() + "."), CONTEXT).isCorrect());
+            assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(s, Map.of("commands", List.of("cat server.log"), "answer", "Toaster"), CONTEXT).outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(s, Map.of("commands", List.of("cat server.log")), CONTEXT).outcome());
+            assertTrue(handler.evaluate(s, handler.sampleAnswer(s, CONTEXT), CONTEXT).isCorrect());
+            assertFalse(handler.evaluate(s, handler.wrongAnswer(s, CONTEXT), CONTEXT).isCorrect());
+
+            // Mit vielen Personen kommen verschiedene Varianten und Codes vor
+            Set<Object> seen = new HashSet<>();
+            for (long user = 1; user <= 20; user++) seen.add(handler.publicView(s, TaskContext.of(user, 42)).get("initialFiles"));
+            assertTrue(seen.size() > 3, "Varianten je Person: " + seen.size());
+        }
+
+        @Test
+        void gitChecksReplayTheRepository() {
+            TaskSpec s = spec(TaskType.TERMINAL, 20, Map.of(
+                    "initialDirectories", List.of("website"),
+                    "initialFiles", Map.of("website/index.html", "<h1>Hallo</h1>", "website/passwort.txt", "geheim"),
+                    "gitChecks", List.of(
+                            Map.of("check", "repo", "path", "website"),
+                            Map.of("check", "committed", "path", "index.html"),
+                            Map.of("check", "neverCommitted", "path", "passwort.txt"),
+                            Map.of("check", "commits", "min", 1)),
+                    "solution", List.of("cd website", "git init", "git add index.html", "git commit -m \"Start\"")));
+            assertTrue(handler.evaluate(s, handler.sampleAnswer(s, CONTEXT), CONTEXT).isCorrect());
+            Evaluation leaked = handler.evaluate(s, Map.of("commands", List.of("cd website", "git init", "git add .", "git commit -m \"Alles\"")), CONTEXT);
+            assertEquals(Evaluation.Outcome.WRONG, leaked.outcome());
+            assertTrue(leaked.feedback().contains("3 von 4") && leaked.feedback().contains("passwort.txt"), leaked.feedback());
+            assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(s, Map.of("commands", List.of("git init")), CONTEXT).outcome());
+        }
+
+        @Test
+        void preparedRepositoryWithServer() {
+            TaskSpec s = spec(TaskType.TERMINAL, 20, Map.of(
+                    "git", Map.of("root", "app",
+                            "history", List.of(Map.of("message", "Start", "author", "Mia", "files", Map.of("README.md", "App\n"))),
+                            "remote", List.of(Map.of("message", "Übersetzung", "author", "Lena", "files", Map.of("README.md", "App v2\n")))),
+                    "gitChecks", List.of(Map.of("check", "pushed", "branch", "main"), Map.of("check", "committed", "path", "notiz.txt"), Map.of("check", "clean")),
+                    "solution", List.of("cd app", "echo hallo > notiz.txt", "git add .", "git commit -m Notiz", "git pull", "git push")));
+            assertTrue(handler.evaluate(s, handler.sampleAnswer(s, CONTEXT), CONTEXT).isCorrect());
+            Evaluation rejected = handler.evaluate(s, Map.of("commands", List.of("cd app", "echo hallo > notiz.txt", "git add .", "git commit -m Notiz", "git push")), CONTEXT);
+            assertEquals(Evaluation.Outcome.WRONG, rejected.outcome());
+            assertTrue(rejected.feedback().contains("origin"), rejected.feedback());
+        }
+
+        @Test
+        void validationAsksForSolutionAndKnownChecks() {
+            assertTrue(handler.validate(Map.of("answer", "x"), 10).stream().anyMatch(p -> p.contains("Musterlösung")));
+            assertTrue(handler.validate(Map.of("gitChecks", List.of(Map.of("check", "zaubern")), "solution", List.of("git init")), 10)
+                    .stream().anyMatch(p -> p.contains("zaubern")));
+            assertTrue(handler.validate(logTask, 10).isEmpty());
+            assertFalse(handler.validate(Map.of(), 10).isEmpty());
+        }
+
+        @Test
+        void expensiveInputsStayCheap() {
+            TerminalSimulator sim = new TerminalSimulator(List.of(), Map.of("a".repeat(200) + ".txt", ""));
+            long start = System.nanoTime();
+            assertEquals("", sim.execute("find . -name \"" + "*a".repeat(40) + "*b\""));
+            assertEquals("./" + "a".repeat(200) + ".txt", sim.execute("find . -name \"*a*.txt\""));
+            assertTrue(System.nanoTime() - start < 1_000_000_000L, "Muster ohne exponentielles Backtracking");
+
+            TerminalSimulator git = new TerminalSimulator(List.of(), Map.of());
+            git.execute("git init");
+            for (int i = 0; i < 6; i++) git.execute("echo " + "x".repeat(400) + " >> a.txt");
+            for (int f = 0; f < 30; f++) git.execute("cp a.txt f" + f + ".txt");
+            git.execute("git add .");
+            git.execute("git commit -m alles");
+            String out = git.execute("git show");
+            assertTrue(out.endsWith("… (Ausgabe gekürzt)"), out.substring(Math.max(0, out.length() - 80)));
+            assertTrue(out.length() < 60_000);
+        }
+
+        @Test
+        void absentPathsAndAllowedLeftovers() {
+            TaskSpec s = spec(TaskType.TERMINAL, 10, Map.of(
+                    "initialFiles", Map.of("downloads/foto.png", "", "downloads/brief.pdf", "", "downloads/virus.exe", ""),
+                    "expectedFiles", List.of("bilder/foto.png", "dokumente/brief.pdf"),
+                    "absent", List.of("downloads/virus.exe"),
+                    "allowExtra", true,
+                    "solution", List.of("mkdir bilder dokumente", "mv downloads/foto.png bilder", "mv downloads/brief.pdf dokumente", "rm downloads/virus.exe")));
+            assertTrue(handler.evaluate(s, handler.sampleAnswer(s, CONTEXT), CONTEXT).isCorrect());
+            Evaluation kept = handler.evaluate(s, Map.of("commands", List.of("mkdir bilder dokumente", "mv downloads/foto.png bilder", "mv downloads/brief.pdf dokumente")), CONTEXT);
+            assertTrue(kept.feedback().contains("virus.exe"), kept.feedback());
+        }
     }
 
     @Nested

@@ -1,0 +1,1277 @@
+[
+	{
+		"name": "Grundbefehle",
+		"steps": [
+			{
+				"cmd": "mkdir -p a/b",
+				"out": ""
+			},
+			{
+				"cmd": "echo \"Hallo Welt\" > a/b/gruss.txt",
+				"out": ""
+			},
+			{
+				"cmd": "cp a/b/gruss.txt a/kopie.txt",
+				"out": ""
+			},
+			{
+				"cmd": "mv a/kopie.txt a/b",
+				"out": ""
+			},
+			{
+				"cmd": "cat a/b/kopie.txt",
+				"out": "Hallo Welt"
+			},
+			{
+				"cmd": "cd a/b",
+				"out": ""
+			},
+			{
+				"cmd": "pwd",
+				"out": "~/a/b"
+			},
+			{
+				"cmd": "ls",
+				"out": "gruss.txt  kopie.txt"
+			},
+			{
+				"cmd": "cd ../..",
+				"out": ""
+			},
+			{
+				"cmd": "rm -r a",
+				"out": ""
+			},
+			{
+				"cmd": "ls",
+				"out": ""
+			},
+			{
+				"cmd": "rm nichtda",
+				"out": "rm: nichtda: nicht gefunden"
+			},
+			{
+				"cmd": "mv x y",
+				"out": "mv: x: nicht gefunden"
+			},
+			{
+				"cmd": "cd nirgends",
+				"out": "cd: nirgends: Verzeichnis nicht gefunden"
+			},
+			{
+				"cmd": "foo",
+				"out": "foo: Befehl nicht gefunden – \"help\" zeigt alle Befehle"
+			},
+			{
+				"cmd": "mkdir a",
+				"out": ""
+			},
+			{
+				"cmd": "mkdir a",
+				"out": "mkdir: a: existiert bereits"
+			},
+			{
+				"cmd": "touch a/b.txt a/c.txt",
+				"out": ""
+			},
+			{
+				"cmd": "mv a/b.txt a/b.txt",
+				"out": ""
+			},
+			{
+				"cmd": "ls a",
+				"out": "b.txt  c.txt"
+			},
+			{
+				"cmd": "cat a",
+				"out": "cat: a: ist ein Ordner"
+			},
+			{
+				"cmd": "cp a kopie",
+				"out": "cp: a: ist ein Ordner (cp -r verwenden)"
+			},
+			{
+				"cmd": "cp -r a kopie",
+				"out": ""
+			},
+			{
+				"cmd": "ls kopie",
+				"out": "b.txt  c.txt"
+			}
+		],
+		"directories": ["a", "kopie"],
+		"files": {
+			"a/b.txt": "",
+			"a/c.txt": "",
+			"kopie/b.txt": "",
+			"kopie/c.txt": ""
+		}
+	},
+	{
+		"name": "Lesen, Suchen, Zählen",
+		"initialDirectories": ["logs"],
+		"initialFiles": {
+			"logs/server.log": "08:00 INFO Start\n08:01 ERROR Datenbank weg\n08:02 INFO Neuversuch\n08:03 error klein geschrieben\n08:04 ERROR Platte voll\n",
+			"logs/alt/old.log": "07:00 ERROR uralt\n",
+			".geheim": "versteckt\n",
+			"namen.txt": "Mia\nBen\nAda\nBen\nBen\nMia"
+		},
+		"steps": [
+			{
+				"cmd": "ls",
+				"out": "logs/  namen.txt"
+			},
+			{
+				"cmd": "ls -a",
+				"out": ".geheim  logs/  namen.txt"
+			},
+			{
+				"cmd": "ls logs",
+				"out": "alt/  server.log"
+			},
+			{
+				"cmd": "head -n 2 logs/server.log",
+				"out": "08:00 INFO Start\n08:01 ERROR Datenbank weg"
+			},
+			{
+				"cmd": "tail -2 logs/server.log",
+				"out": "08:03 error klein geschrieben\n08:04 ERROR Platte voll"
+			},
+			{
+				"cmd": "tail logs/server.log",
+				"out": "08:00 INFO Start\n08:01 ERROR Datenbank weg\n08:02 INFO Neuversuch\n08:03 error klein geschrieben\n08:04 ERROR Platte voll"
+			},
+			{
+				"cmd": "head -n x logs/server.log",
+				"out": "head: ungültige Zeilenzahl: x"
+			},
+			{
+				"cmd": "grep ERROR logs/server.log",
+				"out": "08:01 ERROR Datenbank weg\n08:04 ERROR Platte voll"
+			},
+			{
+				"cmd": "grep -i error logs/server.log",
+				"out": "08:01 ERROR Datenbank weg\n08:03 error klein geschrieben\n08:04 ERROR Platte voll"
+			},
+			{
+				"cmd": "grep -c ERROR logs/server.log",
+				"out": "2"
+			},
+			{
+				"cmd": "grep -n -v INFO logs/server.log",
+				"out": "2:08:01 ERROR Datenbank weg\n4:08:03 error klein geschrieben\n5:08:04 ERROR Platte voll"
+			},
+			{
+				"cmd": "grep -r ERROR logs",
+				"out": "logs/alt/old.log:07:00 ERROR uralt\nlogs/server.log:08:01 ERROR Datenbank weg\nlogs/server.log:08:04 ERROR Platte voll"
+			},
+			{
+				"cmd": "grep -r uralt",
+				"out": "./logs/alt/old.log:07:00 ERROR uralt"
+			},
+			{
+				"cmd": "grep ERROR logs/server.log logs/alt/old.log",
+				"out": "logs/server.log:08:01 ERROR Datenbank weg\nlogs/server.log:08:04 ERROR Platte voll\nlogs/alt/old.log:07:00 ERROR uralt"
+			},
+			{
+				"cmd": "grep ERROR logs",
+				"out": "grep: logs: ist ein Ordner"
+			},
+			{
+				"cmd": "grep",
+				"out": "grep: Suchtext fehlt – z. B. grep ERROR server.log"
+			},
+			{
+				"cmd": "grep -x a b",
+				"out": "grep: unbekannte Option -x"
+			},
+			{
+				"cmd": "wc -l logs/server.log",
+				"out": "5 logs/server.log"
+			},
+			{
+				"cmd": "wc logs/server.log",
+				"out": "5 18 119 logs/server.log"
+			},
+			{
+				"cmd": "wc -w namen.txt",
+				"out": "6 namen.txt"
+			},
+			{
+				"cmd": "grep ERROR logs/server.log | wc -l",
+				"out": "2"
+			},
+			{
+				"cmd": "sort namen.txt",
+				"out": "Ada\nBen\nBen\nBen\nMia\nMia"
+			},
+			{
+				"cmd": "sort -r namen.txt",
+				"out": "Mia\nMia\nBen\nBen\nBen\nAda"
+			},
+			{
+				"cmd": "sort namen.txt | uniq",
+				"out": "Ada\nBen\nMia"
+			},
+			{
+				"cmd": "sort namen.txt | uniq -c",
+				"out": "1 Ada\n3 Ben\n2 Mia"
+			},
+			{
+				"cmd": "cat namen.txt | sort | head -n 1",
+				"out": "Ada"
+			},
+			{
+				"cmd": "find . -name \"*.log\"",
+				"out": "./logs/alt/old.log\n./logs/server.log"
+			},
+			{
+				"cmd": "find logs",
+				"out": "logs\nlogs/alt\nlogs/alt/old.log\nlogs/server.log"
+			},
+			{
+				"cmd": "find logs -type d",
+				"out": "logs\nlogs/alt"
+			},
+			{
+				"cmd": "find -type f -name namen.txt",
+				"out": "./namen.txt"
+			},
+			{
+				"cmd": "find nichts",
+				"out": "find: nichts: Ordner nicht gefunden"
+			},
+			{
+				"cmd": "grep ERROR logs/server.log > fehler.txt",
+				"out": ""
+			},
+			{
+				"cmd": "cat fehler.txt",
+				"out": "08:01 ERROR Datenbank weg\n08:04 ERROR Platte voll"
+			},
+			{
+				"cmd": "echo Ende >> fehler.txt",
+				"out": ""
+			},
+			{
+				"cmd": "tail -n 1 fehler.txt",
+				"out": "Ende"
+			},
+			{
+				"cmd": "grep Ende fehler.txt>treffer.txt",
+				"out": ""
+			},
+			{
+				"cmd": "cat treffer.txt",
+				"out": "Ende"
+			},
+			{
+				"cmd": "echo \"a > b | c\"",
+				"out": "a > b | c"
+			},
+			{
+				"cmd": "echo a >",
+				"out": "Syntaxfehler: Dateiname nach > fehlt"
+			},
+			{
+				"cmd": "| wc",
+				"out": "Syntaxfehler: unerwartetes |"
+			},
+			{
+				"cmd": "echo a > x > y",
+				"out": "Syntaxfehler: > gehört ans Ende der Zeile"
+			},
+			{
+				"cmd": "cat < x",
+				"out": "cat: <: nicht gefunden\ncat: x: nicht gefunden"
+			},
+			{
+				"cmd": "head",
+				"out": "head: Datei angeben"
+			},
+			{
+				"cmd": "wc -q namen.txt",
+				"out": "wc: unbekannte Option -q"
+			},
+			{
+				"cmd": "echo nix > logs",
+				"out": "logs: ist ein Ordner"
+			},
+			{
+				"cmd": "history",
+				"out": "   1  ls\n   2  ls -a\n   3  ls logs\n   4  head -n 2 logs/server.log\n   5  tail -2 logs/server.log\n   6  tail logs/server.log\n   7  head -n x logs/server.log\n   8  grep ERROR logs/server.log\n   9  grep -i error logs/server.log\n  10  grep -c ERROR logs/server.log\n  11  grep -n -v INFO logs/server.log\n  12  grep -r ERROR logs\n  13  grep -r uralt\n  14  grep ERROR logs/server.log logs/alt/old.log\n  15  grep ERROR logs\n  16  grep\n  17  grep -x a b\n  18  wc -l logs/server.log\n  19  wc logs/server.log\n  20  wc -w namen.txt\n  21  grep ERROR logs/server.log | wc -l\n  22  sort namen.txt\n  23  sort -r namen.txt\n  24  sort namen.txt | uniq\n  25  sort namen.txt | uniq -c\n  26  cat namen.txt | sort | head -n 1\n  27  find . -name \"*.log\"\n  28  find logs\n  29  find logs -type d\n  30  find -type f -name namen.txt\n  31  find nichts\n  32  grep ERROR logs/server.log > fehler.txt\n  33  cat fehler.txt\n  34  echo Ende >> fehler.txt\n  35  tail -n 1 fehler.txt\n  36  grep Ende fehler.txt>treffer.txt\n  37  cat treffer.txt\n  38  echo \"a > b | c\"\n  39  echo a >\n  40  | wc\n  41  echo a > x > y\n  42  cat < x\n  43  head\n  44  wc -q namen.txt\n  45  echo nix > logs\n  46  history"
+			}
+		],
+		"directories": ["logs", "logs/alt"],
+		"files": {
+			".geheim": "versteckt\n",
+			"fehler.txt": "08:01 ERROR Datenbank weg\n08:04 ERROR Platte voll\nEnde\n",
+			"logs/alt/old.log": "07:00 ERROR uralt\n",
+			"logs/server.log": "08:00 INFO Start\n08:01 ERROR Datenbank weg\n08:02 INFO Neuversuch\n08:03 error klein geschrieben\n08:04 ERROR Platte voll\n",
+			"namen.txt": "Mia\nBen\nAda\nBen\nBen\nMia",
+			"treffer.txt": "Ende\n"
+		}
+	},
+	{
+		"name": "Hilfe",
+		"steps": [
+			{
+				"cmd": "help",
+				"out": "Befehle (mehr zu jedem mit: man befehl)\n  Orientierung:  pwd, ls [-a], cd ordner, cd .., cd ~\n  Anlegen:       mkdir [-p] ordner, touch datei, echo \"text\" > datei\n  Ändern:        mv quelle ziel, cp [-r] quelle ziel, rm [-r] pfad\n  Lesen:         cat datei, head [-n 5] datei, tail [-n 5] datei\n  Suchen:        grep [-i -n -c -v -r] text datei, find ordner -name \"*.txt\"\n  Zählen:        wc [-l -w -c] datei, sort [-r], uniq [-c]\n  Verketten:     befehl | befehl, befehl > datei, befehl >> datei\n  Versionen:     git (mehr mit: git help)\n  Sonstiges:     history, clear, man befehl"
+			},
+			{
+				"cmd": "man",
+				"out": "man: Welcher Befehl? Zum Beispiel: man ls"
+			},
+			{
+				"cmd": "man grep",
+				"out": "grep – findet Zeilen, die einen Text enthalten.\n  grep ERROR server.log\n  -i  Groß-/Kleinschreibung egal   -n  mit Zeilennummer\n  -c  nur zählen                   -v  Zeilen OHNE den Text\n  -r  in allen Dateien eines Ordners suchen"
+			},
+			{
+				"cmd": "man ls",
+				"out": "ls – listet, was im Ordner liegt. Ordner enden mit /.\n  ls ordner   zeigt einen anderen Ordner\n  ls -a       zeigt auch versteckte Dateien (Name beginnt mit .)"
+			},
+			{
+				"cmd": "man pwd",
+				"out": "pwd – zeigt, in welchem Ordner du gerade bist (print working directory).\n  ~ ist dein Home-Ordner."
+			},
+			{
+				"cmd": "man cd",
+				"out": "cd – wechselt den Ordner (change directory).\n  cd ordner   hinein\n  cd ..       eine Ebene nach oben\n  cd ~        zurück in den Home-Ordner"
+			},
+			{
+				"cmd": "man mkdir",
+				"out": "mkdir – legt einen Ordner an (make directory).\n  mkdir -p a/b/c   legt auch fehlende Zwischenordner an"
+			},
+			{
+				"cmd": "man touch",
+				"out": "touch – legt eine leere Datei an.\n  touch a.txt b.txt   mehrere auf einmal"
+			},
+			{
+				"cmd": "man rm",
+				"out": "rm – löscht Dateien (remove). Es gibt keinen Papierkorb!\n  rm -r ordner   löscht einen Ordner mit allem darin"
+			},
+			{
+				"cmd": "man mv",
+				"out": "mv – verschiebt oder benennt um (move).\n  mv alt.txt neu.txt      umbenennen\n  mv bild.png bilder/     in einen Ordner verschieben"
+			},
+			{
+				"cmd": "man cp",
+				"out": "cp – kopiert (copy).\n  cp a.txt b.txt\n  cp -r ordner kopie   ganze Ordner kopieren"
+			},
+			{
+				"cmd": "man cat",
+				"out": "cat – zeigt den Inhalt einer Datei.\n  cat a.txt b.txt   mehrere hintereinander"
+			},
+			{
+				"cmd": "man echo",
+				"out": "echo – gibt Text aus.\n  echo \"Hallo\" > datei    schreibt in eine Datei (überschreibt sie)\n  echo \"Hallo\" >> datei   hängt eine Zeile an"
+			},
+			{
+				"cmd": "man head",
+				"out": "head – zeigt die ersten Zeilen einer Datei (Standard: 10).\n  head -n 3 datei   nur die ersten 3"
+			},
+			{
+				"cmd": "man tail",
+				"out": "tail – zeigt die letzten Zeilen einer Datei (Standard: 10).\n  tail -n 3 datei   nur die letzten 3 – praktisch für Logs"
+			},
+			{
+				"cmd": "man find",
+				"out": "find – sucht Dateien und Ordner nach Namen.\n  find . -name \"*.txt\"     alle .txt-Dateien ab hier\n  find ordner -type d      nur Ordner (-type f: nur Dateien)"
+			},
+			{
+				"cmd": "man wc",
+				"out": "wc – zählt Zeilen, Wörter und Zeichen (word count).\n  wc -l datei   nur Zeilen"
+			},
+			{
+				"cmd": "man sort",
+				"out": "sort – sortiert Zeilen alphabetisch.\n  sort -r   umgekehrt"
+			},
+			{
+				"cmd": "man uniq",
+				"out": "uniq – fasst gleiche Zeilen direkt hintereinander zusammen.\n  uniq -c   mit Anzahl – meist nach sort: sort datei | uniq -c"
+			},
+			{
+				"cmd": "man history",
+				"out": "history – zeigt deine bisherigen Befehle."
+			},
+			{
+				"cmd": "man clear",
+				"out": "clear – leert den Bildschirm."
+			},
+			{
+				"cmd": "man git",
+				"out": "git – Versionsverwaltung. Übersicht mit: git help"
+			},
+			{
+				"cmd": "man man",
+				"out": "man – zeigt die Hilfe zu einem Befehl (manual).\n  man grep"
+			},
+			{
+				"cmd": "man toString",
+				"out": "man: Keine Hilfe zu toString"
+			},
+			{
+				"cmd": "git help",
+				"out": "Git-Befehle (vereinfacht):\n  git init                  Repository anlegen\n  git status                Was ist neu, geändert, vorgemerkt?\n  git add datei | .         Änderungen für den nächsten Commit vormerken\n  git commit -m \"text\"      Vorgemerktes als Commit speichern\n  git log [--oneline]       Verlauf ansehen\n  git show [commit]         Was hat ein Commit geändert?\n  git diff [--staged]       Unterschiede anzeigen\n  git restore datei         Datei auf den letzten Stand zurücksetzen\n  git restore --staged datei  Vormerkung zurücknehmen\n  git branch [name]         Branches zeigen oder anlegen\n  git switch [-c] name      Branch wechseln (-c: neu anlegen)\n  git merge name            Branch in den aktuellen holen\n  git checkout --ours/--theirs datei   Konflikt: eine Seite nehmen\n  git pull / git push       mit dem Server (origin) abgleichen\n  git tag name              Version markieren\n  git rm [--cached] datei   Datei aus Git entfernen"
+			},
+			{
+				"cmd": "git --version",
+				"out": "git version 2.47.0 (CodePath-Simulation)"
+			}
+		],
+		"directories": [],
+		"files": {}
+	},
+	{
+		"name": "Git: erster Commit",
+		"initialDirectories": ["website"],
+		"steps": [
+			{
+				"cmd": "git status",
+				"out": "fatal: Hier ist kein Git-Repository. Lege eines an mit: git init"
+			},
+			{
+				"cmd": "cd website",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "fatal: Hier ist kein Git-Repository. Lege eines an mit: git init"
+			},
+			{
+				"cmd": "git init",
+				"out": "Leeres Git-Repository in ~/website/.git/ angelegt"
+			},
+			{
+				"cmd": "git init",
+				"out": "Das Repository in ~/website gibt es schon."
+			},
+			{
+				"cmd": "ls -a",
+				"out": ".git/"
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nNoch keine Commits\n\nnichts zu committen (lege Dateien an und merke sie vor mit: git add)"
+			},
+			{
+				"cmd": "git log",
+				"out": "fatal: Branch 'main' hat noch keine Commits"
+			},
+			{
+				"cmd": "echo \"<h1>Hallo</h1>\" > index.html",
+				"out": ""
+			},
+			{
+				"cmd": "touch style.css",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nNoch keine Commits\n\nUnversionierte Dateien:\n  (vormerken mit: git add <Datei>)\n\tindex.html\n\tstyle.css\n\nkeine Änderungen zum Commit vorgemerkt (benutze: git add)"
+			},
+			{
+				"cmd": "git add index.html",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nNoch keine Commits\n\nZum Commit vorgemerkte Änderungen:\n  (zurücknehmen mit: git restore --staged <Datei>)\n\tneue Datei:     index.html\n\nUnversionierte Dateien:\n  (vormerken mit: git add <Datei>)\n\tstyle.css"
+			},
+			{
+				"cmd": "git commit",
+				"out": "Fehler: Bitte gib eine Nachricht an, z. B.: git commit -m \"Startseite angelegt\""
+			},
+			{
+				"cmd": "git commit -m",
+				"out": "Fehler: Nach -m fehlt die Nachricht, z. B.: git commit -m \"Startseite angelegt\""
+			},
+			{
+				"cmd": "git commit -m \"\"",
+				"out": "Fehler: Die Nachricht ist leer."
+			},
+			{
+				"cmd": "git commit -m \"Startseite angelegt\"",
+				"out": "[main (Root-Commit) 098a654] Startseite angelegt\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nUnversionierte Dateien:\n  (vormerken mit: git add <Datei>)\n\tstyle.css\n\nkeine Änderungen zum Commit vorgemerkt (benutze: git add)"
+			},
+			{
+				"cmd": "git add .",
+				"out": ""
+			},
+			{
+				"cmd": "git commit -m \"Stil angelegt\"",
+				"out": "[main 0109b1e] Stil angelegt\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git commit -m \"nochmal\"",
+				"out": "Auf Branch main\nnichts zu committen, Arbeitsverzeichnis sauber"
+			},
+			{
+				"cmd": "git log",
+				"out": "commit 0109b1e (HEAD -> main)\nAutor: Du\n\n    Stil angelegt\n\ncommit 098a654\nAutor: Du\n\n    Startseite angelegt"
+			},
+			{
+				"cmd": "git log --oneline",
+				"out": "0109b1e (HEAD -> main) Stil angelegt\n098a654 Startseite angelegt"
+			},
+			{
+				"cmd": "echo \"<p>Neu</p>\" >> index.html",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nÄnderungen, die nicht zum Commit vorgemerkt sind:\n  (vormerken mit: git add <Datei>)\n\tgeändert:       index.html\n\nkeine Änderungen zum Commit vorgemerkt (benutze: git add)"
+			},
+			{
+				"cmd": "git diff",
+				"out": "--- a/index.html\n+++ b/index.html\n <h1>Hallo</h1>\n+<p>Neu</p>"
+			},
+			{
+				"cmd": "git commit -am \"Absatz ergänzt\"",
+				"out": "[main 109ba4f] Absatz ergänzt\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git show",
+				"out": "commit 109ba4f (HEAD -> main)\nAutor: Du\n\n    Absatz ergänzt\n\n--- a/index.html\n+++ b/index.html\n <h1>Hallo</h1>\n+<p>Neu</p>"
+			},
+			{
+				"cmd": "git show HEAD~1",
+				"out": "commit 0109b1e\nAutor: Du\n\n    Stil angelegt\n\n--- /dev/null\n+++ b/style.css"
+			},
+			{
+				"cmd": "git log --oneline -n 2",
+				"out": "109ba4f (HEAD -> main) Absatz ergänzt\n0109b1e Stil angelegt"
+			},
+			{
+				"cmd": "git add nichtda",
+				"out": "fatal: Pfad 'nichtda' passt zu keiner Datei"
+			},
+			{
+				"cmd": "cd ..",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "fatal: Hier ist kein Git-Repository. Das Repository liegt in ~/website – wechsle mit cd dorthin."
+			},
+			{
+				"cmd": "git config user.name \"Mia\"",
+				"out": ""
+			},
+			{
+				"cmd": "git config user.name",
+				"out": "Mia"
+			},
+			{
+				"cmd": "cd website",
+				"out": ""
+			},
+			{
+				"cmd": "rm style.css",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nÄnderungen, die nicht zum Commit vorgemerkt sind:\n  (vormerken mit: git add <Datei>)\n\tgelöscht:       style.css\n\nkeine Änderungen zum Commit vorgemerkt (benutze: git add)"
+			},
+			{
+				"cmd": "git add .",
+				"out": ""
+			},
+			{
+				"cmd": "git commit -m \"Stil entfernt\"",
+				"out": "[main 385046e] Stil entfernt\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git log -1",
+				"out": "commit 385046e (HEAD -> main)\nAutor: Mia\n\n    Stil entfernt"
+			}
+		],
+		"directories": ["website"],
+		"files": {
+			"website/index.html": "<h1>Hallo</h1>\n<p>Neu</p>\n"
+		}
+	},
+	{
+		"name": "Git: gitignore, restore, rm",
+		"steps": [
+			{
+				"cmd": "git init",
+				"out": "Leeres Git-Repository in ~/.git/ angelegt"
+			},
+			{
+				"cmd": "echo geheim123 > passwort.txt",
+				"out": ""
+			},
+			{
+				"cmd": "echo \"*.log\" > .gitignore",
+				"out": ""
+			},
+			{
+				"cmd": "echo \"temp/\" >> .gitignore",
+				"out": ""
+			},
+			{
+				"cmd": "mkdir temp",
+				"out": ""
+			},
+			{
+				"cmd": "touch temp/a.txt fehler.log notizen.txt",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nNoch keine Commits\n\nUnversionierte Dateien:\n  (vormerken mit: git add <Datei>)\n\t.gitignore\n\tnotizen.txt\n\tpasswort.txt\n\nkeine Änderungen zum Commit vorgemerkt (benutze: git add)"
+			},
+			{
+				"cmd": "git add passwort.txt",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nNoch keine Commits\n\nZum Commit vorgemerkte Änderungen:\n  (zurücknehmen mit: git restore --staged <Datei>)\n\tneue Datei:     passwort.txt\n\nUnversionierte Dateien:\n  (vormerken mit: git add <Datei>)\n\t.gitignore\n\tnotizen.txt"
+			},
+			{
+				"cmd": "git restore --staged passwort.txt",
+				"out": ""
+			},
+			{
+				"cmd": "echo passwort.txt >> .gitignore",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nNoch keine Commits\n\nUnversionierte Dateien:\n  (vormerken mit: git add <Datei>)\n\t.gitignore\n\tnotizen.txt\n\nkeine Änderungen zum Commit vorgemerkt (benutze: git add)"
+			},
+			{
+				"cmd": "git add .",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nNoch keine Commits\n\nZum Commit vorgemerkte Änderungen:\n  (zurücknehmen mit: git restore --staged <Datei>)\n\tneue Datei:     .gitignore\n\tneue Datei:     notizen.txt"
+			},
+			{
+				"cmd": "git add fehler.log",
+				"out": "Die Datei fehler.log steht in .gitignore und wird nicht vorgemerkt."
+			},
+			{
+				"cmd": "git commit -m \"Projekt\"",
+				"out": "[main (Root-Commit) d7c6084] Projekt\n 2 Dateien geändert"
+			},
+			{
+				"cmd": "echo kaputt > notizen.txt",
+				"out": ""
+			},
+			{
+				"cmd": "git diff",
+				"out": "--- a/notizen.txt\n+++ b/notizen.txt\n+kaputt"
+			},
+			{
+				"cmd": "git restore notizen.txt",
+				"out": ""
+			},
+			{
+				"cmd": "cat notizen.txt",
+				"out": ""
+			},
+			{
+				"cmd": "git restore nichtda",
+				"out": "Fehler: 'nichtda' kennt Git nicht – nur Dateien, die schon vorgemerkt oder committet sind, lassen sich zurückholen."
+			},
+			{
+				"cmd": "git rm --cached notizen.txt",
+				"out": "rm 'notizen.txt'"
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nZum Commit vorgemerkte Änderungen:\n  (zurücknehmen mit: git restore --staged <Datei>)\n\tgelöscht:       notizen.txt\n\nUnversionierte Dateien:\n  (vormerken mit: git add <Datei>)\n\tnotizen.txt"
+			},
+			{
+				"cmd": "git rm notizen.txt",
+				"out": "fatal: 'notizen.txt' ist nicht in Git"
+			},
+			{
+				"cmd": "git rm nichts",
+				"out": "fatal: 'nichts' ist nicht in Git"
+			},
+			{
+				"cmd": "git commit -m \"Notizen raus\"",
+				"out": "[main ba856bc] Notizen raus\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git log --oneline",
+				"out": "ba856bc (HEAD -> main) Notizen raus\nd7c6084 Projekt"
+			}
+		],
+		"directories": ["temp"],
+		"files": {
+			".gitignore": "*.log\ntemp/\npasswort.txt\n",
+			"fehler.log": "",
+			"notizen.txt": "",
+			"passwort.txt": "geheim123\n",
+			"temp/a.txt": ""
+		}
+	},
+	{
+		"name": "Git: Branches und Zusammenführen",
+		"steps": [
+			{
+				"cmd": "git init",
+				"out": "Leeres Git-Repository in ~/.git/ angelegt"
+			},
+			{
+				"cmd": "git branch kontakt",
+				"out": "Fehler: Lege zuerst einen Commit an – vorher gibt es nichts, wovon ein Branch abzweigen kann."
+			},
+			{
+				"cmd": "echo \"Startseite\" > index.html",
+				"out": ""
+			},
+			{
+				"cmd": "git add .",
+				"out": ""
+			},
+			{
+				"cmd": "git commit -m \"Start\"",
+				"out": "[main (Root-Commit) 63fa9f7] Start\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git branch",
+				"out": "* main"
+			},
+			{
+				"cmd": "git switch -c kontakt",
+				"out": "Zu neuem Branch 'kontakt' gewechselt"
+			},
+			{
+				"cmd": "echo \"Schreib uns\" > kontakt.html",
+				"out": ""
+			},
+			{
+				"cmd": "git add kontakt.html",
+				"out": ""
+			},
+			{
+				"cmd": "git commit -m \"Kontaktseite\"",
+				"out": "[kontakt 93ae4cc] Kontaktseite\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git switch main",
+				"out": "Zu Branch 'main' gewechselt"
+			},
+			{
+				"cmd": "ls",
+				"out": "index.html"
+			},
+			{
+				"cmd": "git merge kontakt",
+				"out": "Aktualisiere 63fa9f7..93ae4cc\nFast-forward\n 1 Datei geändert"
+			},
+			{
+				"cmd": "ls",
+				"out": "index.html  kontakt.html"
+			},
+			{
+				"cmd": "git log --oneline",
+				"out": "93ae4cc (HEAD -> main, kontakt) Kontaktseite\n63fa9f7 Start"
+			},
+			{
+				"cmd": "git switch -c \"neu name\"",
+				"out": "fatal: 'neu name' ist kein gültiger Name (erlaubt: Buchstaben ohne Umlaute, Ziffern, - _ / .)"
+			},
+			{
+				"cmd": "git branch Ümlaut",
+				"out": "fatal: 'Ümlaut' ist kein gültiger Name (erlaubt: Buchstaben ohne Umlaute, Ziffern, - _ / .)"
+			},
+			{
+				"cmd": "git switch fehlt",
+				"out": "fatal: Branch 'fehlt' gibt es nicht. (Neu anlegen mit: git switch -c fehlt)"
+			},
+			{
+				"cmd": "git branch -d main",
+				"out": "Fehler: Du bist gerade auf 'main' – wechsle zuerst auf einen anderen Branch."
+			},
+			{
+				"cmd": "git branch -d kontakt",
+				"out": "Branch kontakt entfernt (war 93ae4cc)."
+			},
+			{
+				"cmd": "git branch",
+				"out": "* main"
+			},
+			{
+				"cmd": "git switch -c design",
+				"out": "Zu neuem Branch 'design' gewechselt"
+			},
+			{
+				"cmd": "echo \"Startseite mit Farbe\" > index.html",
+				"out": ""
+			},
+			{
+				"cmd": "git switch main",
+				"out": "Fehler: Du hast Änderungen, die noch nicht committet sind.\nCommitte sie zuerst (git add, git commit) – oder verwirf sie mit: git restore <Datei>"
+			},
+			{
+				"cmd": "git commit -am \"Farbe\"",
+				"out": "[design b4330a3] Farbe\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git switch main",
+				"out": "Zu Branch 'main' gewechselt"
+			},
+			{
+				"cmd": "echo \"Impressum\" > impressum.html",
+				"out": ""
+			},
+			{
+				"cmd": "git add .",
+				"out": ""
+			},
+			{
+				"cmd": "git commit -m \"Impressum\"",
+				"out": "[main d2bdb8a] Impressum\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git merge design",
+				"out": "Zusammenführung mit der 'ort'-Strategie.\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git log --oneline --all",
+				"out": "03227c1 (HEAD -> main) Merge branch 'design'\nd2bdb8a Impressum\nb4330a3 (design) Farbe\n93ae4cc Kontaktseite\n63fa9f7 Start"
+			},
+			{
+				"cmd": "git log --oneline design",
+				"out": "b4330a3 (design) Farbe\n93ae4cc Kontaktseite\n63fa9f7 Start"
+			},
+			{
+				"cmd": "git branch -d design",
+				"out": "Branch design entfernt (war b4330a3)."
+			},
+			{
+				"cmd": "git tag v1.0",
+				"out": ""
+			},
+			{
+				"cmd": "git tag",
+				"out": "v1.0"
+			},
+			{
+				"cmd": "git tag v1.0",
+				"out": "fatal: Tag 'v1.0' gibt es schon"
+			},
+			{
+				"cmd": "git log --oneline -n 1",
+				"out": "03227c1 (HEAD -> main, tag: v1.0) Merge branch 'design'"
+			},
+			{
+				"cmd": "git checkout -b test",
+				"out": "Zu neuem Branch 'test' gewechselt"
+			},
+			{
+				"cmd": "git checkout main",
+				"out": "Zu Branch 'main' gewechselt"
+			},
+			{
+				"cmd": "git checkout nix",
+				"out": "Fehler: 'nix' ist weder ein Branch noch eine Datei, die Git kennt."
+			}
+		],
+		"directories": [],
+		"files": {
+			"impressum.html": "Impressum\n",
+			"index.html": "Startseite mit Farbe\n",
+			"kontakt.html": "Schreib uns\n"
+		}
+	},
+	{
+		"name": "Git: Merge-Konflikt",
+		"steps": [
+			{
+				"cmd": "git init",
+				"out": "Leeres Git-Repository in ~/.git/ angelegt"
+			},
+			{
+				"cmd": "echo \"Farbe: blau\" > style.css",
+				"out": ""
+			},
+			{
+				"cmd": "git add .",
+				"out": ""
+			},
+			{
+				"cmd": "git commit -m \"Stil\"",
+				"out": "[main (Root-Commit) 68ff9b1] Stil\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git switch -c lena",
+				"out": "Zu neuem Branch 'lena' gewechselt"
+			},
+			{
+				"cmd": "echo \"Farbe: grün\" > style.css",
+				"out": ""
+			},
+			{
+				"cmd": "git commit -am \"Grün\"",
+				"out": "[lena 9ef8380] Grün\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git switch main",
+				"out": "Zu Branch 'main' gewechselt"
+			},
+			{
+				"cmd": "echo \"Farbe: rot\" > style.css",
+				"out": ""
+			},
+			{
+				"cmd": "git commit -am \"Rot\"",
+				"out": "[main 1e39deb] Rot\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git merge lena",
+				"out": "KONFLIKT: Beide Seiten haben style.css geändert.\nAutomatisches Zusammenführen fehlgeschlagen. Löse die Konflikte und committe dann das Ergebnis.\n(Tipp: cat style.css zeigt die Konfliktstelle)"
+			},
+			{
+				"cmd": "cat style.css",
+				"out": "<<<<<<< HEAD\nFarbe: rot\n=======\nFarbe: grün\n>>>>>>> lena"
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nNicht zusammengeführte Pfade:\n  (Konflikt lösen, dann: git add <Datei>)\n\tbeide geändert: style.css"
+			},
+			{
+				"cmd": "git commit -m \"fertig\"",
+				"out": "Fehler: Commit nicht möglich – es gibt noch Konflikte in: style.css\n(Datei reparieren oder git checkout --ours/--theirs <Datei>, dann git add <Datei>)"
+			},
+			{
+				"cmd": "git switch lena",
+				"out": "Fehler: Du steckst mitten in einer Zusammenführung. Erst Konflikte lösen und committen (oder abbrechen: git merge --abort)."
+			},
+			{
+				"cmd": "git merge lena",
+				"out": "Fehler: Du steckst mitten in einer Zusammenführung. Erst Konflikte lösen und committen (oder abbrechen: git merge --abort)."
+			},
+			{
+				"cmd": "git checkout --theirs style.css",
+				"out": ""
+			},
+			{
+				"cmd": "cat style.css",
+				"out": "Farbe: grün"
+			},
+			{
+				"cmd": "git checkout --ours style.css",
+				"out": ""
+			},
+			{
+				"cmd": "cat style.css",
+				"out": "Farbe: rot"
+			},
+			{
+				"cmd": "git checkout --ours index.html",
+				"out": "Fehler: 'index.html' hat keinen Konflikt."
+			},
+			{
+				"cmd": "git merge --abort",
+				"out": "Zusammenführung abgebrochen."
+			},
+			{
+				"cmd": "cat style.css",
+				"out": "Farbe: rot"
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nnichts zu committen, Arbeitsverzeichnis sauber"
+			},
+			{
+				"cmd": "git merge lena",
+				"out": "KONFLIKT: Beide Seiten haben style.css geändert.\nAutomatisches Zusammenführen fehlgeschlagen. Löse die Konflikte und committe dann das Ergebnis.\n(Tipp: cat style.css zeigt die Konfliktstelle)"
+			},
+			{
+				"cmd": "echo \"Farbe: grün und rot\" > style.css",
+				"out": ""
+			},
+			{
+				"cmd": "git add style.css",
+				"out": ""
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nAlle Konflikte gelöst – schließe die Zusammenführung ab mit: git commit\n\nZum Commit vorgemerkte Änderungen:\n  (zurücknehmen mit: git restore --staged <Datei>)\n\tgeändert:       style.css"
+			},
+			{
+				"cmd": "git commit",
+				"out": "[main f7d04f9] Merge branch 'lena'\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git log --oneline",
+				"out": "f7d04f9 (HEAD -> main) Merge branch 'lena'\n1e39deb Rot\n9ef8380 (lena) Grün\n68ff9b1 Stil"
+			},
+			{
+				"cmd": "git show",
+				"out": "commit f7d04f9 (HEAD -> main)\nMerge: 1e39deb 9ef8380\nAutor: Du\n\n    Merge branch 'lena'\n\n--- a/style.css\n+++ b/style.css\n-Farbe: rot\n+Farbe: grün und rot"
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\n\nnichts zu committen, Arbeitsverzeichnis sauber"
+			}
+		],
+		"directories": [],
+		"files": {
+			"style.css": "Farbe: grün und rot\n"
+		}
+	},
+	{
+		"name": "Git: vorbereitetes Repository mit Server",
+		"initialFiles": {
+			"app/index.html": "kaputt\n"
+		},
+		"git": {
+			"root": "app",
+			"history": [
+				{
+					"message": "Erste Version",
+					"author": "Mia",
+					"files": {
+						"index.html": "<h1>App</h1>\n",
+						"README.md": "SchulPlaner\n"
+					}
+				},
+				{
+					"message": "Login-Knopf",
+					"author": "Ben",
+					"files": {
+						"login.js": "knopf()\n"
+					}
+				},
+				{
+					"branch": "dark",
+					"message": "Dunkles Design",
+					"author": "Ada",
+					"files": {
+						"style.css": "dunkel\n"
+					}
+				},
+				{
+					"branch": "main",
+					"message": "Fehler eingebaut",
+					"author": "Tom",
+					"files": {
+						"login.js": "knopf(\n"
+					}
+				}
+			],
+			"remote": [
+				{
+					"message": "Neue Übersetzung",
+					"author": "Lena",
+					"files": {
+						"README.md": "SchulPlaner – Version 2\n"
+					}
+				}
+			]
+		},
+		"steps": [
+			{
+				"cmd": "ls",
+				"out": "app/"
+			},
+			{
+				"cmd": "git status",
+				"out": "fatal: Hier ist kein Git-Repository. Das Repository liegt in ~/app – wechsle mit cd dorthin."
+			},
+			{
+				"cmd": "cd app",
+				"out": ""
+			},
+			{
+				"cmd": "ls",
+				"out": "README.md  index.html  login.js"
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\nDein Branch ist 1 Commit hinter 'origin/main'. (holen mit: git pull)\n\nÄnderungen, die nicht zum Commit vorgemerkt sind:\n  (vormerken mit: git add <Datei>)\n\tgeändert:       index.html\n\nkeine Änderungen zum Commit vorgemerkt (benutze: git add)"
+			},
+			{
+				"cmd": "git diff",
+				"out": "--- a/index.html\n+++ b/index.html\n-<h1>App</h1>\n+kaputt"
+			},
+			{
+				"cmd": "git restore index.html",
+				"out": ""
+			},
+			{
+				"cmd": "cat index.html",
+				"out": "<h1>App</h1>"
+			},
+			{
+				"cmd": "git log",
+				"out": "commit 5c0e322 (HEAD -> main)\nAutor: Tom\n\n    Fehler eingebaut\n\ncommit 9ed35e3\nAutor: Ben\n\n    Login-Knopf\n\ncommit ece863e\nAutor: Mia\n\n    Erste Version"
+			},
+			{
+				"cmd": "git log --oneline --all",
+				"out": "79987bd (origin/main) Neue Übersetzung\n5c0e322 (HEAD -> main) Fehler eingebaut\n1d09f9a (dark, origin/dark) Dunkles Design\n9ed35e3 Login-Knopf\nece863e Erste Version"
+			},
+			{
+				"cmd": "git show HEAD~1",
+				"out": "commit 9ed35e3\nAutor: Ben\n\n    Login-Knopf\n\n--- /dev/null\n+++ b/login.js\n+knopf()"
+			},
+			{
+				"cmd": "git branch -a",
+				"out": "  dark\n* main\n  remotes/origin/dark\n  remotes/origin/main"
+			},
+			{
+				"cmd": "git remote",
+				"out": "origin"
+			},
+			{
+				"cmd": "git remote -v",
+				"out": "origin\tgit@schulserver:team/projekt.git"
+			},
+			{
+				"cmd": "git fetch",
+				"out": "Von origin"
+			},
+			{
+				"cmd": "echo \"knopf()\" > login.js",
+				"out": ""
+			},
+			{
+				"cmd": "git commit -am \"Login repariert\"",
+				"out": "[main 7eaef1a] Login repariert\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git push",
+				"out": "Nach origin\n ! [abgelehnt]        main -> main (zuerst holen)\nFehler: Auf dem Server gibt es neue Commits, die du noch nicht hast.\nHole sie zuerst mit: git pull"
+			},
+			{
+				"cmd": "git push upstream",
+				"out": "fatal: 'upstream' ist kein bekannter Server – hier heißt er origin"
+			},
+			{
+				"cmd": "git pull",
+				"out": "Von origin\nZusammenführung mit der 'ort'-Strategie.\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git log --oneline",
+				"out": "feab41d (HEAD -> main) Merge branch 'origin/main'\n7eaef1a Login repariert\n79987bd (origin/main) Neue Übersetzung\n5c0e322 Fehler eingebaut\n9ed35e3 Login-Knopf\nece863e Erste Version"
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\nDein Branch ist 2 Commits vor 'origin/main'. (hochladen mit: git push)\n\nnichts zu committen, Arbeitsverzeichnis sauber"
+			},
+			{
+				"cmd": "git push",
+				"out": "Nach origin\n   79987bd..feab41d  main -> main"
+			},
+			{
+				"cmd": "git status",
+				"out": "Auf Branch main\nDein Branch ist auf demselben Stand wie 'origin/main'.\n\nnichts zu committen, Arbeitsverzeichnis sauber"
+			},
+			{
+				"cmd": "git switch dark",
+				"out": "Zu Branch 'dark' gewechselt"
+			},
+			{
+				"cmd": "git switch -c neu",
+				"out": "Zu neuem Branch 'neu' gewechselt"
+			},
+			{
+				"cmd": "git push origin neu",
+				"out": "Nach origin\n * [neuer Branch]      neu -> neu"
+			},
+			{
+				"cmd": "git branch -a",
+				"out": "  dark\n  main\n* neu\n  remotes/origin/dark\n  remotes/origin/main\n  remotes/origin/neu"
+			},
+			{
+				"cmd": "git pull origin gibtsnicht",
+				"out": "fatal: Auf dem Server gibt es keinen Branch 'gibtsnicht'"
+			},
+			{
+				"cmd": "cd ..",
+				"out": ""
+			},
+			{
+				"cmd": "git init",
+				"out": "Fehler: Es gibt schon ein Repository in ~/app – eins reicht."
+			}
+		],
+		"directories": ["app"],
+		"files": {
+			"app/README.md": "SchulPlaner\n",
+			"app/index.html": "<h1>App</h1>\n",
+			"app/login.js": "knopf()\n",
+			"app/style.css": "dunkel\n"
+		}
+	},
+	{
+		"name": "Git: Server-Branch auschecken",
+		"git": {
+			"root": "",
+			"history": [
+				{
+					"message": "Start",
+					"author": "Mia",
+					"files": {
+						"a.txt": "a\n"
+					}
+				}
+			],
+			"remote": [
+				{
+					"branch": "feature",
+					"message": "Feature",
+					"author": "Ben",
+					"files": {
+						"b.txt": "b\n"
+					}
+				}
+			]
+		},
+		"steps": [
+			{
+				"cmd": "git branch -a",
+				"out": "* main\n  remotes/origin/feature\n  remotes/origin/main"
+			},
+			{
+				"cmd": "git switch feature",
+				"out": "Branch 'feature' folgt jetzt 'origin/feature'.\nZu Branch 'feature' gewechselt"
+			},
+			{
+				"cmd": "ls",
+				"out": "a.txt  b.txt"
+			},
+			{
+				"cmd": "git log --oneline",
+				"out": "12eff03 (HEAD -> feature, origin/feature) Feature\nc894440 (main, origin/main) Start"
+			},
+			{
+				"cmd": "git switch main",
+				"out": "Zu Branch 'main' gewechselt"
+			},
+			{
+				"cmd": "ls",
+				"out": "a.txt"
+			},
+			{
+				"cmd": "git merge origin/feature",
+				"out": "Aktualisiere c894440..12eff03\nFast-forward\n 1 Datei geändert"
+			},
+			{
+				"cmd": "git log --oneline",
+				"out": "12eff03 (HEAD -> main, feature, origin/feature) Feature\nc894440 (origin/main) Start"
+			}
+		],
+		"directories": [],
+		"files": {
+			"a.txt": "a\n",
+			"b.txt": "b\n"
+		}
+	}
+]
