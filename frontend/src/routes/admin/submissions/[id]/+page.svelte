@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { api, type SubmissionDetail } from '$lib/api';
 	import PracticeReview from '$lib/components/editor/PracticeReview.svelte';
+	import PythonWorkbench from '$lib/components/PythonWorkbench.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 
 	const id = page.params.id;
@@ -96,6 +97,16 @@
 					<Markdown source={submission.instructions} class="mt-4" />
 				</details>
 				<PracticeReview content={submission.content} />
+				{#if submission.code}
+					<section class="border border-slate-200 bg-white p-6" aria-label="Abgegebener Code">
+						<p
+							class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+						>
+							Abgegebener Code – hier ausprobieren, Änderungen werden nicht gespeichert
+						</p>
+						<PythonWorkbench initialCode={submission.code} />
+					</section>
+				{/if}
 			</div>
 
 			<div class="space-y-6 lg:col-span-2">

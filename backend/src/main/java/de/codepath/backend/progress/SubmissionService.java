@@ -44,7 +44,7 @@ public class SubmissionService {
     @Transactional
     public SubmitResult submit(User user, String moduleSlug, String taskSlug, Map<String, Object> answer) {
         PublishedTask task = contentService.publishedTask(moduleSlug, taskSlug);
-        accessPolicy.requireOpen(user, task.module());
+        accessPolicy.requireTaskOpen(user, task);
         if (answer == null) throw ApiException.badRequest("Keine Antwort übermittelt.");
         if (answer.toString().length() > MAX_ANSWER_CHARS) throw ApiException.badRequest("Die Antwort ist zu groß.");
 
@@ -129,7 +129,7 @@ public class SubmissionService {
     @Transactional
     public HintResult requestHint(User user, String moduleSlug, String taskSlug) {
         PublishedTask task = contentService.publishedTask(moduleSlug, taskSlug);
-        accessPolicy.requireVisible(user, task.module());
+        accessPolicy.requireTaskVisible(user, task);
         userService.lockForUpdate(user.getId());
         Progress progress = progressFor(user.getId(), task.taskId());
         List<String> hints = task.version().getHints();
@@ -150,7 +150,7 @@ public class SubmissionService {
     @Transactional
     public Map<String, Object> revealSolution(User user, String moduleSlug, String taskSlug) {
         PublishedTask task = contentService.publishedTask(moduleSlug, taskSlug);
-        accessPolicy.requireVisible(user, task.module());
+        accessPolicy.requireTaskVisible(user, task);
         if (!task.rules().revealAllowed()) throw ApiException.forbidden("Für diese Aufgabe gibt es keine Musterlösung zum Aufdecken.");
         Progress progress = progressFor(user.getId(), task.taskId());
         if (!progress.isSolutionRevealed()) {

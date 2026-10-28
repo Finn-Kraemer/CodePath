@@ -12,7 +12,7 @@
   "explanation": "",
   "config": {
     "instructions": "Dein Programm muss enthalten:\n1. Einen kurzen Pseudocode-Plan VOR dem Code (als Kommentar)\n2. Mindestens zwei Variablen mit verschiedenen Datentypen (int, str, bool)\n3. Eine if-elif-else-Bedingung oder ein match-case\n4. Eine for-Schleife die über eine Liste iteriert\n5. Mindestens einen logischen Ausdruck mit and, or oder not\n\nThemen-Ideen: Notenverwaltung, Quiz-Spiel, Wochenplan-Auswertung, Zugangssystem",
-    "submissionNote": "Pseudocode-Plan + vollständiger Python-Code + kurze Erklärung welche Konzepte du benutzt hast.",
+    "submissionNote": "Schreibe deinen Pseudocode-Plan und das Programm in die Python-Werkbank und probiere es dort aus. Erkläre im Textfeld kurz, welche Konzepte du benutzt hast.",
     "rubric": [
       {
         "id": "k1",
@@ -39,6 +39,9 @@
         "label": "Mindestens einen logischen Ausdruck mit and, or oder not",
         "points": 10
       }
-    ]
+    ],
+    "codeEditor": true,
+    "codeRequired": true,
+    "starterCode": "# Plan (Pseudocode):\n# 1. ...\n# 2. ...\n\n# Dein Programm:\n"
   }
 }

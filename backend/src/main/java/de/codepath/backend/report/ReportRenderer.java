@@ -11,9 +11,9 @@ import java.util.List;
 /**
  * Zeichnet die Teilnahmebestätigung als PDF (OpenPDF). Kein amtliches Dokument (Annahme A6).
  */
-class ReportRenderer {
+public class ReportRenderer {
 
-    record ModuleResult(String title, int achieved, int max) {
+    public record ModuleResult(String title, int achieved, int max) {
     }
 
     byte[] render(User user, String courseName, List<ModuleResult> results) {

@@ -10,6 +10,9 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - **Browser-Labor** (`DEVTOOLS`): Übungsseiten im eigenen Tab, die mit Konsole, Inspektor, Netzwerkanalyse und Web-Speicher untersucht werden; Code je Person verschieden. Szenarien *Wetterstation* und *Schul-Shop* in Web-Entwicklung.
 - **Modul Abschlusstest** mit dem *Escape-Zimmer* – vier Schlösser, eines je Werkzeug, ohne Anleitung.
 - **Aufgaben endgültig löschen**: nur archivierte Aufgaben, mit Anzeige der Folgen und Bestätigung per Slug. Gelöschte mitgelieferte Aufgaben kehren bei Updates nicht zurück.
+- **Einzelne Aufgaben freischalten oder sperren** je Kurs, unabhängig vom Modul. Aufgabenzahl, Punkte, Fortschritt und Teilnahmebestätigung zählen nur die sichtbaren Aufgaben.
+- **Aufgaben umsortieren** im Editor per Ziehen oder ▲▼; Importe überschreiben die Reihenfolge nicht mehr.
+- **Python-Werkbank für Praxisaufgaben**: Editor mit Eingaben und Ausführen im Browser (10 s), Code wird mit abgegeben und lässt sich in der Bewertung ausführen. Aktiv in *Dein erstes vollständiges Programm*.
 - Neue Dokumentation: Handbücher für Lehrkräfte, Betrieb, Sicherheit und Entwicklung, Übersicht der Aufgabentypen.
 
 ### Verbessert
@@ -18,6 +21,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ### Update
 - Migration V14 verschiebt den Abschlusstest (falls vorhanden) aus *Web-Entwicklung* in das neue Modul *Abschlusstest*, samt Versuchen und Punkten. Das Modul ist danach für alle Kurse gesperrt, bis die Lehrkraft es freischaltet.
 - Neue mitgelieferte Aufgaben legt der Start automatisch an.
+- Migration V15 legt die Tabelle für Freigaben einzelner Aufgaben an; bestehende Freigaben bleiben unverändert.
 
 ## 2.0.0
 

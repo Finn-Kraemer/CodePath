@@ -4,8 +4,10 @@
 	import { api, type Schemas } from '$lib/api';
 	import { auth } from '$lib/auth.svelte';
 	import { TYPE_LABELS } from '$lib/tasks/labels';
+	import { dndzone, type DndEvent } from 'svelte-dnd-action';
 
 	type ModuleRow = Schemas['ModuleRow'];
+	type TaskRow = ModuleRow['tasks'][number];
 	type ImportReport = Schemas['ImportReport'];
 
 	let modules = $state<ModuleRow[]>([]);
@@ -17,6 +19,53 @@
 
 	// Alle Typen mit Beschriftung – neue Typen erscheinen so automatisch
 	const types = Object.keys(TYPE_LABELS);
+
+	// Angezeigte Reihenfolge je Modul; während des Ziehens lokal, gespeichert beim Loslassen
+	let lists = $derived<Record<number, TaskRow[]>>(
+		Object.fromEntries(
+			modules.map((m) => [m.id, m.tasks.filter((t) => showArchived || !t.archived)])
+		)
+	);
+	let saving = $state(false);
+
+	function consider(moduleId: number, e: CustomEvent<DndEvent<TaskRow>>) {
+		lists = { ...lists, [moduleId]: e.detail.items };
+	}
+
+	function finalize(row: ModuleRow, e: CustomEvent<DndEvent<TaskRow>>) {
+		lists = { ...lists, [row.id]: e.detail.items };
+		saveOrder(row, e.detail.items);
+	}
+
+	function move(row: ModuleRow, index: number, delta: number) {
+		const items = [...lists[row.id]];
+		const target = index + delta;
+		if (target < 0 || target >= items.length) return;
+		[items[index], items[target]] = [items[target], items[index]];
+		lists = { ...lists, [row.id]: items };
+		saveOrder(row, items);
+	}
+
+	// Ausgeblendete (archivierte) Aufgaben behalten ihren Platz, die sichtbaren füllen die übrigen
+	async function saveOrder(row: ModuleRow, visible: TaskRow[]) {
+		const shown = new Map(visible.map((t) => [t.id, t]));
+		const queue = visible.map((t) => t.id);
+		const taskIds = row.tasks.map((t) => (shown.has(t.id) ? queue.shift()! : t.id));
+		if (taskIds.every((id, i) => id === row.tasks[i].id)) return;
+		error = '';
+		saving = true;
+		try {
+			modules = await api<ModuleRow[]>(`/api/admin/content/modules/${row.id}/order`, {
+				method: 'PUT',
+				body: { taskIds }
+			});
+		} catch (e) {
+			error = (e as Error).message;
+			await load();
+		} finally {
+			saving = false;
+		}
+	}
 
 	async function load() {
 		try {
@@ -112,7 +161,7 @@
 		</h1>
 		<p class="mt-4 text-slate-500">
 			Module und Aufgaben anlegen und bearbeiten – ohne Deployment. Jede Veröffentlichung ist eine
-			neue Version.
+			neue Version. Aufgaben per Ziehen oder mit ▲▼ umsortieren; die Reihenfolge gilt sofort.
 		</p>
 		<div class="mt-6 flex flex-wrap gap-3">
 			<button class="ed-button" onclick={download}>Export (ZIP)</button>
@@ -146,17 +195,33 @@
 				</h2>
 				<span class="text-xs text-slate-400">{row.tasks.length} Aufgaben</span>
 			</div>
-			<ul class="divide-y divide-slate-100">
-				{#each row.tasks.filter((t) => showArchived || !t.archived) as task (task.id)}
-					<li>
+			<ul
+				class="divide-y divide-slate-100"
+				aria-label="Aufgaben von {row.module.title}"
+				use:dndzone={{
+					items: lists[row.id] ?? [],
+					flipDurationMs: 150,
+					dragDisabled: saving,
+					dropTargetStyle: {}
+				}}
+				onconsider={(e) => consider(row.id, e)}
+				onfinalize={(e) => finalize(row, e)}
+			>
+				{#each lists[row.id] ?? [] as task, i (task.id)}
+					<li class="flex items-center bg-white" data-task={task.id}>
+						<span
+							class="cursor-grab px-3 text-slate-300 select-none"
+							title="Ziehen zum Verschieben"
+							aria-hidden="true">⠿</span
+						>
 						<a
 							href={`/admin/content/${task.id}`}
-							class="flex items-center justify-between px-5 py-3 text-sm hover:bg-slate-50 {task.archived
+							class="flex flex-1 items-center justify-between py-3 pr-3 text-sm hover:bg-slate-50 {task.archived
 								? 'opacity-50'
 								: ''}"
 						>
 							<span
-								><span class="mr-3 font-mono text-xs text-slate-400">{task.sortOrder}</span
+								><span class="mr-3 font-mono text-xs text-slate-400">{i + 1}</span
 								>{task.title}</span
 							>
 							<span class="flex items-center gap-3 font-mono text-[10px] uppercase">
@@ -169,6 +234,22 @@
 								{#if task.archived}<span class="bg-slate-200 px-2">archiviert</span>{/if}
 							</span>
 						</a>
+						<span class="flex pr-3">
+							<button
+								type="button"
+								class="px-2 text-slate-400 hover:text-institutional-navy disabled:opacity-20"
+								aria-label="{task.title} nach oben"
+								disabled={saving || i === 0}
+								onclick={() => move(row, i, -1)}>▲</button
+							>
+							<button
+								type="button"
+								class="px-2 text-slate-400 hover:text-institutional-navy disabled:opacity-20"
+								aria-label="{task.title} nach unten"
+								disabled={saving || i === (lists[row.id]?.length ?? 0) - 1}
+								onclick={() => move(row, i, 1)}>▼</button
+							>
+						</span>
 					</li>
 				{/each}
 			</ul>

@@ -15,6 +15,19 @@
 <label class="ed-label mt-3"
 	>Hinweis zur Abgabe<input class="ed-input" bind:value={config.submissionNote} /></label
 >
+<label class="mt-4 flex items-center gap-2 text-sm"
+	><input type="checkbox" bind:checked={config.codeEditor} /> Python-Werkbank anzeigen (Code schreiben
+	und im Browser ausführen)</label
+>
+{#if config.codeEditor}
+	<label class="mt-2 flex items-center gap-2 text-sm"
+		><input type="checkbox" bind:checked={config.codeRequired} /> Code muss abgegeben werden</label
+	>
+	<label class="ed-label mt-3"
+		>Startcode<textarea class="ed-input font-mono" rows="5" bind:value={config.starterCode}
+		></textarea></label
+	>
+{/if}
 <p class="ed-label mt-4">Rubrik</p>
 <div class="mt-2 space-y-2">
 	{#each config.rubric ?? [] as criterion, i (criterion.id)}

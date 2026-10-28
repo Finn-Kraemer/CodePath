@@ -13,6 +13,7 @@ export type Leaderboard = Schemas['Leaderboard'];
 export type Profile = Schemas['Profile'];
 export type CourseSummary = Schemas['CourseSummary'];
 export type ModuleReleaseView = Schemas['ModuleReleaseView'];
+export type TaskReleaseView = Schemas['TaskReleaseView'];
 export type StudentOverview = Schemas['StudentOverview'];
 export type StudentTask = Schemas['StudentTask'];
 export type SubmissionSummary = Schemas['SubmissionSummary'];

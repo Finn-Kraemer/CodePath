@@ -3,18 +3,21 @@ package de.codepath.backend.engine.handlers;
 import de.codepath.backend.engine.*;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Freitextabgabe, bewertet von der Lehrkraft mit einer Rubrik.
- * Config: { instructions, submissionNote?, rubric: [{id, label, points}] }
- * Antwort: { content: "<html aus dem Editor>" }
+ * Config: { instructions, submissionNote?, rubric: [{id, label, points}], codeEditor?, starterCode?, codeRequired? }
+ * Antwort: { content: "<html aus dem Editor>", code?: "Python" } – mit codeEditor gibt es eine Python-Werkbank,
+ * deren Code mit der Abgabe zur Lehrkraft geht.
  */
 @Component
 public class PracticeHandler implements TaskHandler {
 
     static final int MAX_CONTENT_LENGTH = 200_000;
+    static final int MAX_CODE_LENGTH = 50_000;
 
     @Override
     public TaskType type() {
@@ -42,10 +45,15 @@ public class PracticeHandler implements TaskHandler {
 
     @Override
     public Map<String, Object> publicView(TaskSpec spec, TaskContext context) {
-        return Map.of(
-                "instructions", Cfg.string(spec.config(), "instructions", ""),
-                "submissionNote", Cfg.string(spec.config(), "submissionNote", ""),
-                "rubric", rubric(spec));
+        Map<String, Object> view = new LinkedHashMap<>();
+        view.put("instructions", Cfg.string(spec.config(), "instructions", ""));
+        view.put("submissionNote", Cfg.string(spec.config(), "submissionNote", ""));
+        view.put("rubric", rubric(spec));
+        // Python-Werkbank: größere Programme im Browser schreiben und ausprobieren, Code geht mit der Abgabe
+        view.put("codeEditor", Cfg.bool(spec.config(), "codeEditor"));
+        view.put("starterCode", Cfg.string(spec.config(), "starterCode", ""));
+        view.put("codeRequired", Cfg.bool(spec.config(), "codeRequired"));
+        return view;
     }
 
     /** Die Rubrik ist keine Lösung: Schüler sollen wissen, worauf es ankommt. */
@@ -57,11 +65,14 @@ public class PracticeHandler implements TaskHandler {
 
     @Override
     public Evaluation evaluate(TaskSpec spec, Map<String, Object> answer, TaskContext context) {
-        String content = Cfg.string(answer, "content");
-        if (content == null || content.replaceAll("<[^>]*>", "").isBlank()) {
-            return Evaluation.invalid("Die Abgabe ist leer.");
-        }
+        String content = Cfg.string(answer, "content", "");
+        String code = Cfg.bool(spec.config(), "codeEditor") ? Cfg.string(answer, "code", "") : "";
+        boolean hasText = !content.replaceAll("<[^>]*>", "").isBlank();
+        boolean hasCode = !code.isBlank();
+        if (Cfg.bool(spec.config(), "codeRequired") && !hasCode) return Evaluation.invalid("Bitte gib auch deinen Code ab.");
+        if (!hasText && !hasCode) return Evaluation.invalid("Die Abgabe ist leer.");
         if (content.length() > MAX_CONTENT_LENGTH) return Evaluation.invalid("Die Abgabe ist zu lang.");
+        if (code.length() > MAX_CODE_LENGTH) return Evaluation.invalid("Der Code ist zu lang.");
         return new Evaluation(Evaluation.Outcome.MANUAL, 0, "Abgabe eingereicht! Die Lehrkraft bewertet sie.", Map.of());
     }
 
@@ -72,7 +83,7 @@ public class PracticeHandler implements TaskHandler {
 
     @Override
     public Map<String, Object> sampleAnswer(TaskSpec spec, TaskContext context) {
-        return Map.of("content", "<p>Beispielabgabe</p>");
+        return Map.of("content", "<p>Beispielabgabe</p>", "code", "print('Beispiel')");
     }
 
     @Override

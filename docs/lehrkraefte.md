@@ -29,6 +29,18 @@ Ein kompromittierter Code lässt sich mit *neuer Code* jederzeit ersetzen; berei
 
 **Leitstand → Modul-Steuerung**, oben den Kurs wählen. Jedes Modul ist zunächst gesperrt und wird mit *Freigeben* sichtbar. Optional eine **End-Uhrzeit** setzen: Ab dann sind Abgaben in diesem Modul nicht mehr möglich, der Countdown ist für die Klasse sichtbar.
 
+### Einzelne Aufgaben freischalten oder sperren
+
+Unter jedem Modul klappt **Einzelne Aufgaben** die Aufgabenliste auf. Je Aufgabe gibt es drei Stufen:
+
+| Stufe | Wirkung |
+|---|---|
+| **Wie Modul** | Standard: sichtbar, sobald das Modul freigegeben ist |
+| **Freigegeben** | sichtbar, auch wenn das Modul gesperrt ist – so lässt sich eine einzelne Aufgabe vorziehen |
+| **Gesperrt** | ausgeblendet, auch wenn das Modul freigegeben ist |
+
+Die Einstellung gilt nur für den gewählten Kurs. Aufgaben- und Punktzahl des Moduls, der Modulfortschritt der Schülerinnen und Schüler und die **Teilnahmebestätigung** zählen nur die sichtbaren Aufgaben. Gesperrte Aufgaben lassen sich nicht abgeben; bereits verdiente Punkte bleiben im Punktestand.
+
 Empfehlung: Mit zwei oder drei Modulen beginnen und weitere im Laufe des Tages freigeben. Das Modul **Abschlusstest** erst am Ende freischalten.
 
 ### Geräte prüfen
@@ -63,7 +75,7 @@ Mit **Alle Schüler abmelden** im Control Center endet jede laufende Sitzung, z.
 
 Praxisaufgaben (Typ *Praxis*) bewertet die Lehrkraft selbst. Neue Abgaben erscheinen im **Prüfungszentrum** (*Abgaben prüfen*).
 
-1. Abgabe öffnen – links die Aufgabenstellung, rechts die Antwort.
+1. Abgabe öffnen – links die Aufgabenstellung, rechts die Antwort. Hat die Aufgabe eine Python-Werkbank, steht darunter der abgegebene Code und lässt sich direkt ausführen.
 2. Für jedes Kriterium der **Rubrik** die Punkte wählen; die Summe ergibt die Punkte der Aufgabe.
 3. Optional einen **Kommentar** für die Schülerin oder den Schüler schreiben.
 4. **Annehmen** – oder **Zur Überarbeitung zurückgeben**: Die Antwort bleibt im Editor der Schülerin erhalten und kann verbessert werden. Mit *Aufgabe danach endgültig sperren* gibt es keine weitere Abgabe.
@@ -97,6 +109,12 @@ Im Control Center unter *Zeugnisfunktion* die Bestätigungen **freigeben**: Sch�
 5. **Veröffentlichen** – ab jetzt gilt die neue Version. Bisherige Versuche bleiben an der Version, mit der sie entstanden sind; niemandem gehen Punkte verloren.
 
 Unter *Versionen* lässt sich jede frühere Fassung als Entwurf zurückholen.
+
+**Python-Werkbank für Praxisaufgaben:** Im Formular einer Praxisaufgabe *Python-Werkbank anzeigen* ankreuzen. Die Klasse bekommt dann zusätzlich einen Python-Editor mit Eingabefeld und kann auch größere Programme im Browser ausführen (bis 10 Sekunden). Optional einen *Startcode* vorgeben und festlegen, dass der Code mit abgegeben werden muss.
+
+### Reihenfolge ändern
+
+In der Modulliste Aufgaben am Griff **⠿** an die neue Stelle ziehen oder mit **▲ ▼** verschieben – wird Aufgabe 3 an Stelle 10 gezogen, ist sie danach Aufgabe 10. Die Reihenfolge gilt sofort für alle Kurse und bleibt bei *Mitgelieferte Inhalte übernehmen* und Importen erhalten.
 
 ### Neue Aufgabe
 

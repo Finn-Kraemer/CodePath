@@ -68,7 +68,7 @@ public class LabController {
         } else {
             task = contentService.publishedTask(taskId);
             if (task.task().isArchived()) throw ApiException.notFound("Labor nicht gefunden.");
-            accessPolicy.requireVisible(user, task.module());
+            accessPolicy.requireTaskVisible(user, task);
             context = TaskContext.of(user.getId(), task.taskId());
         }
         if (task.type() != TaskType.DEVTOOLS) throw ApiException.notFound("Labor nicht gefunden.");
