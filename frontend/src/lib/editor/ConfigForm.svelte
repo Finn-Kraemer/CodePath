@@ -12,6 +12,7 @@
 	import HotspotForm from './config/HotspotForm.svelte';
 	import ImageHotspotForm from './config/ImageHotspotForm.svelte';
 	import LogicCircuitForm from './config/LogicCircuitForm.svelte';
+	import DevToolsForm from './config/DevToolsForm.svelte';
 	import JsonForm from './config/JsonForm.svelte';
 	import type { Config } from './types';
 
@@ -58,6 +59,8 @@
 	<ImageHotspotForm bind:config />
 {:else if type === 'LOGIC_CIRCUIT'}
 	<LogicCircuitForm bind:config />
+{:else if type === 'DEVTOOLS'}
+	<DevToolsForm bind:config />
 {:else}
 	<JsonForm bind:config />
 {/if}

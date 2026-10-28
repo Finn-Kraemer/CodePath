@@ -12,7 +12,8 @@ export const TYPE_LABELS: Record<string, string> = {
 	NUMBER_CONVERT: 'Zahlensysteme',
 	HOTSPOT: 'Markieren',
 	IMAGE_HOTSPOT: 'Im Bild markieren',
-	LOGIC_CIRCUIT: 'Logikgatter'
+	LOGIC_CIRCUIT: 'Logikgatter',
+	DEVTOOLS: 'Browser-Labor'
 };
 
 export const DIFFICULTY_LABELS: Record<string, string> = {

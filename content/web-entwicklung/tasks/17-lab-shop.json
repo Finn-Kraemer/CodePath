@@ -1,0 +1,20 @@
+{
+  "slug": "lab-shop",
+  "type": "DEVTOOLS",
+  "title": "Browser-Labor: Der Schul-Shop",
+  "difficulty": "HARD",
+  "points": 30,
+  "sortOrder": 17,
+  "learningGoal": "Du untersuchst HTML im Inspektor, analysierst eine fehlerhafte Anfrage und sendest sie korrigiert über die Konsole.",
+  "story": "Der neue Online-Shop der Schülervertretung ist fertig – fast. Bestellungen kommen nie an, und keiner weiß, warum. Du sollst den Fehler finden und beweisen, dass eine korrekte Bestellung funktioniert.\n\n> **Du brauchst einen PC oder Laptop** mit Chrome, Edge oder Firefox.",
+  "assignment": "Finde die **drei Teile** des Codes:\n\n1. Ein Artikel ist aus dem Sortiment genommen, aber noch auf der Seite versteckt. Sein **Lagercode** ist Teil 1.\n2. Finde heraus, warum Bestellungen scheitern, und sende eine **korrekte Bestellung** von Hand. Die Bestätigung enthält Teil 2.\n3. Der Shop merkt sich deinen Warenkorb im Browser. Darin steckt ein **Gutschein** – Teil 3.\n\nCode als `XXXX-XXXX-XXXX` eingeben.",
+  "hints": [
+    "Im Inspektor (Rechtsklick → Untersuchen) siehst du auch Elemente mit dem Attribut hidden. Achte auf data-Attribute.",
+    "Der Bestellen-Button ist deaktiviert – das ist nur ein HTML-Attribut. Danach zeigt der Reiter Netzwerk die Anfrage und die Fehlermeldung des Servers. Mit fetch() in der Konsole kannst du eine Anfrage selbst senden.",
+    "Der Warenkorb liegt im sessionStorage. Er ist mit Base64 kodiert – in der Konsole hilft `atob(\"…\")`."
+  ],
+  "explanation": "So ging es:\n\n1. Im **Inspektor** liegt ein `<article hidden>` mit `data-lagercode` – Teil 1.\n2. Nach dem Entfernen von `disabled` schickt der Button eine Anfrage. Im **Netzwerk** steht die Antwort: `menge muss eine ganze Zahl sein, kein Text` – das Eingabefeld liefert Text (`\"2\"`). Korrekt gesendet in der **Konsole**:\n   ```js\n   fetch(location.pathname.replace(/\\/$/, '') + '/bestellung', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ artikel: 'hoodie', menge: 2 }) }).then(r => r.json()).then(console.log)\n   ```\n   Die Antwort enthält Teil 2.\n3. Im **sessionStorage** liegt `warenkorb`; `atob(...)` zeigt den Gutschein – Teil 3.\n\nMerke: Was im Browser passiert, kann jeder sehen und ändern. Deshalb prüft ein Server jede Anfrage selbst.",
+  "config": {
+    "scenario": "shop"
+  }
+}

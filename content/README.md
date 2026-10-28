@@ -52,6 +52,7 @@ content/
 | `NUMBER_CONVERT` | `from`, `to` (2, 8, 10, 16) und entweder `min`, `max`, `count` (eigene Zufallszahlen je Person) oder feste `values` |
 | `HOTSPOT` | `text` (mehrzeilig), `targets: [Zeilennummer ab 1]`, `mono?`, `showCount?` (Standard `true`) – Fehlmarkierungen kosten Punkte |
 | `IMAGE_HOTSPOT` | `image` (Bild-Schlüssel), `alt`, `targets: [{id, x, y, w, h, label?}]` in Prozent des Bildes, `showCount?` – höchstens Ziele + 2 Markierungen, daneben kostet Punkte |
+| `DEVTOOLS` | `scenario`: `wetter`, `shop` oder `escape` – Übungsseite im eigenen Tab, Code je Person verschieden (siehe `docs/browser-labor.md`) |
 | `LOGIC_CIRCUIT` | `inputs: ["A","B"]` (bis 4), `expression` (z. B. `(A OR B) AND NOT C`), `allowedGates?`, `maxGates?`, `showExpression?`, `solution: {gates: [{id, type, inputs}], output}` – bewertet wird die Wahrheitstabelle |
 
 ## Bilder

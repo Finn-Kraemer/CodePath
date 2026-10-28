@@ -948,6 +948,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/lab/{taskId}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['lab_7'];
+		put: operations['lab_9'];
+		post: operations['lab_8'];
+		delete: operations['lab_10'];
+		options: operations['lab_13'];
+		head: operations['lab_12'];
+		patch: operations['lab_11'];
+		trace?: never;
+	};
+	'/api/lab/{taskId}/**': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['lab'];
+		put: operations['lab_2'];
+		post: operations['lab_1'];
+		delete: operations['lab_3'];
+		options: operations['lab_6'];
+		head: operations['lab_5'];
+		patch: operations['lab_4'];
+		trace?: never;
+	};
 	'/api/leaderboard': {
 		parameters: {
 			query?: never;
@@ -1194,7 +1226,8 @@ export interface components {
 				| 'NUMBER_CONVERT'
 				| 'HOTSPOT'
 				| 'IMAGE_HOTSPOT'
-				| 'LOGIC_CIRCUIT';
+				| 'LOGIC_CIRCUIT'
+				| 'DEVTOOLS';
 		};
 		Criterion: {
 			id: string;
@@ -1508,7 +1541,8 @@ export interface components {
 				| 'NUMBER_CONVERT'
 				| 'HOTSPOT'
 				| 'IMAGE_HOTSPOT'
-				| 'LOGIC_CIRCUIT';
+				| 'LOGIC_CIRCUIT'
+				| 'DEVTOOLS';
 			versions: components['schemas']['VersionRow'][];
 		};
 		TaskFile: {
@@ -1546,7 +1580,8 @@ export interface components {
 				| 'NUMBER_CONVERT'
 				| 'HOTSPOT'
 				| 'IMAGE_HOTSPOT'
-				| 'LOGIC_CIRCUIT';
+				| 'LOGIC_CIRCUIT'
+				| 'DEVTOOLS';
 		};
 		TaskRow: {
 			archived: boolean;
@@ -1576,7 +1611,8 @@ export interface components {
 				| 'NUMBER_CONVERT'
 				| 'HOTSPOT'
 				| 'IMAGE_HOTSPOT'
-				| 'LOGIC_CIRCUIT';
+				| 'LOGIC_CIRCUIT'
+				| 'DEVTOOLS';
 		};
 		TaskStatistic: {
 			/** Format: int64 */
@@ -3044,6 +3080,286 @@ export interface operations {
 		};
 	};
 	health: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_7: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_9: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_8: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_10: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_13: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_12: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_11: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_2: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_3: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_6: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_5: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	lab_4: {
 		parameters: {
 			query?: never;
 			header?: never;

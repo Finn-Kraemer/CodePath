@@ -1,0 +1,24 @@
+{
+  "slug": "lab-escape",
+  "type": "DEVTOOLS",
+  "title": "Abschlusstest: Das Escape-Zimmer",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 18,
+  "learningGoal": "Du setzt Inspektor, Netzwerkanalyse, Web-Speicher und Konsole selbstständig und kombiniert ein.",
+  "story": "Dies ist die Abschlussprüfung des Browser-Labors. Es gibt keine Schritt-für-Schritt-Anleitung – nur einen Zettel an der Wand.\n\n> **Du brauchst einen PC oder Laptop** mit Chrome, Edge oder Firefox.",
+  "assignment": "Öffne vier Schlösser und gib den Code als `XXXX-XXXX-XXXX-XXXX` ein.",
+  "hints": [
+    "Jedes Schloss gehört zu einem anderen Werkzeug: Inspektor, Netzwerk, Web-Speicher, Konsole.",
+    "Schloss 1 steckt in einer CSS-Regel (Inspektor → Stile). Schloss 2 in einer Antwort mit Fehlerstatus. Schloss 3 in IndexedDB – rückwärts gelesen.",
+    "Für das vierte Schloss: `zimmer.hilfe()` in der Konsole."
+  ],
+  "explanation": "1. **Inspektor:** Das Element `.wand` hat ein `::after` mit `content: \"Teil 1: …\"`, unsichtbar durch `font-size: 0`.\n2. **Netzwerk:** `schluessel` antwortet mit 404 – im Inhalt der Fehlerantwort steht Teil 2.\n3. **Web-Speicher:** In IndexedDB `escape-zimmer` → `truhe` liegt der Inhalt rückwärts; z. B. `'…'.split('').reverse().join('')`.\n4. **Konsole:** `zimmer.oeffnen('…', '…', '…')` – erst mit den drei richtigen Teilen gibt der Server Teil 4 heraus.\n\nWer das geschafft hat, kann die wichtigsten Werkzeuge der Webentwicklung sicher einsetzen.",
+  "rules": {
+    "maxAttempts": 5,
+    "revealAllowed": false
+  },
+  "config": {
+    "scenario": "escape"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "slug": "lab-wetter",
+  "type": "DEVTOOLS",
+  "title": "Browser-Labor: Die kaputte Wetterstation",
+  "difficulty": "HARD",
+  "points": 30,
+  "sortOrder": 16,
+  "learningGoal": "Du findest mit Konsole, Netzwerkanalyse und Web-Speicher heraus, warum eine Web-App nicht funktioniert.",
+  "story": "Die Wetterstation auf dem Schulhof zeigt seit Tagen nur Striche. Der Hausmeister hat gehört, dass du dich mit Webseiten auskennst. Die Entwicklerin der App ist im Urlaub – aber sie hat Spuren hinterlassen.\n\n> **Du brauchst einen PC oder Laptop** mit Chrome, Edge oder Firefox. Auf Tablets und Handys gibt es keine Entwicklerwerkzeuge.",
+  "assignment": "Öffne das Labor und finde die **drei Teile** des Codes:\n\n1. Warum lädt die Seite keine Daten? Die richtige Antwort der Schnittstelle enthält Teil 1.\n2. Die App hat einen versteckten **Diagnosemodus**. Finde heraus, wie er eingeschaltet wird – der Bericht enthält Teil 2.\n3. Im **Messverlauf** steckt Teil 3. Dafür brauchst du einen Schlüssel, den du unterwegs findest.\n\nGib den Code als `XXXX-XXXX-XXXX` ein.",
+  "hints": [
+    "Öffne zuerst die Konsole (F12 → Konsole) und lade die Seite neu. Lies die Meldungen – und schau im Reiter Netzwerk nach, was die Schnittstelle wirklich geantwortet hat.",
+    "Eine Adresse kannst du auch direkt im Browser öffnen und dabei Parameter ändern. Bei der richtigen Antwort lohnt sich ein Blick auf die Antwort-Header. Den Diagnosemodus findest du im Quelltext von app.js (Reiter Quellen bzw. Debugger).",
+    "Der Diagnosemodus prüft einen Eintrag im localStorage (Reiter Anwendung bzw. Web-Speicher). Lege ihn an und lade neu. Für Teil 3: In der Konsole `wetter.hilfe()` eingeben."
+  ],
+  "explanation": "So ging es:\n\n1. Die Konsole meldet unvollständige Daten. Im Reiter **Netzwerk** sieht man: Die App fragt `daten?v=1` ab, und die Antwort sagt, dass v1 abgeschaltet ist. Ruft man `daten?v=2` auf, steht Teil 1 im Feld `pruefcode`.\n2. In `app.js` steht, dass der Diagnosemodus aktiv wird, wenn im **localStorage** `wetter-diagnose` den Wert `an` hat. Eintrag anlegen, neu laden – der Bericht zeigt Teil 2.\n3. Die Antwort von v2 hat den Header `X-Api-Schluessel`. Mit `wetter.verlauf(\"…\")` in der **Konsole** erscheint der Verlauf mit Teil 3.\n\nGenau so suchen Entwicklerinnen und Entwickler Fehler: Meldungen lesen, Anfragen prüfen, Quelltext verstehen.",
+  "config": {
+    "scenario": "wetter"
+  }
+}
