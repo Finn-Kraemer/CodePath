@@ -10,6 +10,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - **Mitnehm-Paket**: Schülerinnen und Schüler laden vor dem Kursende im Profil ein PDF mit ihren Ergebnissen, ihrem Code, ihrem Berufe-Kompass und Links zum Weiterlernen herunter. Es entsteht beim Abruf und wird auf dem Server nicht gespeichert.
 - **Berufe-Kompass**: Jedes Modul hat ein Berufsfeld; der Kompass im Profil zeigt, in welche Richtung die eigenen Ergebnisse weisen. Berufsfeld und Weiterlern-Links lassen sich unter *Inhalte → Modul bearbeiten* pflegen.
 - **Lernpfade und empfohlene nächste Aufgabe**: Die Lehrkraft zeichnet im Editor (Leitstand → Lernpfade) eine Karte aus Modulen, Aufgaben und Meilensteinen. Die Klasse sieht sie mit ihrem Stand in der Modulübersicht und bekommt dort und nach jeder gelösten Aufgabe die empfohlene nächste Aufgabe.
+- **Lernpfade je Kurs mit Aufgabenauswahl**: Modul-Stationen nutzen alle oder nur bestimmte Aufgaben, ein Modul lässt sich auf mehrere Stationen verteilen (Programmierung 1, Web 1, Programmierung 2). Ein Lernpfad für einen Kurs übernimmt seine Module und Aufgaben beim Speichern in die Modul-Steuerung des Kurses.
 - **Zentraler Import & Export** (Leitstand → Import & Export): Einstellungen, Startseite, Seiten, Wissensdatenbank, Lernpfade sowie Module und Aufgaben mit Bildern in einer Datei. Der Import erkennt die Datei selbst und berichtet je Eintrag: angelegt, überarbeitet, unverändert oder Fehler.
 - **Eigene Buttons** in „Titelbereich“ und „Aufruf mit Buttons“ (Startseite und eigene Seiten): Beschriftung und Ziel frei wählbar – interne Seite aus einer Liste (Lernmodule, Wissensdatenbank, eigene Seiten …) oder externe Adresse, optional im neuen Tab. Die Standard-Buttons (Login/Registrieren bzw. „Zu den Lernmodulen“) lassen sich weiterhin zu- oder abschalten.
 - **Suche in der Wissensdatenbank**: Volltext über Titel und Text, Treffer mit Ausschnitt, Fundstellen im Artikel markiert.
@@ -30,6 +31,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update
+- Migration V22 ordnet Lernpfade optional einem Kurs zu.
 - Migration V21 ergänzt Module um Berufsfeld und Weiterlern-Links (beim Start für die mitgelieferten Module nachgetragen, wenn noch leer) und legt die Tabelle `learning_paths` an.
 - Migration V20 merkt sich, welcher mitgelieferte Text in einem Wissensartikel steht. Artikel, die niemand im Browser geändert hat, bekommen beim Start die neue Fassung; bearbeitete Artikel bleiben unverändert.
 - Migration V19 ergänzt Aufgabenversionen um den passenden Wissensartikel (`knowledgeArticle`, auch im Content-Paket).

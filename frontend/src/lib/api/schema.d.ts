@@ -1989,6 +1989,7 @@ export interface components {
 			label: string;
 			module: string;
 			task: string;
+			tasks: string[];
 			/** Format: int32 */
 			x: number;
 			/** Format: int32 */
@@ -2041,10 +2042,15 @@ export interface components {
 			visibility: 'PUBLIC' | 'LOGGED_IN';
 		};
 		PathAdmin: {
+			applied: string[];
+			/** Format: int64 */
+			courseId: number;
+			courseName: string;
 			description: string;
 			graph: components['schemas']['Graph'];
 			/** Format: int64 */
 			id: number;
+			lockOthers: boolean;
 			published: boolean;
 			slug: string;
 			title: string;
@@ -2057,6 +2063,9 @@ export interface components {
 			title: string;
 		};
 		PathSummary: {
+			/** Format: int64 */
+			courseId: number;
+			courseName: string;
 			description: string;
 			/** Format: int64 */
 			id: number;
@@ -2069,8 +2078,11 @@ export interface components {
 			updatedAt: string;
 		};
 		PathUpdate: {
+			/** Format: int64 */
+			courseId: number;
 			description: string;
 			graph: components['schemas']['Graph'];
+			lockOthers: boolean;
 			published: boolean;
 			slug: string;
 			title: string;

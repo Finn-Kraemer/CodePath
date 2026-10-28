@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { SvelteSet } from 'svelte/reactivity';
 	import { auth } from '$lib/auth.svelte';
-	import type { ModuleReleaseView } from '$lib/api';
+	import { api, type ModuleReleaseView, type PathSummary } from '$lib/api';
 	import CourseSelect from '$lib/components/CourseSelect.svelte';
 	import TaskReleases from '$lib/components/TaskReleases.svelte';
 	import { courseSelection } from '$lib/courses.svelte';
@@ -9,6 +9,9 @@
 	type Module = ModuleReleaseView;
 
 	let modules = $state<Module[]>([]);
+	let paths = $state<PathSummary[]>([]);
+	/** Lernpfade, die für den gewählten Kurs gelten – sie schreiben ihre Auswahl hierher */
+	const coursePaths = $derived(paths.filter((p) => p.courseId === courseSelection.selectedId));
 	let loading = $state(true);
 	let processingIds = new SvelteSet<number>();
 
@@ -17,6 +20,9 @@
 
 	async function fetchModules() {
 		const request = ++latestRequest;
+		api<PathSummary[]>('/api/admin/learning-paths')
+			.then((list) => (paths = list))
+			.catch(() => (paths = []));
 		try {
 			const res = await auth.apiFetch('/api/admin/modules' + courseSelection.query());
 			if (!res.ok) throw new Error('Unauthorized');
@@ -97,6 +103,14 @@
 			Module und einzelne Aufgaben je Kurs freischalten, Fristen setzen.
 		</p>
 		<div class="mt-6"><CourseSelect onchange={fetchModules} /></div>
+		{#each coursePaths as path (path.id)}
+			<p class="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+				Für diesen Kurs gilt der Lernpfad
+				<a href="/admin/learning-paths/{path.id}" class="font-bold underline">{path.title}</a
+				>{path.published ? '' : ' (Entwurf)'}. Beim Speichern übernimmt er seine Module und Aufgaben
+				hierher; Änderungen hier bleiben bis dahin bestehen.
+			</p>
+		{/each}
 	</header>
 
 	{#if loading}

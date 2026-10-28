@@ -124,6 +124,72 @@ class LearningPathTest extends IntegrationTestBase {
     }
 
     @Test
+    void coursePathSplitsModulesAndIsAppliedToModuleControl() throws Exception {
+        Course course = course("9a");
+        Course other = course("9b");
+        unlock(course, "programmierung");
+        User lena = student("lena", course);
+        User tom = student("tom", other);
+        long id = create("Projekttag 9a", "projekttag-9a");
+        Map<String, Object> git1 = node("git1", "MODULE", "git", null, "Git 1", 0);
+        git1.put("tasks", List.of("g1", "g2"));
+        Map<String, Object> git2 = node("git2", "MODULE", "git", null, "Git 2", 200);
+        git2.put("tasks", List.of("g3"));
+        var graph = Map.of(
+                "nodes", List.of(git1, node("db", "MODULE", "datenbanken", null, null, 100), git2),
+                "edges", List.of(edge("git1", "db"), edge("db", "git2")));
+        Map<String, Object> update = new java.util.HashMap<>(Map.of("graph", graph, "courseId", course.getId(), "lockOthers", true));
+        // Entwurf: noch nichts in der Modul-Steuerung
+        JsonNode draft = body(putAs(teacher(), "/api/admin/learning-paths/" + id, update).andExpect(status().isOk()));
+        assertEquals(0, draft.get("applied").size());
+        assertEquals("9a", draft.get("courseName").asString());
+
+        update.put("published", true);
+        JsonNode saved = body(putAs(teacher(), "/api/admin/learning-paths/" + id, update).andExpect(status().isOk()));
+        assertTrue(saved.get("applied").size() > 0, "Freigaben wurden übernommen");
+
+        JsonNode modules = body(getAs(teacher(), "/api/admin/modules?courseId=" + course.getId()));
+        assertTrue(module(modules, "git").get("isUnlocked").asBoolean());
+        assertTrue(module(modules, "datenbanken").get("isUnlocked").asBoolean());
+        assertFalse(module(modules, "programmierung").get("isUnlocked").asBoolean(), "Andere Module wurden gesperrt");
+        assertEquals(3, module(modules, "git").get("taskCount").asInt(), "Nur die drei Git-Aufgaben aus dem Lernpfad");
+        long gitId = module(modules, "git").get("id").asLong();
+        for (JsonNode task : body(getAs(teacher(), "/api/admin/modules/" + gitId + "/tasks?courseId=" + course.getId()))) {
+            boolean used = List.of("g1", "g2", "g3").contains(task.get("slug").asString());
+            assertEquals(used, task.get("visible").asBoolean(), task.get("slug").asString());
+        }
+        assertEquals(0, body(putAs(teacher(), "/api/admin/learning-paths/" + id, update)).get("applied").size(),
+                "Zweites Speichern ändert nichts mehr");
+
+        // Nur der Kurs sieht den Lernpfad; Stationen zählen nur ihre Aufgaben
+        assertEquals("projekttag-9a", body(getAs(as(lena), "/api/learning-paths")).at("/0/slug").asString());
+        assertEquals(0, body(getAs(as(tom), "/api/learning-paths")).size());
+        getAs(as(tom), "/api/learning-paths/projekttag-9a").andExpect(status().isNotFound());
+        JsonNode view = body(getAs(as(lena), "/api/learning-paths/projekttag-9a"));
+        assertEquals(2, find(view, "git1").get("total").asInt());
+        assertEquals(1, find(view, "git2").get("total").asInt());
+        assertEquals("g1", body(getAs(as(lena), "/api/learning/next")).get("taskSlug").asString());
+
+        postAs(as(lena), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        postAs(as(lena), "/api/modules/git/g2/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        view = body(getAs(as(lena), "/api/learning-paths/projekttag-9a"));
+        assertEquals("DONE", state(view, "git1"), "Teil 1 ist mit zwei Aufgaben fertig");
+        assertEquals("UPCOMING", state(view, "git2"));
+        assertEquals("datenbanken", body(getAs(as(lena), "/api/learning/next")).get("moduleSlug").asString(),
+                "Erst Datenbanken, dann Git Teil 2");
+
+        var badTasks = new java.util.HashMap<>(git1);
+        badTasks.put("tasks", List.of("gibt-es-nicht"));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", Map.of("nodes", List.of(badTasks), "edges", List.of())))
+                .andExpect(status().isBadRequest());
+    }
+
+    static JsonNode module(JsonNode modules, String slug) {
+        for (JsonNode m : modules) if (m.get("slug").asString().equals(slug)) return m;
+        throw new AssertionError("Modul " + slug + " fehlt");
+    }
+
+    @Test
     void nothingToRecommendWithoutReleasedModules() throws Exception {
         User tom = student("tom", course("8b"));
         getAs(as(tom), "/api/learning/next").andExpect(status().isNoContent());

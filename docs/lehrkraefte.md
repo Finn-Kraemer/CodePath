@@ -62,7 +62,9 @@ In der Modulübersicht steht oben die **empfohlene nächste Aufgabe**. Sie kommt
 - **Station hinzufügen**: ein Modul, eine einzelne Aufgabe oder ein Meilenstein (z. B. „Grundlagen geschafft!“). Ist eine Station gewählt, wird die neue darunter angehängt und verbunden.
 - Stationen **ziehen** (oder mit den Pfeiltasten verschieben), **Verbinden** zeichnet „erst das, dann das“. Linien anklicken löscht sie. Kreise sind nicht möglich.
 - **Automatisch anordnen** legt die Stationen ordentlich in Reihen, **Vorschau** zeigt die Karte mit dem eigenen Stand.
-- **Veröffentlicht** ankreuzen und speichern – dann sieht die Klasse den Lernpfad als Karte (umschaltbar auf die Liste). Gibt es mehrere, bestimmt der oberste veröffentlichte die Empfehlung.
+- **Nur bestimmte Aufgaben**: Eine Modul-Station kann alle oder nur ausgewählte Aufgaben des Moduls nutzen. **Restliche Aufgaben als neue Station** hängt den Rest als zweite Station an – so entsteht z. B. *Programmierung 1 → Web 1 → Programmierung 2*.
+- **Gilt für**: alle Kurse oder ein Kurs (Gruppe). Ein veröffentlichter Lernpfad für einen Kurs überträgt bei jedem Speichern seine Module in die **Modul-Steuerung** des Kurses: Die Module werden freigegeben, nicht genutzte Aufgaben darin einzeln gesperrt. Optional werden Module, die nicht im Lernpfad vorkommen, für den Kurs gesperrt. Was sich geändert hat, zeigt der Editor nach dem Speichern; Fristen bleiben unverändert.
+- **Veröffentlicht** ankreuzen und speichern – dann sieht die Klasse den Lernpfad als Karte (umschaltbar auf die Liste). Ein Kurs sieht die Lernpfade für ihn und die für alle Kurse; die Empfehlung kommt aus dem obersten Lernpfad des eigenen Kurses, sonst aus dem obersten für alle Kurse.
 
 Auf der Karte ist jede Station *erledigt*, *jetzt dran*, *später*, *Zeit abgelaufen* oder *gesperrt*. Gesperrte (nicht freigegebene) Module halten niemanden auf.
 

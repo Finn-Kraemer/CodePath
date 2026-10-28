@@ -32,6 +32,14 @@ public class LearningPath {
     @Column(nullable = false)
     private boolean published;
 
+    /** Kurs, für den der Lernpfad gilt; null für alle Kurse (ändert dann keine Freigaben) */
+    @Column(name = "course_id")
+    private Long courseId;
+
+    /** Beim Übernehmen in die Modul-Steuerung Module sperren, die im Lernpfad nicht vorkommen */
+    @Column(name = "lock_others", nullable = false)
+    private boolean lockOthers;
+
     @Column(nullable = false)
     private int position;
 

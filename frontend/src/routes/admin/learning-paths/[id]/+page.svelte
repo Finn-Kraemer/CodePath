@@ -2,7 +2,14 @@
 	import { onMount } from 'svelte';
 	import { beforeNavigate, goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { api, type PathAdmin, type PathNode, type PathView, type Schemas } from '$lib/api';
+	import {
+		api,
+		type CourseSummary,
+		type PathAdmin,
+		type PathNode,
+		type PathView,
+		type Schemas
+	} from '$lib/api';
 	import { canvasSize, edgePath, layered, NODE_H, NODE_W, snap } from '$lib/pathway/geometry';
 	import PathMap from '$lib/pathway/PathMap.svelte';
 	import { exportUrl } from '$lib/transfer';
@@ -14,7 +21,17 @@
 	const id = $derived(Number(page.params.id));
 
 	let saved = $state<PathAdmin | null>(null);
-	let form = $state({ title: '', slug: '', description: '', published: false });
+	let form = $state({
+		title: '',
+		slug: '',
+		description: '',
+		published: false,
+		courseId: 0,
+		lockOthers: false
+	});
+	let courses = $state<CourseSummary[]>([]);
+	/** Was das letzte Speichern in die Modul-Steuerung übernommen hat */
+	let applied = $state<string[] | null>(null);
 	let nodes = $state<PathNode[]>([]);
 	let edges = $state<Edge[]>([]);
 	let catalog = $state<ModuleRow[]>([]);
@@ -47,6 +64,8 @@
 					slug: saved.slug,
 					description: saved.description,
 					published: saved.published,
+					courseId: saved.courseId ?? 0,
+					lockOthers: saved.lockOthers,
 					graph: saved.graph
 				})
 			: ''
@@ -55,11 +74,13 @@
 
 	onMount(async () => {
 		try {
-			const [path, modules] = await Promise.all([
+			const [path, modules, courseList] = await Promise.all([
 				api<PathAdmin>(`/api/admin/learning-paths/${id}`),
-				api<ModuleRow[]>('/api/admin/content')
+				api<ModuleRow[]>('/api/admin/content'),
+				api<CourseSummary[]>('/api/admin/courses')
 			]);
 			catalog = modules;
+			courses = courseList;
 			apply(path);
 			draft.module = catalog[0]?.module.slug ?? '';
 		} catch (e) {
@@ -82,7 +103,9 @@
 			title: path.title,
 			slug: path.slug,
 			description: path.description ?? '',
-			published: path.published
+			published: path.published,
+			courseId: path.courseId ?? 0,
+			lockOthers: path.lockOthers
 		};
 		nodes = structuredClone(graph.nodes);
 		edges = structuredClone(graph.edges);
@@ -92,6 +115,7 @@
 		const node: Record<string, unknown> = { id: n.id, kind: n.kind };
 		if (n.module) node.module = n.module;
 		if (n.task) node.task = n.task;
+		if (n.kind === 'MODULE' && n.tasks?.length) node.tasks = n.tasks;
 		if (n.label) node.label = n.label;
 		node.x = n.x;
 		node.y = n.y;
@@ -112,6 +136,7 @@
 				body: { ...form, graph: { nodes: nodes.map(normalize), edges } }
 			});
 			apply(updated);
+			applied = form.courseId && form.published ? updated.applied : null;
 			flash('Gespeichert.');
 			if (preview) await showPreview();
 		} catch (e) {
@@ -146,7 +171,12 @@
 	function label(n: PathNode): string {
 		if (n.label) return n.label;
 		const module = modulesBySlug.get(n.module);
-		if (n.kind === 'MODULE') return module?.module.title ?? `⚠ ${n.module} fehlt`;
+		if (n.kind === 'MODULE') {
+			if (!module) return `⚠ ${n.module} fehlt`;
+			return n.tasks?.length
+				? `${module.module.title} (${n.tasks.length} Aufgaben)`
+				: module.module.title;
+		}
 		const task = module?.tasks.find((t) => t.slug === n.task);
 		return task?.title ?? `⚠ ${n.module}/${n.task} fehlt`;
 	}
@@ -189,6 +219,7 @@
 			kind: draft.kind,
 			module: draft.kind === 'MILESTONE' ? '' : draft.module,
 			task: draft.kind === 'TASK' ? draft.task : '',
+			tasks: [],
 			label: draft.kind === 'MILESTONE' ? draft.label.trim() : '',
 			x: anchor ? anchor.x : 60,
 			y: anchor
@@ -200,6 +231,80 @@
 		if (anchor) edges = [...edges, { from: anchor.id, to: node.id }];
 		selectedId = node.id;
 		draft.label = '';
+	}
+
+	/** Veröffentlichte, nicht archivierte Aufgaben eines Moduls in ihrer Reihenfolge */
+	function moduleTasks(moduleSlug: string) {
+		return (modulesBySlug.get(moduleSlug)?.tasks ?? []).filter(
+			(t) => !t.archived && t.currentVersion
+		);
+	}
+
+	/** Aufgaben des Moduls, die schon eine andere Station dieses Lernpfads nutzt */
+	function usedElsewhere(node: PathNode): string[] {
+		return nodes
+			.filter((n) => n.id !== node.id && n.module === node.module)
+			.flatMap((n) =>
+				n.kind === 'TASK'
+					? [n.task]
+					: n.tasks?.length
+						? n.tasks
+						: moduleTasks(n.module).map((t) => t.slug)
+			);
+	}
+
+	function updateNode(nodeId: string, change: Partial<PathNode>) {
+		nodes = nodes.map((n) => (n.id === nodeId ? normalize({ ...n, ...change }) : n));
+	}
+
+	/** Alle Aufgaben oder nur eine Auswahl; beim Umschalten auf Auswahl erst die noch nicht genutzten */
+	function setPartial(node: PathNode, partial: boolean) {
+		if (!partial) return updateNode(node.id, { tasks: [] });
+		const taken = usedElsewhere(node);
+		const free = moduleTasks(node.module)
+			.map((t) => t.slug)
+			.filter((slug) => !taken.includes(slug));
+		updateNode(node.id, {
+			tasks: free.length ? free : moduleTasks(node.module).map((t) => t.slug)
+		});
+	}
+
+	function toggleTask(node: PathNode, slug: string, on: boolean) {
+		const order = moduleTasks(node.module).map((t) => t.slug);
+		const current = (node.tasks ?? []).filter((t) => t !== slug).concat(on ? [slug] : []);
+		const tasks = order.filter((t) => current.includes(t));
+		if (!tasks.length) {
+			error = 'Mindestens eine Aufgabe auswählen – oder „Alle Aufgaben“.';
+			return;
+		}
+		updateNode(node.id, { tasks });
+	}
+
+	/** Die noch nicht genutzten Aufgaben des Moduls als neue Station darunter anhängen (z. B. „Teil 2“) */
+	function splitRest(node: PathNode) {
+		const taken = [...usedElsewhere(node), ...(node.tasks ?? [])];
+		const rest = moduleTasks(node.module)
+			.map((t) => t.slug)
+			.filter((slug) => !taken.includes(slug));
+		if (!rest.length) {
+			error = 'Alle Aufgaben dieses Moduls sind schon verteilt.';
+			return;
+		}
+		const title = modulesBySlug.get(node.module)?.module.title ?? node.module;
+		const part = nodes.filter((n) => n.module === node.module && n.kind === 'MODULE').length + 1;
+		const added = normalize({
+			id: freeId(),
+			kind: 'MODULE',
+			module: node.module,
+			task: '',
+			tasks: rest,
+			label: `${title} ${part}`,
+			x: node.x,
+			y: node.y + NODE_H + 70
+		} as PathNode);
+		if (!node.label && node.tasks?.length) updateNode(node.id, { label: `${title} 1` });
+		nodes = [...nodes, added];
+		selectedId = added.id;
 	}
 
 	function removeNode(nodeId: string) {
@@ -368,6 +473,29 @@
 			<label class="ed-label md:col-span-2"
 				>Beschreibung<input class="ed-input" bind:value={form.description} maxlength="500" /></label
 			>
+			<label class="ed-label md:col-span-2"
+				>Gilt für
+				<select class="ed-input" bind:value={form.courseId}>
+					<option value={0}>Alle Kurse (ändert keine Freigaben)</option>
+					{#each courses as course (course.id)}
+						<option value={course.id}
+							>Kurs {course.name}{course.status === 'ENDED' ? ' (beendet)' : ''}</option
+						>
+					{/each}
+				</select>
+			</label>
+			<div class="flex flex-col justify-end gap-1 text-xs text-slate-500 md:col-span-2">
+				{#if form.courseId}
+					<label class="flex items-center gap-2 text-sm text-institutional-navy"
+						><input type="checkbox" bind:checked={form.lockOthers} /> Module, die nicht im Lernpfad vorkommen,
+						für den Kurs sperren</label
+					>
+					<span
+						>Veröffentlicht übernimmt jedes Speichern die Module und Aufgaben dieses Lernpfads in
+						die <a href="/admin/modules" class="underline">Modul-Steuerung</a> des Kurses.</span
+					>
+				{/if}
+			</div>
 			<div class="flex flex-wrap items-center gap-3 md:col-span-4">
 				<label class="flex items-center gap-2 text-sm"
 					><input type="checkbox" bind:checked={form.published} /> Veröffentlicht (für Schüler sichtbar)</label
@@ -387,6 +515,22 @@
 				>
 			</div>
 		</section>
+
+		{#if applied}
+			<section
+				class="border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900"
+				role="status"
+			>
+				{#if applied.length}
+					<p class="font-bold">In die Modul-Steuerung übernommen:</p>
+					<ul class="mt-1 list-disc pl-5">
+						{#each applied as line, i (i)}<li>{line}</li>{/each}
+					</ul>
+				{:else}
+					<p>Die Modul-Steuerung des Kurses entsprach schon diesem Lernpfad.</p>
+				{/if}
+			</section>
+		{/if}
 
 		{#if preview}
 			<section class="flex flex-col gap-2">
@@ -539,6 +683,62 @@
 							<p class="font-mono text-xs text-slate-500">
 								{selected.module}{selected.task ? `/${selected.task}` : ''}
 							</p>
+						{/if}
+						{#if selected.kind === 'MODULE'}
+							{@const node = selected}
+							{@const taken = usedElsewhere(node)}
+							<fieldset class="flex flex-col gap-2">
+								<legend class="ed-label">Aufgaben dieser Station</legend>
+								<label class="flex items-center gap-2 text-sm"
+									><input
+										type="radio"
+										name="partial"
+										checked={!node.tasks?.length}
+										onchange={() => setPartial(node, false)}
+									/> Alle Aufgaben des Moduls</label
+								>
+								<label class="flex items-center gap-2 text-sm"
+									><input
+										type="radio"
+										name="partial"
+										checked={!!node.tasks?.length}
+										onchange={() => setPartial(node, true)}
+									/> Nur bestimmte Aufgaben</label
+								>
+								{#if node.tasks?.length}
+									<ul
+										class="flex max-h-64 flex-col gap-1 overflow-auto border border-slate-100 p-2"
+										aria-label="Aufgaben auswählen"
+									>
+										{#each moduleTasks(node.module) as t, i (t.slug)}
+											<li>
+												<label class="flex items-start gap-2 text-xs">
+													<input
+														type="checkbox"
+														checked={node.tasks.includes(t.slug)}
+														onchange={(e) =>
+															toggleTask(
+																node,
+																t.slug,
+																(e.currentTarget as HTMLInputElement).checked
+															)}
+													/>
+													<span
+														>{i + 1}. {t.title}{#if taken.includes(t.slug)}<span
+																class="text-slate-400"
+															>
+																· schon in anderer Station</span
+															>{/if}</span
+													>
+												</label>
+											</li>
+										{/each}
+									</ul>
+									<button class="ed-button" onclick={() => splitRest(node)}
+										>Restliche Aufgaben als neue Station</button
+									>
+								{/if}
+							</fieldset>
 						{/if}
 						<label class="ed-label"
 							>{selected.kind === 'MILESTONE' ? 'Beschriftung' : 'Eigene Beschriftung (optional)'}

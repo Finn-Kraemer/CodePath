@@ -1,10 +1,14 @@
 package de.codepath.backend.pathway;
 
 import de.codepath.backend.classroom.AccessPolicy;
+import de.codepath.backend.classroom.ReleaseService;
 import de.codepath.backend.content.ContentService;
 import de.codepath.backend.content.Module;
 import de.codepath.backend.content.PublishedTask;
+import de.codepath.backend.identity.Course;
+import de.codepath.backend.identity.CourseService;
 import de.codepath.backend.identity.User;
+import de.codepath.backend.identity.UserService;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
 import de.codepath.backend.progress.ProgressService;
@@ -24,6 +28,10 @@ import java.util.stream.Collectors;
  * Lernpfade: Die Lehrkraft zeichnet eine Karte aus Modulen, Aufgaben und Meilensteinen; Schüler sehen darauf
  * ihren Stand und die empfohlene nächste Aufgabe. Ohne veröffentlichten Lernpfad empfiehlt CodePath die nächste
  * offene Aufgabe in der Reihenfolge der Module – bevorzugt in einem Modul, das schon begonnen ist.
+ *
+ * <p>Ein Lernpfad gilt für alle Kurse oder für einen Kurs. Ein veröffentlichter Kurs-Lernpfad wird beim Speichern
+ * in die Modul-Steuerung des Kurses übernommen: Seine Module werden freigegeben, nicht genutzte Aufgaben darin
+ * einzeln gesperrt.
  */
 @Service
 @RequiredArgsConstructor
@@ -36,15 +44,24 @@ public class LearningPathService {
      */
     public enum NodeState { DONE, AVAILABLE, UPCOMING, CLOSED, LOCKED }
 
+    /** courseId/courseName: Kurs, für den der Lernpfad gilt; null für alle Kurse */
     public record PathSummary(Long id, String slug, String title, String description, boolean published, int stations,
-                              LocalDateTime updatedAt) {
+                              Long courseId, String courseName, LocalDateTime updatedAt) {
     }
 
+    /** applied: was beim Speichern in die Modul-Steuerung des Kurses übernommen wurde */
     public record PathAdmin(Long id, String slug, String title, String description, boolean published,
-                            PathGraph.Graph graph, LocalDateTime updatedAt) {
+                            PathGraph.Graph graph, Long courseId, String courseName, boolean lockOthers,
+                            List<String> applied, LocalDateTime updatedAt) {
     }
 
-    public record PathUpdate(String title, String slug, String description, Boolean published, PathGraph.Graph graph) {
+    /**
+     * Fehlende Felder bleiben unverändert.
+     *
+     * @param courseId Kurs; 0 für alle Kurse
+     */
+    public record PathUpdate(String title, String slug, String description, Boolean published, PathGraph.Graph graph,
+                             Long courseId, Boolean lockOthers) {
     }
 
     public record PathLink(String slug, String title, String description) {
@@ -67,6 +84,9 @@ public class LearningPathService {
     private final LearningPathRepository repository;
     private final ContentService contentService;
     private final AccessPolicy accessPolicy;
+    private final ReleaseService releaseService;
+    private final CourseService courseService;
+    private final UserService userService;
     private final ProgressService progressService;
     private final AuditService auditService;
     private final ObjectMapper objectMapper;
@@ -80,7 +100,7 @@ public class LearningPathService {
 
     @Transactional(readOnly = true)
     public PathAdmin get(Long id) {
-        return admin(find(id));
+        return admin(find(id), List.of());
     }
 
     /** Neuer Lernpfad, vorbelegt mit allen Modulen in ihrer Reihenfolge als Kette – zum Umbauen. */
@@ -93,7 +113,7 @@ public class LearningPathService {
         path.setPosition(repository.findAllByOrderByPositionAscIdAsc().stream().mapToInt(LearningPath::getPosition).max().orElse(-1) + 1);
         repository.save(path);
         auditService.log("LEARNING_PATH_CREATED", path.getSlug(), Map.of());
-        return admin(path);
+        return admin(path, List.of());
     }
 
     @Transactional
@@ -104,9 +124,35 @@ public class LearningPathService {
         if (update.description() != null) path.setDescription(description(update.description()));
         if (update.graph() != null) path.setGraph(write(checked(update.graph())));
         if (update.published() != null) path.setPublished(update.published());
+        if (update.courseId() != null) path.setCourseId(update.courseId() <= 0 ? null : courseService.get(update.courseId()).getId());
+        if (update.lockOthers() != null) path.setLockOthers(update.lockOthers());
         path.setUpdatedAt(LocalDateTime.now());
         auditService.log("LEARNING_PATH_UPDATED", path.getSlug(), Map.of());
-        return admin(path);
+        return admin(path, applyToCourse(path));
+    }
+
+    /** Veröffentlichter Kurs-Lernpfad → Modul-Steuerung des Kurses; sonst ändert sich an den Freigaben nichts. */
+    private List<String> applyToCourse(LearningPath path) {
+        if (!path.isPublished() || path.getCourseId() == null) return List.of();
+        return releaseService.applyPlan(path.getCourseId(), plan(read(path.getGraph())), path.isLockOthers());
+    }
+
+    /** Welche Aufgaben je Modul der Lernpfad nutzt: null für alle, sonst die Slugs aus allen Stationen des Moduls. */
+    static Map<String, Set<String>> plan(PathGraph.Graph graph) {
+        Map<String, Set<String>> plan = new LinkedHashMap<>();
+        for (PathGraph.Node node : graph.nodes()) {
+            if (node.kind() == PathGraph.NodeKind.MILESTONE) continue;
+            boolean all = node.kind() == PathGraph.NodeKind.MODULE && !node.partial();
+            if (plan.containsKey(node.module()) && plan.get(node.module()) == null) continue;
+            if (all) {
+                plan.put(node.module(), null);
+                continue;
+            }
+            Set<String> tasks = plan.computeIfAbsent(node.module(), m -> new LinkedHashSet<>());
+            if (node.kind() == PathGraph.NodeKind.TASK) tasks.add(node.task());
+            else tasks.addAll(node.tasks());
+        }
+        return plan;
     }
 
     @Transactional
@@ -136,11 +182,13 @@ public class LearningPathService {
             if (node.kind() == PathGraph.NodeKind.MILESTONE) continue;
             Module module = modules.get(node.module());
             if (module == null) throw ApiException.badRequest("Das Modul „" + node.module() + "“ gibt es nicht.");
-            if (node.kind() == PathGraph.NodeKind.TASK) {
-                Set<String> slugs = tasks.computeIfAbsent(module.getSlug(), m -> contentService.publishedTasks(module).stream()
-                        .map(t -> t.task().getSlug()).collect(Collectors.toSet()));
-                if (!slugs.contains(node.task())) {
-                    throw ApiException.badRequest("Die Aufgabe „" + node.module() + "/" + node.task() + "“ gibt es nicht oder sie ist nicht veröffentlicht.");
+            Set<String> slugs = tasks.computeIfAbsent(module.getSlug(), m -> contentService.publishedTasks(module).stream()
+                    .map(t -> t.task().getSlug()).collect(Collectors.toSet()));
+            List<String> wanted = node.kind() == PathGraph.NodeKind.TASK ? List.of(node.task())
+                    : node.partial() ? node.tasks() : List.of();
+            for (String task : wanted) {
+                if (!slugs.contains(task)) {
+                    throw ApiException.badRequest("Die Aufgabe „" + node.module() + "/" + task + "“ gibt es nicht oder sie ist nicht veröffentlicht.");
                 }
             }
         }
@@ -155,7 +203,7 @@ public class LearningPathService {
             // Schlangenlinie: drei Stationen je Reihe, jede zweite Reihe von rechts nach links
             int row = i / 3, column = row % 2 == 0 ? i % 3 : 2 - i % 3;
             String id = "m" + (i + 1);
-            nodes.add(new PathGraph.Node(id, PathGraph.NodeKind.MODULE, module.getSlug(), null, null, 60 + column * 260, 60 + row * 160));
+            nodes.add(new PathGraph.Node(id, PathGraph.NodeKind.MODULE, module.getSlug(), null, null, null, 60 + column * 260, 60 + row * 160));
             if (i > 0) edges.add(new PathGraph.Edge("m" + i, id));
             i++;
         }
@@ -164,26 +212,36 @@ public class LearningPathService {
 
     // ---------------------------------------------------------------- Schüler
 
+    /** Veröffentlichte Lernpfade dieser Person: zuerst die ihres Kurses, dann die für alle Kurse. */
     @Transactional(readOnly = true)
-    public List<PathLink> published() {
-        return repository.findAllByOrderByPositionAscIdAsc().stream().filter(LearningPath::isPublished)
-                .map(p -> new PathLink(p.getSlug(), p.getTitle(), p.getDescription())).toList();
+    public List<PathLink> published(User user) {
+        return publishedFor(user).stream().map(p -> new PathLink(p.getSlug(), p.getTitle(), p.getDescription())).toList();
     }
 
-    /** Karte mit Stand; nicht veröffentlichte Lernpfade sieht nur die Lehrkraft (Vorschau). */
+    private List<LearningPath> publishedFor(User user) {
+        Long courseId = user.isTeacher() ? null : userService.courseOf(user.getId()).map(Course::getId).orElse(null);
+        return repository.findAllByOrderByPositionAscIdAsc().stream()
+                .filter(LearningPath::isPublished)
+                .filter(p -> user.isTeacher() || p.getCourseId() == null || p.getCourseId().equals(courseId))
+                .sorted(Comparator.comparing((LearningPath p) -> p.getCourseId() == null))
+                .toList();
+    }
+
+    /** Karte mit Stand; nicht veröffentlichte Lernpfade und die anderer Kurse sieht nur die Lehrkraft (Vorschau). */
     @Transactional(readOnly = true)
     public PathView view(User user, String slug) {
-        LearningPath path = repository.findBySlug(slug).filter(p -> p.isPublished() || user.isTeacher())
+        LearningPath path = repository.findBySlug(slug)
+                .filter(p -> user.isTeacher() || publishedFor(user).stream().anyMatch(q -> q.getId().equals(p.getId())))
                 .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
         return evaluate(path, new Situation(user));
     }
 
-    /** Die eine empfohlene nächste Aufgabe – aus dem ersten veröffentlichten Lernpfad, sonst aus der Modulreihenfolge. */
+    /** Die eine empfohlene nächste Aufgabe – aus dem ersten passenden Lernpfad, sonst aus der Modulreihenfolge. */
     @Transactional(readOnly = true)
     public Recommendation next(User user) {
         Situation situation = new Situation(user);
         // Ist der Lernpfad geschafft, geht es mit den übrigen offenen Aufgaben weiter
-        return repository.findAllByOrderByPositionAscIdAsc().stream().filter(LearningPath::isPublished).findFirst()
+        return publishedFor(user).stream().findFirst()
                 .map(path -> evaluate(path, situation).recommendation())
                 .orElseGet(() -> fallback(situation));
     }
@@ -253,7 +311,7 @@ public class LearningPathService {
     private Recommendation fallback(Situation s) {
         Station started = null, first = null;
         for (Module module : s.modules()) {
-            Station station = s.moduleStation(module);
+            Station station = s.moduleStation(module, null);
             if (station.state() != NodeState.AVAILABLE || station.next() == null) continue;
             if (first == null) first = station;
             if (started == null && station.done() > 0) started = station;
@@ -318,7 +376,7 @@ public class LearningPathService {
         }
 
         Station station(PathGraph.Node node) {
-            if (node.kind() == PathGraph.NodeKind.MODULE) return moduleStation(modules.get(node.module()));
+            if (node.kind() == PathGraph.NodeKind.MODULE) return moduleStation(modules.get(node.module()), node.tasks());
             PublishedTask task = task(node.module(), node.task()).orElseThrow();
             AccessPolicy.ModuleAccess access = releases.taskAccess(task);
             String href = "/modules/" + task.module().getSlug() + "/" + task.task().getSlug();
@@ -329,10 +387,12 @@ public class LearningPathService {
             return new Station(NodeState.AVAILABLE, href, 0, 1, task);
         }
 
-        Station moduleStation(Module module) {
+        /** @param selection nur diese Aufgaben des Moduls zählen; null für alle */
+        Station moduleStation(Module module, List<String> selection) {
             List<PublishedTask> all = tasks(module);
             AccessPolicy.ModuleAccess access = releases.moduleAccess(module, all);
-            List<PublishedTask> visible = releases.visible(all);
+            List<PublishedTask> visible = releases.visible(all).stream()
+                    .filter(t -> selection == null || selection.contains(t.task().getSlug())).toList();
             String href = "/modules/" + module.getSlug();
             if (!access.visible() || visible.isEmpty()) return new Station(NodeState.LOCKED, null, 0, visible.size(), null);
             int done = (int) visible.stream().filter(this::finished).count();
@@ -344,7 +404,10 @@ public class LearningPathService {
 
         String label(PathGraph.Node node) {
             if (node.label() != null && !node.label().isBlank()) return node.label();
-            if (node.kind() == PathGraph.NodeKind.MODULE) return modules.get(node.module()).getTitle();
+            if (node.kind() == PathGraph.NodeKind.MODULE) {
+                String title = modules.get(node.module()).getTitle();
+                return node.partial() ? title + " (" + node.tasks().size() + " Aufgaben)" : title;
+            }
             return task(node.module(), node.task()).map(t -> t.version().getTitle()).orElse(node.task());
         }
 
@@ -401,10 +464,15 @@ public class LearningPathService {
 
     private PathSummary summary(LearningPath p) {
         return new PathSummary(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(), read(p.getGraph()).nodes().size(),
-                p.getUpdatedAt());
+                p.getCourseId(), courseName(p), p.getUpdatedAt());
     }
 
-    private PathAdmin admin(LearningPath p) {
-        return new PathAdmin(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(), read(p.getGraph()), p.getUpdatedAt());
+    private PathAdmin admin(LearningPath p, List<String> applied) {
+        return new PathAdmin(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(), read(p.getGraph()),
+                p.getCourseId(), courseName(p), p.isLockOthers(), applied, p.getUpdatedAt());
+    }
+
+    private String courseName(LearningPath p) {
+        return p.getCourseId() == null ? null : courseService.get(p.getCourseId()).getName();
     }
 }

@@ -65,8 +65,10 @@
 		<p class="mt-4 max-w-3xl text-slate-500">
 			Zeichne eine Lernpfad-Karte aus Modulen, einzelnen Aufgaben und Meilensteinen. Schülerinnen
 			und Schüler sehen sie in der Modulübersicht mit ihrem Stand. Der erste veröffentlichte
-			Lernpfad bestimmt die <strong>empfohlene nächste Aufgabe</strong>; ohne Lernpfad empfiehlt
-			CodePath die nächste offene Aufgabe in der Reihenfolge der Module.
+			Lernpfad bestimmt die <strong>empfohlene nächste Aufgabe</strong> (ein Lernpfad des eigenen Kurses
+			vor einem für alle Kurse); ohne Lernpfad empfiehlt CodePath die nächste offene Aufgabe in der Reihenfolge
+			der Module. Ein Lernpfad für einen Kurs überträgt seine Module und Aufgaben in die Modul-Steuerung
+			des Kurses.
 		</p>
 		<div class="mt-6 flex flex-wrap gap-3">
 			<a class="ed-button" href={exportUrl(['learningPaths'])} download>Alle exportieren</a>
@@ -94,7 +96,9 @@
 						<a href="/admin/learning-paths/{path.id}" class="min-w-0 flex-1">
 							<span class="block font-bold text-institutional-navy">{path.title}</span>
 							<span class="block text-xs text-slate-400"
-								>{path.stations} Stationen · /{path.slug}</span
+								>{path.stations} Stationen · /{path.slug} · {path.courseName
+									? `Kurs ${path.courseName}`
+									: 'alle Kurse'}</span
 							>
 						</a>
 						{#if path.id === firstPublished}

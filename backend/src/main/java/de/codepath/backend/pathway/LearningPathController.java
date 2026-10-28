@@ -17,7 +17,7 @@ public class LearningPathController {
 
     @GetMapping("/api/learning-paths")
     public List<LearningPathService.PathLink> published() {
-        return service.published();
+        return service.published(userService.currentUser());
     }
 
     @GetMapping("/api/learning-paths/{slug}")

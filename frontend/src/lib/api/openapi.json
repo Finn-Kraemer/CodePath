@@ -4183,6 +4183,12 @@
           "task" : {
             "type" : "string"
           },
+          "tasks" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "x" : {
             "type" : "integer",
             "format" : "int32"
@@ -4192,7 +4198,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "id", "kind", "label", "module", "task", "x", "y" ]
+        "required" : [ "id", "kind", "label", "module", "task", "tasks", "x", "y" ]
       },
       "NodeView" : {
         "type" : "object",
@@ -4315,6 +4321,19 @@
       "PathAdmin" : {
         "type" : "object",
         "properties" : {
+          "applied" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
           "description" : {
             "type" : "string"
           },
@@ -4324,6 +4343,9 @@
           "id" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "lockOthers" : {
+            "type" : "boolean"
           },
           "published" : {
             "type" : "boolean"
@@ -4339,7 +4361,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "description", "graph", "id", "published", "slug", "title", "updatedAt" ]
+        "required" : [ "applied", "courseId", "courseName", "description", "graph", "id", "lockOthers", "published", "slug", "title", "updatedAt" ]
       },
       "PathLink" : {
         "type" : "object",
@@ -4359,6 +4381,13 @@
       "PathSummary" : {
         "type" : "object",
         "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
           "description" : {
             "type" : "string"
           },
@@ -4384,16 +4413,23 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "description", "id", "published", "slug", "stations", "title", "updatedAt" ]
+        "required" : [ "courseId", "courseName", "description", "id", "published", "slug", "stations", "title", "updatedAt" ]
       },
       "PathUpdate" : {
         "type" : "object",
         "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "description" : {
             "type" : "string"
           },
           "graph" : {
             "$ref" : "#/components/schemas/Graph"
+          },
+          "lockOthers" : {
+            "type" : "boolean"
           },
           "published" : {
             "type" : "boolean"
@@ -4405,7 +4441,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "graph", "published", "slug", "title" ]
+        "required" : [ "courseId", "description", "graph", "lockOthers", "published", "slug", "title" ]
       },
       "PathView" : {
         "type" : "object",
