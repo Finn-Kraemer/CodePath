@@ -5,24 +5,119 @@ icon: ⌨️
 
 # Kommandozeile (Terminal)
 
-Als Programmierer klickt man sich selten durch Ordner. Stattdessen nutzt man das Terminal, um dem Computer Befehle per Text zu geben. Das ist oft viel schneller und lässt sich leicht automatisieren.
+Als Programmierer klickt man sich selten durch Ordner. Stattdessen gibt man dem Computer im **Terminal** (auch Konsole, Shell oder Kommandozeile) Befehle als Text. Das ist oft schneller, funktioniert auch auf Servern ohne Bildschirm und lässt sich leicht automatisieren.
 
-## Navigation (Wo bin ich?)
+---
 
-- `pwd` (Print Working Directory): Zeigt dir den Pfad des Ordners an, in dem du gerade bist.
-- `ls` (List): Zeigt alle Dateien und Ordner im aktuellen Verzeichnis an.
-  - `ls -a` zeigt auch versteckte Dateien (die mit einem Punkt beginnen).
-- `cd` (Change Directory): Wechselt in einen anderen Ordner.
-  - `cd desktop` wechselt in den Ordner "desktop".
-  - `cd ..` springt einen Ordner nach oben.
+## 1. Aufbau eines Befehls
 
-## Dateien verwalten
+```
+ls   -l    dokumente
+│    │     └─ Argument: worauf sich der Befehl bezieht
+│    └─ Option: verändert das Verhalten (beginnt mit -)
+└─ Befehl
+```
 
-- `mkdir ordnername` (Make Directory): Erstellt einen neuen Ordner.
-- `touch datei.txt`: Erstellt eine neue, leere Datei.
-- `rm datei.txt` (Remove): Löscht eine Datei dauerhaft (ohne Papierkorb!).
-- `rm -r ordnername`: Löscht einen Ordner und alles, was darin ist.
+Groß- und Kleinschreibung zählt: `Dokumente` und `dokumente` sind zwei verschiedene Ordner.
 
-## Autovervollständigung
+---
 
-Der wichtigste Knopf im Terminal ist die **Tab-Taste**. Wenn du `cd des` tippst und Tab drückst, vervollständigt das Terminal den Rest automatisch zu `cd desktop`, sofern es eindeutig ist.
+## 2. Pfade: Wo bin ich?
+
+Ordner sind wie ein **Baum** aufgebaut. Ganz oben steht die Wurzel `/`, dein persönlicher Ordner heißt `~` (Home).
+
+```
+~
+├── schule
+│   ├── mathe
+│   └── info
+│       └── projekt.py
+└── bilder
+```
+
+| Schreibweise    | Bedeutung                                            |
+| --------------- | ---------------------------------------------------- |
+| `~`             | dein Home-Ordner                                     |
+| `.`             | der aktuelle Ordner                                  |
+| `..`            | der Ordner eine Ebene darüber                        |
+| `schule/info`   | **relativer** Pfad – vom aktuellen Ordner aus        |
+| `/home/lena/schule` | **absoluter** Pfad – von der Wurzel aus          |
+
+---
+
+## 3. Navigation
+
+| Befehl           | Bedeutung                                                    |
+| ---------------- | ------------------------------------------------------------ |
+| `pwd`            | **p**rint **w**orking **d**irectory – zeigt, wo du gerade bist |
+| `ls`             | **l**i**s**t – zeigt Dateien und Ordner                      |
+| `ls -l`          | ausführliche Liste mit Größe, Datum, Rechten                 |
+| `ls -a`          | auch versteckte Dateien (Name beginnt mit `.`)               |
+| `cd schule`      | **c**hange **d**irectory – in den Ordner `schule` wechseln    |
+| `cd schule/info` | mehrere Ebenen auf einmal                                    |
+| `cd ..`          | eine Ebene nach oben                                         |
+| `cd` oder `cd ~` | zurück in den Home-Ordner                                    |
+
+---
+
+## 4. Dateien und Ordner verwalten
+
+| Befehl                     | Bedeutung                                                         |
+| -------------------------- | ----------------------------------------------------------------- |
+| `mkdir projekt`            | **m**a**k**e **dir**ectory – neuen Ordner anlegen                 |
+| `mkdir -p a/b/c`           | mehrere verschachtelte Ordner auf einmal                          |
+| `touch index.html`         | leere Datei anlegen                                               |
+| `touch projekt/style.css`  | Datei direkt in einem Unterordner anlegen                         |
+| `echo "Hallo" > datei.txt` | Text in eine Datei schreiben (überschreibt!)                      |
+| `echo "Mehr" >> datei.txt` | Text **anhängen**                                                 |
+| `cat datei.txt`            | Inhalt einer Datei anzeigen                                       |
+| `cp quelle ziel`           | **c**o**p**y – kopieren                                           |
+| `mv alt neu`               | **m**o**v**e – verschieben oder umbenennen                        |
+| `rm datei.txt`             | **r**e**m**ove – Datei löschen                                     |
+| `rm -r ordner`             | Ordner mit allem Inhalt löschen                                   |
+
+> ⚠️ `rm` löscht **endgültig** – es gibt keinen Papierkorb!
+
+### Beispiel: Projekt anlegen
+
+```bash
+mkdir website
+cd website
+touch index.html styles.css
+ls
+# index.html  styles.css
+cd ..
+```
+
+Oder ohne in den Ordner zu wechseln:
+
+```bash
+mkdir website
+touch website/index.html website/styles.css
+```
+
+---
+
+## 5. Hilfreiche Tricks
+
+- **Tab-Taste:** vervollständigt Befehle und Namen. `cd sch` + Tab → `cd schule/`.
+- **Pfeil nach oben:** holt die letzten Befehle zurück.
+- **Strg + C:** bricht ein laufendes Programm ab.
+- **`clear`** (oder Strg + L): leert den Bildschirm.
+- **`help`**, **`man befehl`** oder **`befehl --help`**: zeigt die Hilfe zu einem Befehl.
+- Namen mit Leerzeichen in Anführungszeichen setzen: `cd "Meine Dateien"` – oder Leerzeichen in Dateinamen ganz vermeiden.
+
+---
+
+## 6. Weitere nützliche Befehle
+
+| Befehl                 | Bedeutung                                         |
+| ---------------------- | ------------------------------------------------- |
+| `head datei` / `tail datei` | erste / letzte Zeilen einer Datei            |
+| `grep wort datei`      | Zeilen suchen, die `wort` enthalten               |
+| `find . -name "*.py"`  | alle Python-Dateien unterhalb des Ordners finden  |
+| `python3 programm.py`  | Python-Programm ausführen                         |
+| `ping schule.de`       | Erreichbarkeit eines Rechners prüfen              |
+| `sudo befehl`          | Befehl mit Administratorrechten ausführen (Vorsicht!) |
+
+> **Hinweis zum Übungsterminal in CodePath:** Es simuliert die wichtigsten Befehle (`pwd`, `ls`, `cd`, `mkdir`, `touch`, `rm`, `cat`, `echo`, `mv`, `cp`, `clear`). Mit `help` siehst du alle, mit `submit` gibst du ab.

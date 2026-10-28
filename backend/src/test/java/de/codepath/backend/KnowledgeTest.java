@@ -2,7 +2,9 @@ package de.codepath.backend;
 
 import de.codepath.backend.identity.Course;
 import de.codepath.backend.identity.User;
+import de.codepath.backend.site.KnowledgeSeeder;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Wissensdatenbank: mitgelieferte Artikel, Sichtbarkeit nach Modul, Bearbeiten durch die Lehrkraft. */
 class KnowledgeTest extends IntegrationTestBase {
+
+    @Autowired
+    KnowledgeSeeder seeder;
 
     List<String> slugs(User user) throws Exception {
         List<String> slugs = new ArrayList<>();
@@ -81,5 +86,21 @@ class KnowledgeTest extends IntegrationTestBase {
         mvc.perform(delete("/api/admin/knowledge/" + id).with(teacher()).with(csrf())).andExpect(status().isNoContent());
         assertEquals(1, jdbc.queryForObject("select count(*) from deleted_knowledge_articles where slug = 'netiquette'", Integer.class));
         jdbc.update("delete from deleted_knowledge_articles");
+    }
+
+    @Test
+    void bundledArticlesGetNewerTextUnlessEditedInBrowser() throws Exception {
+        String sql = "select body from knowledge_articles where slug = ?";
+        // git: noch der alte mitgelieferte Text; linux: im Browser geändert
+        jdbc.update("update knowledge_articles set body = 'alt', seeded_hash = md5('alt') where slug = 'git'");
+        jdbc.update("update knowledge_articles set body = 'Eigener Text', seeded_hash = md5('alt') where slug = 'linux'");
+
+        seeder.run(null);
+        assertTrue(jdbc.queryForObject(sql, String.class, "git").contains("git commit"));
+        assertEquals("Eigener Text", jdbc.queryForObject(sql, String.class, "linux"));
+
+        jdbc.update("delete from knowledge_articles where slug = 'linux'");
+        seeder.run(null);
+        assertTrue(jdbc.queryForObject(sql, String.class, "linux").contains("mkdir"), "Fehlende Artikel kommen wieder");
     }
 }

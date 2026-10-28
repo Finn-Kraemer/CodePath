@@ -37,6 +37,10 @@ public class KnowledgeArticle {
     @Column(nullable = false)
     private int position;
 
+    /** MD5 des mitgelieferten Textes; passt der Text noch dazu, darf der Start ihn aktualisieren. */
+    @Column(name = "seeded_hash")
+    private String seededHash;
+
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 }
