@@ -3,7 +3,9 @@ import { expect, test, type Page } from '@playwright/test';
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? 'admin-pw-123';
 
 /** Phase 5: Die neuen Aufgabentypen lassen sich in der Schüleransicht bedienen und werden serverseitig bewertet. */
-test('Zuordnen, Code-Puzzle, Zahlensysteme und Markieren lösen', async ({ browser }) => {
+test('Zuordnen, Code-Puzzle, Zahlensysteme, Markieren, Bild und Logikgatter lösen', async ({
+	browser
+}) => {
 	const suffix = Date.now().toString(36);
 	const courseName = `Typen ${suffix}`;
 
@@ -98,6 +100,46 @@ test('Zuordnen, Code-Puzzle, Zahlensysteme und Markieren lösen', async ({ brows
 	}
 	await student.getByRole('button', { name: 'Markierungen prüfen' }).click();
 	await expect(student.getByRole('status')).toContainText('Alles gefunden');
+
+	// Im Bild markieren: Klickpositionen in Prozent des Bildes
+	await student.goto('/modules/it-sicherheit/s15');
+	const image = student.getByRole('img', { name: /Büro-Schreibtisch/ });
+	await expect(image).toBeVisible();
+	// Mausklicks treffen nur den sichtbaren Bereich
+	await image.scrollIntoViewIfNeeded();
+	const box = (await image.boundingBox())!;
+	for (const [x, y] of [
+		[50, 30],
+		[71, 37],
+		[88, 84],
+		[18, 80]
+	]) {
+		await student.mouse.click(box.x + (box.width * x) / 100, box.y + (box.height * y) / 100);
+	}
+	await expect(student.getByRole('button', { name: /Markierung \d entfernen/ })).toHaveCount(4);
+	await student.getByRole('button', { name: 'Markierungen prüfen' }).click();
+	await expect(student.getByRole('status')).toContainText('Alles gefunden');
+
+	// Logikgatter: XOR aus ODER, UND, NICHT
+	await student.goto('/modules/digitaltechnik/d16');
+	const addGate = student.getByRole('button', { name: '+ Gatter' });
+	const gates: [string, string[]][] = [
+		['OR', ['A', 'B']],
+		['AND', ['A', 'B']],
+		['NOT', ['g2']],
+		['AND', ['g1', 'g3']]
+	];
+	for (const [index, [type, inputs]] of gates.entries()) {
+		await addGate.click();
+		const id = `g${index + 1}`;
+		await student.getByLabel(`Typ von ${id}`).selectOption(type);
+		for (const [slot, source] of inputs.entries()) {
+			await student.getByLabel(`Eingang ${slot + 1} von ${id}`).selectOption(source);
+		}
+	}
+	await expect(student.getByRole('img', { name: /Ausgang Y = g4/ })).toBeVisible();
+	await student.getByRole('button', { name: 'Schaltung prüfen' }).click();
+	await expect(student.getByRole('status')).toContainText('erfüllt die Wahrheitstabelle');
 });
 
 async function login(page: Page, username: string, password: string) {

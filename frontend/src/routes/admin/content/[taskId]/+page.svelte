@@ -3,6 +3,8 @@
 	import { page } from '$app/state';
 	import { api, type Schemas, type SubmitResult, type TaskDetail } from '$lib/api';
 	import ConfigForm from '$lib/editor/ConfigForm.svelte';
+	import MediaPicker from '$lib/components/MediaPicker.svelte';
+	import { mediaUrl } from '$lib/media';
 	import type { TaskEditorView, TaskFile } from '$lib/editor/types';
 	import Markdown from '$lib/Markdown.svelte';
 	import TaskRenderer from '$lib/tasks/TaskRenderer.svelte';
@@ -245,6 +247,15 @@
 						bind:value={file.story}
 					></textarea></label
 				>
+				<MediaPicker
+					label="Bild in die Geschichte einfügen"
+					onselect={(m) => {
+						if (!file) return;
+						const alt = (m.originalName ?? 'Bild').replace(/\.[a-z]+$/i, '').replace(/[[\]]/g, '');
+						file.story = `${(file.story ?? '').trimEnd()}\n\n![${alt}](${mediaUrl(m.key)})\n`;
+						dirty = true;
+					}}
+				/>
 				<label class="ed-label"
 					>Auftrag (Markdown)<textarea class="ed-input" rows="3" bind:value={file.assignment}
 					></textarea></label

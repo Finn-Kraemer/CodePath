@@ -10,7 +10,9 @@ export const TYPE_LABELS: Record<string, string> = {
 	MATCHING: 'Zuordnen',
 	PARSONS: 'Code-Puzzle',
 	NUMBER_CONVERT: 'Zahlensysteme',
-	HOTSPOT: 'Markieren'
+	HOTSPOT: 'Markieren',
+	IMAGE_HOTSPOT: 'Im Bild markieren',
+	LOGIC_CIRCUIT: 'Logikgatter'
 };
 
 export const DIFFICULTY_LABELS: Record<string, string> = {

@@ -420,6 +420,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/media': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['list'];
+		put?: never;
+		post: operations['upload'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/media/{key}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		delete: operations['delete'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/modules': {
 		parameters: {
 			query?: never;
@@ -932,6 +964,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/media/{key}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['media'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/modules': {
 		parameters: {
 			query?: never;
@@ -1144,7 +1192,9 @@ export interface components {
 				| 'MATCHING'
 				| 'PARSONS'
 				| 'NUMBER_CONVERT'
-				| 'HOTSPOT';
+				| 'HOTSPOT'
+				| 'IMAGE_HOTSPOT'
+				| 'LOGIC_CIRCUIT';
 		};
 		Criterion: {
 			id: string;
@@ -1193,6 +1243,18 @@ export interface components {
 			/** Format: int32 */
 			rank: number;
 			username: string;
+		};
+		MediaInfo: {
+			contentType: string;
+			/** Format: int32 */
+			height: number;
+			key: string;
+			originalName: string;
+			/** Format: int32 */
+			size: number;
+			url: string;
+			/** Format: int32 */
+			width: number;
 		};
 		ModuleDetail: {
 			module: components['schemas']['ModuleSummary'];
@@ -1444,7 +1506,9 @@ export interface components {
 				| 'MATCHING'
 				| 'PARSONS'
 				| 'NUMBER_CONVERT'
-				| 'HOTSPOT';
+				| 'HOTSPOT'
+				| 'IMAGE_HOTSPOT'
+				| 'LOGIC_CIRCUIT';
 			versions: components['schemas']['VersionRow'][];
 		};
 		TaskFile: {
@@ -1480,7 +1544,9 @@ export interface components {
 				| 'MATCHING'
 				| 'PARSONS'
 				| 'NUMBER_CONVERT'
-				| 'HOTSPOT';
+				| 'HOTSPOT'
+				| 'IMAGE_HOTSPOT'
+				| 'LOGIC_CIRCUIT';
 		};
 		TaskRow: {
 			archived: boolean;
@@ -1508,7 +1574,9 @@ export interface components {
 				| 'MATCHING'
 				| 'PARSONS'
 				| 'NUMBER_CONVERT'
-				| 'HOTSPOT';
+				| 'HOTSPOT'
+				| 'IMAGE_HOTSPOT'
+				| 'LOGIC_CIRCUIT';
 		};
 		TaskStatistic: {
 			/** Format: int64 */
@@ -2216,6 +2284,73 @@ export interface operations {
 						[key: string]: boolean;
 					};
 				};
+			};
+		};
+	};
+	list: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['MediaInfo'][];
+				};
+			};
+		};
+	};
+	upload: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: {
+			content: {
+				'multipart/form-data': {
+					/** Format: binary */
+					file: string;
+				};
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['MediaInfo'];
+				};
+			};
+		};
+	};
+	delete: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				key: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
 			};
 		};
 	};
@@ -2946,6 +3081,28 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['Leaderboard'];
+				};
+			};
+		};
+	};
+	media: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				key: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
 				};
 			};
 		};

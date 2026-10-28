@@ -793,6 +793,78 @@
         "tags" : [ "classroom-admin-controller" ]
       }
     },
+    "/api/admin/media" : {
+      "get" : {
+        "operationId" : "list",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/MediaInfo"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "media-controller" ]
+      },
+      "post" : {
+        "operationId" : "upload",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MediaInfo"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "media-controller" ]
+      }
+    },
+    "/api/admin/media/{key}" : {
+      "delete" : {
+        "operationId" : "delete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "key",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "media-controller" ]
+      }
+    },
     "/api/admin/modules" : {
       "get" : {
         "operationId" : "modules_1",
@@ -1650,6 +1722,33 @@
         "tags" : [ "progress-controller" ]
       }
     },
+    "/api/media/{key}" : {
+      "get" : {
+        "operationId" : "media",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "key",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "media-controller" ]
+      }
+    },
     "/api/modules" : {
       "get" : {
         "operationId" : "modules",
@@ -2068,7 +2167,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT" ]
           }
         }
       },
@@ -2209,6 +2308,36 @@
           }
         },
         "required" : [ "displayName", "points", "rank", "username" ]
+      },
+      "MediaInfo" : {
+        "type" : "object",
+        "properties" : {
+          "contentType" : {
+            "type" : "string"
+          },
+          "height" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "originalName" : {
+            "type" : "string"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "url" : {
+            "type" : "string"
+          },
+          "width" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "contentType", "height", "key", "originalName", "size", "url", "width" ]
       },
       "ModuleDetail" : {
         "type" : "object",
@@ -2806,7 +2935,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT" ]
           },
           "versions" : {
             "type" : "array",
@@ -2866,7 +2995,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT" ]
           }
         },
         "required" : [ "assignment", "config", "difficulty", "explanation", "hints", "learningGoal", "points", "rules", "slug", "sortOrder", "story", "title", "type" ]
@@ -2904,7 +3033,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT" ]
           }
         },
         "required" : [ "archived", "currentVersion", "hasDraft", "id", "points", "slug", "sortOrder", "title", "type" ]

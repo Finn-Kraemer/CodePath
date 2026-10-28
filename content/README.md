@@ -51,6 +51,18 @@ content/
 | `PARSONS` | `lines: [{id, code, indent?}]` in richtiger Reihenfolge, `distractors?: [{id, code}]`, `checkIndent?` (Standard `true`) |
 | `NUMBER_CONVERT` | `from`, `to` (2, 8, 10, 16) und entweder `min`, `max`, `count` (eigene Zufallszahlen je Person) oder feste `values` |
 | `HOTSPOT` | `text` (mehrzeilig), `targets: [Zeilennummer ab 1]`, `mono?`, `showCount?` (Standard `true`) – Fehlmarkierungen kosten Punkte |
+| `IMAGE_HOTSPOT` | `image` (Bild-Schlüssel), `alt`, `targets: [{id, x, y, w, h, label?}]` in Prozent des Bildes, `showCount?` – höchstens Ziele + 2 Markierungen, daneben kostet Punkte |
+| `LOGIC_CIRCUIT` | `inputs: ["A","B"]` (bis 4), `expression` (z. B. `(A OR B) AND NOT C`), `allowedGates?`, `maxGates?`, `showExpression?`, `solution: {gates: [{id, type, inputs}], output}` – bewertet wird die Wahrheitstabelle |
+
+## Bilder
+
+Bilder liegen unter `<modul>/media/`, benannt nach ihrem Inhalt (SHA-256 + Endung). So kommt ein Bild hinein:
+
+```bash
+python content/tools/add_media.py bild.png it-sicherheit   # gibt den Schlüssel aus
+```
+
+Verwenden: in `IMAGE_HOTSPOT` als `"image": "<schlüssel>"`, in Markdown als `![Beschreibung](/api/media/<schlüssel>)`. Andere Bildquellen zeigt CodePath nicht an (offline, keine Fremdabrufe). Im Editor geht beides per Upload („Bild in die Geschichte einfügen“, „Bild wählen oder hochladen“). Erlaubt: PNG, JPEG, GIF, WebP bis 2 MB, kein SVG.
 
 ## Prüfen
 

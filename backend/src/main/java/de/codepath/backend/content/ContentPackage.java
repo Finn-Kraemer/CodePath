@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * Austauschformat für Inhalte (ADR-5): ein Ordner je Modul mit module.json und einer Datei je
- * Aufgabe unter tasks/. Texte sind Markdown. Das JSON-Schema liegt in content/schema/.
+ * Aufgabe unter tasks/, Bilder unter media/. Texte sind Markdown. Das JSON-Schema liegt in content/schema/.
  */
 public final class ContentPackage {
 
@@ -33,6 +33,10 @@ public final class ContentPackage {
             Map<String, Object> config) {
     }
 
-    public record ModuleBundle(ModuleFile module, List<TaskFile> tasks) {
+    /** media: Bilder des Moduls unter &lt;modul&gt;/media/&lt;schlüssel&gt;, Schlüssel = SHA-256 + Endung. */
+    public record ModuleBundle(ModuleFile module, List<TaskFile> tasks, Map<String, byte[]> media) {
+        public ModuleBundle(ModuleFile module, List<TaskFile> tasks) {
+            this(module, tasks, Map.of());
+        }
     }
 }

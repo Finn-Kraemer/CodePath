@@ -1,0 +1,66 @@
+{
+  "slug": "d16",
+  "type": "LOGIC_CIRCUIT",
+  "title": "XOR aus Grundgattern bauen",
+  "difficulty": "HARD",
+  "points": 25,
+  "sortOrder": 16,
+  "learningGoal": "Du kannst eine Schaltung aus UND-, ODER- und NICHT-Gattern entwerfen, die eine Wahrheitstabelle erfüllt.",
+  "story": "In einem Rechenwerk addiert ein **Halbaddierer** zwei Bits. Für die Summenstelle braucht er ein XOR-Gatter: Es liefert 1, wenn *genau einer* der beiden Eingänge 1 ist. Im Bauteilkasten liegen aber nur UND, ODER und NICHT.",
+  "assignment": "Baue aus höchstens 4 Gattern eine Schaltung, die sich wie `A XOR B` verhält. Die Tabelle zeigt dir live, welche Zeilen schon stimmen.",
+  "hints": [
+    "XOR heißt: A ODER B – aber nicht beide gleichzeitig.",
+    "Baue `A ODER B` und `NICHT (A UND B)` und verknüpfe beides mit UND."
+  ],
+  "explanation": "`A XOR B = (A ODER B) UND NICHT (A UND B)`. Das ODER-Gatter erkennt „mindestens einer“, das NICHT-UND schließt „beide“ aus. Es gibt auch andere richtige Lösungen, z. B. `(A UND NICHT B) ODER (NICHT A UND B)` – die braucht aber 5 Gatter.",
+  "config": {
+    "inputs": [
+      "A",
+      "B"
+    ],
+    "expression": "A XOR B",
+    "allowedGates": [
+      "AND",
+      "OR",
+      "NOT"
+    ],
+    "maxGates": 4,
+    "showExpression": true,
+    "solution": {
+      "gates": [
+        {
+          "id": "g1",
+          "type": "OR",
+          "inputs": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "id": "g2",
+          "type": "AND",
+          "inputs": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "id": "g3",
+          "type": "NOT",
+          "inputs": [
+            "g2"
+          ]
+        },
+        {
+          "id": "g4",
+          "type": "AND",
+          "inputs": [
+            "g1",
+            "g3"
+          ]
+        }
+      ],
+      "output": "g4"
+    }
+  }
+}

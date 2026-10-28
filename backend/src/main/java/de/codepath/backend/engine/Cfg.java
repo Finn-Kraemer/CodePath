@@ -32,6 +32,10 @@ public final class Cfg {
         return map != null && map.get(key) instanceof Number n ? n.intValue() : null;
     }
 
+    public static Double number(Map<String, Object> map, String key) {
+        return map != null && map.get(key) instanceof Number n && Double.isFinite(n.doubleValue()) ? n.doubleValue() : null;
+    }
+
     public static List<Object> list(Map<String, Object> map, String key) {
         if (map != null && map.get(key) instanceof List<?> l) {
             return new ArrayList<>(l);
