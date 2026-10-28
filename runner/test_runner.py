@@ -52,7 +52,18 @@ class SandboxTest(unittest.TestCase):
         self.assertEqual("TIMEOUT", runner.execute("import time; time.sleep(30)", "", runner.BASE_UID, wall_seconds=1)["status"])
 
     def test_health(self):
+        runner.health["checked"] = None
         self.assertTrue(runner.healthy())
+
+    def test_health_checks_on_first_call_right_after_boot(self):
+        # Frisch gebootete Rechner: monotonic() liegt noch unter dem Cache-Intervall
+        runner.health.update(checked=None, ok=False)
+        real = runner.time.monotonic
+        runner.time.monotonic = lambda: 5.0
+        try:
+            self.assertTrue(runner.healthy())
+        finally:
+            runner.time.monotonic = real
 
 
 if __name__ == "__main__":
