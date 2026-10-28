@@ -28,7 +28,7 @@ class ContentPackagesTest extends IntegrationTestBase {
     @Test
     void everyPackagedTaskPassesTheDryRun() throws Exception {
         List<ContentPackage.ModuleBundle> bundles = reader.fromClasspath("content");
-        assertEquals(9, bundles.size());
+        assertEquals(10, bundles.size());
         List<String> failures = new ArrayList<>();
         int count = 0;
         for (var bundle : bundles) {

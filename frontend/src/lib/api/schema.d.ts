@@ -158,7 +158,7 @@ export interface paths {
 		get: operations['task_1'];
 		put?: never;
 		post?: never;
-		delete?: never;
+		delete: operations['delete'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -190,6 +190,22 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post: operations['check'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/content/tasks/{id}/delete-impact': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['deleteImpact'];
+		put?: never;
+		post?: never;
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -446,7 +462,7 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post?: never;
-		delete: operations['delete'];
+		delete: operations['delete_1'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -1235,6 +1251,19 @@ export interface components {
 			/** Format: int32 */
 			points: number;
 		};
+		DeleteImpact: {
+			archived: boolean;
+			/** Format: int64 */
+			attempts: number;
+			/** Format: int64 */
+			pendingReviews: number;
+			/** Format: int64 */
+			points: number;
+			slug: string;
+			/** Format: int64 */
+			students: number;
+			title: string;
+		};
 		DryRun: {
 			passed: boolean;
 			sampleFeedback: string;
@@ -1906,6 +1935,28 @@ export interface operations {
 			};
 		};
 	};
+	delete: {
+		parameters: {
+			query: {
+				confirm: string;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
 	archive: {
 		parameters: {
 			query: {
@@ -1948,6 +1999,28 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['CheckResult'];
+				};
+			};
+		};
+	};
+	deleteImpact: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['DeleteImpact'];
 				};
 			};
 		};
@@ -2370,7 +2443,7 @@ export interface operations {
 			};
 		};
 	};
-	delete: {
+	delete_1: {
 		parameters: {
 			query?: never;
 			header?: never;

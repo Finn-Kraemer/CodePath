@@ -120,7 +120,7 @@ class BrowserLabTest extends IntegrationTestBase {
     void escapeRoom() throws Exception {
         Course course = course("8a");
         User lena = student("lena", course);
-        unlock(course, "web-entwicklung");
+        unlock(course, "abschlusstest");
         String base = lab("lab-escape");
 
         // 1. CSS-Regel
@@ -146,9 +146,9 @@ class BrowserLabTest extends IntegrationTestBase {
         String teil4 = json.readTree(open.getContentAsString(StandardCharsets.UTF_8)).get("teil4").asText();
 
         // Drei von vier Teilen: Teilpunkte, nicht gelöst
-        postAs(as(lena), "/api/modules/web-entwicklung/lab-escape/submit", Map.of("code", teil1 + "-" + teil2 + "-" + teil3 + "-AAAA"))
+        postAs(as(lena), "/api/modules/abschlusstest/lab-escape/submit", Map.of("code", teil1 + "-" + teil2 + "-" + teil3 + "-AAAA"))
                 .andExpect(jsonPath("$.outcome").value("PARTIAL"));
-        postAs(as(lena), "/api/modules/web-entwicklung/lab-escape/submit", Map.of("code", teil1 + "-" + teil2 + "-" + teil3 + "-" + teil4))
+        postAs(as(lena), "/api/modules/abschlusstest/lab-escape/submit", Map.of("code", teil1 + "-" + teil2 + "-" + teil3 + "-" + teil4))
                 .andExpect(jsonPath("$.isCorrect").value(true));
     }
 

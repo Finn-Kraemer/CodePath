@@ -50,4 +50,30 @@ class LegacyMigrationTest {
             assertEquals("<p>neu</p>", jdbc.queryForObject("select answer->>'content' from attempts where user_id = 3", String.class));
         }
     }
+
+    /** V14: Der Abschlusstest wandert samt Ergebnissen aus Web-Entwicklung ins eigene Modul. */
+    @Test
+    void movesFinalTestIntoItsOwnModule() {
+        try (PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17")) {
+            postgres.start();
+            DriverManagerDataSource ds = new DriverManagerDataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+            Flyway.configure().dataSource(ds).target("13").placeholderReplacement(false).load().migrate();
+            JdbcTemplate jdbc = new JdbcTemplate(ds);
+            jdbc.execute("""
+                    insert into users (username, password_hash, role) values ('lena', 'x', 'STUDENT');
+                    insert into modules (slug, title) values ('web-entwicklung', 'Web');
+                    insert into tasks (module_id, slug, type, sort_order)
+                      select id, 'lab-escape', 'DEVTOOLS', 18 from modules where slug = 'web-entwicklung';
+                    insert into points_entries (user_id, task_id, amount, reason)
+                      select u.id, t.id, 50, 'SOLVED' from users u, tasks t where u.username = 'lena' and t.slug = 'lab-escape';
+                    """);
+
+            Flyway.configure().dataSource(ds).placeholderReplacement(false).load().migrate();
+
+            assertEquals("abschlusstest", jdbc.queryForObject(
+                    "select m.slug from tasks t join modules m on m.id = t.module_id where t.slug = 'lab-escape'", String.class));
+            assertEquals(50, jdbc.queryForObject("select sum(amount) from points_entries p join tasks t on t.id = p.task_id where t.slug = 'lab-escape'", Integer.class));
+            assertEquals(1, jdbc.queryForObject("select count(*) from tasks where slug = 'lab-escape'", Integer.class));
+        }
+    }
 }

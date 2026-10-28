@@ -10,7 +10,7 @@ Aufgaben für Fortgeschrittene und als Abschlusstest: Schülerinnen und Schüler
 | `shop` – Der Schul-Shop | 3 | Ausgeblendeten Artikel im Inspektor finden (data-Attribut, Teil 1) → deaktivierten Button freischalten, fehlerhafte Anfrage im Netzwerk analysieren („menge muss eine Zahl sein“), korrigiert per `fetch()` senden (Teil 2) → Base64-Warenkorb aus dem sessionStorage mit `atob()` lesen (Teil 3) |
 | `escape` – Das Escape-Zimmer (Abschlusstest) | 4 | Nur ein Rätselzettel: Text in einer CSS-Regel (`::after`, unsichtbar) → Inhalt einer 404-Antwort → rückwärts gespeicherter Eintrag in IndexedDB → Tür per Konsole mit den ersten drei Teilen öffnen; erst dann gibt der Server Teil 4 heraus |
 
-Die Aufgaben liegen im Modul Web-Entwicklung (`lab-wetter`, `lab-shop`, `lab-escape`). Der Abschlusstest erlaubt 5 Versuche und kein Aufdecken der Lösung.
+Die Übungsaufgaben liegen im Modul Web-Entwicklung (`lab-wetter`, `lab-shop`), der Abschlusstest im eigenen Modul **Abschlusstest** (`abschlusstest/lab-escape`) – so schaltet die Lehrkraft ihn erst am Ende frei. Er erlaubt 5 Versuche und kein Aufdecken der Lösung.
 
 ## Wie es funktioniert
 

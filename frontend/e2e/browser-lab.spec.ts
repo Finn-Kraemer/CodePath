@@ -26,9 +26,11 @@ test('Browser-Labor: Wetterstation und Escape-Zimmer lösen', async ({ browser }
 		teacher.getByLabel('Kurs').selectOption({ label: `Labor ${suffix}` })
 	]);
 	await teacher.waitForLoadState('networkidle');
-	const card = teacher.locator('[data-module="web-entwicklung"]');
-	await card.getByRole('button', { name: 'Freigeben' }).click();
-	await expect(card.getByRole('button', { name: 'Sperren' })).toBeVisible();
+	for (const module of ['web-entwicklung', 'abschlusstest']) {
+		const card = teacher.locator(`[data-module="${module}"]`);
+		await card.getByRole('button', { name: 'Freigeben' }).click();
+		await expect(card.getByRole('button', { name: 'Sperren' })).toBeVisible();
+	}
 
 	const context = await browser.newContext();
 	const student = await context.newPage();
@@ -79,7 +81,7 @@ test('Browser-Labor: Wetterstation und Escape-Zimmer lösen', async ({ browser }
 	await expect(student.getByRole('status')).toContainText('Alle Teile stimmen');
 
 	// --- Escape-Zimmer ---------------------------------------------------------------------
-	await student.goto('/modules/web-entwicklung/lab-escape');
+	await student.goto('/modules/abschlusstest/lab-escape');
 	const [room] = await Promise.all([
 		context.waitForEvent('page'),
 		student.getByRole('link', { name: /Escape-Zimmer öffnen/ }).click()
