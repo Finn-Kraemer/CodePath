@@ -2914,6 +2914,36 @@
         "tags" : [ "report-controller" ]
       }
     },
+    "/api/search/knowledge" : {
+      "get" : {
+        "operationId" : "search",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "q",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : ""
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SearchHit"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "knowledge-controller" ]
+      }
+    },
     "/api/users/profile" : {
       "get" : {
         "operationId" : "profile",
@@ -3837,6 +3867,24 @@
           }
         }
       },
+      "SearchHit" : {
+        "type" : "object",
+        "properties" : {
+          "icon" : {
+            "type" : "string"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "snippet" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "icon", "slug", "snippet", "title" ]
+      },
       "SolutionRun" : {
         "type" : "object",
         "properties" : {
@@ -4147,6 +4195,9 @@
           "isOpen" : {
             "type" : "boolean"
           },
+          "knowledgeArticle" : {
+            "type" : "string"
+          },
           "lastAnswer" : {
             "type" : "object",
             "additionalProperties" : { }
@@ -4208,7 +4259,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "assignment", "attemptsLeft", "config", "deadline", "difficulty", "explanation", "failedAttempts", "firstTryBonusPercent", "hintPenaltyPercent", "hints", "hintsTotal", "id", "isCompleted", "isLocked", "isOpen", "lastAnswer", "lastFeedback", "learningGoal", "maxAttempts", "moduleSlug", "moduleTitle", "points", "pointsEarned", "revealAllowed", "reviewComment", "slug", "solution", "solutionRevealed", "status", "story", "title", "type", "version" ]
+        "required" : [ "assignment", "attemptsLeft", "config", "deadline", "difficulty", "explanation", "failedAttempts", "firstTryBonusPercent", "hintPenaltyPercent", "hints", "hintsTotal", "id", "isCompleted", "isLocked", "isOpen", "knowledgeArticle", "lastAnswer", "lastFeedback", "learningGoal", "maxAttempts", "moduleSlug", "moduleTitle", "points", "pointsEarned", "revealAllowed", "reviewComment", "slug", "solution", "solutionRevealed", "status", "story", "title", "type", "version" ]
       },
       "TaskEditorView" : {
         "type" : "object",
@@ -4273,6 +4324,9 @@
               "type" : "string"
             }
           },
+          "knowledgeArticle" : {
+            "type" : "string"
+          },
           "learningGoal" : {
             "type" : "string"
           },
@@ -4302,7 +4356,7 @@
             "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS" ]
           }
         },
-        "required" : [ "assignment", "config", "difficulty", "explanation", "hints", "learningGoal", "points", "rules", "slug", "sortOrder", "story", "title", "type" ]
+        "required" : [ "assignment", "config", "difficulty", "explanation", "hints", "knowledgeArticle", "learningGoal", "points", "rules", "slug", "sortOrder", "story", "title", "type" ]
       },
       "TaskReleaseView" : {
         "type" : "object",

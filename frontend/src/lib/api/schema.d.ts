@@ -1444,6 +1444,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/search/knowledge': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['search'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/users/profile': {
 		parameters: {
 			query?: never;
@@ -1816,6 +1832,12 @@ export interface components {
 				[key: string]: unknown;
 			}[];
 		};
+		SearchHit: {
+			icon: string;
+			slug: string;
+			snippet: string;
+			title: string;
+		};
 		SolutionRun: {
 			available: boolean;
 			outputs: components['schemas']['TestOutput'][];
@@ -1941,6 +1963,7 @@ export interface components {
 			isCompleted: boolean;
 			isLocked: boolean;
 			isOpen: boolean;
+			knowledgeArticle: string;
 			lastAnswer: {
 				[key: string]: unknown;
 			};
@@ -2007,6 +2030,7 @@ export interface components {
 			difficulty: 'EASY' | 'MEDIUM' | 'HARD';
 			explanation: string;
 			hints: string[];
+			knowledgeArticle: string;
 			learningGoal: string;
 			/** Format: int32 */
 			points: number;
@@ -4672,6 +4696,28 @@ export interface operations {
 				};
 				content: {
 					'*/*': string;
+				};
+			};
+		};
+	};
+	search: {
+		parameters: {
+			query?: {
+				q?: string;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['SearchHit'][];
 				};
 			};
 		};

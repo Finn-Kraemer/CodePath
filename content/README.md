@@ -92,3 +92,6 @@ module: datenbanken   # optional: erst sichtbar, wenn dieses Modul freigegeben i
 ```
 
 Beim Start werden fehlende Artikel angelegt; danach ist die Datenbank maßgeblich (Bearbeiten unter Leitstand → Wissensdatenbank).
+
+
+In einer Aufgabe verweist das optionale Feld `knowledgeArticle` auf die Adresse eines Wissensartikels (z. B. `"knowledgeArticle": "git"`); Schüler sehen dann „Mehr dazu im Wiki“.

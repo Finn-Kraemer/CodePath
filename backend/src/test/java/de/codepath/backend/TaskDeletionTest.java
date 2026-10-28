@@ -69,7 +69,7 @@ class TaskDeletionTest extends IntegrationTestBase {
                 new ContentPackage.ModuleFile(moduleSlug, "Löschtest", null, null, 98),
                 List.of(new ContentPackage.TaskFile("frage", TaskType.MULTIPLE_CHOICE, "Frage", Difficulty.EASY, 10, 1,
                         null, null, null, List.of(), null, Map.of(),
-                        Map.of("options", List.of(Map.of("id", "a", "text", "A"), Map.of("id", "b", "text", "B")), "correct", List.of("a")))));
+                        Map.of("options", List.of(Map.of("id", "a", "text", "A"), Map.of("id", "b", "text", "B")), "correct", List.of("a")), null)));
         assertEquals(0, importer.importBundles(List.of(bundle), ContentImporter.Mode.FILL_MISSING, null).tasksCreated());
         assertEquals(0, jdbc.queryForObject("select count(*) from tasks where slug = 'frage' and module_id = ?", Integer.class, moduleId));
         assertEquals(1, importer.importBundles(List.of(bundle), ContentImporter.Mode.UPDATE, null, true).tasksCreated());

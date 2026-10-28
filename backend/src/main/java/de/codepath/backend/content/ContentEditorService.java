@@ -171,6 +171,7 @@ public class ContentEditorService {
         draft.setTitle(values.getTitle());
         draft.setLearningGoal(values.getLearningGoal());
         draft.setStory(values.getStory());
+        draft.setKnowledgeArticle(values.getKnowledgeArticle());
         draft.setAssignment(values.getAssignment());
         draft.setExplanation(values.getExplanation());
         draft.setHints(values.getHints().stream().filter(h -> h != null && !h.isBlank()).toList());
@@ -402,6 +403,7 @@ public class ContentEditorService {
     private static ContentPackage.TaskFile withDefaults(ContentPackage.TaskFile f) {
         return new ContentPackage.TaskFile(f.slug(), f.type(), f.title() == null || f.title().isBlank() ? "Ohne Titel" : f.title(),
                 f.difficulty() != null ? f.difficulty() : Difficulty.EASY, f.points() != null ? Math.max(0, f.points()) : 0,
-                f.sortOrder(), f.learningGoal(), f.story(), f.assignment(), f.hints(), f.explanation(), f.rules(), f.config());
+                f.sortOrder(), f.learningGoal(), f.story(), f.assignment(), f.hints(), f.explanation(), f.rules(), f.config(),
+                f.knowledgeArticle());
     }
 }

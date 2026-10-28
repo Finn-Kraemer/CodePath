@@ -63,6 +63,11 @@
     "story": {
       "type": "string"
     },
+    "knowledgeArticle": {
+      "description": "Adresse eines passenden Artikels der Wissensdatenbank (content/wissen/<adresse>.md)",
+      "type": "string",
+      "pattern": "^([a-z0-9]+(-[a-z0-9]+)*)?$"
+    },
     "assignment": {
       "type": "string"
     },

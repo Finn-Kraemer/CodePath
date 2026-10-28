@@ -2,7 +2,14 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { api, ApiError, type HintResult, type SubmitResult, type TaskDetail } from '$lib/api';
+	import {
+		api,
+		ApiError,
+		type ArticleSummary,
+		type HintResult,
+		type SubmitResult,
+		type TaskDetail
+	} from '$lib/api';
 	import Markdown from '$lib/Markdown.svelte';
 	import TaskRenderer from '$lib/tasks/TaskRenderer.svelte';
 	import type { Answer } from '$lib/tasks/types';
@@ -30,6 +37,16 @@
 		!!task && (task.hints?.length ?? 0) < (task.hintsTotal ?? 0) && task.status === 'OPEN'
 	);
 
+	// Wissensartikel, die diese Person sehen darf – für „Mehr dazu im Wiki“
+	let articles = $state<ArticleSummary[]>([]);
+	/** Ausdrücklich verknüpfter Artikel, sonst der Artikel zum Modul; nur wenn er sichtbar ist */
+	const wikiArticle = $derived(
+		task
+			? (articles.find((a) => a.slug === task?.knowledgeArticle) ??
+					articles.find((a) => a.moduleSlug === task?.moduleSlug))
+			: undefined
+	);
+
 	async function load() {
 		try {
 			task = await api<TaskDetail>(base);
@@ -40,7 +57,12 @@
 		}
 	}
 
-	onMount(load);
+	onMount(() => {
+		load();
+		api<ArticleSummary[]>('/api/knowledge')
+			.then((list) => (articles = list))
+			.catch(() => (articles = []));
+	});
 
 	async function submit(answer: Answer) {
 		busy = true;
@@ -288,11 +310,28 @@
 							Lösung aufdecken (0 Punkte)
 						</button>
 					{/if}
-					<a
-						href="/knowledge"
-						class="block pt-2 text-[10px] font-bold tracking-widest text-institutional-navy uppercase underline"
-						>Zum Wissens-Wiki →</a
-					>
+					{#if wikiArticle}
+						<a
+							href={`/knowledge?artikel=${wikiArticle.slug}`}
+							class="mt-2 flex items-center gap-3 border border-institutional-navy/20 bg-slate-50 p-3 transition-colors hover:border-institutional-navy"
+						>
+							<span class="text-xl">{wikiArticle.icon}</span>
+							<span>
+								<span class="block text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+									>Mehr dazu im Wiki</span
+								>
+								<span class="block text-xs font-bold text-institutional-navy"
+									>{wikiArticle.title} →</span
+								>
+							</span>
+						</a>
+					{:else}
+						<a
+							href="/knowledge"
+							class="block pt-2 text-[10px] font-bold tracking-widest text-institutional-navy uppercase underline"
+							>Zum Wissens-Wiki →</a
+						>
+					{/if}
 				</div>
 			</aside>
 		</div>

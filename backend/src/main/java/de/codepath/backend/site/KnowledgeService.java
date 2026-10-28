@@ -14,7 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -30,6 +33,8 @@ import java.util.stream.Collectors;
 public class KnowledgeService implements MediaUsage {
 
     static final int MAX_BODY = 200_000;
+    static final int MAX_HITS = 20;
+    static final int SNIPPET = 180;
 
     public record ArticleSummary(String slug, String title, String icon, String moduleSlug, boolean published) {
     }
@@ -39,6 +44,10 @@ public class KnowledgeService implements MediaUsage {
 
     public record ArticleAdmin(Long id, String slug, String title, String icon, String body, String moduleSlug,
                                boolean published, LocalDateTime updatedAt) {
+    }
+
+    /** Suchtreffer: Ausschnitt rund um die erste Fundstelle im Text (ohne Markdown-Zeichen). */
+    public record SearchHit(String slug, String title, String icon, String snippet) {
     }
 
     public record ArticleUpdate(String slug, String title, String icon, String body, String moduleSlug, Boolean published) {
@@ -62,6 +71,72 @@ public class KnowledgeService implements MediaUsage {
                 .orElseThrow(() -> ApiException.notFound("Artikel nicht gefunden oder noch nicht freigegeben."));
         return new ArticleView(article.getSlug(), article.getTitle(), article.getIcon(), article.getBody(),
                 article.getModuleSlug(), article.isPublished());
+    }
+
+    /**
+     * Volltextsuche über Titel und Text der Artikel, die diese Person sehen darf. Alle Suchwörter müssen
+     * vorkommen (Groß-/Kleinschreibung egal); Treffer im Titel zählen mehr.
+     */
+    @Transactional(readOnly = true)
+    public List<SearchHit> search(User user, String query) {
+        List<String> terms = searchTerms(query);
+        if (terms.isEmpty()) return List.of();
+        record Scored(KnowledgeArticle article, int score) {
+        }
+        return visibleArticles(user).stream()
+                .map(a -> new Scored(a, score(a, terms)))
+                .filter(s -> s.score() > 0)
+                .sorted(Comparator.comparingInt(Scored::score).reversed())
+                .limit(MAX_HITS)
+                .map(s -> new SearchHit(s.article().getSlug(), s.article().getTitle(), s.article().getIcon(),
+                        snippet(s.article().getBody(), terms)))
+                .toList();
+    }
+
+    static List<String> searchTerms(String query) {
+        if (query == null) return List.of();
+        String trimmed = query.strip();
+        if (trimmed.length() > 100) trimmed = trimmed.substring(0, 100);
+        return Arrays.stream(trimmed.toLowerCase(Locale.GERMAN).split("\\s+"))
+                .filter(t -> t.length() >= 2)
+                .distinct()
+                .toList();
+    }
+
+    /** 0, wenn ein Suchwort fehlt; sonst Titeltreffer ×10 plus Fundstellen im Text. */
+    static int score(KnowledgeArticle article, List<String> terms) {
+        String title = article.getTitle().toLowerCase(Locale.GERMAN);
+        String body = article.getBody().toLowerCase(Locale.GERMAN);
+        int score = 0;
+        for (String term : terms) {
+            int inTitle = title.contains(term) ? 10 : 0;
+            int inBody = occurrences(body, term);
+            if (inTitle + inBody == 0) return 0;
+            score += inTitle + Math.min(inBody, 20);
+        }
+        return score;
+    }
+
+    static String snippet(String body, List<String> terms) {
+        String plain = body.replaceAll("```[a-zA-Z]*", " ").replaceAll("[#*`>_|\\[\\]]", " ")
+                .replaceAll("\\(https?://[^)]*\\)|\\(/[^)]*\\)", " ").replaceAll("\\s+", " ").strip();
+        String lower = plain.toLowerCase(Locale.GERMAN);
+        int at = terms.stream().mapToInt(lower::indexOf).filter(i -> i >= 0).min().orElse(-1);
+        if (at < 0) return plain.length() > SNIPPET ? plain.substring(0, SNIPPET) + " …" : plain;
+        int start = Math.max(0, at - SNIPPET / 3);
+        int end = Math.min(plain.length(), start + SNIPPET);
+        // An Wortgrenzen schneiden
+        int firstSpace = plain.indexOf(' ', start);
+        if (start > 0 && firstSpace >= 0 && firstSpace < at) start = firstSpace + 1;
+        int space = plain.lastIndexOf(' ', end);
+        if (end < plain.length() && space > at) end = space;
+        return (start > 0 ? "… " : "") + plain.substring(start, end) + (end < plain.length() ? " …" : "");
+    }
+
+    private static int occurrences(String text, String term) {
+        int count = 0;
+        for (int i = text.indexOf(term); i >= 0; i = text.indexOf(term, i + term.length())) count++;
+        return count;
     }
 
     @Transactional(readOnly = true)

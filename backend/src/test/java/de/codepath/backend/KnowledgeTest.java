@@ -11,6 +11,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** Wissensdatenbank: mitgelieferte Artikel, Sichtbarkeit nach Modul, Bearbeiten durch die Lehrkraft. */
@@ -34,6 +35,30 @@ class KnowledgeTest extends IntegrationTestBase {
         unlock(course, "datenbanken");
         assertTrue(slugs(student).contains("datenbanken"));
         assertTrue(body(getAs(as(student), "/api/knowledge/datenbanken")).get("body").asString().contains("SELECT"));
+    }
+
+    List<String> search(User user, String query) throws Exception {
+        List<String> slugs = new ArrayList<>();
+        body(mvc.perform(get("/api/search/knowledge").param("q", query).with(as(user))).andExpect(status().isOk()))
+                .forEach(a -> slugs.add(a.get("slug").asString()));
+        return slugs;
+    }
+
+    @Test
+    void searchFindsOnlyVisibleArticlesWithAllTerms() throws Exception {
+        Course course = course("8c");
+        User student = student("mia", course);
+        assertEquals("git", search(student, "COMMIT").get(0), "Groß-/Kleinschreibung egal");
+        assertFalse(search(student, "SELECT").contains("datenbanken"), "Gesperrtes Modul: Artikel nicht durchsuchbar");
+        unlock(course, "datenbanken");
+        assertTrue(search(student, "select where").contains("datenbanken"));
+        assertTrue(search(student, "select gibtesnichtxyz").isEmpty(), "Alle Wörter müssen vorkommen");
+        assertTrue(search(student, "a").isEmpty(), "Zu kurze Suchwörter werden ignoriert");
+
+        var hit = body(getAs(as(student), "/api/search/knowledge?q=commit")).get(0);
+        String snippet = hit.get("snippet").asString();
+        assertTrue(snippet.toLowerCase().contains("commit"), snippet);
+        assertFalse(snippet.contains("**"), "Ohne Markdown-Zeichen: " + snippet);
     }
 
     @Test
