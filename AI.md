@@ -22,7 +22,8 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 | `review` | Praxisabgaben mit Rubrik-Bewertung |
 | `classroom` | Modulfreigaben und Fristen je Kurs, Ankündigungen, Feedback |
 | `report` | Teilnahmebestätigungen als PDF (OpenPDF) |
-| `platform` | Fehlerbehandlung (ProblemDetail), Audit-Log, Einstellungen, SSE, Auslieferung des Frontends |
+| `platform` | Fehlerbehandlung (ProblemDetail), Audit-Log, Einstellungen, Startseite, SSE, Auslieferung des Frontends |
+| `site` | Eigene Seiten (`/seiten/<slug>`) und Wissensdatenbank |
 
 `ArchitectureTest` erzwingt: Repositories nur im eigenen Paket, keine Zyklen, `engine` hängt von keinem Fachpaket ab.
 
@@ -55,7 +56,11 @@ Bilder liegen in PostgreSQL, Schlüssel = SHA-256 + Endung (ADR-7). Upload nur f
 
 ## Startseite
 
-Blöcke als JSON in `system_settings` (`homepage_draft`, `homepage_published`), bearbeitet unter `/admin/homepage`. `HomepageService` prüft nur die Form (bekannte Blocktypen, höchstens 60 Blöcke, 200.000 Zeichen); Blocktypen, Felder und die Standardseite stehen in `frontend/src/lib/homepage/types.ts`, gerendert von `HomepageView.svelte` (Texte escaped, Markdown über DOMPurify). `GET /api/public/homepage` ist ohne Anmeldung erreichbar; `/api/media/<key>` liefert ohne Anmeldung nur Bilder der veröffentlichten Startseite, und solche Bilder lassen sich nicht löschen.
+Blöcke als JSON in `system_settings` (`homepage_draft`, `homepage_published`), bearbeitet unter `/admin/homepage`. `HomepageService` prüft nur die Form (bekannte Blocktypen, höchstens 60 Blöcke, 200.000 Zeichen); Blocktypen, Felder und die Standardseite stehen in `frontend/src/lib/homepage/types.ts`, gerendert von `HomepageView.svelte` (Texte escaped, Markdown über DOMPurify). `GET /api/public/homepage` ist ohne Anmeldung erreichbar; `/api/media/<key>` liefert ohne Anmeldung nur Bilder veröffentlichter öffentlicher Seiten (Startseite, eigene Seiten).
+
+## Eigene Seiten und Wissensdatenbank
+
+Paket `site`. **Seiten** (`pages`): Blöcke wie die Startseite (geprüft von `BlockContent`), Entwurf + veröffentlichte Fassung, Sichtbarkeit `PUBLIC`/`LOGGED_IN`, optional im Menü (`GET /api/public/pages`). Frontend: `/seiten/[slug]`, Editor `PageEditor.svelte` (gemeinsam mit der Startseite). **Wissensdatenbank** (`knowledge_articles`): Markdown, optional an ein Modul gekoppelt (sichtbar, sobald das Modul für den Kurs sichtbar ist, über `AccessPolicy`), `published=false` nur für die Lehrkraft. Mitgelieferte Artikel unter `content/wissen/*.md` (Kopf: `title`, `icon`, optional `module`) legt `KnowledgeSeeder` an, wenn sie fehlen und nicht in `deleted_knowledge_articles` stehen. Bildverwendung melden Startseite, Seiten und Artikel über `platform.media.MediaUsage` (öffentliche Auslieferung, Löschschutz).
 
 ## Live-Updates
 

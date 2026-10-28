@@ -78,3 +78,17 @@ cd backend && ./mvnw test -Dtest=ContentPackagesTest   # Probelauf jeder Aufgabe
 - Aus nummerierten Punkten der Praxisaufgaben wurden Rubrik-Kriterien mit gleich verteilten Punkten – die Gewichtung bitte im Editor anpassen.
 - `sql-query-pro`: Testdaten so erweitert, dass eine Abfrage ohne Abteilungsfilter nicht mehr als richtig gilt.
 - Offen für die Lehrkraft: Erklärungen nach dem Lösen (`explanation`) und Erklärungen je Antwortoption fehlen noch bei den meisten Aufgaben; Code-Aufgaben brauchen Musterlösungen und weitere Testfälle (siehe Phase 4).
+
+## Wissensdatenbank (`wissen/`)
+
+Mitgelieferte Artikel der Wissensdatenbank, je eine Markdown-Datei (`<slug>.md`) mit Kopf:
+
+```markdown
+---
+title: Datenbanken (SQL)
+icon: 🗄️
+module: datenbanken   # optional: erst sichtbar, wenn dieses Modul freigegeben ist
+---
+```
+
+Beim Start werden fehlende Artikel angelegt; danach ist die Datenbank maßgeblich (Bearbeiten unter Leitstand → Wissensdatenbank).

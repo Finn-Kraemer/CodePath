@@ -188,7 +188,7 @@
     },
     "/api/admin/content/modules/{id}/order" : {
       "put" : {
-        "operationId" : "reorder",
+        "operationId" : "reorder_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -293,7 +293,7 @@
     },
     "/api/admin/content/tasks/{id}" : {
       "delete" : {
-        "operationId" : "delete",
+        "operationId" : "delete_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -458,7 +458,7 @@
         "tags" : [ "content-editor-controller" ]
       },
       "put" : {
-        "operationId" : "saveDraft_1",
+        "operationId" : "saveDraft_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -588,7 +588,7 @@
     },
     "/api/admin/content/tasks/{id}/publish" : {
       "post" : {
-        "operationId" : "publish_1",
+        "operationId" : "publish_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -914,7 +914,7 @@
     },
     "/api/admin/homepage/draft" : {
       "put" : {
-        "operationId" : "saveDraft",
+        "operationId" : "saveDraft_1",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -935,7 +935,7 @@
     },
     "/api/admin/homepage/published" : {
       "put" : {
-        "operationId" : "publish",
+        "operationId" : "publish_1",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -952,6 +952,136 @@
           }
         },
         "tags" : [ "homepage-controller" ]
+      }
+    },
+    "/api/admin/knowledge" : {
+      "get" : {
+        "operationId" : "all_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ArticleAdmin"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "knowledge-controller" ]
+      },
+      "post" : {
+        "operationId" : "create_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "knowledge-controller" ]
+      }
+    },
+    "/api/admin/knowledge/order" : {
+      "put" : {
+        "operationId" : "reorder_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "integer",
+                  "format" : "int64"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "knowledge-controller" ]
+      }
+    },
+    "/api/admin/knowledge/{id}" : {
+      "delete" : {
+        "operationId" : "delete_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "knowledge-controller" ]
+      },
+      "put" : {
+        "operationId" : "update",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ArticleUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "knowledge-controller" ]
       }
     },
     "/api/admin/media" : {
@@ -1009,7 +1139,7 @@
     },
     "/api/admin/media/{key}" : {
       "delete" : {
-        "operationId" : "delete_1",
+        "operationId" : "delete_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "key",
@@ -1221,6 +1351,239 @@
           }
         },
         "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/pages" : {
+      "get" : {
+        "operationId" : "all",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PageSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      },
+      "post" : {
+        "operationId" : "create",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      }
+    },
+    "/api/admin/pages/order" : {
+      "put" : {
+        "operationId" : "reorder",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "integer",
+                  "format" : "int64"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      }
+    },
+    "/api/admin/pages/{id}" : {
+      "delete" : {
+        "operationId" : "delete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      },
+      "get" : {
+        "operationId" : "detail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      },
+      "put" : {
+        "operationId" : "settings",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PageSettings"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      }
+    },
+    "/api/admin/pages/{id}/draft" : {
+      "put" : {
+        "operationId" : "saveDraft",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      }
+    },
+    "/api/admin/pages/{id}/published" : {
+      "delete" : {
+        "operationId" : "unpublish",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      },
+      "put" : {
+        "operationId" : "publish",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
       }
     },
     "/api/admin/sessions/logout-students" : {
@@ -1591,7 +1954,7 @@
     },
     "/api/admin/submissions/{id}" : {
       "get" : {
-        "operationId" : "detail",
+        "operationId" : "detail_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1942,6 +2305,53 @@
           }
         },
         "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/knowledge" : {
+      "get" : {
+        "operationId" : "list_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ArticleSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "knowledge-controller" ]
+      }
+    },
+    "/api/knowledge/{slug}" : {
+      "get" : {
+        "operationId" : "article",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ArticleView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "knowledge-controller" ]
       }
     },
     "/api/lab/{taskId}" : {
@@ -2438,6 +2848,53 @@
         "tags" : [ "homepage-controller" ]
       }
     },
+    "/api/public/pages" : {
+      "get" : {
+        "operationId" : "navigation",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/NavLink"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      }
+    },
+    "/api/public/pages/{slug}" : {
+      "get" : {
+        "operationId" : "page",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicPage"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "page-controller" ]
+      }
+    },
     "/api/reports/my-report" : {
       "get" : {
         "operationId" : "myReport",
@@ -2503,6 +2960,107 @@
             }
           }
         }
+      },
+      "ArticleAdmin" : {
+        "type" : "object",
+        "properties" : {
+          "body" : {
+            "type" : "string"
+          },
+          "icon" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "published" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "body", "icon", "id", "moduleSlug", "published", "slug", "title", "updatedAt" ]
+      },
+      "ArticleSummary" : {
+        "type" : "object",
+        "properties" : {
+          "icon" : {
+            "type" : "string"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "published" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "icon", "moduleSlug", "published", "slug", "title" ]
+      },
+      "ArticleUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "body" : {
+            "type" : "string"
+          },
+          "icon" : {
+            "type" : "string"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "published" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "body", "icon", "moduleSlug", "published", "slug", "title" ]
+      },
+      "ArticleView" : {
+        "type" : "object",
+        "properties" : {
+          "body" : {
+            "type" : "string"
+          },
+          "icon" : {
+            "type" : "string"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "published" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "body", "icon", "moduleSlug", "published", "slug", "title" ]
       },
       "AttemptView" : {
         "type" : "object",
@@ -3105,6 +3663,85 @@
         },
         "required" : [ "availableUntil", "completedTasks", "description", "icon", "id", "isOpen", "isUnlocked", "maxPoints", "pointsEarned", "slug", "title", "totalTasks" ]
       },
+      "NavLink" : {
+        "type" : "object",
+        "properties" : {
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "slug", "title" ]
+      },
+      "PageDetail" : {
+        "type" : "object",
+        "properties" : {
+          "draft" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "page" : {
+            "$ref" : "#/components/schemas/PageSummary"
+          },
+          "published" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          }
+        },
+        "required" : [ "draft", "page", "published" ]
+      },
+      "PageSettings" : {
+        "type" : "object",
+        "properties" : {
+          "showInNav" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "visibility" : {
+            "type" : "string",
+            "enum" : [ "PUBLIC", "LOGGED_IN" ]
+          }
+        },
+        "required" : [ "showInNav", "slug", "title", "visibility" ]
+      },
+      "PageSummary" : {
+        "type" : "object",
+        "properties" : {
+          "changed" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "published" : {
+            "type" : "boolean"
+          },
+          "showInNav" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "visibility" : {
+            "type" : "string",
+            "enum" : [ "PUBLIC", "LOGGED_IN" ]
+          }
+        },
+        "required" : [ "changed", "id", "published", "showInNav", "slug", "title", "updatedAt", "visibility" ]
+      },
       "Profile" : {
         "type" : "object",
         "properties" : {
@@ -3134,6 +3771,21 @@
           }
         },
         "required" : [ "completedTasksCount", "courseName", "displayName", "pendingSubmissionsCount", "role", "totalPoints", "username" ]
+      },
+      "PublicPage" : {
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "content", "slug", "title" ]
       },
       "RejectRequest" : {
         "type" : "object",

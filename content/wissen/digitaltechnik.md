@@ -1,6 +1,7 @@
 ---
 title: Digitaltechnik
 icon: 🔧
+module: digitaltechnik
 ---
 
 # Digitaltechnik

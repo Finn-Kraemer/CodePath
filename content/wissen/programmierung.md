@@ -1,6 +1,7 @@
 ---
 title: Programmierung
 icon: 🐍
+module: programmierung
 ---
 
 # Python Programmierung

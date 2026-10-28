@@ -8,6 +8,7 @@
 	import { realtime } from '$lib/realtime.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { siteNavigation } from '$lib/site/navigation.svelte';
 
 	let { children } = $props();
 	let announcement = $state<{ content: string; updatedAt?: string; displayMode?: string } | null>(
@@ -19,7 +20,9 @@
 	$effect(() => {
 		const path = page.url.pathname;
 		// Public pages that don't need auth
-		const isPublicPage = path === '/login' || path === '/register' || path === '/';
+		// Eigene Seiten prüft der Server selbst (öffentlich oder nur angemeldet)
+		const isPublicPage =
+			path === '/login' || path === '/register' || path === '/' || path.startsWith('/seiten/');
 
 		if (!auth.isAuthenticated && !isPublicPage) {
 			goto('/login');
@@ -28,6 +31,12 @@
 		if (auth.isAuthenticated && (path === '/login' || path === '/register')) {
 			goto('/modules');
 		}
+	});
+
+	// Menüpunkte eigener Seiten hängen davon ab, ob jemand angemeldet ist
+	$effect(() => {
+		void auth.isAuthenticated;
+		siteNavigation.refresh();
 	});
 
 	onMount(async () => {
@@ -78,8 +87,14 @@
 		{ name: 'Rangliste', path: '/leaderboard' }
 	];
 
+	// Feste Menüpunkte für Angemeldete, dazu die eigenen Seiten der Lehrkraft (öffentliche auch ohne Login)
+	const allLinks = $derived([
+		...(auth.isAuthenticated ? navLinks : []),
+		...siteNavigation.links.map((l) => ({ name: l.title, path: `/seiten/${l.slug}` }))
+	]);
+
 	// Helpers for special layouts
-	let isFrontpage = $derived(page.url.pathname === '/');
+	let isFrontpage = $derived(page.url.pathname === '/' || page.url.pathname.startsWith('/seiten/'));
 	let isProjector = $derived(page.url.pathname === '/projector');
 </script>
 
@@ -129,10 +144,10 @@
 						</a>
 
 						<!-- Desktop Nav -->
-						{#if auth.isAuthenticated}
+						{#if allLinks.length}
 							<div class="hidden h-10 w-px bg-slate-200 md:block"></div>
 							<div class="hidden space-x-6 lg:flex">
-								{#each navLinks as link (link.path)}
+								{#each allLinks as link (link.path)}
 									<a
 										href={link.path}
 										class="relative py-2 text-[10px] font-black tracking-widest uppercase transition-all
@@ -240,7 +255,7 @@
 					class="animate-in slide-in-from-top fade-in border-t border-slate-100 bg-white p-6 duration-300 lg:hidden"
 				>
 					<div class="flex flex-col gap-4">
-						{#each navLinks as link (link.path)}
+						{#each allLinks as link (link.path)}
 							<a
 								href={link.path}
 								onclick={() => (mobileMenuOpen = false)}

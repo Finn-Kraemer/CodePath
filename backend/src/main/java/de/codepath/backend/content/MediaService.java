@@ -3,7 +3,7 @@ package de.codepath.backend.content;
 import de.codepath.backend.engine.MediaKeys;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
-import de.codepath.backend.platform.settings.HomepageService;
+import de.codepath.backend.platform.media.MediaUsage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +33,7 @@ public class MediaService {
 
     private final MediaRepository repository;
     private final AuditService auditService;
-    private final HomepageService homepageService;
+    private final List<MediaUsage> mediaUsages;
 
     /** Geprüftes Bild: Schlüssel, Endung, Maße. */
     public record Inspected(String key, String extension, int[] size) {
@@ -109,8 +109,9 @@ public class MediaService {
         if (repository.countReferences(key) > 0) {
             throw ApiException.conflict("Das Bild wird noch in einer Aufgabe (oder einer früheren Version) verwendet.");
         }
-        if (homepageService.usesMedia(key)) {
-            throw ApiException.conflict("Das Bild wird auf der Startseite verwendet.");
+        for (MediaUsage usage : mediaUsages) {
+            Optional<String> where = usage.usedBy(key);
+            if (where.isPresent()) throw ApiException.conflict("Das Bild wird noch " + where.get() + " verwendet.");
         }
         repository.delete(file);
         auditService.log("MEDIA_DELETED", key, Map.of());

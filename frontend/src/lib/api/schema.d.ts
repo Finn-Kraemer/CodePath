@@ -124,7 +124,7 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
-		put: operations['reorder'];
+		put: operations['reorder_2'];
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -174,7 +174,7 @@ export interface paths {
 		get: operations['task_1'];
 		put?: never;
 		post?: never;
-		delete: operations['delete'];
+		delete: operations['delete_2'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -236,7 +236,7 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
-		put: operations['saveDraft_1'];
+		put: operations['saveDraft_2'];
 		post?: never;
 		delete: operations['discardDraft'];
 		options?: never;
@@ -301,7 +301,7 @@ export interface paths {
 		};
 		get?: never;
 		put?: never;
-		post: operations['publish_1'];
+		post: operations['publish_2'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -476,7 +476,7 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
-		put: operations['saveDraft'];
+		put: operations['saveDraft_1'];
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -492,9 +492,57 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
-		put: operations['publish'];
+		put: operations['publish_1'];
 		post?: never;
 		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/knowledge': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['all_1'];
+		put?: never;
+		post: operations['create_1'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/knowledge/order': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['reorder_1'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/knowledge/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['update'];
+		post?: never;
+		delete: operations['delete_1'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -526,7 +574,7 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post?: never;
-		delete: operations['delete_1'];
+		delete: operations['delete_3'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -607,6 +655,86 @@ export interface paths {
 		put: operations['toggle_1'];
 		post?: never;
 		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/pages': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['all'];
+		put?: never;
+		post: operations['create'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/pages/order': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['reorder'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/pages/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['detail'];
+		put: operations['settings'];
+		post?: never;
+		delete: operations['delete'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/pages/{id}/draft': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['saveDraft'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/pages/{id}/published': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['publish'];
+		post?: never;
+		delete: operations['unpublish'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -827,7 +955,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['detail'];
+		get: operations['detail_1'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -1060,6 +1188,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/knowledge': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['list_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/knowledge/{slug}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['article'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/lab/{taskId}': {
 		parameters: {
 			query?: never;
@@ -1236,6 +1396,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/public/pages': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['navigation'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/public/pages/{slug}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['page'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/reports/my-report': {
 		parameters: {
 			query?: never;
@@ -1278,6 +1470,41 @@ export interface components {
 			scores?: {
 				[key: string]: number;
 			};
+		};
+		ArticleAdmin: {
+			body: string;
+			icon: string;
+			/** Format: int64 */
+			id: number;
+			moduleSlug: string;
+			published: boolean;
+			slug: string;
+			title: string;
+			/** Format: date-time */
+			updatedAt: string;
+		};
+		ArticleSummary: {
+			icon: string;
+			moduleSlug: string;
+			published: boolean;
+			slug: string;
+			title: string;
+		};
+		ArticleUpdate: {
+			body: string;
+			icon: string;
+			moduleSlug: string;
+			published: boolean;
+			slug: string;
+			title: string;
+		};
+		ArticleView: {
+			body: string;
+			icon: string;
+			moduleSlug: string;
+			published: boolean;
+			slug: string;
+			title: string;
 		};
 		AttemptView: {
 			answer: {
@@ -1526,6 +1753,35 @@ export interface components {
 			/** Format: int32 */
 			totalTasks: number;
 		};
+		NavLink: {
+			slug: string;
+			title: string;
+		};
+		PageDetail: {
+			draft: components['schemas']['JsonNode'];
+			page: components['schemas']['PageSummary'];
+			published: components['schemas']['JsonNode'];
+		};
+		PageSettings: {
+			showInNav: boolean;
+			slug: string;
+			title: string;
+			/** @enum {string} */
+			visibility: 'PUBLIC' | 'LOGGED_IN';
+		};
+		PageSummary: {
+			changed: boolean;
+			/** Format: int64 */
+			id: number;
+			published: boolean;
+			showInNav: boolean;
+			slug: string;
+			title: string;
+			/** Format: date-time */
+			updatedAt: string;
+			/** @enum {string} */
+			visibility: 'PUBLIC' | 'LOGGED_IN';
+		};
 		Profile: {
 			/** Format: int64 */
 			completedTasksCount: number;
@@ -1537,6 +1793,11 @@ export interface components {
 			/** Format: int64 */
 			totalPoints: number;
 			username: string;
+		};
+		PublicPage: {
+			content: components['schemas']['JsonNode'];
+			slug: string;
+			title: string;
 		};
 		RejectRequest: {
 			comment?: string;
@@ -2034,7 +2295,7 @@ export interface operations {
 			};
 		};
 	};
-	reorder: {
+	reorder_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -2132,7 +2393,7 @@ export interface operations {
 			};
 		};
 	};
-	delete: {
+	delete_2: {
 		parameters: {
 			query: {
 				confirm: string;
@@ -2222,7 +2483,7 @@ export interface operations {
 			};
 		};
 	};
-	saveDraft_1: {
+	saveDraft_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -2344,7 +2605,7 @@ export interface operations {
 			};
 		};
 	};
-	publish_1: {
+	publish_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -2631,7 +2892,7 @@ export interface operations {
 			};
 		};
 	};
-	saveDraft: {
+	saveDraft_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -2653,7 +2914,7 @@ export interface operations {
 			};
 		};
 	};
-	publish: {
+	publish_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -2665,6 +2926,120 @@ export interface operations {
 				'application/json': components['schemas']['JsonNode'];
 			};
 		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	all_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ArticleAdmin'][];
+				};
+			};
+		};
+	};
+	create_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': {
+					[key: string]: string;
+				};
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ArticleAdmin'];
+				};
+			};
+		};
+	};
+	reorder_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': number[];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	update: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ArticleUpdate'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ArticleAdmin'];
+				};
+			};
+		};
+	};
+	delete_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
 		responses: {
 			/** @description OK */
 			200: {
@@ -2722,7 +3097,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_1: {
+	delete_3: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -2865,6 +3240,210 @@ export interface operations {
 						[key: string]: boolean;
 					};
 				};
+			};
+		};
+	};
+	all: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PageSummary'][];
+				};
+			};
+		};
+	};
+	create: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': {
+					[key: string]: string;
+				};
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PageSummary'];
+				};
+			};
+		};
+	};
+	reorder: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': number[];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	detail: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PageDetail'];
+				};
+			};
+		};
+	};
+	settings: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['PageSettings'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PageSummary'];
+				};
+			};
+		};
+	};
+	delete: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	saveDraft: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['JsonNode'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	publish: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['JsonNode'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	unpublish: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
 			};
 		};
 	};
@@ -3163,7 +3742,7 @@ export interface operations {
 			};
 		};
 	};
-	detail: {
+	detail_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -3497,6 +4076,48 @@ export interface operations {
 				};
 				content: {
 					'*/*': string;
+				};
+			};
+		};
+	};
+	list_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ArticleSummary'][];
+				};
+			};
+		};
+	};
+	article: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ArticleView'];
 				};
 			};
 		};
@@ -3985,6 +4606,48 @@ export interface operations {
 					'*/*': {
 						[key: string]: components['schemas']['JsonNode'];
 					};
+				};
+			};
+		};
+	};
+	navigation: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['NavLink'][];
+				};
+			};
+		};
+	};
+	page: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PublicPage'];
 				};
 			};
 		};

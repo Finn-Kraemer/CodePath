@@ -19,7 +19,7 @@ class ArchitectureTest {
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
             .importPackages("de.codepath.backend");
 
-    static final List<String> MODULES = List.of("identity", "content", "engine", "progress", "review", "classroom", "report", "platform");
+    static final List<String> MODULES = List.of("identity", "content", "engine", "progress", "review", "classroom", "report", "platform", "site");
 
     @Test
     void repositoriesAreOnlyUsedInsideTheirOwnPackage() {
@@ -44,7 +44,8 @@ class ArchitectureTest {
         noClasses().that().resideInAPackage("de.codepath.backend.engine..")
                 .should().dependOnClassesThat().resideInAnyPackage(
                         "de.codepath.backend.identity..", "de.codepath.backend.content..", "de.codepath.backend.progress..",
-                        "de.codepath.backend.review..", "de.codepath.backend.classroom..", "de.codepath.backend.report..")
+                        "de.codepath.backend.review..", "de.codepath.backend.classroom..", "de.codepath.backend.report..",
+                        "de.codepath.backend.site..")
                 .check(CLASSES);
     }
 }
