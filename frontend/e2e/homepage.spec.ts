@@ -42,3 +42,33 @@ test('Startseite bearbeiten und veröffentlichen', async ({ page, browser }) => 
 	await visitor.reload();
 	await expect(visitor.getByRole('heading', { name: title })).toHaveCount(0);
 });
+
+/** Buttons im Aufruf-Block führen wahlweise auf interne Seiten oder externe Adressen. */
+test('Eigene Buttons mit internem und externem Ziel', async ({ page }) => {
+	await page.goto('/login');
+	await page.fill('#username', 'admin');
+	await page.fill('#password', ADMIN_PASSWORD);
+	await page.click('button[type=submit]');
+	await expect(page).toHaveURL(/\/modules/);
+
+	await page.goto('/admin/homepage');
+	const preview = page.getByRole('region', { name: 'Vorschau' });
+	await preview.getByText('Starte jetzt mit dem').click();
+
+	await page.getByRole('button', { name: '+ Button hinzufügen' }).click();
+	await page.getByLabel('Beschriftung').fill('Wissen');
+	await page.getByLabel('Ziel').selectOption('/knowledge');
+
+	await page.getByRole('button', { name: '+ Button hinzufügen' }).click();
+	await page.getByLabel('Beschriftung').nth(1).fill('Schulwebsite');
+	await page
+		.getByLabel('Ziel')
+		.nth(1)
+		.selectOption({ label: 'Externe Adresse oder eigener Pfad …' });
+	await page.locator('input.mono').fill('www.schule.de');
+
+	await expect(preview.getByRole('link', { name: 'Wissen' })).toHaveAttribute('href', '/knowledge');
+	const external = preview.getByRole('link', { name: 'Schulwebsite' });
+	await expect(external).toHaveAttribute('href', 'https://www.schule.de');
+	await expect(external).toHaveAttribute('target', '_blank');
+});

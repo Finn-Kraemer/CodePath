@@ -9,10 +9,18 @@ export type Theme = 'light' | 'muted' | 'dark';
 export type Card = { icon: string; title: string; text: string };
 export type Step = { marker: string; title: string; text: string };
 export type GradeRow = { range: string; label: string; grade: string };
+/** Frei wählbarer Button: Ziel ist eine interne Seite („/seiten/…“) oder eine externe Adresse. */
+export type LinkButton = { label: string; href: string; newTab: boolean };
 
 type Base = { id: string; hidden?: boolean; theme: Theme; badge: string; title: string };
 
-export type HeroBlock = Base & { type: 'hero'; highlight: string; text: string; buttons: boolean };
+export type HeroBlock = Base & {
+	type: 'hero';
+	highlight: string;
+	text: string;
+	buttons: boolean;
+	links: LinkButton[];
+};
 export type TextBlock = Base & { type: 'text'; body: string; align: 'left' | 'center' };
 export type ListBlock = Base & { type: 'list'; items: string[]; align: 'left' | 'center' };
 export type CardsBlock = Base & { type: 'cards'; intro: string; items: Card[] };
@@ -33,7 +41,12 @@ export type GradesBlock = Base & {
 	rows: GradeRow[];
 };
 export type ImageBlock = Base & { type: 'image'; media: string; alt: string; caption: string };
-export type CtaBlock = Base & { type: 'cta'; highlight: string; buttons: boolean };
+export type CtaBlock = Base & {
+	type: 'cta';
+	highlight: string;
+	buttons: boolean;
+	links: LinkButton[];
+};
 
 export type Block =
 	| HeroBlock
@@ -59,6 +72,7 @@ export type Field =
 	| { key: string; label: string; kind: 'text' | 'textarea' | 'markdown' | 'bool' | 'media' }
 	| { key: string; label: string; kind: 'select'; options: { value: string; label: string }[] }
 	| { key: string; label: string; kind: 'strings'; placeholder?: string }
+	| { key: string; label: string; kind: 'links' }
 	| {
 			key: string;
 			label: string;
@@ -90,9 +104,10 @@ const TITLE: Field = { key: 'title', label: 'Überschrift', kind: 'text' };
 const HIGHLIGHT: Field = { key: 'highlight', label: 'Hervorgehobener Teil (gold)', kind: 'text' };
 const BUTTONS: Field = {
 	key: 'buttons',
-	label: 'Buttons anzeigen (Login/Registrieren bzw. „Zu den Lernmodulen“)',
+	label: 'Standard-Buttons anzeigen (Login/Registrieren bzw. „Zu den Lernmodulen“)',
 	kind: 'bool'
 };
+const LINKS: Field = { key: 'links', label: 'Eigene Buttons', kind: 'links' };
 
 export const BLOCK_TYPES: Record<
 	BlockType,
@@ -107,6 +122,7 @@ export const BLOCK_TYPES: Record<
 			HIGHLIGHT,
 			{ key: 'text', label: 'Einleitung', kind: 'textarea' },
 			BUTTONS,
+			LINKS,
 			THEME
 		],
 		create: () => ({
@@ -117,7 +133,8 @@ export const BLOCK_TYPES: Record<
 			title: 'Neue Überschrift',
 			highlight: '',
 			text: '',
-			buttons: true
+			buttons: true,
+			links: []
 		})
 	},
 	text: {
@@ -300,7 +317,7 @@ export const BLOCK_TYPES: Record<
 	cta: {
 		label: 'Aufruf mit Buttons',
 		description: 'Kurze Aufforderung mit Buttons, meist ganz unten.',
-		fields: [BADGE, TITLE, HIGHLIGHT, BUTTONS, THEME],
+		fields: [BADGE, TITLE, HIGHLIGHT, BUTTONS, LINKS, THEME],
 		create: () => ({
 			id: blockId(),
 			type: 'cta',
@@ -308,7 +325,8 @@ export const BLOCK_TYPES: Record<
 			badge: '',
 			title: 'Starte jetzt mit dem',
 			highlight: 'Lernen',
-			buttons: true
+			buttons: true,
+			links: []
 		})
 	}
 };
@@ -324,7 +342,8 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
 			title: 'The Path to',
 			highlight: 'Code',
 			text: 'Willkommen zu deinem Deep-Dive in die Welt der Informationstechnik. Heute lernst du nicht aus Büchern, sondern arbeitest direkt an den Systemen, die unsere digitale Welt antreiben.',
-			buttons: true
+			buttons: true,
+			links: []
 		},
 		{
 			id: 'about',
@@ -447,10 +466,30 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
 			badge: '',
 			title: 'Starte jetzt mit dem',
 			highlight: 'Lernen',
-			buttons: true
+			buttons: true,
+			links: []
 		}
 	]
 };
+
+/** Ziele, die ein Button haben darf; alles andere (z. B. „javascript:“) wird nicht verlinkt. */
+const SAFE_HREF = /^(\/(?!\/)|#|https?:\/\/|mailto:|tel:)/i;
+
+/**
+ * Bereinigt das Ziel eines Buttons: „www.beispiel.de“ wird zu „https://www.beispiel.de“,
+ * unsichere oder leere Ziele ergeben null.
+ */
+export function safeHref(href: string): string | null {
+	let value = href.trim();
+	if (!value) return null;
+	if (/^[\w-]+(\.[\w-]+)+(\/|$)/.test(value) && !value.includes(':')) value = `https://${value}`;
+	return SAFE_HREF.test(value) ? value : null;
+}
+
+/** Externe Ziele verlassen die Plattform (anderer Host oder mailto/tel). */
+export function isExternal(href: string): boolean {
+	return !/^[/#]/.test(href);
+}
 
 /**
  * Macht aus gespeichertem JSON eine sichere Blockliste: unbekannte Typen fallen weg, fehlende
