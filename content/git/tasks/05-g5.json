@@ -12,6 +12,7 @@
     "'not staged' = geändert aber nicht in der Staging Area. 'Untracked' = Git weiß noch nichts von dieser Datei – sie wurde noch nie git add gemacht."
   ],
   "explanation": "",
+  "knowledgeArticle": "git",
   "config": {
     "options": [
       {

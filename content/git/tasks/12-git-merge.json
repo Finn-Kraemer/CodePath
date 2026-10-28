@@ -1,0 +1,81 @@
+{
+  "slug": "git-merge",
+  "type": "TERMINAL",
+  "title": "Zusammenführen",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 12,
+  "learningGoal": "Du kannst einen Branch mit git merge in main zusammenführen.",
+  "story": "Elif hat die Kontaktseite auf dem Branch `kontakt` fertiggestellt, Jonas hat auf `main` inzwischen das Impressum ergänzt. Jetzt soll beides zusammen in die App.",
+  "assignment": "Führe den Branch `kontakt` in `main` zusammen.\n\n- `git log --oneline --all` zeigt alle Branches\n- `git merge name` holt einen Branch in den aktuellen Branch\n\nDanach sollen auf `main` sowohl `kontakt.html` als auch `impressum.html` liegen.",
+  "hints": [
+    "Erst `cd schulplaner`. Prüfe mit `git branch`, dass du auf `main` bist.",
+    "`git merge kontakt` – Git legt dabei automatisch einen Merge-Commit an."
+  ],
+  "explanation": "Beim Merge bringt Git die Änderungen beider Linien zusammen. Haben beide Seiten verschiedene Dateien geändert, klappt das automatisch – im Verlauf entsteht ein Merge-Commit mit zwei Vorgängern, die Linien laufen wieder zusammen.",
+  "knowledgeArticle": "git",
+  "config": {
+    "git": {
+      "root": "schulplaner",
+      "history": [
+        {
+          "message": "Erste Version",
+          "author": "Mia",
+          "files": {
+            "index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n"
+          }
+        },
+        {
+          "message": "Stil angelegt",
+          "author": "Jonas",
+          "files": {
+            "style.css": "h1 { color: teal; }\n"
+          }
+        },
+        {
+          "branch": "kontakt",
+          "message": "Kontaktseite",
+          "author": "Elif",
+          "files": {
+            "kontakt.html": "<h1>Kontakt</h1>\n"
+          }
+        },
+        {
+          "branch": "main",
+          "message": "Impressum ergänzt",
+          "author": "Jonas",
+          "files": {
+            "impressum.html": "<h1>Impressum</h1>\n"
+          }
+        }
+      ]
+    },
+    "gitChecks": [
+      {
+        "check": "merged",
+        "branch": "kontakt",
+        "into": "main"
+      },
+      {
+        "check": "committed",
+        "path": "kontakt.html",
+        "branch": "main"
+      },
+      {
+        "check": "committed",
+        "path": "impressum.html",
+        "branch": "main"
+      },
+      {
+        "check": "head",
+        "branch": "main"
+      }
+    ],
+    "solution": [
+      "cd schulplaner",
+      "git log --oneline --all",
+      "git merge kontakt",
+      "ls"
+    ]
+  }
+}

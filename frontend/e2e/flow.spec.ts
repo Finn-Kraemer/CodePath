@@ -32,9 +32,12 @@ test('Kurs anlegen, beitreten, Aufgabe lösen, Punkte sehen', async ({ browser }
 		teacher.getByLabel('Kurs').selectOption({ label: courseName })
 	]);
 	await teacher.waitForLoadState('networkidle');
-	await teacher.locator('[data-module="git"]').getByRole('button', { name: 'Freigeben' }).click();
+	await teacher
+		.locator('[data-module="terminal"]')
+		.getByRole('button', { name: 'Freigeben' })
+		.click();
 	await expect(
-		teacher.locator('[data-module="git"]').getByRole('button', { name: 'Sperren' })
+		teacher.locator('[data-module="terminal"]').getByRole('button', { name: 'Sperren' })
 	).toBeVisible();
 
 	// Schüler

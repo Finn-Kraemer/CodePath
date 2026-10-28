@@ -144,7 +144,7 @@ Haben beide Branches **dieselbe Stelle** in einer Datei unterschiedlich geänder
 >>>>>>> feature-login
 ```
 
-Du entscheidest, was richtig ist, entfernst die Markierungen, und schließt mit `git add datei` und `git commit` ab.
+Du entscheidest, was richtig ist, entfernst die Markierungen, und schließt mit `git add datei` und `git commit` ab. Soll eine Seite komplett gewinnen, geht es schneller: `git checkout --ours datei` nimmt deine Version (der aktuelle Branch), `git checkout --theirs datei` die hereingeholte. `git merge --abort` bricht die Zusammenführung ab.
 
 ---
 

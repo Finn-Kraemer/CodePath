@@ -1,0 +1,53 @@
+{
+  "slug": "git-restore",
+  "type": "TERMINAL",
+  "title": "Ups, rückgängig!",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 8,
+  "learningGoal": "Du kannst mit git diff Änderungen ansehen und mit git restore den letzten gespeicherten Stand zurückholen.",
+  "story": "Beim Kopieren ist etwas schiefgegangen: In `index.html` steht nur noch Unsinn. Die Datei war aber schon committet – Git hat den guten Stand also noch.",
+  "assignment": "Hol die letzte gespeicherte Version von `index.html` zurück, **ohne** den kaputten Stand zu committen.\n\n- `git status` zeigt, welche Datei geändert wurde\n- `git diff` zeigt, was sich geändert hat\n- `git restore datei` setzt eine Datei auf den letzten Commit zurück",
+  "hints": [
+    "Erst `cd schulplaner`, dann `git status`.",
+    "`git diff` zeigt mit `-` den guten alten Inhalt und mit `+` den kaputten neuen.",
+    "`git restore index.html` – danach meldet `git status` „nichts zu committen“."
+  ],
+  "explanation": "Solange eine Datei committet ist, ist ihr Stand sicher. `git restore` holt ihn zurück und verwirft die Änderungen im Arbeitsordner – Vorsicht, die sind danach wirklich weg. Wer regelmäßig committet, hat viele solcher Sicherungspunkte.",
+  "knowledgeArticle": "git",
+  "config": {
+    "initialFiles": {
+      "schulplaner/index.html": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
+    },
+    "git": {
+      "root": "schulplaner",
+      "history": [
+        {
+          "message": "Erste Version",
+          "author": "Mia",
+          "files": {
+            "index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n",
+            "style.css": "h1 { color: teal; }\n"
+          }
+        }
+      ]
+    },
+    "gitChecks": [
+      {
+        "check": "committed",
+        "path": "index.html",
+        "content": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n",
+        "label": "Der kaputte Stand darf nicht committet werden."
+      },
+      {
+        "check": "clean"
+      }
+    ],
+    "solution": [
+      "cd schulplaner",
+      "git status",
+      "git diff",
+      "git restore index.html"
+    ]
+  }
+}

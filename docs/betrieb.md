@@ -49,7 +49,7 @@ docker compose up -d
 docker compose ps              # app sollte nach etwa einer Minute „healthy“ sein
 ```
 
-Beim ersten Start legt CodePath das Datenbankschema an, importiert die mitgelieferten Inhalte (10 Module, 132 Aufgaben) und das Konto `admin`. Ist `ADMIN_SEED_PASSWORD` leer, steht das erzeugte Passwort im Log:
+Beim ersten Start legt CodePath das Datenbankschema an, importiert die mitgelieferten Inhalte (11 Module, 147 Aufgaben) und das Konto `admin`. Ist `ADMIN_SEED_PASSWORD` leer, steht das erzeugte Passwort im Log:
 
 ```bash
 docker compose logs app | grep "Erzeugtes Passwort"

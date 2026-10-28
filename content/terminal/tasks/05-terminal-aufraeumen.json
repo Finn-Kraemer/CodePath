@@ -1,0 +1,47 @@
+{
+  "slug": "terminal-aufraeumen",
+  "type": "TERMINAL",
+  "title": "Chaos im Download-Ordner",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 5,
+  "learningGoal": "Du kannst mit mkdir und mv Dateien in Ordner einsortieren.",
+  "story": "Deine Kollegin Sarah hat seit Monaten alles in ihren Download-Ordner geladen. „Kannst du da Ordnung reinbringen? Bilder zu Bildern, Dokumente zu Dokumenten.“",
+  "assignment": "Im Ordner `downloads` liegt alles durcheinander.\n\n1. Lege **darin** die Ordner `bilder` und `dokumente` an.\n2. Verschiebe mit `mv` alle Bilder (`.jpg`, `.png`) nach `bilder`.\n3. Verschiebe alle anderen Dateien nach `dokumente`.\n\nBeispiel: `mv urlaub.jpg bilder/`",
+  "hints": [
+    "Wechsle zuerst mit `cd downloads` in den Ordner. `mkdir bilder dokumente` legt beide Ordner auf einmal an.",
+    "`mv datei ordner/` verschiebt eine Datei in einen Ordner. Mit `ls` siehst du, was noch übrig ist.",
+    "Am Ende sollen in `downloads` nur noch die beiden Ordner liegen. Prüfe mit `ls bilder` und `ls dokumente`."
+  ],
+  "explanation": "`mv` (move) verschiebt Dateien – oder benennt sie um, wenn das Ziel ein neuer Name ist. Ordnung im Dateisystem ist in der IT Pflicht: Wer Dateien nach festen Regeln ablegt, findet sie auch nach Jahren wieder.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "initialFiles": {
+      "downloads/urlaub.jpg": "",
+      "downloads/klassenfoto.png": "",
+      "downloads/referat.pdf": "",
+      "downloads/bewerbung.docx": "",
+      "downloads/notizen.txt": ""
+    },
+    "expectedDirectories": [
+      "downloads/bilder",
+      "downloads/dokumente"
+    ],
+    "expectedFiles": [
+      "downloads/bilder/urlaub.jpg",
+      "downloads/bilder/klassenfoto.png",
+      "downloads/dokumente/referat.pdf",
+      "downloads/dokumente/bewerbung.docx",
+      "downloads/dokumente/notizen.txt"
+    ],
+    "solution": [
+      "cd downloads",
+      "mkdir bilder dokumente",
+      "mv urlaub.jpg bilder/",
+      "mv klassenfoto.png bilder/",
+      "mv referat.pdf dokumente/",
+      "mv bewerbung.docx dokumente/",
+      "mv notizen.txt dokumente/"
+    ]
+  }
+}

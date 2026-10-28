@@ -91,13 +91,13 @@ cd runner && RUNNER_TOKEN=lokal-lokal-lokal-1 RUNNER_PORT=8765 python3 -I runner
 | `cd backend && ./mvnw verify` | alle Backend-Tests gegen echtes PostgreSQL (Testcontainers, braucht Docker); schreibt dabei `frontend/src/lib/api/openapi.json` neu |
 | `cd frontend && pnpm lint` | Prettier und ESLint |
 | `cd frontend && pnpm check` | TypeScript und Svelte |
-| `cd frontend && pnpm test` | Vitest (Markdown, Terminal-Simulation, Logikschaltungen) |
+| `cd frontend && pnpm test` | Vitest (Markdown, Terminal- und Git-Simulation, Logikschaltungen) |
 | `cd frontend && pnpm gen:api` | erzeugt `schema.d.ts` aus der OpenAPI-Beschreibung |
 | `cd frontend && pnpm test:e2e` | Playwright gegen eine laufende Instanz (`E2E_BASE_URL`, `E2E_ADMIN_PASSWORD`) |
 | `python content/validate.py` | Content-Pakete gegen das JSON-Schema, Bilder, Lücken, Rubriken |
 | `cd runner && python -m unittest test_runner` | Angriffe auf die Sandbox |
 
-Wichtige Testklassen: `TaskReleaseTest` (Freigaben einzelner Aufgaben bis zur Bestätigung), `SecurityCatalogTest` (keine Lösung im Browser, Zugriffsregeln, Punkte genau einmal), `ContentPackagesTest` (Probelauf jeder mitgelieferten Aufgabe), `BrowserLabTest` (jedes Labor-Szenario durchgespielt), `LegacyMigrationTest` (Migrationen mit Altdaten).
+Wichtige Testklassen: `TaskReleaseTest` (Freigaben einzelner Aufgaben bis zur Bestätigung), `SecurityCatalogTest` (keine Lösung im Browser, Zugriffsregeln, Punkte genau einmal), `ContentPackagesTest` (Probelauf jeder mitgelieferten Aufgabe), `BrowserLabTest` (jedes Labor-Szenario durchgespielt), `TerminalCasesTest` (Terminal und Git im Backend gleich wie im Browser – dieselben Fälle wie `terminal.test.ts`), `LegacyMigrationTest` (Migrationen mit Altdaten).
 
 Die CI (`.github/workflows/ci.yml`) führt all das auf jedem Pull Request aus, startet dafür den echten Code-Runner und testet zum Schluss das gebaute Docker-Image mit Playwright.
 

@@ -12,7 +12,7 @@ CodePath kennt 15 Aufgabentypen. Alle werden **auf dem Server** bewertet: Der Br
 | `CODE` | Programmieren | schreibt Python im Editor, probiert es im Browser aus | mit Code-Runner gegen sichtbare und versteckte Testfälle, Teilpunkte je Test; ohne Runner Übung ohne Punkte |
 | `SORTING` | Sortieren | bringt Schritte per Drag & Drop in die richtige Reihenfolge | Teilpunkte nach der längsten richtig geordneten Folge |
 | `SQL` | SQL | schreibt eine `SELECT`-Abfrage gegen eine Übungsdatenbank | Ergebnis wird mit dem der Musterlösung verglichen; Reihenfolge optional egal |
-| `TERMINAL` | Terminal | arbeitet in einer simulierten Kommandozeile (`mkdir`, `cd`, `touch`, …) | der Server spielt die Befehle nach und prüft das entstandene Dateisystem |
+| `TERMINAL` | Terminal | arbeitet in einer simulierten Kommandozeile – Dateien (`ls`, `cd`, `mkdir`, `mv`, …), Suchen und Filtern (`grep`, `find`, `head`, `tail`, `wc`, Pipes) und Git (`add`, `commit`, `branch`, `merge`, `push`, …), optional mit Antwortfeld ([mehr](#-terminal-und-git)) | der Server spielt die Befehle nach und prüft Dateisystem, Git-Repository und Antwort |
 | `PRACTICE` | Praxis | gibt einen Freitext mit Formatierung ab, optional mit Python-Programm aus der Werkbank | die Lehrkraft bewertet nach einer Rubrik und kann den Code ausführen |
 | `MATCHING` | Zuordnen | ordnet Begriffe zu, rechts gibt es Ablenker | Teilpunkte je richtigem Paar |
 | `PARSONS` | Code-Puzzle | setzt ein Programm aus Bausteinen zusammen und rückt ein | richtig nur mit Reihenfolge und Einrückung; nur die Einrückung falsch: 75 %; Ablenker kosten |
@@ -49,10 +49,29 @@ Jeder Typ hat Standardregeln für Versuche, Hinweise und Bonus. Im Editor lassen
 | Erste Schritte im Programmieren | Code-Lücken, Code-Puzzle |
 | Selbst programmieren | Programmieren (am besten mit Code-Runner) |
 | Datenbanken | SQL |
-| Werkzeuge der Profis | Terminal, Browser-Labor |
+| Werkzeuge der Profis | Terminal (auch Git), Browser-Labor |
 | Genau hinsehen: Fehler, Risiken, Phishing | Markieren, Im Bild markieren |
 | Digitaltechnik | Zahlensysteme, Logikgatter |
 | Kreative und offene Aufgaben | Praxis |
+
+## ◼ Terminal und Git
+
+Das Terminal ist eine Simulation im Browser – es läuft nichts auf dem Server oder dem Schulrechner. Der Server spielt die Befehlsfolge bei der Abgabe selbst nach; was die Klasse im Browser sieht und was bewertet wird, kommt aus zwei gleichwertigen Modellen, die dieselben Testfälle bestehen.
+
+**Befehle:** `pwd`, `ls [-a]`, `cd`, `mkdir [-p]`, `touch`, `rm [-r]`, `mv`, `cp [-r]`, `cat`, `echo`, `head`/`tail [-n N]`, `grep [-i -n -c -v -r]` (sucht Text, keine regulären Ausdrücke), `find [ordner] -name muster [-type f|d]`, `wc [-l -w -c]`, `sort [-r]`, `uniq [-c]`, `history`, `man befehl`, dazu Pipes `|` und Umleitungen `>`/`>>`. Mit ↑/↓ holt man alte Befehle zurück, Tab ergänzt Befehle und Pfade, ein Spickzettel steht unter dem Terminal.
+
+**Git (vereinfacht):** `init`, `status`, `add`, `commit [-a] -m`, `log [--oneline --all]`, `show`, `diff [--staged]`, `restore [--staged]`, `rm [--cached]`, `branch [-d]`, `switch [-c]`/`checkout [-b]`, `merge` (mit Konflikten und `--abort`), `checkout --ours/--theirs`, `tag`, `push`/`pull`/`fetch` gegen einen simulierten Server `origin` und `.gitignore`. Sobald es ein Repository gibt, zeigt ein **Commit-Graph** unter dem Terminal live Commits, Branches, Tags und den Stand auf dem Server.
+
+**Bewertet werden kann:**
+
+| Was | Konfiguration |
+|---|---|
+| Ordner und Dateien sind da, Inhalte stimmen | `expectedDirectories`, `expectedFiles`, `expectedContents`; ohne `allowExtra` dürfen keine weiteren Dateien entstehen |
+| Etwas ist weg | `absent` |
+| Die Antwort im Antwortfeld | `answer` (eine oder mehrere, Groß-/Kleinschreibung egal), `answerLabel` als Frage |
+| Der Zustand des Git-Repositorys | `gitChecks`, z. B. `commits` (Mindestzahl), `committed` (Datei, optional mit Inhalt), `neverCommitted` (z. B. ein Passwort), `branch`, `merged`, `clean`, `pushed`, `tag`, `ignored`, `head`, `author` |
+
+Ohne Antwort zählt nur die vollständige Lösung; die Rückmeldung nennt, wie viele Anforderungen erfüllt sind und was noch offen ist – ohne die Lösung zu verraten. Ein **vorbereitetes Repository** mit Verlauf, Branches und Commits, die nur auf dem Server liegen, beschreibt `git`. Mit `variants` bekommt jede Person andere Werte (z. B. einen anderen Dienst im Log oder einen anderen Täter im Verlauf), `{{code}}` ist ein Code je Person – Abschreiben beim Nachbarn hilft dann nicht. Format: [`content/README.md`](../content/README.md).
 
 ## ◼ Gute Aufgaben schreiben
 

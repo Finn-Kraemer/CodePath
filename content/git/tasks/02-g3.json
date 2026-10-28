@@ -4,7 +4,7 @@
   "title": "Die drei Zonen von Git",
   "difficulty": "EASY",
   "points": 15,
-  "sortOrder": 3,
+  "sortOrder": 2,
   "learningGoal": "Du kannst die drei Bereiche Arbeitsverzeichnis, Staging Area und Repository unterscheiden.",
   "story": "Git arbeitet mit drei Bereichen. Du musst verstehen wo dein Code gerade ist bevor du Befehle ausführst.",
   "assignment": "Ergänze die drei Git-Zonen in der richtigen Reihenfolge.",
@@ -12,6 +12,7 @@
     "Denk an einen Umzug: Du packst Dinge (Working Directory), stapelst sie am Ausgang (Staging Area) und lädst sie in den LKW (Repository/Commit)."
   ],
   "explanation": "",
+  "knowledgeArticle": "git",
   "config": {
     "template": "1. ___ (Arbeitsbereich): Hier bearbeitest du Dateien ganz normal.\n2. ___ (Wartebereich): Hier sammelst du Änderungen die in den nächsten Commit sollen.\n3. ___ (Verlauf): Hier sind alle gespeicherten Snapshots dauerhaft festgehalten.",
     "blanks": [

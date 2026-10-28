@@ -116,8 +116,12 @@ touch website/index.html website/styles.css
 | `head datei` / `tail datei` | erste / letzte Zeilen einer Datei            |
 | `grep wort datei`      | Zeilen suchen, die `wort` enthalten               |
 | `find . -name "*.py"`  | alle Python-Dateien unterhalb des Ordners finden  |
+| `wc -l datei`          | Zeilen zählen (`-w` Wörter, `-c` Zeichen)         |
+| `sort datei`, `uniq -c` | Zeilen sortieren, gleiche Zeilen zählen          |
+| `befehl > datei`       | Ausgabe in eine Datei schreiben (`>>` hängt an)   |
+| `befehl1 \| befehl2`   | Pipe: Ausgabe des ersten an den zweiten weitergeben, z. B. `grep Fehler log.txt \| wc -l` |
 | `python3 programm.py`  | Python-Programm ausführen                         |
 | `ping schule.de`       | Erreichbarkeit eines Rechners prüfen              |
 | `sudo befehl`          | Befehl mit Administratorrechten ausführen (Vorsicht!) |
 
-> **Hinweis zum Übungsterminal in CodePath:** Es simuliert die wichtigsten Befehle (`pwd`, `ls`, `cd`, `mkdir`, `touch`, `rm`, `cat`, `echo`, `mv`, `cp`, `clear`). Mit `help` siehst du alle, mit `submit` gibst du ab.
+> **Hinweis zum Übungsterminal in CodePath:** Es simuliert die wichtigsten Befehle (`pwd`, `ls`, `cd`, `mkdir`, `touch`, `rm`, `cat`, `echo`, `mv`, `cp`, `head`, `tail`, `grep`, `find`, `wc`, `sort`, `uniq`, `history`, `man`, `clear`) mit Pipes und `>`/`>>` – und ein vereinfachtes `git`. Mit `help` siehst du alle, mit `submit` gibst du ab.

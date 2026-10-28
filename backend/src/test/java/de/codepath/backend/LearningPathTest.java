@@ -70,7 +70,7 @@ class LearningPathTest extends IntegrationTestBase {
         long id = create("Git-Pfad", "git-pfad");
         var graph = Map.of(
                 "nodes", List.of(node("start", "MILESTONE", null, null, "Los geht's", 0),
-                        node("t1", "TASK", "git", "g1", null, 100), node("t2", "TASK", "git", "g2", "Zweite Frage", 200),
+                        node("t1", "TASK", "git", "g1", null, 100), node("t2", "TASK", "git", "g5", "Zweite Frage", 200),
                         node("db", "MODULE", "datenbanken", null, null, 300), node("ziel", "MILESTONE", null, null, "Geschafft", 400)),
                 "edges", List.of(edge("start", "t1"), edge("t1", "t2"), edge("t2", "db"), edge("db", "ziel")));
         putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", graph, "description", "Erst Git, dann Datenbanken"))
@@ -105,17 +105,17 @@ class LearningPathTest extends IntegrationTestBase {
         assertEquals(1, view.get("stationsDone").asInt());
         assertEquals(3, view.get("stations").asInt());
         JsonNode next = body(getAs(as(lena), "/api/learning/next"));
-        assertEquals("g2", next.get("taskSlug").asString());
+        assertEquals("g5", next.get("taskSlug").asString());
         assertEquals("git-pfad", next.get("pathSlug").asString());
 
         // Pfad geschafft (gesperrte Stationen halten nicht auf): weiter mit den übrigen Aufgaben im begonnenen Modul
-        postAs(as(lena), "/api/modules/git/g2/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        postAs(as(lena), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
         view = body(getAs(as(lena), "/api/learning-paths/git-pfad"));
         assertEquals("DONE", state(view, "ziel"));
         assertTrue(view.get("recommendation").isNull());
         next = body(getAs(as(lena), "/api/learning/next"));
         assertEquals("git", next.get("moduleSlug").asString());
-        assertNotEquals("g2", next.get("taskSlug").asString());
+        assertNotEquals("g5", next.get("taskSlug").asString());
         assertTrue(next.get("pathSlug").isNull());
         assertTrue(next.get("reason").asString().contains("schon angefangen"));
 
