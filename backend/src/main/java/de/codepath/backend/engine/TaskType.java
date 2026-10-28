@@ -14,5 +14,6 @@ public enum TaskType {
     NUMBER_CONVERT,
     HOTSPOT,
     IMAGE_HOTSPOT,
-    LOGIC_CIRCUIT
+    LOGIC_CIRCUIT,
+    DEVTOOLS
 }

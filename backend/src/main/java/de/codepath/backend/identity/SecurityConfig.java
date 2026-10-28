@@ -42,8 +42,10 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                // Login und Registrierung legen die Session erst an; danach gilt CSRF für alles
-                .ignoringRequestMatchers("/api/auth/login", "/api/auth/register")
+                // Login und Registrierung legen die Session erst an; danach gilt CSRF für alles.
+                // Ausnahme Browser-Labor: Schüler senden dort bewusst Anfragen von Hand, und die
+                // Labor-Schnittstellen ändern keine echten Daten.
+                .ignoringRequestMatchers("/api/auth/login", "/api/auth/register", "/api/lab/**")
             )
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedEntryPoint))
             .securityContext(context -> context.securityContextRepository(securityContextRepository()))

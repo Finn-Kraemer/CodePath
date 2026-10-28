@@ -460,6 +460,38 @@ class HandlersTest {
         }
     }
 
+    @Nested
+    class DevTools {
+        final DevToolsHandler handler = new DevToolsHandler(
+                new de.codepath.backend.engine.lab.LabScenarios(List.of(new de.codepath.backend.engine.lab.ShopLab())),
+                () -> "geheim-fuer-tests".getBytes());
+        final TaskSpec spec = spec(TaskType.DEVTOOLS, 30, Map.of("scenario", "shop"));
+
+        @Test
+        void personalCodesWithPartialCredit() {
+            assertTrue(handler.validate(spec.config(), 30).isEmpty());
+            assertFalse(handler.validate(Map.of("scenario", "unbekannt"), 30).isEmpty());
+            Map<String, Object> view = handler.publicView(spec, CONTEXT);
+            assertNoSolution(view);
+            assertEquals("XXXX-XXXX-XXXX", view.get("format"));
+
+            String code = (String) handler.sampleAnswer(spec, CONTEXT).get("code");
+            assertTrue(code.matches("[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}"), code);
+            assertFalse(view.toString().contains(code.substring(0, 4)));
+            assertTrue(handler.evaluate(spec, Map.of("code", code), CONTEXT).isCorrect());
+            assertTrue(handler.evaluate(spec, Map.of("code", " " + code.replace("-", "").toLowerCase() + " "), CONTEXT).isCorrect());
+            assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(spec, handler.wrongAnswer(spec, CONTEXT), CONTEXT).outcome());
+            Evaluation twoOfThree = handler.evaluate(spec, Map.of("code", code.substring(0, 10) + "ZZZZ"), CONTEXT);
+            assertEquals(Evaluation.Outcome.PARTIAL, twoOfThree.outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("code", "ABC"), CONTEXT).outcome());
+
+            // Andere Person, anderer Code
+            TaskContext other = new TaskContext(CONTEXT.seed() + 1);
+            assertNotEquals(code, handler.sampleAnswer(spec, other).get("code"));
+            assertFalse(handler.evaluate(spec, Map.of("code", code), other).isCorrect());
+        }
+    }
+
     @Test
     void attemptRulesOverrideDefaults() {
         AttemptRules rules = AttemptRules.from(TaskType.MULTIPLE_CHOICE, Map.of("maxAttempts", 5, "firstTryBonusPercent", 0));

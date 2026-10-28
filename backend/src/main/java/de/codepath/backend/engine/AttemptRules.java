@@ -19,6 +19,8 @@ public record AttemptRules(Integer maxAttempts, int hintPenaltyPercent, int firs
             case MULTIPLE_CHOICE, FILL_BLANK, SORTING, MATCHING, HOTSPOT, IMAGE_HOTSPOT -> new AttemptRules(3, 25, 20, true);
             case NUMBER_CONVERT, PARSONS -> new AttemptRules(5, 25, 20, true);
             case LOGIC_CIRCUIT -> new AttemptRules(null, 25, 20, true);
+            // Codes sind je Person verschieden; die Grenze verhindert Durchprobieren
+            case DEVTOOLS -> new AttemptRules(10, 25, 20, true);
             case CODE, FILL_CODE, SQL, TERMINAL -> new AttemptRules(null, 25, 20, true);
             case PRACTICE -> new AttemptRules(null, 25, 0, false);
         };

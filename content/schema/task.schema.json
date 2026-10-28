@@ -34,7 +34,8 @@
         "NUMBER_CONVERT",
         "HOTSPOT",
         "IMAGE_HOTSPOT",
-        "LOGIC_CIRCUIT"
+        "LOGIC_CIRCUIT",
+        "DEVTOOLS"
       ]
     },
     "title": {
@@ -878,6 +879,35 @@
                     "type": "string"
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "DEVTOOLS"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "required": [
+              "scenario"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "scenario": {
+                "enum": [
+                  "wetter",
+                  "shop",
+                  "escape"
+                ],
+                "description": "Vorlage der Übungsseite (Browser-Labor)"
               }
             }
           }

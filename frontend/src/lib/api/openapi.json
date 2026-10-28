@@ -1695,6 +1695,234 @@
         "tags" : [ "health-controller" ]
       }
     },
+    "/api/lab/{taskId}" : {
+      "delete" : {
+        "operationId" : "lab_10",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "get" : {
+        "operationId" : "lab_7",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "head" : {
+        "operationId" : "lab_12",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "options" : {
+        "operationId" : "lab_13",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "patch" : {
+        "operationId" : "lab_11",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "post" : {
+        "operationId" : "lab_8",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "put" : {
+        "operationId" : "lab_9",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      }
+    },
+    "/api/lab/{taskId}/**" : {
+      "delete" : {
+        "operationId" : "lab_3",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "get" : {
+        "operationId" : "lab",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "head" : {
+        "operationId" : "lab_5",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "options" : {
+        "operationId" : "lab_6",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "patch" : {
+        "operationId" : "lab_4",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "post" : {
+        "operationId" : "lab_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      },
+      "put" : {
+        "operationId" : "lab_2",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lab-controller" ]
+      }
+    },
     "/api/leaderboard" : {
       "get" : {
         "operationId" : "leaderboard",
@@ -2167,7 +2395,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS" ]
           }
         }
       },
@@ -2935,7 +3163,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS" ]
           },
           "versions" : {
             "type" : "array",
@@ -2995,7 +3223,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS" ]
           }
         },
         "required" : [ "assignment", "config", "difficulty", "explanation", "hints", "learningGoal", "points", "rules", "slug", "sortOrder", "story", "title", "type" ]
@@ -3033,7 +3261,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS" ]
           }
         },
         "required" : [ "archived", "currentVersion", "hasDraft", "id", "points", "slug", "sortOrder", "title", "type" ]

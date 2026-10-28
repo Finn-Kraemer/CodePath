@@ -39,7 +39,7 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 
 Ein Aufgabentyp besteht aus `TaskHandler` (validieren, öffentliche Sicht, bewerten, Lösungssicht, Musterlösung und Falschantwort für den Probelauf, Vorlage für den Editor), einer Svelte-Komponente unter `frontend/src/lib/tasks/` und einem Editor-Formular unter `frontend/src/lib/editor/config/`.
 
-Typen: `MULTIPLE_CHOICE`, `FILL_BLANK`, `FILL_CODE`, `CODE`, `SORTING`, `SQL`, `TERMINAL`, `PRACTICE` (Lehrkraft bewertet nach Rubrik), `MATCHING`, `PARSONS`, `NUMBER_CONVERT`, `HOTSPOT`, `IMAGE_HOTSPOT`, `LOGIC_CIRCUIT`. Formate: `content/README.md`.
+Typen: `MULTIPLE_CHOICE`, `FILL_BLANK`, `FILL_CODE`, `CODE`, `SORTING`, `SQL`, `TERMINAL`, `PRACTICE` (Lehrkraft bewertet nach Rubrik), `MATCHING`, `PARSONS`, `NUMBER_CONVERT`, `HOTSPOT`, `IMAGE_HOTSPOT`, `LOGIC_CIRCUIT`, `DEVTOOLS` (Browser-Labor, `docs/browser-labor.md`). Formate: `content/README.md`.
 
 Bewertung: CORRECT, PARTIAL (Teilpunkte), WRONG, MANUAL, UNGRADED, INVALID (zählt nicht als Versuch). `AttemptRules` je Typ, je Aufgabe überschreibbar: Versuchsgrenze, 25 % Abzug je Hinweis (höchstens 75 %), 20 % Bonus beim ersten Versuch ohne Hinweis, Lösung aufdecken = 0 Punkte. Zufällige Reihenfolgen und Zahlen hängen an einem Seed je Person und Aufgabe.
 
@@ -55,7 +55,7 @@ Bilder liegen in PostgreSQL, Schlüssel = SHA-256 + Endung (ADR-7). Upload nur f
 
 ## Live-Updates
 
-Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, gesendet erst nach dem Commit. Die Beamer-Ansicht `/projector` nutzt dasselbe.
+Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, gesendet erst nach dem Commit. Die Beamer-Ansicht `/projector` nutzt dasselbe. Gesendet wird auf einem eigenen Thread (`codepath-live-updates`), damit ein langsamer Client keine Abgabe aufhält; Ranglisten-Updates, die sich in der Warteschlange stauen, werden zu einem zusammengefasst.
 
 ## Betrieb
 
