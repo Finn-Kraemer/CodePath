@@ -3,5 +3,15 @@
   "title": "Abschlusstest",
   "description": "Zeig, was du gelernt hast: Prüfungsaufgaben für den Schluss des Kurses.",
   "icon": "🏁",
-  "sortOrder": 11
+  "sortOrder": 11,
+  "learnMore": [
+    {
+      "title": "planet-beruf.de – Berufe entdecken",
+      "url": "https://planet-beruf.de/"
+    },
+    {
+      "title": "BERUFENET der Arbeitsagentur",
+      "url": "https://web.arbeitsagentur.de/berufenet/"
+    }
+  ]
 }

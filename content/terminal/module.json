@@ -3,5 +3,16 @@
   "title": "Die Kommandozeile",
   "description": "Dein erster Tag als Azubi im IT-Team der Stadtwerke. Der Server hat keinen Bildschirm und keine Maus – nur ein Terminal. Und heute Nacht ist etwas schiefgelaufen …",
   "icon": "🖥️",
-  "sortOrder": 8
+  "sortOrder": 8,
+  "career": "Fachinformatiker/in Systemintegration · Systemadministrator/in",
+  "learnMore": [
+    {
+      "title": "ubuntuusers-Wiki: Die Shell",
+      "url": "https://wiki.ubuntuusers.de/Shell/"
+    },
+    {
+      "title": "BERUFENET: Fachinformatiker/in Systemintegration",
+      "url": "https://web.arbeitsagentur.de/berufenet/"
+    }
+  ]
 }

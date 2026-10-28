@@ -391,6 +391,58 @@
 		</a>
 
 		<a
+			href="/admin/learning-paths"
+			class="group flex flex-col gap-4 border border-slate-200 bg-white p-8 transition-all hover:border-institutional-navy"
+		>
+			<div class="text-slate-300 transition-colors group-hover:text-institutional-navy">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-8 w-8"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+					/>
+				</svg>
+			</div>
+			<span
+				class="font-sans text-[11px] font-black tracking-[3px] text-institutional-navy uppercase"
+				>Lernpfade</span
+			>
+		</a>
+
+		<a
+			href="/admin/transfer"
+			class="group flex flex-col gap-4 border border-slate-200 bg-white p-8 transition-all hover:border-institutional-navy"
+		>
+			<div class="text-slate-300 transition-colors group-hover:text-institutional-navy">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-8 w-8"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+					/>
+				</svg>
+			</div>
+			<span
+				class="font-sans text-[11px] font-black tracking-[3px] text-institutional-navy uppercase"
+				>Import &amp; Export</span
+			>
+		</a>
+
+		<a
 			href="/admin/statistics"
 			class="group flex flex-col gap-4 border border-slate-200 bg-white p-8 transition-all hover:border-institutional-navy"
 		>

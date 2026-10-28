@@ -4,6 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "modules")
@@ -27,4 +33,12 @@ public class Module {
 
     @Column(name = "sort_order")
     private Integer sortOrder = 0;
+
+    /** Berufsfeld(er) für den Berufe-Kompass, z. B. "Softwareentwickler/in" */
+    private String career;
+
+    /** Links zum Weiterlernen für das Mitnehm-Paket: je Eintrag title und url */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "learn_more", columnDefinition = "jsonb", nullable = false)
+    private List<Map<String, String>> learnMore = new ArrayList<>();
 }

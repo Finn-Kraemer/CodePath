@@ -5,6 +5,7 @@ import de.codepath.backend.engine.MediaKeys;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.engine.TaskHandlerRegistry;
 import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.transfer.TransferItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -29,8 +30,14 @@ public class ContentImporter {
         UPDATE
     }
 
-    public record ImportReport(int modulesCreated, int tasksCreated, int versionsPublished, int unchanged, List<String> errors) {
+    /** items: jedes Modul und jede Aufgabe mit Ergebnis, für den Bericht des zentralen Imports */
+    public record ImportReport(int modulesCreated, int tasksCreated, int versionsPublished, int unchanged, List<String> errors,
+                               List<TransferItem> items) {
     }
+
+    static final String MODULES = "Module";
+    static final String TASKS = "Aufgaben";
+    static final String MEDIA = "Bilder";
 
     private final ModuleRepository moduleRepository;
     private final TaskRepository taskRepository;
@@ -55,21 +62,33 @@ public class ContentImporter {
     public ImportReport importBundles(List<ContentPackage.ModuleBundle> bundles, Mode mode, Long actorId, boolean revive) {
         int modulesCreated = 0, tasksCreated = 0, versions = 0, unchanged = 0;
         List<String> errors = new ArrayList<>();
+        List<TransferItem> items = new ArrayList<>();
 
         for (ContentPackage.ModuleBundle bundle : bundles) {
             ContentPackage.ModuleFile mf = bundle.module();
             if (mf == null || mf.slug() == null || mf.title() == null) {
                 errors.add("Modul ohne slug oder title übersprungen");
+                items.add(TransferItem.error(MODULES, mf != null && mf.slug() != null ? mf.slug() : "?", "slug oder title fehlt"));
+                continue;
+            }
+            List<String> moduleProblems = ModuleFiles.problems(mf);
+            if (!moduleProblems.isEmpty()) {
+                errors.add(mf.slug() + ": " + String.join(" ", moduleProblems));
+                items.add(TransferItem.error(MODULES, mf.slug(), String.join(" ", moduleProblems)));
                 continue;
             }
             Optional<Module> existing = moduleRepository.findBySlug(mf.slug());
             Module module = existing.orElseGet(Module::new);
             if (existing.isEmpty() || mode == Mode.UPDATE) {
-                module.setSlug(mf.slug());
-                module.setTitle(mf.title());
-                module.setDescription(mf.description());
-                module.setIcon(mf.icon());
-                module.setSortOrder(mf.sortOrder() != null ? mf.sortOrder() : 0);
+                boolean same = existing.isPresent() && ModuleFiles.same(module, mf);
+                ModuleFiles.apply(module, mf);
+                moduleRepository.save(module);
+                items.add(existing.isEmpty() ? TransferItem.created(MODULES, mf.slug())
+                        : same ? TransferItem.unchanged(MODULES, mf.slug()) : TransferItem.updated(MODULES, mf.slug()));
+            } else if (module.getCareer() == null && mf.career() != null) {
+                // Ältere Installationen: Berufsfeld und Links für den Kompass nachtragen, sonst nichts anfassen
+                module.setCareer(mf.career());
+                if (module.getLearnMore() == null || module.getLearnMore().isEmpty()) module.setLearnMore(ModuleFiles.links(mf));
                 moduleRepository.save(module);
             }
             if (existing.isEmpty()) modulesCreated++;
@@ -82,11 +101,15 @@ public class ContentImporter {
                     // Der Name muss zum Inhalt passen, sonst zeigt ein Schlüssel auf ein fremdes Bild
                     if (!inspected.key().equals(media.getKey())) {
                         errors.add(where + ": Inhalt passt nicht zum Namen (erwartet " + inspected.key() + ")");
+                        items.add(TransferItem.error(MEDIA, media.getKey(), "Inhalt passt nicht zum Namen"));
                         continue;
                     }
+                    boolean isNew = !mediaService.missing(List.of(media.getKey())).isEmpty();
                     mediaService.save(inspected, media.getValue(), media.getKey(), actorId);
+                    items.add(isNew ? TransferItem.created(MEDIA, media.getKey()) : TransferItem.unchanged(MEDIA, media.getKey()));
                 } catch (ApiException e) {
                     errors.add(where + ": " + e.getMessage());
+                    items.add(TransferItem.error(MEDIA, media.getKey(), e.getMessage()));
                 }
             }
 
@@ -98,12 +121,14 @@ public class ContentImporter {
                     if (!missing.isEmpty()) throw new IllegalArgumentException("Bild fehlt: " + String.join(", ", missing));
                 } catch (InvalidTaskConfigException | IllegalArgumentException e) {
                     errors.add(where + ": " + e.getMessage());
+                    items.add(TransferItem.error(TASKS, where, e.getMessage()));
                     continue;
                 }
                 Optional<Task> existingTask = taskRepository.findByModuleIdAndSlug(module.getId(), tf.slug());
                 if (existingTask.isEmpty() && isDeleted(mf.slug(), tf.slug())) {
                     if (!revive) {
                         unchanged++;
+                        items.add(new TransferItem(TASKS, where, TransferItem.Action.UNCHANGED, "endgültig gelöscht – nicht wieder angelegt"));
                         continue;
                     }
                     jdbc.update("delete from deleted_tasks where module_slug = ? and task_slug = ?", mf.slug(), tf.slug());
@@ -111,6 +136,7 @@ public class ContentImporter {
                 Task task = existingTask.orElseGet(Task::new);
                 if (existingTask.isPresent() && task.getType() != tf.type()) {
                     errors.add(where + ": Der Typ einer bestehenden Aufgabe kann nicht geändert werden");
+                    items.add(TransferItem.error(TASKS, where, "Der Typ einer bestehenden Aufgabe kann nicht geändert werden"));
                     continue;
                 }
                 if (existingTask.isEmpty()) {
@@ -130,16 +156,19 @@ public class ContentImporter {
                 boolean needsVersion = current == null || (mode == Mode.UPDATE && !sameContent(current, tf));
                 if (!needsVersion) {
                     unchanged++;
+                    items.add(TransferItem.unchanged(TASKS, where));
                     continue;
                 }
                 publish(task, toVersion(tf), actorId);
                 versions++;
+                items.add(existingTask.isEmpty() ? TransferItem.created(TASKS, where)
+                        : new TransferItem(TASKS, where, TransferItem.Action.UPDATED, "neue Version veröffentlicht"));
             }
         }
         if (versions > 0 || tasksCreated > 0) {
             auditService.log("CONTENT_IMPORTED", mode.name(), Map.of("modules", modulesCreated, "tasks", tasksCreated, "versions", versions, "errors", errors.size()));
         }
-        return new ImportReport(modulesCreated, tasksCreated, versions, unchanged, errors);
+        return new ImportReport(modulesCreated, tasksCreated, versions, unchanged, errors, items);
     }
 
     private boolean isDeleted(String moduleSlug, String taskSlug) {

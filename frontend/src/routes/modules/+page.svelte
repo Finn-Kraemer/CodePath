@@ -1,13 +1,34 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { api, type ModuleSummary } from '$lib/api';
+	import {
+		api,
+		type ModuleSummary,
+		type PathLink,
+		type PathView,
+		type Recommendation
+	} from '$lib/api';
+	import NextTask from '$lib/pathway/NextTask.svelte';
+	import PathMap from '$lib/pathway/PathMap.svelte';
+
+	const VIEW_KEY = 'codepath.modules.view';
 
 	let modules = $state<ModuleSummary[]>([]);
 	let loading = $state(true);
 	let now = $state(new Date());
+	let next = $state<Recommendation | null>(null);
+	let paths = $state<PathLink[]>([]);
+	let pathSlug = $state('');
+	let path = $state<PathView | null>(null);
+	/** Lernpfad-Karte oder Liste; die Wahl merkt sich der Browser */
+	let view = $state<'map' | 'list'>('map');
 
 	// Update now every second for countdowns
 	onMount(() => {
+		try {
+			if (localStorage.getItem(VIEW_KEY) === 'list') view = 'list';
+		} catch {
+			// Ohne Speicher gilt die Karte
+		}
 		fetchModules();
 		const interval = setInterval(() => (now = new Date()), 1000);
 		return () => clearInterval(interval);
@@ -15,11 +36,30 @@
 
 	async function fetchModules() {
 		try {
-			modules = await api<ModuleSummary[]>('/api/modules');
+			[modules, next, paths] = await Promise.all([
+				api<ModuleSummary[]>('/api/modules'),
+				api<Recommendation | undefined>('/api/learning/next').then((r) => r ?? null),
+				api<PathLink[]>('/api/learning-paths')
+			]);
+			if (paths.length) await showPath(paths[0].slug);
 		} catch (e) {
 			console.error(e);
 		} finally {
 			loading = false;
+		}
+	}
+
+	async function showPath(slug: string) {
+		pathSlug = slug;
+		path = await api<PathView>(`/api/learning-paths/${slug}`);
+	}
+
+	function setView(value: 'map' | 'list') {
+		view = value;
+		try {
+			localStorage.setItem(VIEW_KEY, value);
+		} catch {
+			// egal
 		}
 	}
 
@@ -46,8 +86,36 @@
 		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
 			Lernmodule
 		</h1>
-		<p class="mt-4 text-slate-500">Wähle ein Modul aus, um mit den Aufgaben zu beginnen.</p>
+		<div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+			<p class="text-slate-500">
+				{paths.length
+					? 'Folge deinem Lernpfad oder wähle selbst ein Modul.'
+					: 'Wähle ein Modul aus, um mit den Aufgaben zu beginnen.'}
+			</p>
+			{#if paths.length && modules.length}
+				<div class="flex border border-slate-200 bg-white" role="group" aria-label="Ansicht">
+					<button
+						class="px-4 py-2 text-[10px] font-black tracking-[2px] uppercase {view === 'map'
+							? 'bg-institutional-navy text-white'
+							: 'text-slate-500'}"
+						aria-pressed={view === 'map'}
+						onclick={() => setView('map')}>Lernpfad</button
+					>
+					<button
+						class="px-4 py-2 text-[10px] font-black tracking-[2px] uppercase {view === 'list'
+							? 'bg-institutional-navy text-white'
+							: 'text-slate-500'}"
+						aria-pressed={view === 'list'}
+						onclick={() => setView('list')}>Liste</button
+					>
+				</div>
+			{/if}
+		</div>
 	</header>
+
+	{#if next}
+		<NextTask {next} />
+	{/if}
 
 	{#if loading}
 		<div class="flex justify-center py-24">
@@ -61,6 +129,31 @@
 				Aktuell sind keine Module zur Bearbeitung freigeschaltet.
 			</p>
 		</div>
+	{:else if view === 'map' && path}
+		<section class="flex flex-col gap-4" aria-label="Lernpfad">
+			<div class="flex flex-wrap items-center justify-between gap-4">
+				<div>
+					<h2 class="text-xl font-bold text-institutional-navy">{path.title}</h2>
+					{#if path.description}<p class="text-sm text-slate-500">{path.description}</p>{/if}
+				</div>
+				<div class="flex items-center gap-4">
+					{#if paths.length > 1}
+						<select
+							class="border border-slate-200 bg-white px-3 py-2 text-sm"
+							aria-label="Lernpfad wählen"
+							value={pathSlug}
+							onchange={(e) => showPath((e.currentTarget as HTMLSelectElement).value)}
+						>
+							{#each paths as p (p.slug)}<option value={p.slug}>{p.title}</option>{/each}
+						</select>
+					{/if}
+					<span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+						>{path.stationsDone}/{path.stations} Stationen</span
+					>
+				</div>
+			</div>
+			<PathMap {path} />
+		</section>
 	{:else}
 		<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
 			{#each modules as mod (mod.slug)}

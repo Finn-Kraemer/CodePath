@@ -76,7 +76,19 @@ public class ProgressService {
         auditService.log(lock ? "PRACTICE_REJECTED_LOCKED" : "PRACTICE_REJECTED", "user:" + userId, Map.of("task", taskId));
     }
 
-    /** Erreichte Punkte je Aufgabe (Summe aller Buchungen). */
+    /** Stand je Aufgabe, an der die Person schon gearbeitet hat. */
+    public Map<Long, ProgressStatus> statusByTask(Long userId) {
+        Map<Long, ProgressStatus> result = new HashMap<>();
+        progressRepository.findByUserId(userId).forEach(p -> result.put(p.getTaskId(), p.getStatus()));
+        return result;
+    }
+
+    /** Letzte Abgabe zu einer Aufgabe, z. B. für den eigenen Code im Mitnehm-Paket. */
+    public Optional<AttemptView> latestAttempt(Long userId, Long taskId) {
+        return attemptRepository.findFirstByUserIdAndTaskIdOrderByCreatedAtDesc(userId, taskId).map(AttemptView::of);
+    }
+
+        /** Erreichte Punkte je Aufgabe (Summe aller Buchungen). */
     public Map<Long, Long> pointsByTask(Long userId) {
         return pointsService.byTask(userId);
     }

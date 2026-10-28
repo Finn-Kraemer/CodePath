@@ -6,7 +6,9 @@ exportieren und importieren.
 
 ```
 content/
-  <modul>/module.json          Modul: slug, title, description, icon, sortOrder
+  <modul>/module.json          Modul: slug, title, description, icon, sortOrder, optional career
+                               (Berufsfeld für den Berufe-Kompass) und learnMore ([{title, url}],
+                               Links zum Weiterlernen im Mitnehm-Paket)
   <modul>/tasks/NN-<slug>.json eine Datei je Aufgabe
   schema/                      JSON-Schema für beide Dateiarten
   validate.py                  Prüfung in der CI

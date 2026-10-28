@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReportController {
 
     private final ReportService reportService;
+    private final TakeHomeService takeHomeService;
     private final UserService userService;
     private final SettingsService settings;
 
@@ -25,6 +26,23 @@ public class ReportController {
             throw ApiException.forbidden("Die Zeugnisse sind noch nicht freigegeben.");
         }
         return file(reportService.certificate(user), "Teilnahmebestaetigung_" + user.getUsername() + ".pdf", MediaType.APPLICATION_PDF);
+    }
+
+    /** Mitnehm-Paket der angemeldeten Person; entsteht bei jedem Abruf neu und wird nicht gespeichert. */
+    @GetMapping("/api/reports/take-home")
+    public ResponseEntity<byte[]> takeHome() {
+        User user = userService.currentUser();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Mitnehm-Paket_" + user.getUsername() + ".pdf")
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(takeHomeService.render(user));
+    }
+
+    /** Berufe-Kompass der angemeldeten Person. */
+    @GetMapping("/api/compass")
+    public ReportService.Compass compass() {
+        return reportService.compass(userService.currentUser());
     }
 
     @GetMapping("/api/admin/students/{username}/report")

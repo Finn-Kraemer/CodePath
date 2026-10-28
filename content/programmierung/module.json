@@ -3,5 +3,16 @@
   "title": "Programmierung",
   "description": "Du bist Entwickler bei einem kleinen Startup – und musst heute das Backend retten.",
   "icon": "🐍",
-  "sortOrder": 1
+  "sortOrder": 1,
+  "career": "Softwareentwickler/in · Fachinformatiker/in Anwendungsentwicklung",
+  "learnMore": [
+    {
+      "title": "Python lernen auf inf-schule.de",
+      "url": "https://inf-schule.de/programmierung/python"
+    },
+    {
+      "title": "Das offizielle Python-Tutorial",
+      "url": "https://docs.python.org/de/3/tutorial/"
+    }
+  ]
 }

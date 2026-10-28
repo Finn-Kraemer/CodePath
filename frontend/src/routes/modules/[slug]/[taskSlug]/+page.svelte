@@ -7,9 +7,11 @@
 		ApiError,
 		type ArticleSummary,
 		type HintResult,
+		type Recommendation,
 		type SubmitResult,
 		type TaskDetail
 	} from '$lib/api';
+	import NextTask from '$lib/pathway/NextTask.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import TaskRenderer from '$lib/tasks/TaskRenderer.svelte';
 	import type { Answer } from '$lib/tasks/types';
@@ -25,6 +27,8 @@
 	let busy = $state(false);
 	// Erzwingt ein Neuzeichnen der Aufgabe, wenn sich Lösung oder Status ändern
 	let renderKey = $state(0);
+	/** Empfohlene nächste Aufgabe, sobald diese hier erledigt ist */
+	let next = $state<Recommendation | null>(null);
 
 	const disabled = $derived(
 		!task ||
@@ -51,6 +55,7 @@
 		try {
 			task = await api<TaskDetail>(base);
 			renderKey++;
+			await loadNext();
 		} catch (e) {
 			if (e instanceof ApiError && e.status === 403) goto('/modules');
 			else error = (e as Error).message;
@@ -83,6 +88,19 @@
 
 	async function reload() {
 		task = await api<TaskDetail>(base);
+		await loadNext();
+	}
+
+	async function loadNext() {
+		if (!task || task.status === 'OPEN') return;
+		const recommendation = await api<Recommendation | undefined>('/api/learning/next').catch(
+			() => undefined
+		);
+		next =
+			recommendation &&
+			!(recommendation.moduleSlug === moduleSlug && recommendation.taskSlug === taskSlug)
+				? recommendation
+				: null;
 	}
 
 	async function requestHint() {
@@ -250,6 +268,10 @@
 						</p>
 						<Markdown source={task.explanation} class="text-sm text-green-900" />
 					</div>
+				{/if}
+
+				{#if next}
+					<NextTask {next} compact reload />
 				{/if}
 			</div>
 

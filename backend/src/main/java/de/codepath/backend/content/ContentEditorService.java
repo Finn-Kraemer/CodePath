@@ -105,11 +105,9 @@ public class ContentEditorService {
         Module module = id == null ? new Module() : moduleRepository.findById(id).orElseThrow(() -> ApiException.notFound("Modul nicht gefunden."));
         moduleRepository.findBySlug(file.slug()).filter(other -> !other.getId().equals(module.getId()))
                 .ifPresent(other -> { throw ApiException.conflict("Es gibt schon ein Modul mit diesem Slug."); });
-        module.setSlug(file.slug());
-        module.setTitle(file.title());
-        module.setDescription(file.description());
-        module.setIcon(file.icon());
-        module.setSortOrder(file.sortOrder() != null ? file.sortOrder() : 0);
+        List<String> problems = ModuleFiles.problems(file);
+        if (!problems.isEmpty()) throw ApiException.badRequest(String.join(" ", problems));
+        ModuleFiles.apply(module, file);
         moduleRepository.save(module);
         auditService.log(id == null ? "MODULE_CREATED" : "MODULE_UPDATED", "module:" + module.getSlug(), Map.of());
         return new ModuleRow(module.getId(), moduleFile(module), List.of());
@@ -397,7 +395,7 @@ public class ContentEditorService {
     }
 
     private static ContentPackage.ModuleFile moduleFile(Module m) {
-        return new ContentPackage.ModuleFile(m.getSlug(), m.getTitle(), m.getDescription(), m.getIcon(), m.getSortOrder());
+        return ModuleFiles.toFile(m);
     }
 
     private static ContentPackage.TaskFile withDefaults(ContentPackage.TaskFile f) {

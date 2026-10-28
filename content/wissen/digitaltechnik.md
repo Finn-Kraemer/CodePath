@@ -98,6 +98,38 @@ binaer = bin(13)        # → '0b1101' (0b zeigt an: das ist binär)
 binaer_clean = bin(13)[2:]  # → '1101' (ohne 0b)
 ```
 
+### Oktal und Hexadezimal
+
+Lange Binärzahlen sind schwer zu lesen. Deshalb fasst man Bits zusammen:
+
+- **Oktalsystem** (Basis 8, Ziffern 0–7): je **3 Bits** ergeben eine Ziffer.
+- **Hexadezimalsystem** (Basis 16): je **4 Bits** ergeben eine Ziffer. Nach 9 geht es mit Buchstaben weiter: A = 10, B = 11, C = 12, D = 13, E = 14, F = 15.
+
+| Dezimal | Binär  | Oktal | Hex |
+| ------- | ------ | ----- | --- |
+| 9       | 1001   | 11    | 9   |
+| 10      | 1010   | 12    | A   |
+| 15      | 1111   | 17    | F   |
+| 16      | 10000  | 20    | 10  |
+| 255     | 11111111 | 377 | FF  |
+
+**Binär → Hex:** von rechts in Vierergruppen teilen und jede Gruppe einzeln umrechnen:
+
+```
+1011 0110  →  B 6  →  B6 (hex)  =  11·16 + 6 = 182 (dezimal)
+```
+
+Hexadezimal begegnet dir z. B. bei Farben im Web (`#FF0000` = Rot: R = FF = 255, G = 00, B = 00).
+
+```python
+print(hex(182))        # → '0xb6'
+print(oct(8))          # → '0o10'
+print(int("B6", 16))   # → 182
+print(int("17", 8))    # → 15
+```
+
+Das Umrechnen von Dezimal in eine andere Basis funktioniert immer gleich wie beim Binärsystem: **wiederholt durch die Basis teilen** und die Reste von unten nach oben lesen.
+
 ---
 
 ## 3. Codes und Zeichencodierung
@@ -293,6 +325,38 @@ Ergebnis ist 1 wenn die Eingänge **verschieden** sind.
 |  1  |  1  |  **0**  |
 
 Schreibweise: `A ⊕ B` oder in Python: `A != B`
+
+### NAND und NOR
+
+**NAND** (NOT AND) und **NOR** (NOT OR) sind einfach die Umkehrung von AND bzw. OR:
+
+|  A  |  B  | A NAND B | A NOR B |
+| :-: | :-: | :------: | :-----: |
+|  0  |  0  |  **1**   |  **1**  |
+|  0  |  1  |  **1**   |  **0**  |
+|  1  |  0  |  **1**   |  **0**  |
+|  1  |  1  |  **0**   |  **0**  |
+
+Besonderheit: Aus **nur NAND-Gattern** (oder nur NOR-Gattern) lässt sich jede andere Schaltung bauen. Deshalb sind sie in Computerchips sehr beliebt.
+
+### Reihenfolge beim Auswerten
+
+Wie „Punkt vor Strich“ in Mathe gibt es eine feste Rangfolge:
+
+1. **Klammern** zuerst
+2. dann **NOT**
+3. dann **AND**
+4. zuletzt **OR**
+
+**Beispiel:** `A OR B AND NOT C` mit A = 0, B = 1, C = 0
+
+```
+NOT C        = NOT 0  = 1
+B AND 1      = 1 AND 1 = 1
+A OR 1       = 0 OR 1 = 1   → Ergebnis 1
+```
+
+Mit Klammern ändert sich die Bedeutung: `(A OR B) AND NOT C` ist etwas anderes als `A OR (B AND NOT C)`. Im Zweifel lieber Klammern setzen.
 
 ### Wichtige Rechenregeln (Gesetze der Booleschen Algebra)
 

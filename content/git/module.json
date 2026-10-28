@@ -3,5 +3,16 @@
   "title": "Git & Versionskontrolle",
   "description": "Ihr baut im Team die App „SchulPlaner“. Ohne Git würdet ihr euch gegenseitig die Arbeit überschreiben – mit Git hat jede Änderung einen Namen, eine Nachricht und einen Weg zurück.",
   "icon": "🌿",
-  "sortOrder": 9
+  "sortOrder": 9,
+  "career": "DevOps-Engineer · Softwareentwickler/in",
+  "learnMore": [
+    {
+      "title": "Learn Git Branching",
+      "url": "https://learngitbranching.js.org/?locale=de_DE"
+    },
+    {
+      "title": "Das Buch „Pro Git“",
+      "url": "https://git-scm.com/book/de/v2"
+    }
+  ]
 }

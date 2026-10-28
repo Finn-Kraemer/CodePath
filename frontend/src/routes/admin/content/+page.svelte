@@ -2,9 +2,12 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { api, type Schemas } from '$lib/api';
-	import { auth } from '$lib/auth.svelte';
 	import { TYPE_LABELS } from '$lib/tasks/labels';
 	import { dndzone, type DndEvent } from 'svelte-dnd-action';
+	import ModuleForm from '$lib/editor/ModuleForm.svelte';
+	import TransferReportView from '$lib/components/TransferReport.svelte';
+	import { exportUrl, importFile } from '$lib/transfer';
+	import type { TransferReport } from '$lib/api';
 
 	type ModuleRow = Schemas['ModuleRow'];
 	type TaskRow = ModuleRow['tasks'][number];
@@ -13,6 +16,8 @@
 	let modules = $state<ModuleRow[]>([]);
 	let error = $state('');
 	let report = $state<ImportReport | null>(null);
+	let transferReport = $state<TransferReport | null>(null);
+	let editingModule = $state<number | null>(null);
 	let newModule = $state({ slug: '', title: '', description: '', icon: '📘', sortOrder: 99 });
 	let newTask = $state<Record<number, { slug: string; type: string; title: string }>>({});
 	let showArchived = $state(false);
@@ -102,36 +107,19 @@
 		}
 	}
 
-	async function download() {
-		const res = await auth.apiFetch('/api/admin/content/export');
-		const url = URL.createObjectURL(await res.blob());
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = 'codepath-content.zip';
-		a.click();
-		URL.revokeObjectURL(url);
-	}
-
+	/** Über den zentralen Import: erkennt Content-Pakete und CodePath-Exporte und berichtet je Eintrag */
 	async function upload(event: Event) {
-		const file = (event.currentTarget as HTMLInputElement).files?.[0];
+		const input = event.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		input.value = '';
 		if (!file) return;
-		const form = new FormData();
-		form.append('file', file);
-		const csrf =
-			document.cookie
-				.split(';')
-				.map((c) => c.trim())
-				.find((c) => c.startsWith('XSRF-TOKEN='))
-				?.slice(11) ?? '';
-		const res = await fetch('/api/admin/content/import', {
-			method: 'POST',
-			body: form,
-			headers: { 'X-XSRF-TOKEN': decodeURIComponent(csrf) },
-			credentials: 'include'
-		});
-		const data = await res.json();
-		if (!res.ok) error = data.message;
-		else report = data;
+		error = '';
+		report = null;
+		try {
+			transferReport = await importFile(file);
+		} catch (e) {
+			error = (e as Error).message;
+		}
 		await load();
 	}
 
@@ -142,6 +130,7 @@
 			)
 		)
 			return;
+		transferReport = null;
 		report = await api<ImportReport>('/api/admin/content/import-bundled', { method: 'POST' });
 		await load();
 	}
@@ -164,10 +153,11 @@
 			neue Version. Aufgaben per Ziehen oder mit ▲▼ umsortieren; die Reihenfolge gilt sofort.
 		</p>
 		<div class="mt-6 flex flex-wrap gap-3">
-			<button class="ed-button" onclick={download}>Export (ZIP)</button>
+			<a class="ed-button" href={exportUrl(['modules'])} download>Export (ZIP)</a>
 			<label class="ed-button cursor-pointer"
-				>Import (ZIP)<input type="file" accept=".zip" class="hidden" onchange={upload} /></label
+				>Import<input type="file" accept=".zip,.json" class="hidden" onchange={upload} /></label
 			>
+			<a class="ed-button" href="/admin/transfer">Alles importieren &amp; exportieren …</a>
 			<button class="ed-button" onclick={importBundled}>Mitgelieferte Inhalte übernehmen</button>
 			<label class="flex items-center gap-2 text-sm"
 				><input type="checkbox" bind:checked={showArchived} /> Archivierte zeigen</label
@@ -186,6 +176,10 @@
 		</div>
 	{/if}
 
+	{#if transferReport}
+		<TransferReportView report={transferReport} />
+	{/if}
+
 	{#each modules as row (row.id)}
 		<section class="border border-slate-200 bg-white">
 			<div class="flex items-center justify-between border-b border-slate-100 p-5">
@@ -193,8 +187,30 @@
 					{row.module.icon}
 					{row.module.title} <span class="font-mono text-xs text-slate-400">{row.module.slug}</span>
 				</h2>
-				<span class="text-xs text-slate-400">{row.tasks.length} Aufgaben</span>
+				<span class="flex items-center gap-4">
+					<span class="text-xs text-slate-400">{row.tasks.length} Aufgaben</span>
+					<button
+						class="ed-button"
+						onclick={() => (editingModule = editingModule === row.id ? null : row.id)}
+						aria-expanded={editingModule === row.id}>Modul bearbeiten</button
+					>
+				</span>
 			</div>
+			{#if row.module.career && editingModule !== row.id}
+				<p class="border-b border-slate-100 px-5 py-2 text-xs text-slate-500">
+					Berufsfeld: {row.module.career} · {row.module.learnMore?.length ?? 0} Links zum Weiterlernen
+				</p>
+			{/if}
+			{#if editingModule === row.id}
+				<ModuleForm
+					{row}
+					onsaved={async () => {
+						editingModule = null;
+						await load();
+					}}
+					oncancel={() => (editingModule = null)}
+				/>
+			{/if}
 			<ul
 				class="divide-y divide-slate-100"
 				aria-label="Aufgaben von {row.module.title}"
