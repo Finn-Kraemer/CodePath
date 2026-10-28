@@ -52,7 +52,7 @@
     },
     "/api/admin/content/export" : {
       "get" : {
-        "operationId" : "export",
+        "operationId" : "export_1",
         "responses" : {
           "200" : {
             "content" : {
@@ -188,7 +188,7 @@
     },
     "/api/admin/content/modules/{id}/order" : {
       "put" : {
-        "operationId" : "reorder_2",
+        "operationId" : "reorder_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -293,7 +293,7 @@
     },
     "/api/admin/content/tasks/{id}" : {
       "delete" : {
-        "operationId" : "delete_2",
+        "operationId" : "delete_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -956,7 +956,7 @@
     },
     "/api/admin/knowledge" : {
       "get" : {
-        "operationId" : "all_1",
+        "operationId" : "all_2",
         "responses" : {
           "200" : {
             "content" : {
@@ -975,7 +975,7 @@
         "tags" : [ "knowledge-controller" ]
       },
       "post" : {
-        "operationId" : "create_1",
+        "operationId" : "create_2",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1006,7 +1006,7 @@
     },
     "/api/admin/knowledge/order" : {
       "put" : {
-        "operationId" : "reorder_1",
+        "operationId" : "reorder_2",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1031,7 +1031,7 @@
     },
     "/api/admin/knowledge/{id}" : {
       "delete" : {
-        "operationId" : "delete_1",
+        "operationId" : "delete_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1049,7 +1049,7 @@
         "tags" : [ "knowledge-controller" ]
       },
       "put" : {
-        "operationId" : "update",
+        "operationId" : "update_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1082,6 +1082,161 @@
           }
         },
         "tags" : [ "knowledge-controller" ]
+      }
+    },
+    "/api/admin/learning-paths" : {
+      "get" : {
+        "operationId" : "all_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PathSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      },
+      "post" : {
+        "operationId" : "create_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/admin/learning-paths/order" : {
+      "put" : {
+        "operationId" : "reorder_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "integer",
+                  "format" : "int64"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/admin/learning-paths/{id}" : {
+      "delete" : {
+        "operationId" : "delete_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      },
+      "get" : {
+        "operationId" : "get",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      },
+      "put" : {
+        "operationId" : "update",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PathUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
       }
     },
     "/api/admin/media" : {
@@ -1139,7 +1294,7 @@
     },
     "/api/admin/media/{key}" : {
       "delete" : {
-        "operationId" : "delete_3",
+        "operationId" : "delete_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "key",
@@ -2051,6 +2206,97 @@
         "tags" : [ "review-controller" ]
       }
     },
+    "/api/admin/transfer/export" : {
+      "get" : {
+        "operationId" : "export",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "sections",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : ""
+          }
+        }, {
+          "in" : "query",
+          "name" : "only",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : ""
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "transfer-controller" ]
+      }
+    },
+    "/api/admin/transfer/import" : {
+      "post" : {
+        "operationId" : "importFile",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransferReport"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "transfer-controller" ]
+      }
+    },
+    "/api/admin/transfer/sections" : {
+      "get" : {
+        "operationId" : "sections",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SectionInfo"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "transfer-controller" ]
+      }
+    },
     "/api/auth/login" : {
       "post" : {
         "operationId" : "login",
@@ -2224,6 +2470,24 @@
           }
         },
         "tags" : [ "classroom-controller" ]
+      }
+    },
+    "/api/compass" : {
+      "get" : {
+        "operationId" : "compass",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Compass"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
       }
     },
     "/api/events" : {
@@ -2609,6 +2873,71 @@
         "tags" : [ "progress-controller" ]
       }
     },
+    "/api/learning-paths" : {
+      "get" : {
+        "operationId" : "published",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PathLink"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/learning-paths/{slug}" : {
+      "get" : {
+        "operationId" : "view",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/learning/next" : {
+      "get" : {
+        "operationId" : "next",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Recommendation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
     "/api/media/{key}" : {
       "get" : {
         "operationId" : "media",
@@ -2914,6 +3243,25 @@
         "tags" : [ "report-controller" ]
       }
     },
+    "/api/reports/take-home" : {
+      "get" : {
+        "operationId" : "takeHome",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
     "/api/search/knowledge" : {
       "get" : {
         "operationId" : "search",
@@ -3188,6 +3536,54 @@
         },
         "required" : [ "dryRun", "problems", "valid" ]
       },
+      "Compass" : {
+        "type" : "object",
+        "properties" : {
+          "entries" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CompassEntry"
+            }
+          },
+          "top" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CompassEntry"
+            }
+          }
+        },
+        "required" : [ "entries", "top" ]
+      },
+      "CompassEntry" : {
+        "type" : "object",
+        "properties" : {
+          "achieved" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "career" : {
+            "type" : "string"
+          },
+          "icon" : {
+            "type" : "string"
+          },
+          "max" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "percent" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "achieved", "career", "icon", "max", "moduleSlug", "moduleTitle", "percent" ]
+      },
       "CourseSummary" : {
         "type" : "object",
         "properties" : {
@@ -3325,6 +3721,18 @@
         },
         "required" : [ "passed", "sampleFeedback", "sampleOutcome", "wrongFeedback", "wrongOutcome" ]
       },
+      "Edge" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string"
+          },
+          "to" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "from", "to" ]
+      },
       "GeneratedAccount" : {
         "type" : "object",
         "properties" : {
@@ -3336,6 +3744,24 @@
           }
         },
         "required" : [ "password", "username" ]
+      },
+      "Graph" : {
+        "type" : "object",
+        "properties" : {
+          "edges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Edge"
+            }
+          },
+          "nodes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Node"
+            }
+          }
+        },
+        "required" : [ "edges", "nodes" ]
       },
       "HintResult" : {
         "type" : "object",
@@ -3378,6 +3804,12 @@
               "type" : "string"
             }
           },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TransferItem"
+            }
+          },
           "modulesCreated" : {
             "type" : "integer",
             "format" : "int32"
@@ -3395,7 +3827,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "errors", "modulesCreated", "tasksCreated", "unchanged", "versionsPublished" ]
+        "required" : [ "errors", "items", "modulesCreated", "tasksCreated", "unchanged", "versionsPublished" ]
       },
       "JsonNode" : {
         "type" : "object",
@@ -3518,6 +3950,18 @@
         },
         "required" : [ "displayName", "points", "rank", "username" ]
       },
+      "Link" : {
+        "type" : "object",
+        "properties" : {
+          "title" : {
+            "type" : "string"
+          },
+          "url" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "title", "url" ]
+      },
       "MediaInfo" : {
         "type" : "object",
         "properties" : {
@@ -3566,11 +4010,20 @@
       "ModuleFile" : {
         "type" : "object",
         "properties" : {
+          "career" : {
+            "type" : "string"
+          },
           "description" : {
             "type" : "string"
           },
           "icon" : {
             "type" : "string"
+          },
+          "learnMore" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            }
           },
           "slug" : {
             "type" : "string"
@@ -3583,7 +4036,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "icon", "slug", "sortOrder", "title" ]
+        "required" : [ "career", "description", "icon", "learnMore", "slug", "sortOrder", "title" ]
       },
       "ModuleReleaseView" : {
         "type" : "object",
@@ -3711,6 +4164,81 @@
         },
         "required" : [ "description", "showInNav", "slug", "title" ]
       },
+      "Node" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "MODULE", "TASK", "MILESTONE" ]
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "module" : {
+            "type" : "string"
+          },
+          "task" : {
+            "type" : "string"
+          },
+          "x" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "y" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "id", "kind", "label", "module", "task", "x", "y" ]
+      },
+      "NodeView" : {
+        "type" : "object",
+        "properties" : {
+          "done" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "href" : {
+            "type" : "string"
+          },
+          "icon" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "MODULE", "TASK", "MILESTONE" ]
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "recommended" : {
+            "type" : "boolean"
+          },
+          "state" : {
+            "type" : "string",
+            "enum" : [ "DONE", "AVAILABLE", "UPCOMING", "CLOSED", "LOCKED" ]
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "y" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "done", "href", "icon", "id", "kind", "label", "recommended", "state", "total", "x", "y" ]
+      },
       "PageDetail" : {
         "type" : "object",
         "properties" : {
@@ -3784,6 +4312,139 @@
         },
         "required" : [ "changed", "description", "id", "published", "showInNav", "slug", "title", "updatedAt", "visibility" ]
       },
+      "PathAdmin" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "graph" : {
+            "$ref" : "#/components/schemas/Graph"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "published" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "description", "graph", "id", "published", "slug", "title", "updatedAt" ]
+      },
+      "PathLink" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "slug", "title" ]
+      },
+      "PathSummary" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "published" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "stations" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "description", "id", "published", "slug", "stations", "title", "updatedAt" ]
+      },
+      "PathUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "graph" : {
+            "$ref" : "#/components/schemas/Graph"
+          },
+          "published" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "graph", "published", "slug", "title" ]
+      },
+      "PathView" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "edges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Edge"
+            }
+          },
+          "nodes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/NodeView"
+            }
+          },
+          "recommendation" : {
+            "$ref" : "#/components/schemas/Recommendation"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "stations" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "stationsDone" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "edges", "nodes", "recommendation", "slug", "stations", "stationsDone", "title" ]
+      },
       "Profile" : {
         "type" : "object",
         "properties" : {
@@ -3828,6 +4489,36 @@
           }
         },
         "required" : [ "content", "slug", "title" ]
+      },
+      "Recommendation" : {
+        "type" : "object",
+        "properties" : {
+          "moduleIcon" : {
+            "type" : "string"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "reason" : {
+            "type" : "string"
+          },
+          "taskSlug" : {
+            "type" : "string"
+          },
+          "taskTitle" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "moduleIcon", "moduleSlug", "moduleTitle", "pathSlug", "pathTitle", "reason", "taskSlug", "taskTitle" ]
       },
       "RejectRequest" : {
         "type" : "object",
@@ -3884,6 +4575,18 @@
           }
         },
         "required" : [ "icon", "slug", "snippet", "title" ]
+      },
+      "SectionInfo" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "key", "label" ]
       },
       "SolutionRun" : {
         "type" : "object",
@@ -4518,6 +5221,56 @@
           }
         },
         "required" : [ "status", "stderr", "stdout" ]
+      },
+      "TransferItem" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "type" : "string",
+            "enum" : [ "CREATED", "UPDATED", "UNCHANGED", "ERROR" ]
+          },
+          "area" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "action", "area", "message", "name" ]
+      },
+      "TransferReport" : {
+        "type" : "object",
+        "properties" : {
+          "created" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "detected" : {
+            "type" : "string"
+          },
+          "errors" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TransferItem"
+            }
+          },
+          "unchanged" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "updated" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "created", "detected", "errors", "items", "unchanged", "updated" ]
       },
       "VersionRow" : {
         "type" : "object",

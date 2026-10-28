@@ -58,7 +58,7 @@ public abstract class IntegrationTestBase {
         jdbc.execute("""
                 delete from practice_reviews; delete from attempts; delete from points_entries; delete from progress;
                 delete from module_releases; delete from memberships; delete from general_feedback; delete from audit_events;
-                delete from users where role = 'STUDENT'; delete from courses; delete from spring_session;""");
+                delete from users where role = 'STUDENT'; delete from courses; delete from spring_session; delete from learning_paths;""");
     }
 
     protected Course course(String name) {

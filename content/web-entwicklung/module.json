@@ -3,5 +3,16 @@
   "title": "Web-Entwicklung",
   "description": "Du bist Junior-Entwickler bei einer Webagentur – heute ist dein erster Tag.",
   "icon": "🌐",
-  "sortOrder": 2
+  "sortOrder": 2,
+  "career": "Webentwickler/in · Mediengestalter/in Digital und Print",
+  "learnMore": [
+    {
+      "title": "SELFHTML – HTML und CSS nachschlagen",
+      "url": "https://wiki.selfhtml.org/"
+    },
+    {
+      "title": "MDN: Webentwicklung lernen",
+      "url": "https://developer.mozilla.org/de/docs/Learn"
+    }
+  ]
 }

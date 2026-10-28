@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { exportUrl } from '$lib/transfer';
 	import { onMount } from 'svelte';
 	import { beforeNavigate } from '$app/navigation';
 	import { page } from '$app/state';
@@ -180,6 +181,10 @@
 			Artikel in Markdown schreiben und ordnen. Ein Artikel mit Modul erscheint für Schülerinnen und
 			Schüler erst, wenn das Modul freigegeben ist; neue Artikel sind zuerst Entwurf.
 		</p>
+		<div class="mt-4 flex flex-wrap gap-3">
+			<a class="ed-button" href={exportUrl(['knowledge'])} download>Exportieren</a>
+			<a class="ed-button" href="/admin/transfer">Importieren …</a>
+		</div>
 	</header>
 
 	{#if message}

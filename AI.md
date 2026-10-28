@@ -24,6 +24,8 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 | `report` | Teilnahmebestätigungen als PDF (OpenPDF) |
 | `platform` | Fehlerbehandlung (ProblemDetail), Audit-Log, Einstellungen, Startseite, SSE, Auslieferung des Frontends |
 | `site` | Eigene Seiten (`/seiten/<slug>`) und Wissensdatenbank |
+| `pathway` | Lernpfade (Karte als Graph) und empfohlene nächste Aufgabe |
+| `transfer` | Zentraler Export/Import; sammelt alle `platform.transfer.TransferSection`-Beans |
 
 `ArchitectureTest` erzwingt: Repositories nur im eigenen Paket, keine Zyklen, `engine` hängt von keinem Fachpaket ab.
 
@@ -61,6 +63,18 @@ Blöcke als JSON in `system_settings` (`homepage_draft`, `homepage_published`), 
 ## Eigene Seiten und Wissensdatenbank
 
 Paket `site`. **Seiten** (`pages`): Blöcke wie die Startseite (geprüft von `BlockContent`), Entwurf + veröffentlichte Fassung, Sichtbarkeit `PUBLIC`/`LOGGED_IN`, alle veröffentlichten, sichtbaren Seiten über `GET /api/public/pages` für Aufklappmenü „Seiten“ und Übersicht `/seiten`, `showInNav` holt eine Seite zusätzlich direkt in die Menüleiste. Frontend: `/seiten`, `/seiten/[slug]`, Editor `PageEditor.svelte` (gemeinsam mit der Startseite). **Wissensdatenbank** (`knowledge_articles`): Markdown, optional an ein Modul gekoppelt (sichtbar, sobald das Modul für den Kurs sichtbar ist, über `AccessPolicy`), `published=false` nur für die Lehrkraft. Mitgelieferte Artikel unter `content/wissen/*.md` (Kopf: `title`, `icon`, optional `module`) legt `KnowledgeSeeder` an, wenn sie fehlen und nicht in `deleted_knowledge_articles` stehen; `seeded_hash` (MD5 des zuletzt mitgelieferten Textes) erlaubt, unveränderte Artikel beim Start auf eine neue Fassung zu bringen. Suche: `GET /api/search/knowledge?q=` (alle Wörter, nur sichtbare Artikel, Ausschnitt ohne Markdown). Aufgaben verweisen über `knowledgeArticle` (versioniert, im Content-Paket) auf einen Artikel; ohne Angabe verlinkt das Frontend den Artikel zum Modul. Bildverwendung melden Startseite, Seiten und Artikel über `platform.media.MediaUsage` (öffentliche Auslieferung, Löschschutz).
+
+## Mitnehm-Paket und Berufe-Kompass
+
+Paket `report`. `ReportService.scores` liefert je sichtbarem Modul die Punkte; `compass` rankt Module mit `career` nach Anteil erreichter Punkte (Top 3 > 0 %). `GET /api/reports/take-home` (`TakeHomeService`, `TakeHomeRenderer`): PDF im Speicher mit Ergebnissen je Aufgabe, Code aus der letzten Abgabe (CODE, SQL, TERMINAL, FILL_CODE, PRACTICE), Kompass und Links (`learnMore` der Module, nach Kompass-Rang, plus allgemeine Links). Kein Speichern, kein Audit-Eintrag, `Cache-Control: no-store`. Standardschriften: Zeichen außerhalb Windows-1252 werden zu `?`.
+
+## Lernpfade
+
+Paket `pathway`, Tabelle `learning_paths` (Graph als JSON: Knoten `MODULE`/`TASK`/`MILESTONE` mit x/y, Kanten `from`→`to`, kreisfrei, geprüft in `PathGraph`). Zustand je Station für eine Person: DONE, AVAILABLE (alle Vorgänger erledigt), UPCOMING, CLOSED (Frist), LOCKED (nicht freigegeben); gesperrte Stationen lassen durch, wenn alles davor erledigt ist. `GET /api/learning/next`: erste AVAILABLE-Station des obersten veröffentlichten Lernpfads in topologischer Reihenfolge, sonst nächste offene Aufgabe (begonnenes Modul zuerst); 204, wenn nichts offen ist. „Erledigt“ ist jeder Fortschritt außer OPEN. Frontend: `lib/pathway/` (Karte, Geometrie), Editor `/admin/learning-paths/[id]`.
+
+## Zentraler Export/Import
+
+Jedes Fachpaket stellt `TransferSection`-Beans bereit (`settings`, `modules`, `homepage`, `pages`, `knowledge`, `learningPaths`; `order` legt die Importreihenfolge fest). Exportdatei: ZIP mit `codepath-export.json` (`format`, `version`, `sections`) und `media/<schlüssel>` für alle darin gefundenen Bildschlüssel. `TransferService.importFile` erkennt ZIP mit Manifest, JSON-Manifest oder Content-Paket (module.json → bisheriger Content-Import). Jeder Eintrag läuft über `ItemRunner` in einer eigenen Transaktion und landet als `TransferItem` (CREATED/UPDATED/UNCHANGED/ERROR) im Bericht; Module/Aufgaben liefert `ContentImporter.ImportReport.items`. Abgleich über den Slug, gelöscht wird nichts.
 
 ## Live-Updates
 

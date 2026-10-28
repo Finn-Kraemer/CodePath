@@ -14,7 +14,18 @@ public final class ContentPackage {
     private ContentPackage() {
     }
 
-    public record ModuleFile(String slug, String title, String description, String icon, Integer sortOrder) {
+    /**
+     * @param career    Berufsfeld(er) für den Berufe-Kompass
+     * @param learnMore Links zum Weiterlernen (Mitnehm-Paket)
+     */
+    public record ModuleFile(String slug, String title, String description, String icon, Integer sortOrder,
+                             String career, List<Link> learnMore) {
+        public ModuleFile(String slug, String title, String description, String icon, Integer sortOrder) {
+            this(slug, title, description, icon, sortOrder, null, null);
+        }
+    }
+
+    public record Link(String title, String url) {
     }
 
     public record TaskFile(

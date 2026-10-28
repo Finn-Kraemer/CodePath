@@ -3,5 +3,16 @@
   "title": "Git & Versionskontrolle",
   "description": "Du arbeitest im Team an einer App – ohne Git verliert ihr den Überblick. Lerne wie professionelle Entwickler Code verwalten.",
   "icon": "🌿",
-  "sortOrder": 8
+  "sortOrder": 8,
+  "career": "DevOps-Engineer · Softwareentwickler/in",
+  "learnMore": [
+    {
+      "title": "Learn Git Branching",
+      "url": "https://learngitbranching.js.org/?locale=de_DE"
+    },
+    {
+      "title": "Das Buch „Pro Git“",
+      "url": "https://git-scm.com/book/de/v2"
+    }
+  ]
 }

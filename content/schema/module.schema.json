@@ -3,13 +3,63 @@
   "$id": "https://codepath.local/schema/module.schema.json",
   "title": "CodePath-Modul (module.json)",
   "type": "object",
-  "required": ["slug", "title", "description", "icon", "sortOrder"],
+  "required": [
+    "slug",
+    "title",
+    "description",
+    "icon",
+    "sortOrder"
+  ],
   "additionalProperties": false,
   "properties": {
-    "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,49}$" },
-    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
-    "description": { "type": "string" },
-    "icon": { "type": "string", "maxLength": 10 },
-    "sortOrder": { "type": "integer" }
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,49}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string",
+      "maxLength": 10
+    },
+    "sortOrder": {
+      "type": "integer"
+    },
+    "career": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Berufsfeld(er) für den Berufe-Kompass, z. B. „Softwareentwickler/in“"
+    },
+    "learnMore": {
+      "type": "array",
+      "maxItems": 10,
+      "description": "Links zum Weiterlernen (Mitnehm-Paket)",
+      "items": {
+        "type": "object",
+        "required": [
+          "title",
+          "url"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https?://",
+            "maxLength": 500
+          }
+        }
+      }
+    }
   }
 }

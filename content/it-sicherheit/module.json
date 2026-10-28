@@ -3,5 +3,16 @@
   "title": "IT-Sicherheit",
   "description": "Du bist Sicherheitsanalyst. Deine Aufgabe: Schwachstellen finden, bevor es Hacker tun.",
   "icon": "🔒",
-  "sortOrder": 3
+  "sortOrder": 3,
+  "career": "IT-Sicherheitsanalyst/in · Fachinformatiker/in Systemintegration",
+  "learnMore": [
+    {
+      "title": "klicksafe – sicher im Netz",
+      "url": "https://www.klicksafe.de/"
+    },
+    {
+      "title": "BSI – Bundesamt für Sicherheit in der Informationstechnik",
+      "url": "https://www.bsi.bund.de/"
+    }
+  ]
 }
