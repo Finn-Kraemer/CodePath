@@ -7,6 +7,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ## Unveröffentlicht
 
 ### Neu
+- **Eigene Buttons** in „Titelbereich“ und „Aufruf mit Buttons“ (Startseite und eigene Seiten): Beschriftung und Ziel frei wählbar – interne Seite aus einer Liste (Lernmodule, Wissensdatenbank, eigene Seiten …) oder externe Adresse, optional im neuen Tab. Die Standard-Buttons (Login/Registrieren bzw. „Zu den Lernmodulen“) lassen sich weiterhin zu- oder abschalten.
 - **Suche in der Wissensdatenbank**: Volltext über Titel und Text, Treffer mit Ausschnitt, Fundstellen im Artikel markiert.
 - **Artikel verlinken**: Aufgaben zeigen „Mehr dazu im Wiki“ (frei wählbarer Artikel, sonst der zum Modul); im Wiki-Editor lassen sich andere Artikel per Auswahl verlinken.
 - **Eigene Seiten** (Leitstand → Seiten): neue Seiten unter `/seiten/…` mit dem Abschnitts-Editor der Startseite, öffentlich oder nur für Angemeldete, im Aufklappmenü „Seiten“ und in der Übersicht `/seiten`, einzelne zusätzlich direkt in der Menüleiste.

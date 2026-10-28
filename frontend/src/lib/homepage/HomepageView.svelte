@@ -2,7 +2,14 @@
 	import { auth } from '$lib/auth.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import { mediaUrl } from '$lib/media';
-	import type { Block, HomepageContent, Theme } from './types';
+	import {
+		isExternal,
+		safeHref,
+		type Block,
+		type HomepageContent,
+		type LinkButton,
+		type Theme
+	} from './types';
 
 	let {
 		content,
@@ -54,9 +61,9 @@
 	{/if}
 {/snippet}
 
-{#snippet buttons(large: boolean, theme: Theme)}
+{#snippet buttons(standard: boolean, links: LinkButton[], large: boolean, theme: Theme)}
 	<div class="flex flex-wrap gap-6 {large ? '' : 'justify-center'}">
-		{#if !auth.isAuthenticated}
+		{#if standard && !auth.isAuthenticated}
 			<a
 				href="/login"
 				class="rounded-none bg-institutional-gold px-10 py-5 text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:bg-amber-600 hover:shadow-xl"
@@ -70,13 +77,31 @@
 					: 'border-institutional-navy/20 text-institutional-navy hover:bg-institutional-navy/5'}"
 				>Account erstellen</a
 			>
-		{:else}
+		{:else if standard}
 			<a
 				href="/modules"
 				class="rounded-none bg-institutional-gold px-10 py-5 text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:bg-amber-600 hover:shadow-xl"
 				>Zu den Lernmodulen</a
 			>
 		{/if}
+		{#each links as link, i (i)}
+			{@const href = safeHref(link.href)}
+			{#if href && link.label.trim()}
+				<!-- Der erste eigene Button ist hervorgehoben, wenn keine Standard-Buttons davor stehen -->
+				<a
+					{href}
+					target={link.newTab ? '_blank' : undefined}
+					rel={isExternal(href) ? 'noopener noreferrer' : undefined}
+					class="rounded-none px-10 py-5 text-[11px] font-bold tracking-[3px] uppercase transition-all {i ===
+						0 && !standard
+						? 'bg-institutional-gold text-white shadow-sm hover:bg-amber-600 hover:shadow-xl'
+						: theme === 'dark'
+							? 'border-2 border-white/20 text-white hover:bg-white/10'
+							: 'border-2 border-institutional-navy/20 text-institutional-navy hover:bg-institutional-navy/5'}"
+					>{link.label}{#if link.newTab}<span aria-hidden="true"> ↗</span>{/if}</a
+				>
+			{/if}
+		{/each}
 	</div>
 {/snippet}
 
@@ -111,7 +136,12 @@
 							{block.text}
 						</p>
 					{/if}
-					{#if block.buttons}{@render buttons(true, block.theme)}{/if}
+					{#if block.buttons || block.links.length}{@render buttons(
+							block.buttons,
+							block.links,
+							true,
+							block.theme
+						)}{/if}
 				</div>
 			</div>
 		</section>
@@ -359,7 +389,12 @@
 					{block.title}
 					{#if block.highlight}<span class="text-institutional-gold">{block.highlight}</span>{/if}
 				</h2>
-				{#if block.buttons}{@render buttons(false, block.theme)}{/if}
+				{#if block.buttons || block.links.length}{@render buttons(
+						block.buttons,
+						block.links,
+						false,
+						block.theme
+					)}{/if}
 			</div>
 		</section>
 	{/if}
