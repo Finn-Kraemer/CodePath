@@ -43,9 +43,18 @@ class PagesTest extends IntegrationTestBase {
         assertEquals("Bus 42", body(getAs(as(student), "/api/public/pages/anfahrt")).at("/content/blocks/0/title").asString());
         mvc.perform(get("/api/public/pages/anfahrt")).andExpect(status().isUnauthorized());
 
-        putAs(teacher(), "/api/admin/pages/" + id, Map.of("visibility", "PUBLIC", "showInNav", true)).andExpect(status().isOk());
+        // Veröffentlichte Seiten erscheinen im Seiten-Menü – nicht angemeldet nur die öffentlichen
+        assertEquals("anfahrt", body(getAs(as(student), "/api/public/pages")).at("/0/slug").asString());
+        assertEquals(0, body(mvc.perform(get("/api/public/pages"))).size());
+
+        putAs(teacher(), "/api/admin/pages/" + id, Map.of("visibility", "PUBLIC", "showInNav", true, "description", " Mit Bus und Bahn "))
+                .andExpect(status().isOk());
         mvc.perform(get("/api/public/pages/anfahrt")).andExpect(status().isOk());
-        assertEquals("anfahrt", body(mvc.perform(get("/api/public/pages"))).at("/0/slug").asString());
+        var nav = body(mvc.perform(get("/api/public/pages")));
+        assertEquals("anfahrt", nav.at("/0/slug").asString());
+        assertEquals("Mit Bus und Bahn", nav.at("/0/description").asString());
+        assertTrue(nav.at("/0/showInNav").asBoolean());
+        putAs(teacher(), "/api/admin/pages/" + id, Map.of("description", "x".repeat(301))).andExpect(status().isBadRequest());
 
         // Entwurf ändert die Live-Fassung nicht
         putAs(teacher(), "/api/admin/pages/" + id + "/draft", blocks(Map.of("id", "a", "type", "text", "title", "Neu")))

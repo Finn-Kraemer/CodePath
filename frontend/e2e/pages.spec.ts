@@ -23,7 +23,8 @@ test('Eigene Seite anlegen und veröffentlichen', async ({ page, browser }) => {
 
 	const settings = page.getByRole('form', { name: 'Seiteneinstellungen' });
 	await settings.getByLabel('Wer darf die Seite sehen?').selectOption('PUBLIC');
-	await settings.getByLabel('Im Menü anzeigen').check();
+	await settings.getByLabel('Kurzbeschreibung').fill('Mit Bus und Bahn zur Schule');
+	await settings.getByLabel('Zusätzlich direkt in der Menüleiste anzeigen').check();
 	await settings.getByRole('button', { name: 'Einstellungen speichern' }).click();
 	await expect(page.getByText('Einstellungen gespeichert.')).toBeVisible();
 
@@ -40,6 +41,13 @@ test('Eigene Seite anlegen und veröffentlichen', async ({ page, browser }) => {
 	await visitor.goto('/');
 	await visitor.getByRole('link', { name: title }).click();
 	await expect(visitor.locator('strong', { hasText: 'Bus 42' })).toBeVisible();
+
+	// … im Aufklappmenü „Seiten“ und in der Übersicht mit Kurzbeschreibung
+	await visitor.getByRole('button', { name: 'Seiten' }).click();
+	await visitor.getByRole('menuitem', { name: 'Alle Seiten im Überblick' }).click();
+	await expect(visitor).toHaveURL(/\/seiten$/);
+	const card = visitor.getByRole('main').getByRole('link', { name: new RegExp(title) });
+	await expect(card).toContainText('Mit Bus und Bahn');
 
 	// Aufräumen
 	await page.goto('/admin/pages');

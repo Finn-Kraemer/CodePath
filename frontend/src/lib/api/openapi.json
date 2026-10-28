@@ -3666,6 +3666,12 @@
       "NavLink" : {
         "type" : "object",
         "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "showInNav" : {
+            "type" : "boolean"
+          },
           "slug" : {
             "type" : "string"
           },
@@ -3673,7 +3679,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "slug", "title" ]
+        "required" : [ "description", "showInNav", "slug", "title" ]
       },
       "PageDetail" : {
         "type" : "object",
@@ -3693,6 +3699,9 @@
       "PageSettings" : {
         "type" : "object",
         "properties" : {
+          "description" : {
+            "type" : "string"
+          },
           "showInNav" : {
             "type" : "boolean"
           },
@@ -3707,13 +3716,16 @@
             "enum" : [ "PUBLIC", "LOGGED_IN" ]
           }
         },
-        "required" : [ "showInNav", "slug", "title", "visibility" ]
+        "required" : [ "description", "showInNav", "slug", "title", "visibility" ]
       },
       "PageSummary" : {
         "type" : "object",
         "properties" : {
           "changed" : {
             "type" : "boolean"
+          },
+          "description" : {
+            "type" : "string"
           },
           "id" : {
             "type" : "integer",
@@ -3740,7 +3752,7 @@
             "enum" : [ "PUBLIC", "LOGGED_IN" ]
           }
         },
-        "required" : [ "changed", "id", "published", "showInNav", "slug", "title", "updatedAt", "visibility" ]
+        "required" : [ "changed", "description", "id", "published", "showInNav", "slug", "title", "updatedAt", "visibility" ]
       },
       "Profile" : {
         "type" : "object",
