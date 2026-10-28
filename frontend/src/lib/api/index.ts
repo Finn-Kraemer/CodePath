@@ -27,6 +27,17 @@ export type ArticleAdmin = Schemas['ArticleAdmin'];
 export type ArticleSummary = Schemas['ArticleSummary'];
 export type ArticleView = Schemas['ArticleView'];
 export type SearchHit = Schemas['SearchHit'];
+export type Compass = Schemas['Compass'];
+export type CompassEntry = Schemas['CompassEntry'];
+export type Recommendation = Schemas['Recommendation'];
+export type PathView = Schemas['PathView'];
+export type PathLink = Schemas['PathLink'];
+export type PathSummary = Schemas['PathSummary'];
+export type PathAdmin = Schemas['PathAdmin'];
+export type PathGraph = Schemas['Graph'];
+export type PathNode = Schemas['Node'];
+export type TransferReport = Schemas['TransferReport'];
+export type SectionInfo = Schemas['SectionInfo'];
 
 export class ApiError extends Error {
 	constructor(

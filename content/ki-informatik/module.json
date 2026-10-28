@@ -3,5 +3,16 @@
   "title": "Künstliche Intelligenz",
   "description": "Du trainierst die KI von morgen – aber erst musst du verstehen, wie sie lernt.",
   "icon": "🤖",
-  "sortOrder": 5
+  "sortOrder": 5,
+  "career": "Data Scientist · KI-Entwickler/in",
+  "learnMore": [
+    {
+      "title": "Elements of AI – kostenloser KI-Kurs",
+      "url": "https://www.elementsofai.de/"
+    },
+    {
+      "title": "KI-Campus",
+      "url": "https://ki-campus.org/"
+    }
+  ]
 }

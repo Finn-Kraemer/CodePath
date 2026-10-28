@@ -3,5 +3,16 @@
   "title": "Datenbanken",
   "description": "Du bist Datenbankadmin bei einem Startup – und die Datenbank ist gerade abgestürzt.",
   "icon": "🗄️",
-  "sortOrder": 4
+  "sortOrder": 4,
+  "career": "Datenbankadministrator/in · Fachinformatiker/in Daten- und Prozessanalyse",
+  "learnMore": [
+    {
+      "title": "SQLZoo – SQL im Browser üben",
+      "url": "https://sqlzoo.net/"
+    },
+    {
+      "title": "Datenbanken auf inf-schule.de",
+      "url": "https://inf-schule.de/datenbanksysteme"
+    }
+  ]
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import PageEditor from '$lib/homepage/PageEditor.svelte';
 	import { DEFAULT_HOMEPAGE } from '$lib/homepage/types';
+	import { exportUrl } from '$lib/transfer';
 </script>
 
 <PageEditor base="/api/admin/homepage" fallback={DEFAULT_HOMEPAGE} kind="homepage">
@@ -24,5 +25,9 @@
 			Abschnitte hinzufügen, umsortieren und Texte ändern. Ein Entwurf ist nur hier sichtbar; erst
 			„Veröffentlichen“ ändert die Startseite für alle.
 		</p>
+		<div class="mt-4 flex flex-wrap gap-3">
+			<a class="ed-button" href={exportUrl(['homepage'])} download>Exportieren</a>
+			<a class="ed-button" href="/admin/transfer">Importieren …</a>
+		</div>
 	{/snippet}
 </PageEditor>

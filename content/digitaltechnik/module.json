@@ -3,5 +3,16 @@
   "title": "Digitaltechnik",
   "description": "Alles was ein Computer tut, passiert letztendlich mit Einsen und Nullen.",
   "icon": "🔧",
-  "sortOrder": 7
+  "sortOrder": 7,
+  "career": "Elektroniker/in für Informations- und Systemtechnik · Technische Informatik",
+  "learnMore": [
+    {
+      "title": "NandGame – einen Computer aus Logikgattern bauen",
+      "url": "https://nandgame.com/"
+    },
+    {
+      "title": "Informatik-Unterricht auf inf-schule.de",
+      "url": "https://inf-schule.de/"
+    }
+  ]
 }

@@ -75,7 +75,7 @@
 	async function endCourse(course: CourseSummary) {
 		const typed = prompt(
 			`Kurs „${course.name}“ beenden? Alle ${course.members} Schülerkonten werden mit Fortschritt und Abgaben gelöscht. ` +
-				'Zeugnisse vorher herunterladen! Zum Bestätigen den Kursnamen eingeben:'
+				'Zeugnisse vorher herunterladen und die Klasse an ihr Mitnehm-Paket (Profil) erinnern! Zum Bestätigen den Kursnamen eingeben:'
 		);
 		if (typed !== course.name) return;
 		const res = await api<{ deletedAccounts: number }>(`/api/admin/courses/${course.id}/end`, {

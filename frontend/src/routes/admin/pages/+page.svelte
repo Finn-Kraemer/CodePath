@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { exportUrl } from '$lib/transfer';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { api, type PageSummary } from '$lib/api';
@@ -88,6 +89,10 @@
 			<a href="/seiten" class="underline">Übersicht</a>; einzelne kannst du zusätzlich direkt in die
 			Menüleiste holen.
 		</p>
+		<div class="mt-4 flex flex-wrap gap-3">
+			<a class="ed-button" href={exportUrl(['pages'])} download>Exportieren</a>
+			<a class="ed-button" href="/admin/transfer">Importieren …</a>
+		</div>
 	</header>
 
 	{#if error}

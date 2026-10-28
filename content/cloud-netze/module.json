@@ -3,5 +3,16 @@
   "title": "Cloud & Netzwerke",
   "description": "Das Internet bricht nie einfach zusammen – aber heute ist was schiefgelaufen.",
   "icon": "☁️",
-  "sortOrder": 6
+  "sortOrder": 6,
+  "career": "Netzwerkadministrator/in · Fachinformatiker/in Systemintegration",
+  "learnMore": [
+    {
+      "title": "Filius – Netzwerke selbst simulieren",
+      "url": "https://www.lernsoftware-filius.de/"
+    },
+    {
+      "title": "Informatik-Unterricht auf inf-schule.de",
+      "url": "https://inf-schule.de/"
+    }
+  ]
 }

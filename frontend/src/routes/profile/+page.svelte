@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
+	import { api, type Compass } from '$lib/api';
+	import CompassCard from '$lib/report/CompassCard.svelte';
 
 	interface Profile {
 		username: string;
@@ -20,6 +22,7 @@
 	let error = $state('');
 	let success = $state('');
 	let certificatesEnabled = $state(false);
+	let compass = $state<Compass | null>(null);
 
 	async function fetchProfile() {
 		try {
@@ -36,6 +39,7 @@
 				const data = await certRes.json();
 				certificatesEnabled = data.enabled;
 			}
+			compass = await api<Compass>('/api/compass').catch(() => null);
 		} catch (e) {
 			error = 'Profil konnte nicht geladen werden';
 		} finally {
@@ -157,6 +161,36 @@
 					</p>
 				</div>
 			</div>
+
+			{#if compass}
+				<CompassCard {compass} />
+			{/if}
+
+			<!-- Mitnehm-Paket -->
+			<section
+				class="border-2 border-institutional-navy bg-white p-8 shadow-sm md:p-12"
+				aria-label="Mitnehm-Paket"
+			>
+				<h2 class="mb-4 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+					Mein Mitnehm-Paket
+				</h2>
+				<p class="mb-3 text-sm leading-relaxed text-slate-600">
+					Dein Code, deine Ergebnisse, dein Berufe-Kompass und Links zum Weiterlernen – alles in
+					einem PDF zum Behalten. Wenn der Kurs endet, wird dein Konto gelöscht. Lade dir das Paket
+					vorher herunter.
+				</p>
+				<p class="mb-8 text-xs text-slate-400">
+					Das PDF entsteht beim Herunterladen und wird auf dem Server nicht gespeichert.
+				</p>
+				<a
+					href="/api/reports/take-home"
+					download="Mitnehm-Paket_{profile.username}.pdf"
+					class="flex w-full items-center justify-center gap-4 bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:bg-slate-800"
+					data-testid="take-home"
+				>
+					Mitnehm-Paket herunterladen (PDF)
+				</a>
+			</section>
 
 			<!-- Report Card Download -->
 			<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">

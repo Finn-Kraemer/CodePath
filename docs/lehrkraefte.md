@@ -53,6 +53,19 @@ Code-Aufgaben laufen im Browser mit; das Browser-Labor braucht die **Entwicklerw
 
 Jede Aufgabe hat eine kurze Geschichte, einen Auftrag und ein Lernziel. Pro Aufgabe gibt es bis zu drei **gestufte Hinweise**; jeder kostet 25 % der Punkte (höchstens 75 %). Wer im ersten Versuch ohne Hinweis löst, bekommt **20 % Bonus**. Die Lösung lässt sich aufdecken – danach gibt es keine Punkte mehr. Wie viele Versuche ein Typ erlaubt, steht in der [Übersicht der Aufgabentypen](aufgabentypen.md#-standardregeln).
 
+### Lernpfad und empfohlene nächste Aufgabe
+
+In der Modulübersicht steht oben die **empfohlene nächste Aufgabe**. Sie kommt aus dem ersten veröffentlichten Lernpfad; ohne Lernpfad empfiehlt CodePath die nächste offene Aufgabe – bevorzugt in einem Modul, das schon begonnen ist. Nach dem Lösen einer Aufgabe erscheint die Empfehlung auch auf der Aufgabenseite.
+
+**Leitstand → Lernpfade** legt Lernpfade an. Ein neuer Lernpfad startet mit allen Modulen als Kette. Im Editor:
+
+- **Station hinzufügen**: ein Modul, eine einzelne Aufgabe oder ein Meilenstein (z. B. „Grundlagen geschafft!“). Ist eine Station gewählt, wird die neue darunter angehängt und verbunden.
+- Stationen **ziehen** (oder mit den Pfeiltasten verschieben), **Verbinden** zeichnet „erst das, dann das“. Linien anklicken löscht sie. Kreise sind nicht möglich.
+- **Automatisch anordnen** legt die Stationen ordentlich in Reihen, **Vorschau** zeigt die Karte mit dem eigenen Stand.
+- **Veröffentlicht** ankreuzen und speichern – dann sieht die Klasse den Lernpfad als Karte (umschaltbar auf die Liste). Gibt es mehrere, bestimmt der oberste veröffentlichte die Empfehlung.
+
+Auf der Karte ist jede Station *erledigt*, *jetzt dran*, *später*, *Zeit abgelaufen* oder *gesperrt*. Gesperrte (nicht freigegebene) Module halten niemanden auf.
+
 ### Beamer-Modus
 
 **Leitstand → Beamer-Modus** öffnet eine Vollbild-Ansicht für den Projektor: Live-Rangliste, Uhrzeit und die aktuelle Mitteilung. Die Rangliste aktualisiert sich bei jeder gelösten Aufgabe von selbst.
@@ -110,6 +123,12 @@ Im Control Center unter *Zeugnisfunktion* die Bestätigungen **freigeben**: Sch�
 
 **Leitstand → Feedback** startet eine Feedback-Runde; die Klasse kann danach einmal Rückmeldung geben. Die Antworten erscheinen auf derselben Seite.
 
+### Mitnehm-Paket
+
+Im Profil laden Schülerinnen und Schüler ihr **Mitnehm-Paket** als PDF herunter: Ergebnisse je Aufgabe, eigener Code (letzte Abgabe bei Python-, SQL-, Terminal- und Praxisaufgaben), **Berufe-Kompass** und Links zum Weiterlernen. Das PDF entsteht beim Herunterladen und wird nicht gespeichert – auch nicht im Protokoll. Die Klasse vor dem Kursende daran erinnern.
+
+Der **Berufe-Kompass** ordnet jedem Modul ein Berufsfeld zu und zeigt die drei Felder, in denen jemand anteilig die meisten Punkte geholt hat. Berufsfeld und Links pflegt die Lehrkraft unter **Inhalte → Modul bearbeiten**.
+
 ### Kurs beenden
 
 **Kurse & Konten → Kurs beenden** löscht **alle Schülerkonten des Kurses mit Fortschritt, Versuchen, Abgaben und Punkten**. Das ist aus Datenschutzgründen so gewollt und lässt sich nicht rückgängig machen – vorher die Bestätigungen exportieren. Der Beitrittscode ist danach ungültig.
@@ -149,8 +168,12 @@ Gelöschte mitgelieferte Aufgaben kommen auch bei Updates nicht wieder – auße
 
 ### Austausch und Sicherung
 
-- **Export (ZIP)** speichert alle Module und Aufgaben samt Bildern als Content-Paket – zur Sicherung oder zur Weitergabe an Kolleginnen und Kollegen.
-- **Import** übernimmt ein Content-Paket; geänderte Aufgaben werden zu neuen Versionen.
+**Leitstand → Import & Export** sichert Einstellungen, Startseite, Seiten, Wissensdatenbank, Lernpfade sowie Module und Aufgaben (mit Bildern) in **einer** ZIP-Datei – alles oder nur ausgewählte Bereiche. Einzelne Bereiche und einzelne Lernpfade lassen sich auch in ihren Editoren exportieren. Schülerdaten sind nie enthalten.
+
+Der **zentrale Import** erkennt die Datei selbst (CodePath-Export als ZIP oder JSON, oder ein Content-Paket) und zeigt danach für jeden Eintrag, ob er **angelegt**, **überarbeitet** (gab es schon) oder **unverändert** gelassen wurde – oder warum ein **Fehler** auftrat. Ein fehlerhafter Eintrag hält die übrigen nicht auf. Gleiche Adresse (Slug) heißt „derselbe Eintrag“; gelöscht wird nichts.
+
+- **Export (ZIP)** unter Inhalte speichert nur Module und Aufgaben.
+- **Import** unter Inhalte nimmt dieselben Dateien wie der zentrale Import; geänderte Aufgaben werden zu neuen Versionen.
 - **Mitgelieferte Inhalte übernehmen** holt nach einem Update die überarbeiteten Startinhalte in die Datenbank.
 
 Das Format beschreibt [`content/README.md`](../content/README.md).
