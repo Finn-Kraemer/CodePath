@@ -252,6 +252,31 @@
       }
     },
     "/api/admin/content/tasks/{id}" : {
+      "delete" : {
+        "operationId" : "delete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "confirm",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      },
       "get" : {
         "operationId" : "task_1",
         "parameters" : [ {
@@ -330,6 +355,33 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/CheckResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/delete-impact" : {
+      "get" : {
+        "operationId" : "deleteImpact",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeleteImpact"
                 }
               }
             },
@@ -848,7 +900,7 @@
     },
     "/api/admin/media/{key}" : {
       "delete" : {
-        "operationId" : "delete",
+        "operationId" : "delete_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "key",
@@ -2414,6 +2466,37 @@
           }
         },
         "required" : [ "id", "label", "points" ]
+      },
+      "DeleteImpact" : {
+        "type" : "object",
+        "properties" : {
+          "archived" : {
+            "type" : "boolean"
+          },
+          "attempts" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pendingReviews" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "students" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "archived", "attempts", "pendingReviews", "points", "slug", "students", "title" ]
       },
       "DryRun" : {
         "type" : "object",

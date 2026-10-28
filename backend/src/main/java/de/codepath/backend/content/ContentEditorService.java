@@ -4,6 +4,8 @@ import de.codepath.backend.engine.*;
 import de.codepath.backend.engine.handlers.CodeHandler;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.events.RealtimeUpdateService;
+import org.springframework.jdbc.core.JdbcTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +40,13 @@ public class ContentEditorService {
     private final CodeHandler codeHandler;
     private final MediaService mediaService;
     private final MediaRepository mediaRepository;
+    private final JdbcTemplate jdbc;
+    private final RealtimeUpdateService realtime;
+
+    /** Was beim endgültigen Löschen mit verloren geht. */
+    public record DeleteImpact(String slug, String title, boolean archived, long attempts, long students,
+                               long points, long pendingReviews) {
+    }
 
     public record RunSolutionRequest(String code, List<Map<String, Object>> tests) {
     }
@@ -262,6 +271,44 @@ public class ContentEditorService {
         return view(taskId);
     }
 
+    @Transactional(readOnly = true)
+    public DeleteImpact deleteImpact(Long taskId) {
+        Task task = task(taskId);
+        String title = Optional.ofNullable(task.getCurrentVersion()).map(TaskVersion::getTitle)
+                .orElseGet(() -> editable(task).getTitle());
+        return new DeleteImpact(task.getSlug(), title, task.isArchived(),
+                count("select count(*) from attempts where task_id = ?", taskId),
+                count("select count(distinct user_id) from progress where task_id = ?", taskId),
+                count("select coalesce(sum(amount), 0) from points_entries where task_id = ?", taskId),
+                count("select count(*) from practice_reviews r join attempts a on a.id = r.attempt_id "
+                        + "where a.task_id = ? and r.status = 'PENDING'", taskId));
+    }
+
+    /**
+     * Löscht eine archivierte Aufgabe endgültig – mit allen Versionen, Versuchen, Fortschritten und Punkten
+     * (Fremdschlüssel mit ON DELETE CASCADE). Zur Sicherheit muss der Slug bestätigt werden. Die Aufgabe
+     * wird gemerkt, damit mitgelieferte Inhalte sie nicht wieder anlegen.
+     */
+    @Transactional
+    public void delete(Long taskId, String confirmSlug, Long actorId) {
+        Task task = task(taskId);
+        if (!task.isArchived()) throw ApiException.conflict("Nur archivierte Aufgaben lassen sich endgültig löschen.");
+        if (!task.getSlug().equals(confirmSlug)) throw ApiException.badRequest("Zur Bestätigung den Slug der Aufgabe eingeben.");
+        DeleteImpact impact = deleteImpact(taskId);
+        String moduleSlug = task.getModule().getSlug();
+        jdbc.update("insert into deleted_tasks (module_slug, task_slug, deleted_by) values (?, ?, ?) on conflict do nothing",
+                moduleSlug, task.getSlug(), actorId);
+        jdbc.update("delete from tasks where id = ?", taskId);
+        auditService.log("TASK_DELETED", moduleSlug + "/" + task.getSlug(), Map.of("attempts", impact.attempts(),
+                "students", impact.students(), "points", impact.points()));
+        if (impact.points() > 0) realtime.publishLeaderboardUpdate();
+    }
+
+    private long count(String sql, Long taskId) {
+        Long value = jdbc.queryForObject(sql, Long.class, taskId);
+        return value == null ? 0 : value;
+    }
+
     /** Version für die Vorschau: Entwurf, sonst die aktuelle Version. */
     @Transactional(readOnly = true)
     public PublishedTask previewTask(Long taskId) {
@@ -301,7 +348,8 @@ public class ContentEditorService {
 
     @Transactional
     public ContentImporter.ImportReport importZip(InputStream input, Long actorId) {
-        return importer.importBundles(reader.fromZip(input), ContentImporter.Mode.UPDATE, actorId);
+        // Ein ZIP der Lehrkraft ist eine bewusste Entscheidung: auch gelöschte Aufgaben zurückholen
+        return importer.importBundles(reader.fromZip(input), ContentImporter.Mode.UPDATE, actorId, true);
     }
 
     /** Mitgelieferte Content-Pakete (aus dem JAR) übernehmen; Geändertes wird zu neuen Versionen. */

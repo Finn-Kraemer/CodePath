@@ -47,7 +47,7 @@ Punkte stehen in einem Journal (`points_entries`); ein eindeutiger Index sorgt d
 
 ## Inhalte
 
-Content-Pakete unter `content/<modul>/` (`module.json`, `tasks/NN-slug.json`, Markdown), geprüft per JSON-Schema (`content/validate.py`) und Probelauf (`ContentPackagesTest`). Beim Start werden fehlende Aufgaben als Version 1 angelegt. Im Editor (Admin → Inhalte) entstehen Entwürfe; Veröffentlichen friert eine Version ein, bisherige Versuche bleiben an ihrer Version (ADR-5). Export/Import als ZIP.
+Content-Pakete unter `content/<modul>/` (`module.json`, `tasks/NN-slug.json`, Markdown), geprüft per JSON-Schema (`content/validate.py`) und Probelauf (`ContentPackagesTest`). Beim Start werden fehlende Aufgaben als Version 1 angelegt. Im Editor (Admin → Inhalte) entstehen Entwürfe; Veröffentlichen friert eine Version ein, bisherige Versuche bleiben an ihrer Version (ADR-5). Export/Import als ZIP. Archivieren blendet eine Aufgabe aus und behält Ergebnisse; **endgültig löschen** geht nur für archivierte Aufgaben, nach Anzeige der Folgen und Bestätigung mit dem Slug, und entfernt alle Versionen, Versuche, Fortschritte und Punkte. Gelöschte Aufgaben stehen in `deleted_tasks`, damit mitgelieferte Inhalte sie nicht wieder anlegen; ein ZIP-Import holt sie bewusst zurück.
 
 ## Medien
 

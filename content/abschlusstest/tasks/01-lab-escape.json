@@ -4,9 +4,9 @@
   "title": "Abschlusstest: Das Escape-Zimmer",
   "difficulty": "HARD",
   "points": 50,
-  "sortOrder": 18,
+  "sortOrder": 1,
   "learningGoal": "Du setzt Inspektor, Netzwerkanalyse, Web-Speicher und Konsole selbstständig und kombiniert ein.",
-  "story": "Dies ist die Abschlussprüfung des Browser-Labors. Es gibt keine Schritt-für-Schritt-Anleitung – nur einen Zettel an der Wand.\n\n> **Du brauchst einen PC oder Laptop** mit Chrome, Edge oder Firefox.",
+  "story": "Dies ist die Abschlussprüfung des Browser-Labors – am besten erst, wenn du die Labor-Aufgaben in **Web-Entwicklung** geschafft hast. Es gibt keine Schritt-für-Schritt-Anleitung – nur einen Zettel an der Wand.\n\n> **Du brauchst einen PC oder Laptop** mit Chrome, Edge oder Firefox.",
   "assignment": "Öffne vier Schlösser und gib den Code als `XXXX-XXXX-XXXX-XXXX` ein.",
   "hints": [
     "Jedes Schloss gehört zu einem anderen Werkzeug: Inspektor, Netzwerk, Web-Speicher, Konsole.",

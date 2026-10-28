@@ -6,6 +6,7 @@ import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.engine.TaskHandlerRegistry;
 import de.codepath.backend.platform.audit.AuditService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
@@ -38,9 +39,19 @@ public class ContentImporter {
     private final ObjectMapper objectMapper;
     private final AuditService auditService;
     private final MediaService mediaService;
+    private final JdbcTemplate jdbc;
 
     @Transactional
     public ImportReport importBundles(List<ContentPackage.ModuleBundle> bundles, Mode mode, Long actorId) {
+        return importBundles(bundles, mode, actorId, false);
+    }
+
+    /**
+     * @param revive true holt endgültig gelöschte Aufgaben zurück (bewusster ZIP-Import der Lehrkraft);
+     *               sonst bleiben sie gelöscht und werden übersprungen.
+     */
+    @Transactional
+    public ImportReport importBundles(List<ContentPackage.ModuleBundle> bundles, Mode mode, Long actorId, boolean revive) {
         int modulesCreated = 0, tasksCreated = 0, versions = 0, unchanged = 0;
         List<String> errors = new ArrayList<>();
 
@@ -89,6 +100,13 @@ public class ContentImporter {
                     continue;
                 }
                 Optional<Task> existingTask = taskRepository.findByModuleIdAndSlug(module.getId(), tf.slug());
+                if (existingTask.isEmpty() && isDeleted(mf.slug(), tf.slug())) {
+                    if (!revive) {
+                        unchanged++;
+                        continue;
+                    }
+                    jdbc.update("delete from deleted_tasks where module_slug = ? and task_slug = ?", mf.slug(), tf.slug());
+                }
                 Task task = existingTask.orElseGet(Task::new);
                 if (existingTask.isPresent() && task.getType() != tf.type()) {
                     errors.add(where + ": Der Typ einer bestehenden Aufgabe kann nicht geändert werden");
@@ -119,6 +137,12 @@ public class ContentImporter {
             auditService.log("CONTENT_IMPORTED", mode.name(), Map.of("modules", modulesCreated, "tasks", tasksCreated, "versions", versions, "errors", errors.size()));
         }
         return new ImportReport(modulesCreated, tasksCreated, versions, unchanged, errors);
+    }
+
+    private boolean isDeleted(String moduleSlug, String taskSlug) {
+        Integer count = jdbc.queryForObject("select count(*) from deleted_tasks where module_slug = ? and task_slug = ?",
+                Integer.class, moduleSlug, taskSlug);
+        return count != null && count > 0;
     }
 
     /** Veröffentlicht eine neue Version und macht sie zur aktuellen. */

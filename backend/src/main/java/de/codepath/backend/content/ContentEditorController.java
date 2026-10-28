@@ -75,6 +75,17 @@ public class ContentEditorController {
         return editor.restore(id, versionId, userService.currentUser().getId());
     }
 
+    @GetMapping("/tasks/{id}/delete-impact")
+    public ContentEditorService.DeleteImpact deleteImpact(@PathVariable("id") Long id) {
+        return editor.deleteImpact(id);
+    }
+
+    @DeleteMapping("/tasks/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id, @RequestParam("confirm") String confirm) {
+        editor.delete(id, confirm, userService.currentUser().getId());
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/tasks/{id}/archived")
     public ContentEditorService.TaskEditorView archive(@PathVariable("id") Long id, @RequestParam("value") boolean archived) {
         return editor.archive(id, archived);

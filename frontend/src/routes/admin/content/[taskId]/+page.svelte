@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { auth } from '$lib/auth.svelte';
 	import { api, type Schemas, type SubmitResult, type TaskDetail } from '$lib/api';
 	import ConfigForm from '$lib/editor/ConfigForm.svelte';
 	import MediaPicker from '$lib/components/MediaPicker.svelte';
@@ -12,6 +14,7 @@
 	import { TYPE_LABELS } from '$lib/tasks/labels';
 
 	type CheckResult = Schemas['CheckResult'];
+	type DeleteImpact = Schemas['DeleteImpact'];
 
 	const taskId = page.params.taskId;
 	const base = `/api/admin/content/tasks/${taskId}`;
@@ -121,6 +124,27 @@
 		if (result) edit(result);
 	}
 
+	let impact = $state<DeleteImpact | null>(null);
+	let confirmSlug = $state('');
+
+	async function prepareDelete() {
+		confirmSlug = '';
+		impact = (await run(() => api<DeleteImpact>(`${base}/delete-impact`))) ?? null;
+	}
+
+	async function deleteTask() {
+		if (!impact) return;
+		const done = await run(async () => {
+			const res = await auth.apiFetch(`${base}?confirm=${encodeURIComponent(confirmSlug)}`, {
+				method: 'DELETE'
+			});
+			if (!res.ok)
+				throw new Error((await res.json().catch(() => ({})))?.message ?? `Fehler ${res.status}`);
+			return true;
+		});
+		if (done) await goto('/admin/content');
+	}
+
 	async function restore(versionId: number) {
 		const result = await run(
 			() => api<TaskEditorView>(`${base}/versions/${versionId}/restore`, { method: 'POST' }),
@@ -176,8 +200,51 @@
 				<button class="ed-button" onclick={() => archive(!view!.archived)} disabled={busy}
 					>{view.archived ? 'Wiederherstellen' : 'Archivieren'}</button
 				>
+				{#if view.archived}<button
+						class="ed-button border-rose-300 text-rose-700"
+						onclick={prepareDelete}
+						disabled={busy}>Endgültig löschen …</button
+					>{/if}
 			</div>
 		</header>
+
+		{#if impact}
+			<section
+				class="border-2 border-rose-300 bg-rose-50 p-4 text-sm"
+				aria-label="Endgültig löschen"
+			>
+				<p class="font-bold text-rose-800">„{impact.title}“ endgültig löschen?</p>
+				<p class="mt-2 text-rose-900">
+					Das lässt sich nicht rückgängig machen. Gelöscht werden alle Versionen und mit ihnen:
+				</p>
+				<ul class="mt-1 list-disc pl-5 text-rose-900">
+					<li>{impact.attempts} Versuche von {impact.students} Schülerinnen und Schülern</li>
+					<li>
+						{impact.points} vergebene Punkte – die Rangliste ändert sich{#if impact.pendingReviews}
+							, {impact.pendingReviews} unbewertete Praxisabgaben{/if}
+					</li>
+				</ul>
+				<p class="mt-2 text-xs text-rose-900">
+					Nur ausblenden statt löschen? Archiviert lassen – dann bleiben Ergebnisse und Punkte
+					erhalten.
+				</p>
+				<label class="ed-label mt-3"
+					>Zur Bestätigung den Slug <code>{impact.slug}</code> eingeben<input
+						class="ed-input mono"
+						bind:value={confirmSlug}
+						autocomplete="off"
+					/></label
+				>
+				<div class="mt-3 flex gap-2">
+					<button
+						class="ed-button bg-rose-700 text-white"
+						onclick={deleteTask}
+						disabled={busy || confirmSlug !== impact.slug}>Endgültig löschen</button
+					>
+					<button class="ed-button" onclick={() => (impact = null)}>Abbrechen</button>
+				</div>
+			</section>
+		{/if}
 
 		{#if error}<div class="border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
 				{error}
@@ -383,6 +450,6 @@
 			</aside>
 		</div>
 	{:else if error}
-		<div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+		<div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">{error}</div>
 	{/if}
 </div>

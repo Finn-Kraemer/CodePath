@@ -91,3 +91,40 @@ test('Bild-Aufgabe mit Upload im Editor anlegen', async ({ page }) => {
 	await page.goto(`/modules/git/${slug}`);
 	await expect(page.getByRole('img', { name: 'Ein Schreibtisch' })).toBeVisible();
 });
+
+/** Archivieren, Folgen ansehen, mit Slug bestätigen, endgültig löschen. */
+test('Aufgabe endgültig löschen', async ({ page }) => {
+	const slug = `weg-${Date.now().toString(36)}`;
+	await page.goto('/login');
+	await page.fill('#username', 'admin');
+	await page.fill('#password', ADMIN_PASSWORD);
+	await page.click('button[type=submit]');
+	await expect(page).toHaveURL(/\/modules/);
+
+	await page.goto('/admin/content');
+	const gitSection = page
+		.locator('section', { hasText: 'git' })
+		.filter({ hasText: 'Warum brauchen wir Git?' });
+	await gitSection.getByLabel('Neue Aufgabe: Titel').fill('Wird gelöscht');
+	await gitSection.getByLabel('Slug').fill(slug);
+	await gitSection.getByRole('button', { name: 'Anlegen' }).click();
+	await expect(page).toHaveURL(/\/admin\/content\/\d+/);
+	const editorUrl = page.url();
+
+	// Löschen gibt es erst nach dem Archivieren
+	await expect(page.getByRole('button', { name: 'Endgültig löschen …' })).toHaveCount(0);
+	await page.getByRole('button', { name: 'Archivieren' }).click();
+	await expect(page.getByRole('status')).toContainText('Archiviert');
+	await page.getByRole('button', { name: 'Endgültig löschen …' }).click();
+
+	const panel = page.getByRole('region', { name: 'Endgültig löschen' });
+	await expect(panel).toContainText('0 Versuche');
+	const confirm = panel.getByRole('button', { name: 'Endgültig löschen', exact: true });
+	await expect(confirm).toBeDisabled();
+	await panel.getByLabel(/Slug .* eingeben/).fill(slug);
+	await confirm.click();
+	await expect(page).toHaveURL(/\/admin\/content$/);
+
+	await page.goto(editorUrl);
+	await expect(page.getByRole('alert')).toContainText('nicht gefunden');
+});
