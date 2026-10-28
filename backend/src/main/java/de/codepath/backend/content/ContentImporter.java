@@ -168,6 +168,10 @@ public class ContentImporter {
         if (tf.points() == null || tf.points() < 0) problems.add("points fehlt");
         if (tf.difficulty() == null) problems.add("difficulty fehlt");
         if (tf.hints() != null && tf.hints().size() > 3) problems.add("höchstens drei Hinweise");
+        if (tf.knowledgeArticle() != null && !tf.knowledgeArticle().isBlank()
+                && !tf.knowledgeArticle().matches("[a-z0-9]+(?:-[a-z0-9]+)*")) {
+            problems.add("knowledgeArticle muss die Adresse eines Wissensartikels sein (Kleinbuchstaben, Ziffern, Bindestriche)");
+        }
         if (!problems.isEmpty()) throw new InvalidTaskConfigException(problems);
         if (!registry.supports(tf.type())) throw new IllegalArgumentException("Aufgabentyp " + tf.type() + " wird nicht unterstützt");
         registry.requireValid(tf.type(), tf.config() != null ? tf.config() : Map.of(), tf.points());
@@ -183,6 +187,7 @@ public class ContentImporter {
         v.setTitle(tf.title());
         v.setLearningGoal(blankToNull(tf.learningGoal()));
         v.setStory(blankToNull(tf.story()));
+        v.setKnowledgeArticle(blankToNull(tf.knowledgeArticle()));
         v.setAssignment(blankToNull(tf.assignment()));
         v.setExplanation(blankToNull(tf.explanation()));
         v.setHints(tf.hints() != null ? new ArrayList<>(tf.hints()) : new ArrayList<>());

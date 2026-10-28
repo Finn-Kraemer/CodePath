@@ -132,8 +132,22 @@
 
 	/** Bild an der Cursorposition in den Markdown-Text einfügen */
 	function insertImage(key: string, name: string | null | undefined) {
+		insert(`![${name ?? 'Bild'}](${mediaUrl(key)})`);
+	}
+
+	/** Link auf einen anderen Artikel; markierter Text wird zum Linktext */
+	function insertArticleLink(slug: string) {
+		if (!form || !slug) return;
+		const target = articles.find((a) => a.slug === slug);
+		const start = textarea?.selectionStart ?? form.body.length;
+		const end = textarea?.selectionEnd ?? start;
+		const label = form.body.slice(start, end) || target?.title || slug;
+		form.body =
+			form.body.slice(0, start) + `[${label}](/knowledge?artikel=${slug})` + form.body.slice(end);
+	}
+
+	function insert(snippet: string) {
 		if (!form) return;
-		const snippet = `![${name ?? 'Bild'}](${mediaUrl(key)})`;
 		const at = textarea?.selectionStart ?? form.body.length;
 		form.body = form.body.slice(0, at) + snippet + form.body.slice(at);
 	}
@@ -281,10 +295,28 @@
 								# Überschrift, **fett**, `Code`, ```-Blöcke für längeren Code, - Listen,
 								[Link](https://…)
 							</p>
-							<MediaPicker
-								label="Bild einfügen"
-								onselect={(m) => insertImage(m.key, m.originalName)}
-							/>
+							<div class="flex flex-wrap items-start gap-4">
+								<MediaPicker
+									label="Bild einfügen"
+									onselect={(m) => insertImage(m.key, m.originalName)}
+								/>
+								<label class="ed-label mt-2"
+									>Artikel verlinken
+									<select
+										class="ed-input mt-1"
+										value=""
+										onchange={(e) => {
+											insertArticleLink(e.currentTarget.value);
+											e.currentTarget.value = '';
+										}}
+									>
+										<option value="">Artikel wählen … (markierter Text wird Linktext)</option>
+										{#each articles.filter((a) => a.id !== form?.id) as other (other.id)}
+											<option value={other.slug}>{other.icon} {other.title}</option>
+										{/each}
+									</select>
+								</label>
+							</div>
 						</div>
 						<div>
 							<p class="ed-label">Vorschau</p>

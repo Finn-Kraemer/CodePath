@@ -3,7 +3,13 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/auth.svelte';
-	import { api, type Schemas, type SubmitResult, type TaskDetail } from '$lib/api';
+	import {
+		api,
+		type ArticleAdmin,
+		type Schemas,
+		type SubmitResult,
+		type TaskDetail
+	} from '$lib/api';
 	import ConfigForm from '$lib/editor/ConfigForm.svelte';
 	import MediaPicker from '$lib/components/MediaPicker.svelte';
 	import { mediaUrl } from '$lib/media';
@@ -30,6 +36,8 @@
 	let error = $state('');
 	let busy = $state(false);
 	let dirty = $state(false);
+	/** Für die Auswahl „Passender Wissensartikel“ */
+	let articles = $state<ArticleAdmin[]>([]);
 
 	function edit(v: TaskEditorView) {
 		view = v;
@@ -49,6 +57,9 @@
 	}
 
 	onMount(async () => {
+		api<ArticleAdmin[]>('/api/admin/knowledge')
+			.then((list) => (articles = list))
+			.catch(() => (articles = []));
 		try {
 			edit(await api<TaskEditorView>(base));
 			await refreshPreview();
@@ -307,6 +318,21 @@
 						placeholder="Du kannst …"
 					/></label
 				>
+				<label class="ed-label"
+					>Passender Wissensartikel
+					<select class="ed-input" bind:value={file.knowledgeArticle}>
+						<option value="">Automatisch: Artikel zum Modul (falls vorhanden)</option>
+						{#each articles as article (article.id)}
+							<option value={article.slug}
+								>{article.icon} {article.title}{article.published ? '' : ' (Entwurf)'}</option
+							>
+						{/each}
+						{#if file.knowledgeArticle && !articles.some((a) => a.slug === file?.knowledgeArticle)}
+							<option value={file.knowledgeArticle}>{file.knowledgeArticle} (nicht gefunden)</option
+							>
+						{/if}
+					</select>
+				</label>
 				<label class="ed-label"
 					>Geschichte / Kontext (Markdown)<textarea
 						class="ed-input"
