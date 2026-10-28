@@ -30,7 +30,8 @@ public final class ContentPackage {
             List<String> hints,
             String explanation,
             Map<String, Object> rules,
-            Map<String, Object> config) {
+            Map<String, Object> config,
+            String knowledgeArticle) {
     }
 
     /** media: Bilder des Moduls unter &lt;modul&gt;/media/&lt;schlüssel&gt;, Schlüssel = SHA-256 + Endung. */

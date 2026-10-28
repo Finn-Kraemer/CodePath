@@ -95,6 +95,7 @@ public class StudentTaskService {
                 task.version().getDifficulty().name(), task.version().getPoints(), task.version().getVersion(),
                 task.module().getSlug(), task.module().getTitle(),
                 task.version().getLearningGoal(), task.version().getStory(), task.version().getAssignment(),
+                task.version().getKnowledgeArticle(),
                 handler.publicView(task.spec(), context),
                 progress.getStatus().name(), progress.getStatus() == ProgressStatus.SOLVED,
                 progress.isLocked() || progress.getStatus() == ProgressStatus.FAILED, access.open(),

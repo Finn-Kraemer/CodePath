@@ -25,7 +25,7 @@ public final class TaskViews {
     public record TaskDetail(
             Long id, String slug, String title, String type, String difficulty, int points, int version,
             String moduleSlug, String moduleTitle,
-            String learningGoal, String story, String assignment,
+            String learningGoal, String story, String assignment, String knowledgeArticle,
             Map<String, Object> config,
             String status, boolean isCompleted, boolean isLocked, boolean isOpen,
             int failedAttempts, Integer maxAttempts, Integer attemptsLeft,

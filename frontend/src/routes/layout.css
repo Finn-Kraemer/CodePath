@@ -144,3 +144,10 @@ textarea {
 .ed-button:disabled {
 	opacity: 0.4;
 }
+
+/* Treffer der Wiki-Suche (Ergebnisliste und Artikel) */
+mark.search-hit {
+	background: rgb(253 230 138);
+	color: inherit;
+	padding: 0 0.1em;
+}

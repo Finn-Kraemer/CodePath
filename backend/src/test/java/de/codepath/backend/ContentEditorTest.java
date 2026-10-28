@@ -72,6 +72,15 @@ class ContentEditorTest extends IntegrationTestBase {
         assertEquals(1, oldVersion);
         getAs(as(student), "/api/modules/" + slug + "/frage-1").andExpect(jsonPath("$.title").value("Erste Frage, korrigiert"));
 
+        // Passender Wissensartikel: gültige Adresse wird Teil der Version, ungültige verhindert das Veröffentlichen
+        draft.put("knowledgeArticle", "Kein Slug!");
+        putAs(teacher(), "/api/admin/content/tasks/" + taskId + "/draft", draft).andExpect(status().isOk());
+        postAs(teacher(), "/api/admin/content/tasks/" + taskId + "/publish", null).andExpect(status().isUnprocessableContent());
+        draft.put("knowledgeArticle", "git");
+        putAs(teacher(), "/api/admin/content/tasks/" + taskId + "/draft", draft).andExpect(status().isOk());
+        postAs(teacher(), "/api/admin/content/tasks/" + taskId + "/publish", null).andExpect(jsonPath("$.currentVersion").value(3));
+        getAs(as(student), "/api/modules/" + slug + "/frage-1").andExpect(jsonPath("$.knowledgeArticle").value("git"));
+
         // Archivieren blendet die Aufgabe für Schüler aus
         putAs(teacher(), "/api/admin/content/tasks/" + taskId + "/archived?value=true", null).andExpect(status().isOk());
         getAs(as(student), "/api/modules/" + slug + "/frage-1").andExpect(status().isNotFound());

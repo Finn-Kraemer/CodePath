@@ -43,6 +43,10 @@ public class TaskVersion {
     @Column(columnDefinition = "TEXT")
     private String story;
 
+    /** Adresse (slug) eines passenden Artikels der Wissensdatenbank */
+    @Column(name = "knowledge_article")
+    private String knowledgeArticle;
+
     /** Markdown: der eigentliche Auftrag */
     @Column(columnDefinition = "TEXT")
     private String assignment;

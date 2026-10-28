@@ -88,7 +88,7 @@ public class KnowledgeSeeder implements ApplicationRunner {
         return true;
     }
 
-    /** Wie md5(body) in PostgreSQL (Migration V19). */
+    /** Wie md5(body) in PostgreSQL (Migration V20). */
     static String hash(String body) {
         return DigestUtils.md5DigestAsHex(body.getBytes(StandardCharsets.UTF_8));
     }

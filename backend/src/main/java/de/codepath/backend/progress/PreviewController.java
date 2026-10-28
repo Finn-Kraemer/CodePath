@@ -34,6 +34,7 @@ public class PreviewController {
                 task.version().getDifficulty().name(), task.version().getPoints(), task.version().getVersion(),
                 task.module().getSlug(), task.module().getTitle(),
                 task.version().getLearningGoal(), task.version().getStory(), task.version().getAssignment(),
+                task.version().getKnowledgeArticle(),
                 handler.publicView(spec, PREVIEW), ProgressStatus.OPEN.name(), false, false, true,
                 0, rules.maxAttempts(), rules.maxAttempts(), hints.size(), List.of(), rules.hintPenaltyPercent(),
                 rules.firstTryBonusPercent(), rules.revealAllowed() && handler.autoGraded(), false, null, null,

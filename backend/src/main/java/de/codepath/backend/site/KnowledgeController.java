@@ -20,6 +20,11 @@ public class KnowledgeController {
         return knowledgeService.visible(userService.currentUser());
     }
 
+    @GetMapping("/api/search/knowledge")
+    public List<KnowledgeService.SearchHit> search(@RequestParam(name = "q", defaultValue = "") String query) {
+        return knowledgeService.search(userService.currentUser(), query);
+    }
+
     @GetMapping("/api/knowledge/{slug}")
     public KnowledgeService.ArticleView article(@PathVariable("slug") String slug) {
         return knowledgeService.article(userService.currentUser(), slug);

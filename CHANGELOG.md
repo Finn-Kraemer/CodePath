@@ -7,6 +7,8 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ## Unveröffentlicht
 
 ### Neu
+- **Suche in der Wissensdatenbank**: Volltext über Titel und Text, Treffer mit Ausschnitt, Fundstellen im Artikel markiert.
+- **Artikel verlinken**: Aufgaben zeigen „Mehr dazu im Wiki“ (frei wählbarer Artikel, sonst der zum Modul); im Wiki-Editor lassen sich andere Artikel per Auswahl verlinken.
 - **Eigene Seiten** (Leitstand → Seiten): neue Seiten unter `/seiten/…` mit dem Abschnitts-Editor der Startseite, öffentlich oder nur für Angemeldete, im Aufklappmenü „Seiten“ und in der Übersicht `/seiten`, einzelne zusätzlich direkt in der Menüleiste.
 - **Wissensdatenbank im Browser bearbeiten** (Leitstand → Wissensdatenbank): Artikel anlegen, in Markdown mit Vorschau und Bildern bearbeiten, sortieren, an ein Modul koppeln, als Entwurf zurückhalten oder löschen.
 - **Startseite bearbeiten** (Leitstand → Startseite): Abschnitte im Browser hinzufügen, umsortieren, ausblenden und Texte ändern, mit Live-Vorschau, Entwurf und Veröffentlichen – ohne neuen Build.
@@ -23,7 +25,8 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update
-- Migration V19 merkt sich, welcher mitgelieferte Text in einem Wissensartikel steht. Artikel, die niemand im Browser geändert hat, bekommen beim Start die neue Fassung; bearbeitete Artikel bleiben unverändert.
+- Migration V20 merkt sich, welcher mitgelieferte Text in einem Wissensartikel steht. Artikel, die niemand im Browser geändert hat, bekommen beim Start die neue Fassung; bearbeitete Artikel bleiben unverändert.
+- Migration V19 ergänzt Aufgabenversionen um den passenden Wissensartikel (`knowledgeArticle`, auch im Content-Paket).
 - Migration V18 ergänzt eine Kurzbeschreibung für eigene Seiten.
 - Migration V17 legt Tabellen für eigene Seiten und die Wissensdatenbank an. Die bisher fest eingebauten Wissensartikel werden beim Start einmalig übernommen (`content/wissen/`); Sichtbarkeit wie bisher (Grundlagen immer, sonst mit dem gleichnamigen Modul).
 - Migration V16 entfernt die nie genutzte Einstellung `frontpage_config`. Solange nichts veröffentlicht ist, zeigt die Startseite den bisherigen Inhalt.

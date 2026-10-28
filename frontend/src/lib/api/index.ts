@@ -26,6 +26,7 @@ export type NavLink = Schemas['NavLink'];
 export type ArticleAdmin = Schemas['ArticleAdmin'];
 export type ArticleSummary = Schemas['ArticleSummary'];
 export type ArticleView = Schemas['ArticleView'];
+export type SearchHit = Schemas['SearchHit'];
 
 export class ApiError extends Error {
 	constructor(
