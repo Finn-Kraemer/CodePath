@@ -45,7 +45,7 @@ content/
 | `CODE` | `starterCode`, `solution` (Pflicht), `tests: [{stdin?, append?, expectedOutput, hidden?}]` – Tests sind versteckt, solange nicht `hidden: false`; `append` wird an die Abgabe angehängt. Erwartete Ausgaben am besten mit `tools/code_tasks.py` oder im Editor aus der Musterlösung erzeugen. |
 | `SORTING` | `items: [{id, text}]`, `correctOrder: [id]` (Schüler bekommen die Elemente gemischt) |
 | `SQL` | `schemaSql`, `solutionSql` (ein SELECT), `starterSql?`, `orderMatters?` |
-| `TERMINAL` | `initialDirectories?`, `initialFiles?`, `expectedDirectories`, `expectedFiles`, `expectedContents?`, `allowExtra?` |
+| `TERMINAL` | `initialDirectories?`, `initialFiles?` (Pfad → Inhalt), `git?: {root, history: [{message, author, branch?, files: {pfad: inhalt \| null}}], head?, remote?: true \| [commits nur auf dem Server]}`, `variants?: [{name: wert}]` (Platzhalter `{{name}}` überall, `{{code}}` immer), dazu mindestens eine Prüfung: `expectedDirectories`, `expectedFiles`, `expectedContents?`, `absent?`, `answer?` (+ `answerLabel`), `gitChecks?: [{check, …, label?}]`; `allowExtra?`; `solution: [befehle]` ist Pflicht, sobald `answer`, `gitChecks`, `absent` oder `git` vorkommen (siehe `docs/aufgabentypen.md`) |
 | `PRACTICE` | `instructions` (Markdown), `submissionNote?`, `rubric: [{id, label, points}]` – Summe = Punkte der Aufgabe; `codeEditor?` bietet eine Python-Werkbank an (`starterCode?`, `codeRequired?`), deren Code mit der Abgabe zur Lehrkraft geht |
 | `MATCHING` | `left: [{id, text}]`, `right: [{id, text}]` (darf Ablenker enthalten), `pairs: [{left, right}]` – Teilpunkte je Paar |
 | `PARSONS` | `lines: [{id, code, indent?}]` in richtiger Reihenfolge, `distractors?: [{id, code}]`, `checkIndent?` (Standard `true`) |

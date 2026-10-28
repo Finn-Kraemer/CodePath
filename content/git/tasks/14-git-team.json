@@ -1,0 +1,75 @@
+{
+  "slug": "git-team",
+  "type": "TERMINAL",
+  "title": "Teamarbeit: pull und push",
+  "difficulty": "HARD",
+  "points": 25,
+  "sortOrder": 14,
+  "learningGoal": "Du kannst mit git pull und git push über einen Server zusammenarbeiten.",
+  "story": "Das Team teilt sich ein Repository auf dem Schulserver (`origin`). Du hast die Hausaufgaben-Seite gebaut und willst sie hochladen. Was du nicht weißt: Lena hat vor zehn Minuten etwas gepusht.",
+  "assignment": "1. Lege `hausaufgaben.html` an und committe sie.\n2. Lade `main` mit `git push` auf den Server.\n3. Klappt das nicht, lies die Meldung genau – und hol zuerst Lenas Änderungen mit `git pull`.\n\nAm Ende sollen der Server und dein `main` auf demselben Stand sein.",
+  "hints": [
+    "Erst `cd schulplaner`. `git status` zeigt dir, ob dein Branch vor oder hinter dem Server ist.",
+    "Wird `git push` abgelehnt, hat der Server Commits, die du noch nicht hast. `git pull` holt sie und führt sie mit deinen zusammen.",
+    "Nach `git pull` noch einmal `git push`. Im Verlauf stehen `main` und `origin/main` dann am selben Commit."
+  ],
+  "explanation": "`git push` lädt deine Commits hoch, `git pull` holt die der anderen. Der Server lehnt einen Push ab, wenn du dabei fremde Arbeit überschreiben würdest. Deshalb gilt im Team: erst pullen, dann pushen.",
+  "knowledgeArticle": "git",
+  "config": {
+    "git": {
+      "root": "schulplaner",
+      "history": [
+        {
+          "message": "Erste Version",
+          "author": "Mia",
+          "files": {
+            "index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n"
+          }
+        },
+        {
+          "message": "Stil angelegt",
+          "author": "Jonas",
+          "files": {
+            "style.css": "h1 { color: teal; }\n"
+          }
+        }
+      ],
+      "remote": [
+        {
+          "message": "Englische Übersetzung",
+          "author": "Lena",
+          "files": {
+            "en.html": "<h1>SchulPlaner</h1>\n<p>Your timetable, your homework.</p>\n"
+          }
+        }
+      ]
+    },
+    "gitChecks": [
+      {
+        "check": "committed",
+        "path": "hausaufgaben.html"
+      },
+      {
+        "check": "committed",
+        "path": "en.html",
+        "label": "Lenas Änderungen (en.html) fehlen noch bei dir."
+      },
+      {
+        "check": "pushed",
+        "branch": "main"
+      },
+      {
+        "check": "clean"
+      }
+    ],
+    "solution": [
+      "cd schulplaner",
+      "echo \"<h1>Hausaufgaben</h1>\" > hausaufgaben.html",
+      "git add hausaufgaben.html",
+      "git commit -m \"Hausaufgaben-Seite\"",
+      "git push",
+      "git pull",
+      "git push"
+    ]
+  }
+}

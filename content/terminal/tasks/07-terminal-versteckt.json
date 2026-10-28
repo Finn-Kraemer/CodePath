@@ -1,0 +1,33 @@
+{
+  "slug": "terminal-versteckt",
+  "type": "TERMINAL",
+  "title": "Versteckte Dateien",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 7,
+  "learningGoal": "Du kannst versteckte Dateien mit ls -a anzeigen.",
+  "story": "„Das WLAN-Passwort der Werkstatt? Liegt im Ordner werkzeuge“, sagt Sarah. Du schaust nach – aber da ist nichts. Oder doch?",
+  "assignment": "Finde das WLAN-Passwort im Ordner `werkzeuge` und trag es ins Antwortfeld ein.",
+  "hints": [
+    "Schau dir an, was `ls werkzeuge` zeigt – und lies die readme.",
+    "Dateien, deren Name mit einem Punkt beginnt, zeigt `ls` nicht an. Mit `ls -a` siehst du alle.",
+    "Gefunden? Lies sie mit `cat werkzeuge/.zugang`."
+  ],
+  "explanation": "Dateien und Ordner, deren Name mit `.` beginnt, sind versteckt – meist Einstellungen wie `.gitignore` oder `.bashrc`. `ls -a` (all) zeigt sie. Versteckt heißt übrigens nicht geschützt: Jeder, der `ls -a` kennt, findet sie.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "initialFiles": {
+      "werkzeuge/readme.txt": "Hier ist nichts Spannendes.\nOder doch? Nicht alles, was da ist, sieht man sofort …\n",
+      "werkzeuge/liste.txt": "Schraubenzieher\nLötkolben\nMultimeter\n",
+      "werkzeuge/.zugang": "WLAN Werkstatt: stadtwerke-{{code}}\n"
+    },
+    "answerLabel": "Wie lautet das WLAN-Passwort?",
+    "answer": [
+      "stadtwerke-{{code}}"
+    ],
+    "solution": [
+      "ls -a werkzeuge",
+      "cat werkzeuge/.zugang"
+    ]
+  }
+}

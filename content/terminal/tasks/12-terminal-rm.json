@@ -1,0 +1,40 @@
+{
+  "slug": "terminal-rm",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Vorsicht mit rm",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 12,
+  "learningGoal": "Du kannst einschätzen, warum Löschbefehle Verantwortung erfordern.",
+  "story": "Ein Kollege will auf dem Server Platz schaffen. Er ist sich sicher, im Ordner `tmp` zu sein, und tippt `rm -r *` – der Stern steht für „alles hier“. Er hat vorher nicht mit `pwd` nachgesehen. In Wirklichkeit ist er im Ordner mit den Kundendaten.",
+  "assignment": "Was passiert?",
+  "hints": [
+    "Gibt es in der Kommandozeile einen Papierkorb?"
+  ],
+  "explanation": "`rm` löscht sofort und endgültig, `-r` auch Ordner mit allem darin. Es gibt keinen Papierkorb und keine Rückfrage. Profis prüfen deshalb vor jedem Löschen mit `pwd` und `ls`, wo sie sind – und sorgen für Backups. Mit Rechten auf einem Server kommt Verantwortung.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Die Dateien landen im Papierkorb und lassen sich wiederherstellen"
+      },
+      {
+        "id": "b",
+        "text": "Das Terminal fragt bei jeder Datei nach, ob sie wirklich weg soll"
+      },
+      {
+        "id": "c",
+        "text": "Alle Dateien und Ordner im aktuellen Ordner werden sofort und endgültig gelöscht – auch die Kundendaten"
+      },
+      {
+        "id": "d",
+        "text": "Es werden nur leere Ordner gelöscht"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

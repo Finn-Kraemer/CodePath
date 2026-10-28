@@ -7,6 +7,9 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ## Unveröffentlicht
 
 ### Neu
+- **Modul „Die Kommandozeile“** (14 Aufgaben): Als Azubi im IT-Team der Stadtwerke orientiert man sich im Ordnerbaum, räumt auf, liest und durchsucht Logs mit `grep`, `find`, `head`/`tail` und Pipes und behebt am Ende einen Server-Notfall ohne Anleitung.
+- **Git zum Anfassen**: Das Git-Modul ist neu aufgebaut (16 Aufgaben) – Repository anlegen, committen, im Verlauf den Verursacher eines Fehlers finden, Änderungen zurückholen, `.gitignore`, Branches, Merge, Merge-Konflikt, `pull`/`push` gegen einen simulierten Server und eine Release-Mission. Ein Commit-Graph unter dem Terminal zeigt alles live.
+- **Terminal-Aufgaben** können mehr: neue Befehle (`grep`, `find`, `head`, `tail`, `wc`, `sort`, `uniq`, `history`, `man`, `ls -a`), Pipes und `>`/`>>` für alle Befehle, simuliertes Git, Antwortfeld, Prüfungen auf den Zustand des Repositorys, „muss weg sein“, Varianten und Codes je Person. Im Browser: Verlauf mit ↑/↓, Tab-Vervollständigung, Spickzettel.
 - **Suche in der Wissensdatenbank**: Volltext über Titel und Text, Treffer mit Ausschnitt, Fundstellen im Artikel markiert.
 - **Artikel verlinken**: Aufgaben zeigen „Mehr dazu im Wiki“ (frei wählbarer Artikel, sonst der zum Modul); im Wiki-Editor lassen sich andere Artikel per Auswahl verlinken.
 - **Eigene Seiten** (Leitstand → Seiten): neue Seiten unter `/seiten/…` mit dem Abschnitts-Editor der Startseite, öffentlich oder nur für Angemeldete, im Aufklappmenü „Seiten“ und in der Übersicht `/seiten`, einzelne zusätzlich direkt in der Menüleiste.
@@ -24,6 +27,8 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update
+- Migration V20 legt das Modul *Die Kommandozeile* an und verschiebt die Aufgabe *Projekt-Setup im Terminal* samt Versuchen und Punkten dorthin. Im Git-Modul werden die durch Terminal-Aufgaben ersetzten Fragen (g2, g4, g8–g11, g13, g14) archiviert – Versuche, Punkte und Praxisabgaben bleiben erhalten, im Editor lassen sie sich zurückholen. Die neuen Aufgaben legt der Start an; beide Module sind danach für alle Kurse gesperrt, bis die Lehrkraft sie freischaltet. Die Modulreihenfolge wird nur angepasst, wo sie noch der ausgelieferten entspricht.
+- Die überarbeiteten Wissensartikel *Kommandozeile* und *Versionskontrolle (Git)* kommen nur bei Neuinstallationen mit; bestehende Artikel werden nicht überschrieben.
 - Migration V19 ergänzt Aufgabenversionen um den passenden Wissensartikel (`knowledgeArticle`, auch im Content-Paket).
 - Migration V18 ergänzt eine Kurzbeschreibung für eigene Seiten.
 - Migration V17 legt Tabellen für eigene Seiten und die Wissensdatenbank an. Die bisher fest eingebauten Wissensartikel werden beim Start einmalig übernommen (`content/wissen/`); Sichtbarkeit wie bisher (Grundlagen immer, sonst mit dem gleichnamigen Modul).

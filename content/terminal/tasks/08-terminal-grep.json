@@ -1,0 +1,48 @@
+{
+  "slug": "terminal-grep",
+  "type": "TERMINAL",
+  "title": "Fehler im Log finden",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 8,
+  "learningGoal": "Du kannst mit grep gezielt Zeilen in einer Datei finden.",
+  "story": "6:30 Uhr, das Telefon klingelt: Heute Nacht ist ein Dienst ausgefallen. Welcher? Das steht im Server-Log – irgendwo zwischen hunderten harmlosen Einträgen.",
+  "assignment": "Finde in `server.log` die Zeile mit dem Fehler (`ERROR`) und trag den Namen des ausgefallenen Dienstes ins Antwortfeld ein.\n\n`grep text datei` zeigt nur die Zeilen, in denen `text` vorkommt.",
+  "hints": [
+    "Du könntest die ganze Datei mit `cat` lesen – oder du lässt suchen.",
+    "`grep ERROR server.log` zeigt nur die Fehlerzeilen."
+  ],
+  "explanation": "`grep` durchsucht Dateien nach einem Text und zeigt nur passende Zeilen – bei Logs mit Millionen Zeilen unverzichtbar. Nützliche Schalter: `-i` (Groß-/Kleinschreibung egal), `-n` (Zeilennummer), `-c` (nur zählen).",
+  "knowledgeArticle": "linux",
+  "config": {
+    "initialDirectories": [
+      "server"
+    ],
+    "initialFiles": {
+      "server/server.log": "02:00:20 INFO  Datenbank: Verbindung aufgebaut\n02:03:41 INFO  Webserver: läuft\n02:06:52 INFO  Drucker-Warteschlange: läuft\n02:09:23 INFO  Drucker-Warteschlange: läuft\n02:12:58 INFO  Drucker-Warteschlange: Prüfung ok\n02:15:02 INFO  Webserver: Verbindung aufgebaut\n02:18:26 INFO  Webserver: Prüfung ok\n02:21:05 WARN  Drucker-Warteschlange: Speicher zu 85 % voll\n02:24:27 INFO  Webserver: läuft\n02:27:14 INFO  Zeiterfassung: läuft\n02:30:36 INFO  Drucker-Warteschlange: Verbindung aufgebaut\n02:33:03 INFO  Datenbank: läuft\n02:36:35 INFO  Datenbank: Anfrage beantwortet\n02:39:26 INFO  Datenbank: läuft\n02:42:36 INFO  Mailserver: Prüfung ok\n02:45:06 INFO  Drucker-Warteschlange: Prüfung ok\n02:48:23 INFO  Webserver: läuft\n02:51:36 INFO  Webserver: Prüfung ok\n02:54:31 INFO  Zeiterfassung: Verbindung aufgebaut\n03:01:44 ERROR {{dienst}} antwortet nicht – Neustart nötig\n02:57:49 INFO  Mailserver: Verbindung aufgebaut\n03:00:37 INFO  Backup-Dienst: Anfrage beantwortet\n03:03:19 WARN  Datenbank: Speicher zu 85 % voll\n03:06:50 INFO  Datenbank: Prüfung ok\n03:09:05 INFO  Drucker-Warteschlange: Anfrage beantwortet\n03:12:33 INFO  Backup-Dienst: Anfrage beantwortet\n03:15:46 INFO  Backup-Dienst: Anfrage beantwortet\n03:18:38 INFO  Webserver: läuft\n03:21:32 INFO  Backup-Dienst: Prüfung ok\n03:24:48 INFO  Mailserver: Prüfung ok\n03:27:59 INFO  Backup-Dienst: Verbindung aufgebaut\n03:30:02 INFO  Zeiterfassung: läuft\n03:33:48 INFO  Drucker-Warteschlange: Anfrage beantwortet\n03:36:21 INFO  Zeiterfassung: Anfrage beantwortet\n03:39:38 INFO  Backup-Dienst: Verbindung aufgebaut\n03:42:04 INFO  Webserver: Anfrage beantwortet\n03:45:30 INFO  Zeiterfassung: läuft\n"
+    },
+    "variants": [
+      {
+        "dienst": "Datenbank"
+      },
+      {
+        "dienst": "Mailserver"
+      },
+      {
+        "dienst": "Webserver"
+      },
+      {
+        "dienst": "Backup-Dienst"
+      },
+      {
+        "dienst": "Zeiterfassung"
+      }
+    ],
+    "answerLabel": "Welcher Dienst ist ausgefallen?",
+    "answer": "{{dienst}}",
+    "solution": [
+      "cd server",
+      "grep ERROR server.log"
+    ]
+  }
+}

@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Spring_Boot-4.1-0f172a" alt="Spring Boot 4.1">
   <img src="https://img.shields.io/badge/SvelteKit-2-0f172a" alt="SvelteKit 2">
   <img src="https://img.shields.io/badge/PostgreSQL-17-0f172a" alt="PostgreSQL 17">
-  <img src="https://img.shields.io/badge/Aufgaben-132-b45309" alt="132 Aufgaben">
+  <img src="https://img.shields.io/badge/Aufgaben-147-b45309" alt="147 Aufgaben">
 </p>
 
 **CodePath** ist eine Lernplattform für den IT-Berufsorientierungstag. Schülerinnen und Schüler der Klassen 7–9 schlüpfen in echte IT-Berufe – Entwicklerin, Datenbankadmin, Sicherheitsanalyst – und lösen Aufgaben, die sich wie die Arbeit dort anfühlen: Code schreiben, Datenbanken abfragen, Schaltungen bauen, Phishing-Mails entlarven, eine kaputte Web-App mit den Entwicklerwerkzeugen untersuchen.
@@ -21,8 +21,8 @@ Die Lehrkraft eröffnet einen Kurs, schaltet Module frei, verfolgt den Fortschri
 
 | | |
 |---|---|
-| **10 Module, 132 Aufgaben** | Programmierung, Web-Entwicklung, IT-Sicherheit, Datenbanken, Künstliche Intelligenz, Cloud & Netzwerke, Algorithmen, Git, Digitaltechnik – und ein Abschlusstest |
-| **15 Aufgabentypen** | von Auswahl und Lückentext über Python, SQL und Terminal bis zu Logikgattern, Markieren im Bild und dem Browser-Labor ([Übersicht](docs/aufgabentypen.md)) |
+| **11 Module, 147 Aufgaben** | Programmierung, Web-Entwicklung, IT-Sicherheit, Datenbanken, Künstliche Intelligenz, Cloud & Netzwerke, Digitaltechnik, Kommandozeile, Git, Algorithmen – und ein Abschlusstest |
+| **15 Aufgabentypen** | von Auswahl und Lückentext über Python, SQL und Terminal mit Git bis zu Logikgattern, Markieren im Bild und dem Browser-Labor ([Übersicht](docs/aufgabentypen.md)) |
 | **Fair bewertet** | ausschließlich auf dem Server; Lösungen erreichen nie den Browser, Codes und Zahlen sind je Person verschieden |
 | **Für den Unterricht gebaut** | Kurse mit Beitrittscode, Freigaben und Fristen, gestufte Hinweise, Live-Rangliste für den Beamer, Rubrik-Bewertung |
 | **Inhalte ohne Programmieren** | Editor mit Vorschau und Probelauf, Versionen, Bilder-Upload, Export und Import als ZIP |

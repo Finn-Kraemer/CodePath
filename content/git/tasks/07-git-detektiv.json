@@ -1,0 +1,89 @@
+{
+  "slug": "git-detektiv",
+  "type": "TERMINAL",
+  "title": "Detektiv im Verlauf",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 7,
+  "learningGoal": "Du kannst mit git log und git show herausfinden, wer wann was geändert hat.",
+  "story": "Alarm im SchulPlaner-Team: Seit gestern kann man sich mit **jedem** Passwort anmelden! Irgendein Commit hat `login.js` kaputtgemacht. Zum Glück vergisst Git nichts.",
+  "assignment": "Finde heraus, wer den Fehler eingebaut hat, und trag den Namen ins Antwortfeld ein.\n\n- `git log --oneline` zeigt alle Commits kurz\n- `git log` zeigt sie mit Autor\n- `git show kennung` zeigt, was ein Commit geändert hat – Zeilen mit `-` wurden entfernt, mit `+` hinzugefügt",
+  "hints": [
+    "Erst `cd schulplaner`, dann `git log`. Nur Commits, die etwas an `login.js` geändert haben, kommen infrage.",
+    "Schau dir verdächtige Commits mit `git show` an, z. B. `git show HEAD~2` (der vorvorletzte Commit). Wo wird aus der Passwort-Prüfung ein einfaches `return true`?",
+    "Der Name steht bei `git show` in der Zeile `Autor:`."
+  ],
+  "explanation": "Jeder Commit speichert Autor, Nachricht und die genauen Änderungen. Mit `git log` und `git show` lässt sich jeder Fehler bis zu seinem Ursprung zurückverfolgen – nicht um jemanden bloßzustellen, sondern um zu verstehen und zu reparieren. Die harmlose Nachricht „Code aufgeräumt“ zeigt: Gute Commit-Nachrichten sagen, was sich wirklich ändert.",
+  "knowledgeArticle": "git",
+  "config": {
+    "git": {
+      "root": "schulplaner",
+      "history": [
+        {
+          "message": "Erste Version",
+          "author": "Mia",
+          "files": {
+            "index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n",
+            "login.js": "function anmelden(passwort) {\n  // Passwort mit dem gespeicherten vergleichen\n  return passwort === gespeichertesPasswort;\n}\n"
+          }
+        },
+        {
+          "message": "Startseite mit Begrüßung",
+          "author": "Jonas",
+          "files": {
+            "index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n<p>Hallo!</p>\n"
+          }
+        },
+        {
+          "message": "Login: Fehlermeldung ergänzt",
+          "author": "Elif",
+          "files": {
+            "login.js": "function anmelden(passwort) {\n  // Passwort mit dem gespeicherten vergleichen\n  return passwort === gespeichertesPasswort;\n}\n\nfunction fehlermeldung() {\n  return 'Passwort falsch';\n}\n"
+          }
+        },
+        {
+          "message": "Code aufgeräumt",
+          "author": "{{taeter}}",
+          "files": {
+            "login.js": "function anmelden(passwort) {\n  return true;\n}\n\nfunction fehlermeldung() {\n  return 'Passwort falsch';\n}\n"
+          }
+        },
+        {
+          "message": "Impressum ergänzt",
+          "author": "Noah",
+          "files": {
+            "impressum.html": "<h1>Impressum</h1>\n"
+          }
+        },
+        {
+          "message": "Farben angepasst",
+          "author": "Mia",
+          "files": {
+            "style.css": "h1 { color: teal; }\n"
+          }
+        }
+      ]
+    },
+    "variants": [
+      {
+        "taeter": "Ben"
+      },
+      {
+        "taeter": "Ada"
+      },
+      {
+        "taeter": "Tom"
+      },
+      {
+        "taeter": "Lena"
+      }
+    ],
+    "answerLabel": "Wer hat den Fehler eingebaut?",
+    "answer": "{{taeter}}",
+    "solution": [
+      "cd schulplaner",
+      "git log --oneline",
+      "git show HEAD~2"
+    ]
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "slug": "terminal-befehle",
+  "type": "MATCHING",
+  "title": "Befehle im Überblick",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 13,
+  "learningGoal": "Du kannst die wichtigsten Terminal-Befehle ihrer Aufgabe zuordnen.",
+  "story": "Dein erster Monat ist fast vorbei. Herr Yilmaz will wissen, ob du die Werkzeuge kennst, bevor du Bereitschaftsdienst übernimmst.",
+  "assignment": "Ordne jedem Befehl zu, was er tut. Eine Beschreibung bleibt übrig.",
+  "hints": [
+    "Viele Befehle sind Abkürzungen: ls = list, cd = change directory, mv = move, cp = copy."
+  ],
+  "explanation": "ls listet, cd wechselt den Ordner, mkdir legt Ordner an, cp kopiert, mv verschiebt oder benennt um, grep sucht Text, tail zeigt das Ende einer Datei. Einen Befehl, der „das Internet beschleunigt“, gibt es leider nicht.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "left": [
+      {
+        "id": "l1",
+        "text": "ls"
+      },
+      {
+        "id": "l2",
+        "text": "cd"
+      },
+      {
+        "id": "l3",
+        "text": "mkdir"
+      },
+      {
+        "id": "l4",
+        "text": "cp"
+      },
+      {
+        "id": "l5",
+        "text": "mv"
+      },
+      {
+        "id": "l6",
+        "text": "grep"
+      },
+      {
+        "id": "l7",
+        "text": "tail"
+      }
+    ],
+    "right": [
+      {
+        "id": "r1",
+        "text": "zeigt, was im Ordner liegt"
+      },
+      {
+        "id": "r2",
+        "text": "wechselt in einen anderen Ordner"
+      },
+      {
+        "id": "r3",
+        "text": "legt einen neuen Ordner an"
+      },
+      {
+        "id": "r4",
+        "text": "kopiert eine Datei"
+      },
+      {
+        "id": "r5",
+        "text": "verschiebt eine Datei oder benennt sie um"
+      },
+      {
+        "id": "r6",
+        "text": "findet Zeilen mit einem bestimmten Text"
+      },
+      {
+        "id": "r7",
+        "text": "zeigt die letzten Zeilen einer Datei"
+      },
+      {
+        "id": "r8",
+        "text": "beschleunigt die Internetverbindung"
+      }
+    ],
+    "pairs": [
+      {
+        "left": "l1",
+        "right": "r1"
+      },
+      {
+        "left": "l2",
+        "right": "r2"
+      },
+      {
+        "left": "l3",
+        "right": "r3"
+      },
+      {
+        "left": "l4",
+        "right": "r4"
+      },
+      {
+        "left": "l5",
+        "right": "r5"
+      },
+      {
+        "left": "l6",
+        "right": "r6"
+      },
+      {
+        "left": "l7",
+        "right": "r7"
+      }
+    ]
+  }
+}

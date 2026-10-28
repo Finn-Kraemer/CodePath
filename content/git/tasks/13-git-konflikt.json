@@ -1,0 +1,75 @@
+{
+  "slug": "git-konflikt",
+  "type": "TERMINAL",
+  "title": "Merge-Konflikt",
+  "difficulty": "HARD",
+  "points": 25,
+  "sortOrder": 13,
+  "learningGoal": "Du kannst einen Merge-Konflikt erkennen und auflösen.",
+  "story": "Lena hat auf dem Branch `design` die Überschriften lila gefärbt. Jonas hat auf `main` dieselbe Zeile auf rot geändert. Git kann nicht wissen, wer recht hat. Das Team hat abgestimmt: **Lenas Lila gewinnt.**",
+  "assignment": "Führe `design` in `main` zusammen und löse den Konflikt so, dass Lenas Version übernommen wird.\n\n- `cat style.css` zeigt die Konfliktstelle zwischen `<<<<<<<` und `>>>>>>>`\n- `git checkout --ours datei` nimmt deine Seite (main), `git checkout --theirs datei` die andere (design)\n- danach `git add datei` und `git commit`",
+  "hints": [
+    "Erst `cd schulplaner`, dann `git merge design`. Git meldet einen KONFLIKT – das ist kein Fehler, sondern eine Frage an dich.",
+    "Lenas Version kommt aus dem Branch, den du hereinholst. Das ist „theirs“: `git checkout --theirs style.css`.",
+    "Prüfe mit `cat style.css`, dass keine Konfliktmarkierungen mehr drin sind. Dann `git add style.css` und `git commit -m \"Konflikt gelöst\"`."
+  ],
+  "explanation": "Ein Konflikt entsteht, wenn zwei Branches dieselbe Stelle verschieden ändern. Git markiert sie mit `<<<<<<<`, `=======` und `>>>>>>>` und überlässt die Entscheidung den Menschen – denn welche Version richtig ist, ist oft eine Absprache im Team, keine Technikfrage.",
+  "knowledgeArticle": "git",
+  "config": {
+    "git": {
+      "root": "schulplaner",
+      "history": [
+        {
+          "message": "Erste Version",
+          "author": "Mia",
+          "files": {
+            "index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n",
+            "style.css": "body { font-family: sans-serif; }\nh1 { color: black; }\n"
+          }
+        },
+        {
+          "branch": "design",
+          "message": "Überschriften lila",
+          "author": "Lena",
+          "files": {
+            "style.css": "body { font-family: sans-serif; }\nh1 { color: purple; }\n"
+          }
+        },
+        {
+          "branch": "main",
+          "message": "Überschriften rot",
+          "author": "Jonas",
+          "files": {
+            "style.css": "body { font-family: sans-serif; }\nh1 { color: red; }\n"
+          }
+        }
+      ]
+    },
+    "gitChecks": [
+      {
+        "check": "merged",
+        "branch": "design",
+        "into": "main"
+      },
+      {
+        "check": "committed",
+        "path": "style.css",
+        "branch": "main",
+        "contains": "h1 { color: purple; }",
+        "notContains": "<<<<<<<",
+        "label": "In style.css auf main sollen Lenas lila Überschriften stehen – ohne Konfliktmarkierungen."
+      },
+      {
+        "check": "clean"
+      }
+    ],
+    "solution": [
+      "cd schulplaner",
+      "git merge design",
+      "cat style.css",
+      "git checkout --theirs style.css",
+      "git add style.css",
+      "git commit -m \"Lila Überschriften übernommen\""
+    ]
+  }
+}

@@ -51,8 +51,8 @@ class TaskReleaseTest extends IntegrationTestBase {
         JsonNode git = body(getAs(as(lena), "/api/modules/git").andExpect(status().isOk()));
         assertEquals(1, git.get("tasks").size());
         assertEquals("g1", git.get("tasks").get(0).get("slug").asText());
-        getAs(as(lena), "/api/modules/git/g2").andExpect(status().isForbidden());
-        postAs(as(lena), "/api/modules/git/g2/submit", Map.of("selected", List.of("a"))).andExpect(status().isForbidden());
+        getAs(as(lena), "/api/modules/git/g3").andExpect(status().isForbidden());
+        postAs(as(lena), "/api/modules/git/g3/submit", Map.of("selected", List.of("a"))).andExpect(status().isForbidden());
         getAs(as(lena), "/api/modules/git/g1").andExpect(status().isOk());
 
         // Der andere Kurs sieht davon nichts
@@ -77,27 +77,27 @@ class TaskReleaseTest extends IntegrationTestBase {
         unlock(course, "git");
         int all = body(getAs(as(lena), "/api/modules/git")).get("tasks").size();
         int fullMax = find(body(getAs(teacher(), "/api/admin/modules?courseId=" + course.getId())), "git").get("maxPoints").asInt();
-        int g14Points = jdbc.queryForObject("select v.points from tasks t join task_versions v on v.id = t.current_version_id where t.slug = 'g14'", Integer.class);
+        int releasePoints = jdbc.queryForObject("select v.points from tasks t join task_versions v on v.id = t.current_version_id where t.slug = 'git-release'", Integer.class);
 
-        setMode(course, "git", "g14", "HIDDEN");
+        setMode(course, "git", "git-release", "HIDDEN");
         JsonNode git = body(getAs(as(lena), "/api/modules/git"));
         assertEquals(all - 1, git.get("tasks").size());
         assertEquals(all - 1, git.get("module").get("totalTasks").asInt());
-        getAs(as(lena), "/api/modules/git/g14").andExpect(status().isForbidden());
+        getAs(as(lena), "/api/modules/git/git-release").andExpect(status().isForbidden());
 
-        assertEquals(fullMax - g14Points, find(body(getAs(teacher(), "/api/admin/modules?courseId=" + course.getId())), "git").get("maxPoints").asInt());
-        assertEquals(fullMax - g14Points, reportService.results(lena).stream()
+        assertEquals(fullMax - releasePoints, find(body(getAs(teacher(), "/api/admin/modules?courseId=" + course.getId())), "git").get("maxPoints").asInt());
+        assertEquals(fullMax - releasePoints, reportService.results(lena).stream()
                 .filter(r -> r.title().startsWith("Git")).findFirst().orElseThrow().max());
 
         JsonNode tasks = body(getAs(teacher(), "/api/admin/modules/" + moduleId("git") + "/tasks?courseId=" + course.getId()));
-        JsonNode g14 = findTask(tasks, "g14");
-        assertEquals("HIDDEN", g14.get("mode").asText());
-        assertFalse(g14.get("visible").asBoolean());
+        JsonNode release = findTask(tasks, "git-release");
+        assertEquals("HIDDEN", release.get("mode").asText());
+        assertFalse(release.get("visible").asBoolean());
 
         // Zurück auf „wie das Modul“
-        setMode(course, "git", "g14", "MODULE");
-        getAs(as(lena), "/api/modules/git/g14").andExpect(status().isOk());
-        assertTrue(findTask(body(getAs(teacher(), "/api/admin/modules/" + moduleId("git") + "/tasks?courseId=" + course.getId())), "g14").get("mode").isNull());
+        setMode(course, "git", "git-release", "MODULE");
+        getAs(as(lena), "/api/modules/git/git-release").andExpect(status().isOk());
+        assertTrue(findTask(body(getAs(teacher(), "/api/admin/modules/" + moduleId("git") + "/tasks?courseId=" + course.getId())), "git-release").get("mode").isNull());
 
         // Nur die Lehrkraft, nur bekannte Modi, nur Aufgaben des Moduls
         putAs(as(lena), "/api/admin/modules/" + moduleId("git") + "/tasks/" + taskId("g1") + "/release?courseId=" + course.getId() + "&mode=SHOWN", null)

@@ -1,0 +1,28 @@
+{
+  "slug": "terminal-notiz",
+  "type": "TERMINAL",
+  "title": "Die Notiz des Vorgängers",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 6,
+  "learningGoal": "Du kannst Dateien mit cat, head und tail lesen.",
+  "story": "Dein Vorgänger hat dir eine Übergabe-Notiz hinterlassen. Irgendwo darin steht der Code für die Tür zum Serverraum.",
+  "assignment": "Lies die Datei `uebergabe.txt` und trag den **Zugangscode** ins Antwortfeld ein.\n\n- `cat datei` zeigt die ganze Datei\n- `head datei` zeigt nur den Anfang, `tail datei` nur das Ende\n- mit `-n 3` bestimmst du, wie viele Zeilen: `head -n 3 datei`",
+  "hints": [
+    "Probier `cat uebergabe.txt`.",
+    "Der Code steht ganz am Ende der Datei. `tail uebergabe.txt` zeigt die letzten Zeilen.",
+    "`tail -n 1 uebergabe.txt` zeigt genau die letzte Zeile."
+  ],
+  "explanation": "`cat` gibt eine Datei komplett aus, `head` und `tail` nur den Anfang oder das Ende. Bei Log-Dateien mit tausenden Zeilen ist `tail` Gold wert: Die neuesten Einträge stehen immer unten.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "initialFiles": {
+      "uebergabe.txt": "Übergabe für die neue Azubine / den neuen Azubi\n==============================================\nWillkommen im Team! Ein paar Dinge, die du wissen solltest:\n\n- Kaffee gibt es in der Küche im 2. Stock.\n- Der Drucker im Flur klemmt, wenn man ihn schief ansieht.\n- Backups laufen jede Nacht um 2 Uhr.\n- Bei Stromausfall: Ruhe bewahren, Herrn Yilmaz anrufen.\n- Passwörter NIE auf Zettel schreiben (ja, ich weiß …).\n- Montags ist Teambesprechung um 9 Uhr.\n- Die Server-Logs liegen unter server/logs.\n- Freitags gibt es manchmal Kuchen.\n\nViel Erfolg!\n\nPS: Zugangscode für den Serverraum: {{code}}\n"
+    },
+    "answerLabel": "Wie lautet der Zugangscode?",
+    "answer": "{{code}}",
+    "solution": [
+      "tail -n 1 uebergabe.txt"
+    ]
+  }
+}

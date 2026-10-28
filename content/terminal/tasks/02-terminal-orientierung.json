@@ -1,0 +1,68 @@
+{
+  "slug": "terminal-orientierung",
+  "type": "TERMINAL",
+  "title": "Wo bin ich?",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 2,
+  "learningGoal": "Du kannst dich mit pwd, ls und cd im Ordnerbaum bewegen.",
+  "story": "Herr Yilmaz kratzt sich am Kopf: „Irgendwo auf dem Server liegt die Datei backup.zip. Ich weiß nur nicht mehr, wo. Kannst du nachsehen?“",
+  "assignment": "Finde heraus, in welchem Ordner `backup.zip` liegt, und trag den **Ordnernamen** ins Antwortfeld ein.\n\n- `ls` zeigt, was im aktuellen Ordner liegt – Ordner enden mit `/`\n- `cd ordner` geht hinein, `cd ..` eine Ebene zurück\n- `pwd` zeigt, wo du gerade bist",
+  "hints": [
+    "Fang mit `ls` an. Jeder Eintrag mit `/` am Ende ist ein Ordner, in den du mit `cd` hineinschauen kannst.",
+    "Schau dir die Ordner der Reihe nach an: `cd server`, `ls`, `cd ..`, `cd archiv`, `ls` …",
+    "Wenn du im richtigen Ordner bist, zeigt `pwd` den Weg dorthin. Der Ordnername ist der letzte Teil davon."
+  ],
+  "explanation": "Profis bewegen sich ohne Maus durch den Ordnerbaum: `ls` (list) zeigt den Inhalt, `cd` (change directory) wechselt den Ordner, `pwd` (print working directory) sagt, wo man ist. Mit `cd ..` geht es eine Ebene nach oben, mit `cd ~` zurück nach Hause.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "initialDirectories": [
+      "dokumente",
+      "bilder",
+      "server/logs",
+      "server/daten",
+      "server/alt",
+      "archiv/2023",
+      "archiv/2024"
+    ],
+    "initialFiles": {
+      "dokumente/dienstplan.txt": "Montag: Yilmaz\nDienstag: Azubi\n",
+      "bilder/teamfoto.png": "",
+      "server/logs/app.log": "08:00 INFO Server gestartet\n",
+      "server/daten/kunden.csv": "nr;name\n1;Stadtbad\n",
+      "archiv/2024/rechnung.pdf": "",
+      "{{ordner}}/backup.zip": ""
+    },
+    "variants": [
+      {
+        "ordner": "server/alt",
+        "antwort": "alt"
+      },
+      {
+        "ordner": "archiv/2023",
+        "antwort": "2023"
+      },
+      {
+        "ordner": "dokumente",
+        "antwort": "dokumente"
+      },
+      {
+        "ordner": "server/daten",
+        "antwort": "daten"
+      }
+    ],
+    "answerLabel": "In welchem Ordner liegt backup.zip?",
+    "answer": [
+      "{{antwort}}",
+      "{{ordner}}",
+      "~/{{ordner}}",
+      "{{antwort}}/"
+    ],
+    "solution": [
+      "ls",
+      "cd {{ordner}}",
+      "ls",
+      "pwd"
+    ]
+  }
+}

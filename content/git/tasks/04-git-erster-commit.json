@@ -1,0 +1,47 @@
+{
+  "slug": "git-erster-commit",
+  "type": "TERMINAL",
+  "title": "Der erste Commit",
+  "difficulty": "EASY",
+  "points": 20,
+  "sortOrder": 4,
+  "learningGoal": "Du kannst Dateien mit git add vormerken und mit git commit speichern.",
+  "story": "Das Repository steht. Jetzt soll der erste Stand des SchulPlaners gespeichert werden – mit einer Nachricht, damit alle wissen, was drin ist.",
+  "assignment": "Speichere `index.html` und `app.js` gemeinsam in einem Commit.\n\n1. `git add datei` merkt eine Datei für den nächsten Commit vor (Staging)\n2. `git commit -m \"Nachricht\"` speichert alles Vorgemerkte\n3. Mit `git status` und `git log` prüfst du das Ergebnis",
+  "hints": [
+    "Erst `cd schulplaner`. `git add index.html app.js` merkt beide auf einmal vor – `git add .` nimmt alles im Ordner.",
+    "Ohne `-m \"…\"` gibt es keinen Commit. Beispiel: `git commit -m \"Erste Version\"`.",
+    "Fertig ist es, wenn `git status` „nichts zu committen“ meldet und im Verlauf ein Punkt erscheint."
+  ],
+  "explanation": "Ein Commit ist ein Schnappschuss des Projekts mit Kennung, Autor und Nachricht. Der Weg dorthin hat immer zwei Schritte: `git add` sammelt, was hinein soll, `git commit` speichert es dauerhaft. So entscheidest du genau, was in einen Commit gehört.",
+  "knowledgeArticle": "git",
+  "config": {
+    "initialFiles": {
+      "schulplaner/index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n",
+      "schulplaner/app.js": "console.log('SchulPlaner startet');\n"
+    },
+    "git": {
+      "root": "schulplaner",
+      "history": []
+    },
+    "gitChecks": [
+      {
+        "check": "committed",
+        "path": "index.html"
+      },
+      {
+        "check": "committed",
+        "path": "app.js"
+      },
+      {
+        "check": "clean"
+      }
+    ],
+    "solution": [
+      "cd schulplaner",
+      "git add index.html app.js",
+      "git commit -m \"Erste Version\"",
+      "git status"
+    ]
+  }
+}

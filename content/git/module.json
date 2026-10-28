@@ -1,7 +1,7 @@
 {
   "slug": "git",
   "title": "Git & Versionskontrolle",
-  "description": "Du arbeitest im Team an einer App – ohne Git verliert ihr den Überblick. Lerne wie professionelle Entwickler Code verwalten.",
+  "description": "Ihr baut im Team die App „SchulPlaner“. Ohne Git würdet ihr euch gegenseitig die Arbeit überschreiben – mit Git hat jede Änderung einen Namen, eine Nachricht und einen Weg zurück.",
   "icon": "🌿",
-  "sortOrder": 8
+  "sortOrder": 9
 }

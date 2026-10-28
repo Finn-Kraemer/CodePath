@@ -1,0 +1,34 @@
+{
+  "slug": "terminal-schreiben",
+  "type": "TERMINAL",
+  "title": "Konfiguration schreiben",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 10,
+  "learningGoal": "Du kannst mit echo, > und >> Text in Dateien schreiben.",
+  "story": "Heute Abend wird das Kundenportal gewartet. Damit Besucher eine freundliche Nachricht sehen, braucht der Server eine Konfigurationsdatei.",
+  "assignment": "Lege im Ordner `server/config` die Datei `wartung.conf` mit genau diesen zwei Zeilen an:\n\n```\nmodus=wartung\nnachricht=Wir sind gleich zurück\n```\n\n- `echo \"text\" > datei` schreibt in eine Datei (und überschreibt sie)\n- `echo \"text\" >> datei` hängt eine Zeile hinten an",
+  "hints": [
+    "Erste Zeile: `echo \"modus=wartung\" > server/config/wartung.conf`",
+    "Für die zweite Zeile brauchst du `>>` – mit `>` würdest du die erste Zeile wieder überschreiben.",
+    "Prüfe das Ergebnis mit `cat server/config/wartung.conf`."
+  ],
+  "explanation": "Mit `>` landet die Ausgabe eines Befehls in einer Datei statt auf dem Bildschirm – Vorsicht, der alte Inhalt ist dann weg. `>>` hängt an. So schreiben Admins schnell Konfigurationen, ohne einen Editor zu öffnen.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "initialDirectories": [
+      "server/config"
+    ],
+    "initialFiles": {
+      "server/config/portal.conf": "name=kundenportal\nport=8080\n"
+    },
+    "expectedContents": {
+      "server/config/wartung.conf": "modus=wartung\nnachricht=Wir sind gleich zurück"
+    },
+    "allowExtra": true,
+    "solution": [
+      "echo \"modus=wartung\" > server/config/wartung.conf",
+      "echo \"nachricht=Wir sind gleich zurück\" >> server/config/wartung.conf"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "slug": "git-init",
+  "type": "TERMINAL",
+  "title": "Dein erstes Repository",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 3,
+  "learningGoal": "Du kannst einen Ordner mit git init zu einem Repository machen und mit git status prüfen, was Git sieht.",
+  "story": "Ihr startet im Team die App „SchulPlaner“. Zwei Dateien gibt es schon. Bevor weitere dazukommen, soll Git ab jetzt jede Änderung festhalten.",
+  "assignment": "1. Wechsle in den Ordner `schulplaner`.\n2. Mach ihn mit `git init` zu einem Git-Repository.\n3. Schau mit `git status` nach, was Git sieht.\n\nUnter dem Terminal erscheint ab jetzt der **Commit-Verlauf** – noch ist er leer.",
+  "hints": [
+    "`cd schulplaner`, dann `git init`.",
+    "`git status` listet Dateien, die Git noch nicht kennt, unter „Unversionierte Dateien“. Zähl sie."
+  ],
+  "explanation": "`git init` legt im Ordner den versteckten Unterordner `.git` an – dort speichert Git den kompletten Verlauf (`ls -a` zeigt ihn). „Unversioniert“ heißt: Die Datei liegt im Ordner, aber Git beobachtet sie noch nicht.",
+  "knowledgeArticle": "git",
+  "config": {
+    "initialDirectories": [
+      "schulplaner"
+    ],
+    "initialFiles": {
+      "schulplaner/index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n",
+      "schulplaner/app.js": "console.log('SchulPlaner startet');\n"
+    },
+    "answerLabel": "Wie viele unversionierte Dateien zeigt git status?",
+    "answer": [
+      "2",
+      "zwei"
+    ],
+    "gitChecks": [
+      {
+        "check": "repo",
+        "path": "schulplaner"
+      }
+    ],
+    "solution": [
+      "cd schulplaner",
+      "git init",
+      "git status"
+    ]
+  }
+}

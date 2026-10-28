@@ -1,0 +1,40 @@
+{
+  "slug": "terminal-warum",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Warum tippen Profis?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "Du kannst erklären, warum Server über die Kommandozeile gesteuert werden.",
+  "story": "Dein Ausbilder Herr Yilmaz zeigt dir den Server der Stadtwerke. Kein Bildschirm, keine Maus – nur ein schwarzes Fenster mit blinkendem Cursor. „Damit arbeiten wir den ganzen Tag“, sagt er.",
+  "assignment": "Warum steuern Administratorinnen und Administratoren Server meistens über die Kommandozeile?",
+  "hints": [
+    "Wie würdest du einen Computer bedienen, der 200 Kilometer entfernt in einem Rechenzentrum steht?"
+  ],
+  "explanation": "Server stehen in Rechenzentren, meist ohne Bildschirm. Über das Netzwerk (zum Beispiel per SSH) schickt man ihnen Textbefehle. Befehle lassen sich außerdem in Skripte schreiben und automatisch wiederholen – bei 100 Servern spart das Stunden.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Weil Terminals moderner aussehen als Fenster und Mauszeiger"
+      },
+      {
+        "id": "b",
+        "text": "Weil Server meist keinen Bildschirm haben und man sie über das Netzwerk mit Textbefehlen steuert – schnell und automatisierbar"
+      },
+      {
+        "id": "c",
+        "text": "Weil man mit der Maus keine Dateien löschen kann"
+      },
+      {
+        "id": "d",
+        "text": "Weil Textbefehle weniger Strom verbrauchen als Klicks"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}
