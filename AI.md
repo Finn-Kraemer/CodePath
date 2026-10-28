@@ -53,6 +53,10 @@ Content-Pakete unter `content/<modul>/` (`module.json`, `tasks/NN-slug.json`, Ma
 
 Bilder liegen in PostgreSQL, Schlüssel = SHA-256 + Endung (ADR-7). Upload nur für die Lehrkraft, nur PNG/JPEG/GIF/WebP bis 2 MB, Auslieferung unter `/api/media/` mit restriktiver CSP. Markdown zeigt nur diese Bilder. Details: `docs/historie/medien-und-neue-typen.md`.
 
+## Startseite
+
+Blöcke als JSON in `system_settings` (`homepage_draft`, `homepage_published`), bearbeitet unter `/admin/homepage`. `HomepageService` prüft nur die Form (bekannte Blocktypen, höchstens 60 Blöcke, 200.000 Zeichen); Blocktypen, Felder und die Standardseite stehen in `frontend/src/lib/homepage/types.ts`, gerendert von `HomepageView.svelte` (Texte escaped, Markdown über DOMPurify). `GET /api/public/homepage` ist ohne Anmeldung erreichbar; `/api/media/<key>` liefert ohne Anmeldung nur Bilder der veröffentlichten Startseite, und solche Bilder lassen sich nicht löschen.
+
 ## Live-Updates
 
 Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, gesendet erst nach dem Commit. Die Beamer-Ansicht `/projector` nutzt dasselbe. Gesendet wird auf einem eigenen Thread (`codepath-live-updates`), damit ein langsamer Client keine Abgabe aufhält; Ranglisten-Updates, die sich in der Warteschlange stauen, werden zu einem zusammengefasst.

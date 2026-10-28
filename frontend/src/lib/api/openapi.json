@@ -458,7 +458,7 @@
         "tags" : [ "content-editor-controller" ]
       },
       "put" : {
-        "operationId" : "saveDraft",
+        "operationId" : "saveDraft_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -588,7 +588,7 @@
     },
     "/api/admin/content/tasks/{id}/publish" : {
       "post" : {
-        "operationId" : "publish",
+        "operationId" : "publish_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -883,6 +883,75 @@
           }
         },
         "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/homepage" : {
+      "delete" : {
+        "operationId" : "reset",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "homepage-controller" ]
+      },
+      "get" : {
+        "operationId" : "state",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HomepageState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "homepage-controller" ]
+      }
+    },
+    "/api/admin/homepage/draft" : {
+      "put" : {
+        "operationId" : "saveDraft",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "homepage-controller" ]
+      }
+    },
+    "/api/admin/homepage/published" : {
+      "put" : {
+        "operationId" : "publish",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "homepage-controller" ]
       }
     },
     "/api/admin/media" : {
@@ -2348,6 +2417,27 @@
         "tags" : [ "student-controller" ]
       }
     },
+    "/api/public/homepage" : {
+      "get" : {
+        "operationId" : "homepage",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "$ref" : "#/components/schemas/JsonNode"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "homepage-controller" ]
+      }
+    },
     "/api/reports/my-report" : {
       "get" : {
         "operationId" : "myReport",
@@ -2679,6 +2769,18 @@
         },
         "required" : [ "hints", "hintsTotal", "penaltyPercent" ]
       },
+      "HomepageState" : {
+        "type" : "object",
+        "properties" : {
+          "draft" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "published" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          }
+        },
+        "required" : [ "draft", "published" ]
+      },
       "ImportReport" : {
         "type" : "object",
         "properties" : {
@@ -2706,6 +2808,86 @@
           }
         },
         "required" : [ "errors", "modulesCreated", "tasksCreated", "unchanged", "versionsPublished" ]
+      },
+      "JsonNode" : {
+        "type" : "object",
+        "properties" : {
+          "array" : {
+            "type" : "boolean"
+          },
+          "bigDecimal" : {
+            "type" : "boolean"
+          },
+          "bigInteger" : {
+            "type" : "boolean"
+          },
+          "binary" : {
+            "type" : "boolean"
+          },
+          "boolean" : {
+            "type" : "boolean"
+          },
+          "container" : {
+            "type" : "boolean"
+          },
+          "double" : {
+            "type" : "boolean"
+          },
+          "embeddedValue" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "float" : {
+            "type" : "boolean"
+          },
+          "floatingPointNumber" : {
+            "type" : "boolean"
+          },
+          "int" : {
+            "type" : "boolean"
+          },
+          "integralNumber" : {
+            "type" : "boolean"
+          },
+          "long" : {
+            "type" : "boolean"
+          },
+          "missingNode" : {
+            "type" : "boolean"
+          },
+          "nodeType" : {
+            "type" : "string",
+            "enum" : [ "ARRAY", "BINARY", "BOOLEAN", "MISSING", "NULL", "NUMBER", "OBJECT", "POJO", "STRING" ]
+          },
+          "null" : {
+            "type" : "boolean"
+          },
+          "number" : {
+            "type" : "boolean"
+          },
+          "object" : {
+            "type" : "boolean"
+          },
+          "pojo" : {
+            "type" : "boolean"
+          },
+          "short" : {
+            "type" : "boolean"
+          },
+          "string" : {
+            "type" : "boolean"
+          },
+          "textual" : {
+            "type" : "boolean",
+            "deprecated" : true
+          },
+          "valueNode" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "array", "bigDecimal", "bigInteger", "binary", "boolean", "container", "double", "embeddedValue", "empty", "float", "floatingPointNumber", "int", "integralNumber", "long", "missingNode", "nodeType", "null", "number", "object", "pojo", "short", "string", "textual", "valueNode" ]
       },
       "Leaderboard" : {
         "type" : "object",

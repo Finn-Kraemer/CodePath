@@ -56,6 +56,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/health", "/actuator/health/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
                 .requestMatchers("/error").permitAll()
+                // Startseite und ihre Bilder sehen auch Besucher ohne Anmeldung; welche Bilder, prüft MediaController
+                .requestMatchers(HttpMethod.GET, "/api/public/**", "/api/media/*").permitAll()
                 .requestMatchers("/api/admin/**", "/actuator/**").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 // Alles andere ist das ausgelieferte Frontend (statische Dateien und SPA-Routen)
