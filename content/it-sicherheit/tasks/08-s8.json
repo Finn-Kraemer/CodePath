@@ -1,0 +1,39 @@
+{
+  "slug": "s8",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Firewall-Regeln lesen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 8,
+  "learningGoal": "Du kannst Firewall-Regeln von oben nach unten auswerten.",
+  "story": "Ein Schulserver hat diese Firewall-Konfiguration (erste passende Regel gewinnt):\n\n```\nRegel 1: ALLOW  Port 443 (HTTPS)\nRegel 2: ALLOW  Port 80  (HTTP)\nRegel 3: DENY   Port 22  (SSH)\nRegel 4: DENY   ALL\n```",
+  "assignment": "Was passiert wenn ein Admin versucht sich per SSH (Port 22) zu verbinden?",
+  "hints": [
+    "Firewall-Regeln werden von oben nach unten geprüft. Die erste Regel die passt, gewinnt. Regel 3 passt auf Port 22 bevor DENY ALL erreicht wird."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Erlaubt – der Admin hat besondere Rechte"
+      },
+      {
+        "id": "b",
+        "text": "Blockiert – Regel 3 trifft zu bevor DENY ALL erreicht wird"
+      },
+      {
+        "id": "c",
+        "text": "Erlaubt – SSH ist ein sicheres Protokoll"
+      },
+      {
+        "id": "d",
+        "text": "Blockiert durch DENY ALL – die letzte Regel gilt immer"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

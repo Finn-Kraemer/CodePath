@@ -1,6 +1,6 @@
 # ADR-5: Inhalte versioniert in der Datenbank, Content-Pakete für Import und Export
 
-**Status:** Vorgeschlagen
+**Status:** Akzeptiert, umgesetzt in Phase 2 und 3
 
 **Kontext:** Inhalte sollen ohne Code-Änderung gepflegt werden; heute liegen sie als JSON im Backend-JAR.
 

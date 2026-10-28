@@ -1,0 +1,35 @@
+{
+  "slug": "g4",
+  "type": "FILL_BLANK",
+  "title": "Erster Commit – Schritt für Schritt",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 4,
+  "learningGoal": "Du kannst einen ersten Commit mit add und commit anlegen.",
+  "story": "Du hast eine neue Datei `app.py` erstellt und willst sie in Git speichern. Was sind die Befehle in der richtigen Reihenfolge?",
+  "assignment": "Ergänze die fehlenden Git-Befehle.",
+  "hints": [
+    "init = Repository erstellen (einmalig). add = zur Bühne bringen. commit = den Moment festhalten. Diese drei Befehle sind der Kern von Git."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "# Schritt 1: Repository anlegen\ngit ___\n\n# Schritt 2: Datei zur Staging Area hinzufügen\ngit ___ app.py\n\n# Schritt 3: Snapshot mit Beschreibung speichern\ngit ___ -m \"Erste Version der App\"",
+    "blanks": [
+      {
+        "answers": [
+          "init"
+        ]
+      },
+      {
+        "answers": [
+          "add"
+        ]
+      },
+      {
+        "answers": [
+          "commit"
+        ]
+      }
+    ]
+  }
+}

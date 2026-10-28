@@ -1,0 +1,55 @@
+{
+  "slug": "a8",
+  "type": "FILL_CODE",
+  "title": "Queue – First In, First Out",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 8,
+  "learningGoal": "Du kannst eine Queue nach dem FIFO-Prinzip mit deque umsetzen.",
+  "story": "Der Drucker in der Schule druckt Aufträge in der Reihenfolge wie sie ankommen. Wer zuerst druckt bekommt sein Dokument zuerst – das ist eine Queue (Warteschlange).",
+  "assignment": "Ergänze die Queue-Simulation mit `collections.deque`.",
+  "hints": [
+    "deque ist effizienter als eine normale Liste für Queues. append() fügt rechts hinzu (hinten anstellen). popleft() nimmt links weg (vorne aus der Schlange)."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "from collections import deque\n\ndrucker_queue = deque()\n\n# Aufträge hinzufügen (hinten anstellen)\ndrucker_queue.___( \"Anna: Mathe-Hausaufgaben\")\ndrucker_queue.___( \"Ben: Referat\")\ndrucker_queue.___( \"Clara: Stundenplan\")\n\n# Aufträge abarbeiten (vorne wegnehmen) – FIFO!\nprint(\"Drucke:\", drucker_queue.___(  ))\nprint(\"Drucke:\", drucker_queue.___(  ))",
+    "blanks": [
+      {
+        "answers": [
+          "append"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "append"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "append"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "popleft"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "popleft"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "Drucke: Anna: Mathe-Hausaufgaben\nDrucke: Ben: Referat\n"
+      }
+    ]
+  }
+}

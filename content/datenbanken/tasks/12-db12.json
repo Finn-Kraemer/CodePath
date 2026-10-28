@@ -1,0 +1,44 @@
+{
+  "slug": "db12",
+  "type": "PRACTICE",
+  "title": "Entwirf die Datenbank für deine App",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 12,
+  "learningGoal": "Du kannst ein Datenbankschema mit Tabellen, Schlüsseln und Beziehungen entwerfen.",
+  "story": "Du baust eine Team-App wo mehrere Nutzer Aufgaben erstellen, zuweisen und als erledigt markieren können. Entwirf das Datenbankmodell!",
+  "assignment": "Entwirf ein vollständiges Datenbankschema für eine Team-To-Do-App.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Dein Schema muss enthalten:\n1. Alle nötigen Tabellen mit Spalten und Datentypen (z.B. TEXT, INTEGER, BOOLEAN, DATE)\n2. Primärschlüssel (id) für jede Tabelle\n3. Fremdschlüssel-Beziehungen zwischen den Tabellen\n4. Mindestens 2 Beispiel-SQL-Abfragen (z.B. alle offenen Aufgaben eines Nutzers)\n5. Bonus: Warum hast du die Tabellen so aufgeteilt? (Stichwort: keine Datendoppelung)",
+    "submissionNote": "Tabellendefinitionen + Beziehungen + 2 SQL-Abfragen + kurze Begründung der Entscheidungen",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Alle nötigen Tabellen mit Spalten und Datentypen (z.B. TEXT, INTEGER, BOOLEAN, DATE)",
+        "points": 10
+      },
+      {
+        "id": "k2",
+        "label": "Primärschlüssel (id) für jede Tabelle",
+        "points": 10
+      },
+      {
+        "id": "k3",
+        "label": "Fremdschlüssel-Beziehungen zwischen den Tabellen",
+        "points": 10
+      },
+      {
+        "id": "k4",
+        "label": "Mindestens 2 Beispiel-SQL-Abfragen (z.B. alle offenen Aufgaben eines Nutzers)",
+        "points": 10
+      },
+      {
+        "id": "k5",
+        "label": "Bonus: Warum hast du die Tabellen so aufgeteilt? (Stichwort: keine Datendoppelung)",
+        "points": 10
+      }
+    ]
+  }
+}

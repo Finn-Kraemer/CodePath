@@ -1,0 +1,44 @@
+{
+  "slug": "a14",
+  "type": "PRACTICE",
+  "title": "Algorithmen-Design: Empfehlungssystem",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 14,
+  "learningGoal": "Du kannst für ein Problem eine passende Datenstruktur und einen Algorithmus begründet auswählen.",
+  "story": "Du baust das Empfehlungssystem für die Lernplattform. Es soll Schülern automatisch die nächste passende Aufgabe empfehlen – nicht zu leicht, nicht zu schwer.",
+  "assignment": "Entwirf deinen eigenen Algorithmus und wähle die passende Datenstruktur.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Dein Entwurf muss enthalten:\n1. Algorithmus-Beschreibung: Was sind Eingabe und Ausgabe? Beschreibe die Logik in Pseudocode oder Python.\n2. Datenstruktur: Welche Struktur nutzt du für die Aufgaben? (Liste, Dictionary, Baum, Graph...) Begründe warum.\n3. Schritt-für-Schritt: Was passiert wenn ein Schüler eine Aufgabe löst?\n4. Sonderfall: Was passiert wenn keine passende Aufgabe gefunden wird?\n5. Bonus: Könnte man einen Graphen nutzen um Aufgaben-Abhängigkeiten darzustellen? (z.B. 'Schleifen' muss vor 'Funktionen' kommen) Skizziere die Idee.\n\nKontext: Jede Aufgabe hat einen Schwierigkeitsgrad (1-10). Der Schüler hat zuletzt Aufgaben der Schwierigkeit 3-5 gelöst.",
+    "submissionNote": "Pseudocode oder Python + Erklärung der Datenstruktur + Begründung deiner Entscheidungen.",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Algorithmus-Beschreibung: Was sind Eingabe und Ausgabe? Beschreibe die Logik in Pseudocode oder Python.",
+        "points": 10
+      },
+      {
+        "id": "k2",
+        "label": "Datenstruktur: Welche Struktur nutzt du für die Aufgaben? (Liste, Dictionary, Baum, Graph...) Begründe warum.",
+        "points": 10
+      },
+      {
+        "id": "k3",
+        "label": "Schritt-für-Schritt: Was passiert wenn ein Schüler eine Aufgabe löst?",
+        "points": 10
+      },
+      {
+        "id": "k4",
+        "label": "Sonderfall: Was passiert wenn keine passende Aufgabe gefunden wird?",
+        "points": 10
+      },
+      {
+        "id": "k5",
+        "label": "Bonus: Könnte man einen Graphen nutzen um Aufgaben-Abhängigkeiten darzustellen? (z.B. 'Schleifen' muss vor 'Funktionen' kommen) Skizziere die Idee.",
+        "points": 10
+      }
+    ]
+  }
+}

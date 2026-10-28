@@ -1,0 +1,39 @@
+{
+  "slug": "a1",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Was ist ein Algorithmus?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "Du kannst erklären, was einen Algorithmus ausmacht: eindeutige, endliche Schritte zu einem Ziel.",
+  "story": "Dein Lehrer sagt: 'Ein Algorithmus ist wie ein Kochrezept.' Du nickst – aber verstehst du wirklich was das bedeutet?",
+  "assignment": "Welche Aussage beschreibt einen Algorithmus am besten?",
+  "hints": [
+    "Die Schlüsselwörter sind 'eindeutig' und 'endlich'. Jeder Schritt muss klar definiert sein und der Algorithmus muss irgendwann aufhören. Ein Kochrezept erfüllt das – eine vage Anleitung nicht."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Ein Algorithmus ist immer ein Programm in Python"
+      },
+      {
+        "id": "b",
+        "text": "Ein Algorithmus ist eine eindeutige, endliche Schritt-für-Schritt-Anleitung die ein Problem löst"
+      },
+      {
+        "id": "c",
+        "text": "Ein Algorithmus muss immer der schnellste Weg sein"
+      },
+      {
+        "id": "d",
+        "text": "Ein Algorithmus ist nur für Mathematiker relevant"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

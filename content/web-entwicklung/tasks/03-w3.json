@@ -1,0 +1,39 @@
+{
+  "slug": "w3",
+  "type": "MULTIPLE_CHOICE",
+  "title": "HTML-Detektiv",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 3,
+  "learningGoal": "Du kannst vorhersagen, wie der Browser eine HTML-Seite darstellt.",
+  "story": "Dein erster HTML-Code! Was zeigt der Browser an?\n\n```\n<h1>Meine Webseite</h1>\n<!-- Das ist ein Kommentar -->\n<p>Willkommen!</p>\n```",
+  "assignment": "Was sieht der Nutzer im Browser wenn er diese Seite öffnet?",
+  "hints": [
+    "HTML-Kommentare () sind nur im Quellcode sichtbar, nicht im Browser. h1 und p sind sichtbare Elemente."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Alles inklusive des Kommentartextes"
+      },
+      {
+        "id": "b",
+        "text": "Nur die Überschrift, ohne den Absatz"
+      },
+      {
+        "id": "c",
+        "text": "Die Überschrift und den Text – der Kommentar ist unsichtbar"
+      },
+      {
+        "id": "d",
+        "text": "Den rohen HTML-Code als Text"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

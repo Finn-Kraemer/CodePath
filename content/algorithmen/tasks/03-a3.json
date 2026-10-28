@@ -1,0 +1,49 @@
+{
+  "slug": "a3",
+  "type": "FILL_CODE",
+  "title": "Lineare Suche implementieren",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 3,
+  "learningGoal": "Du kannst eine lineare Suche in Python schreiben.",
+  "story": "Du baust eine Suchfunktion für das Schulverzeichnis. Implementiere die einfachste Suchmethode: von vorne nach hinten durch die Liste gehen.",
+  "assignment": "Ergänze die lineare Suche.",
+  "hints": [
+    "enumerate() gibt (Index, Wert) zurück. Vergleiche mit ==. Die Konvention: -1 zurückgeben wenn nichts gefunden wurde (nicht 0 – das wäre der erste Index!)."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "def lineare_suche(liste, ziel):\n    ___ i, element ___ enumerate(liste):\n        if element ___ ziel:\n            return i  # Index gefunden!\n    return ___  # Nicht gefunden\n\nnamen = [\"Anna\", \"Ben\", \"Clara\", \"David\"]\nprint(lineare_suche(namen, \"Clara\"))  # → 2\nprint(lineare_suche(namen, \"Eva\"))   # → -1",
+    "blanks": [
+      {
+        "answers": [
+          "for"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "in"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "=="
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "-1"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "2\n-1\n"
+      }
+    ]
+  }
+}

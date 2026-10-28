@@ -1,0 +1,39 @@
+{
+  "slug": "s11",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Man-in-the-Middle-Angriff",
+  "difficulty": "HARD",
+  "points": 10,
+  "sortOrder": 11,
+  "learningGoal": "Du kannst einen Man-in-the-Middle-Angriff erkennen und Gegenmaßnahmen nennen.",
+  "story": "Du sitzt im Café. Du verbindest dich mit dem WLAN \"Starbucks_Free\". Ein Angreifer hat dieses WLAN selbst erstellt und liest deinen gesamten Datenverkehr mit – deine Passwörter, Nachrichten, alles.",
+  "assignment": "Wie nennt man diesen Angriff – und was schützt dich davor?",
+  "hints": [
+    "Der Angreifer sitzt in der Mitte zwischen dir und dem echten Server. HTTPS verschlüsselt die Verbindung so dass ein Mitleser nur unlesbares Kauderwelsch sieht."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Brute-Force-Angriff – Schutz: starkes Passwort"
+      },
+      {
+        "id": "b",
+        "text": "Man-in-the-Middle (MITM) – Schutz: HTTPS und VPN verschlüsseln den Datenverkehr"
+      },
+      {
+        "id": "c",
+        "text": "SQL Injection – Schutz: Prepared Statements"
+      },
+      {
+        "id": "d",
+        "text": "Phishing – Schutz: URLs genau prüfen"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

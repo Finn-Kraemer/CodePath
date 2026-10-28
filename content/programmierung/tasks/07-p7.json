@@ -1,0 +1,39 @@
+{
+  "slug": "p7",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Datentyp erraten",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 7,
+  "learningGoal": "Du kannst die Datentypen int, float, str und bool erkennen.",
+  "story": "Du debuggst Code und willst wissen welchen Datentyp verschiedene Werte haben. Python hat dafür die Funktion `type()`.\n\n```\nprint(type(42))        # ???\nprint(type(3.14))      # ???\nprint(type(\"A\"))       # ???\nprint(type(True))      # ???\n```",
+  "assignment": "Welche Ausgabe ist korrekt für alle vier Zeilen?",
+  "hints": [
+    "In Python: Ganzzahlen sind int, Kommazahlen sind float, Text ist str (nicht char – ein einzelnes Zeichen ist auch ein str der Länge 1), Wahrheitswerte sind bool."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "int / float / char / bool"
+      },
+      {
+        "id": "b",
+        "text": "int / float / str / bool"
+      },
+      {
+        "id": "c",
+        "text": "number / decimal / string / boolean"
+      },
+      {
+        "id": "d",
+        "text": "integer / float / string / boolean"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

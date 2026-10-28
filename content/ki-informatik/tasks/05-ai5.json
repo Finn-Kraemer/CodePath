@@ -1,0 +1,39 @@
+{
+  "slug": "ai5",
+  "type": "MULTIPLE_CHOICE",
+  "title": "KI-Bias erkennen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 5,
+  "learningGoal": "Du kannst erkennen, wie einseitige Trainingsdaten zu Verzerrungen führen.",
+  "story": "Ein großes Unternehmen nutzt KI um Bewerbungen vorzusortieren. Das spart Zeit – aber ist es fair?",
+  "assignment": "Eine Bewerbungs-KI wurde mit Daten aus den letzten 10 Jahren trainiert – in dieser Zeit wurden fast ausschließlich Männer eingestellt. Was ist die Folge?",
+  "hints": [
+    "KI lernt Muster aus Daten – auch ungerechte Muster. Wenn historische Daten diskriminierend waren, lernt die KI diese Diskriminierung. Das nennt man Bias."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Die KI wird zu langsam weil die Datenmenge zu groß ist"
+      },
+      {
+        "id": "b",
+        "text": "Die KI bevorzugt wahrscheinlich wieder Männer – sie hat gelernt dass Männer erfolgreiche Bewerber sind"
+      },
+      {
+        "id": "c",
+        "text": "Die KI kann keine PDFs lesen"
+      },
+      {
+        "id": "d",
+        "text": "Die Datenmenge ist zu gering für Training"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

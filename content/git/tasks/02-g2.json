@@ -1,0 +1,39 @@
+{
+  "slug": "g2",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Was ist ein Repository?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 2,
+  "learningGoal": "Du kannst beschreiben, was ein Git-Repository enthält.",
+  "story": "Dein Lehrer spricht von einem 'Repo'. Alle anderen nicken – aber du fragst dich: Was ist das eigentlich?",
+  "assignment": "Was ist ein Git-Repository?",
+  "hints": [
+    "Ein Repository ist mehr als nur ein Ordner – Git merkt sich jede Änderung die je gemacht wurde. Schau in den versteckten .git-Ordner!"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Ein Ordner auf GitHub.com"
+      },
+      {
+        "id": "b",
+        "text": "Ein Ordner der von Git überwacht wird – inklusive der gesamten Änderungshistorie aller Dateien"
+      },
+      {
+        "id": "c",
+        "text": "Eine spezielle Datei die Git-Befehle speichert"
+      },
+      {
+        "id": "d",
+        "text": "Ein Backup auf einem Server"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

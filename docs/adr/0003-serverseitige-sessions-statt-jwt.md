@@ -1,6 +1,6 @@
 # ADR-3: Serverseitige Sessions statt JWT
 
-**Status:** Vorgeschlagen
+**Status:** Akzeptiert, umgesetzt in Phase 1
 
 **Kontext:** Frontend und API kommen vom selben Server. Das heutige JWT lässt sich nicht widerrufen und hing an einem Secret mit Standardwert.
 
@@ -9,5 +9,3 @@
 **Alternativen:** JWT behalten mit Pflicht-Secret und Sperrliste (mehr Code, gleicher Nutzen).
 
 **Konsequenzen:** Die Lehrkraft kann Sitzungen beenden; Sessions überleben Neustarts; eine Tabelle mehr in PostgreSQL.
-
-Übergang (Phase 0): `JWT_SECRET` ist Pflicht und hat keinen Standardwert mehr.

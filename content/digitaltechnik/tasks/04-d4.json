@@ -1,0 +1,39 @@
+{
+  "slug": "d4",
+  "type": "MULTIPLE_CHOICE",
+  "title": "ASCII – Buchstaben als Zahlen",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 4,
+  "learningGoal": "Du kannst erklären, wie Zeichen über den ASCII-Code als Zahlen gespeichert werden.",
+  "story": "Der ASCII-Code ordnet jedem Zeichen eine Zahl zu. Einige bekannte Werte:\n\n- `A` = 65\n- `B` = 66\n- `a` = 97\n\nIn Python: `ord(\"A\")` gibt 65 zurück. `chr(66)` gibt `\"B\"` zurück.",
+  "assignment": "Was gibt `chr(ord(\"A\") + 2)` in Python aus?",
+  "hints": [
+    "ord(\"A\") = 65. 65 + 2 = 67. chr(67) = ? Großbuchstaben folgen in ASCII der Reihenfolge des Alphabets: A=65, B=66, C=67..."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "A2"
+      },
+      {
+        "id": "b",
+        "text": "67"
+      },
+      {
+        "id": "c",
+        "text": "C"
+      },
+      {
+        "id": "d",
+        "text": "a"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

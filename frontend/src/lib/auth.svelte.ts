@@ -1,69 +1,84 @@
 import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
+import { realtime } from '$lib/realtime.svelte';
 
-interface User {
+export interface User {
 	username: string;
 	role: string;
+	displayName?: string;
 }
 
+/**
+ * Die Anmeldung steckt in einer serverseitigen Session (HttpOnly-Cookie). Im Browser liegt nur,
+ * wer angemeldet ist – als Hinweis für die Oberfläche; /api/auth/me bestätigt es beim Start.
+ */
 class AuthStore {
-	// We no longer read token from localStorage, it's in a HttpOnly cookie
-	token = $state<string | null>(null);
 	user = $state<User | null>(browser ? JSON.parse(localStorage.getItem('user') || 'null') : null);
 
-	login(token: string, user: User) {
-		this.token = token;
+	login(user: User) {
 		this.user = user;
 		if (browser) {
 			localStorage.setItem('user', JSON.stringify(user));
 		}
 	}
 
-	async logout() {
-		this.token = null;
+	private clear() {
 		this.user = null;
 		if (browser) {
 			localStorage.removeItem('user');
-			// Call backend to clear cookie
-			try {
-				await fetch('/api/auth/logout', { method: 'POST' });
-			} catch (e) {
-				console.error('Logout failed', e);
+		}
+		realtime.disconnect();
+	}
+
+	async logout() {
+		try {
+			await this.apiFetch('/api/auth/logout', { method: 'POST' }, false);
+		} catch (e) {
+			console.error('Logout failed', e);
+		}
+		this.clear();
+		if (browser) goto('/login');
+	}
+
+	/** Gleicht den lokalen Zustand mit der Session auf dem Server ab. */
+	async refresh() {
+		if (!browser) return;
+		try {
+			const res = await fetch('/api/auth/me', { credentials: 'include' });
+			if (res.ok) {
+				this.login(await res.json());
+			} else if (res.status === 401) {
+				this.clear();
 			}
-			goto('/login');
+		} catch {
+			// Offline: lokalen Zustand behalten
 		}
 	}
 
 	get isAuthenticated() {
-		// Since token is in HttpOnly cookie, we use user presence as a proxy for UI state
 		return !!this.user;
 	}
 
 	private getCsrfToken(): string | null {
 		if (!browser) return null;
-		const name = 'XSRF-TOKEN=';
-		const decodedCookie = decodeURIComponent(document.cookie);
-		const ca = decodedCookie.split(';');
-		for (let i = 0; i < ca.length; i++) {
-			let c = ca[i];
-			while (c.charAt(0) === ' ') {
-				c = c.substring(1);
-			}
-			if (c.indexOf(name) === 0) {
-				return c.substring(name.length, c.length);
-			}
-		}
-		return null;
+		const match = document.cookie
+			.split(';')
+			.map((c) => c.trim())
+			.find((c) => c.startsWith('XSRF-TOKEN='));
+		return match ? decodeURIComponent(match.substring('XSRF-TOKEN='.length)) : null;
 	}
 
-	async apiFetch(url: string, options: RequestInit = {}) {
+	async apiFetch(url: string, options: RequestInit = {}, logoutOnUnauthorized = true) {
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json'
 		};
 
-		// CSRF Protection
 		const csrfToken = this.getCsrfToken();
-		if (csrfToken && options.method && !['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(options.method.toUpperCase())) {
+		if (
+			csrfToken &&
+			options.method &&
+			!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(options.method.toUpperCase())
+		) {
 			headers['X-XSRF-TOKEN'] = csrfToken;
 		}
 
@@ -74,12 +89,12 @@ class AuthStore {
 		const res = await fetch(url, {
 			...options,
 			headers,
-			// Important: credentials 'include' sends cookies
 			credentials: 'include'
 		});
 
-		if (res.status === 401) {
-			await this.logout();
+		if (res.status === 401 && logoutOnUnauthorized) {
+			this.clear();
+			if (browser) goto('/login');
 		}
 
 		return res;

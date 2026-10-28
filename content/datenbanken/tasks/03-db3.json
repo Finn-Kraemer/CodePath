@@ -1,0 +1,39 @@
+{
+  "slug": "db3",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Was gibt diese Abfrage zurück?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 3,
+  "learningGoal": "Du kannst das Ergebnis einer SQL-Abfrage vorhersagen.",
+  "story": "Du analysierst unbezahlte Bestellungen. Was liefert diese Abfrage?\n\n```\nSELECT kunde, betrag\nFROM bestellungen\nWHERE status = 'offen'\nORDER BY betrag DESC;\n```",
+  "assignment": "Was sind die Ergebnisse dieser SQL-Abfrage?",
+  "hints": [
+    "Lese die Abfrage von oben nach unten: SELECT (was) FROM (woher) WHERE (welche Bedingung) ORDER BY (wie sortiert). DESC = descending = absteigend = größter zuerst."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Alle Zeilen der Tabelle ungefiltert"
+      },
+      {
+        "id": "b",
+        "text": "Alle offenen Bestellungen – sortiert nach Betrag, höchster zuerst"
+      },
+      {
+        "id": "c",
+        "text": "Nur die bezahlten Bestellungen"
+      },
+      {
+        "id": "d",
+        "text": "Nur die Zeile mit dem kleinsten Betrag"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

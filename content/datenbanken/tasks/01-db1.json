@@ -1,0 +1,39 @@
+{
+  "slug": "db1",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Warum brauchen wir Datenbanken?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "Du kannst begründen, warum große Datenmengen in eine Datenbank statt in eine Tabellenkalkulation gehören.",
+  "story": "Stell dir vor, Netflix würde alle Nutzer, Filme und Abos in einer Excel-Tabelle verwalten. Was wäre das größte Problem?",
+  "assignment": "Wähle das Hauptproblem wenn Netflix eine Excel-Datei nutzen würde.",
+  "hints": [
+    "Stell dir vor 10 Millionen Menschen öffnen gleichzeitig dieselbe Excel-Datei und ändern Daten. Was passiert?"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Excel kostet zu viel Geld"
+      },
+      {
+        "id": "b",
+        "text": "Millionen Nutzer gleichzeitig können nicht auf dieselbe Datei zugreifen und sie verändern"
+      },
+      {
+        "id": "c",
+        "text": "Excel kann keine Videos speichern"
+      },
+      {
+        "id": "d",
+        "text": "Das Dateiformat ist mit Smartphones inkompatibel"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

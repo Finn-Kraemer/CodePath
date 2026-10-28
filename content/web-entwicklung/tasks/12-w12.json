@@ -1,0 +1,39 @@
+{
+  "slug": "w12",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Responsive Design verstehen",
+  "difficulty": "HARD",
+  "points": 10,
+  "sortOrder": 12,
+  "learningGoal": "Du kannst erklären, wie eine Webseite sich an verschiedene Bildschirme anpasst.",
+  "story": "Ihr habt eine tolle Schulwebseite gebaut – aber beim Test auf dem Smartphone überlappen sich Texte und Buttons sind nicht klickbar. Das Problem ist mangelndes Responsive Design.",
+  "assignment": "Die Webseite sieht auf dem Desktop super aus – auf dem Handy ist alles winzig und durcheinander. Was fehlt?",
+  "hints": [
+    "Stichwort:  sagt dem Handy wie breit die Seite ist. @media (max-width: 600px) {...} definiert CSS speziell für kleine Bildschirme."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Eine andere Schriftart"
+      },
+      {
+        "id": "b",
+        "text": "Das viewport-Meta-Tag im head und CSS Media Queries für verschiedene Bildschirmbreiten"
+      },
+      {
+        "id": "c",
+        "text": "Mehr Bilder auf der Seite"
+      },
+      {
+        "id": "d",
+        "text": "Eine schnellere Internetverbindung"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

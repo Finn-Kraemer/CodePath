@@ -19,7 +19,7 @@
 	let changingPassword = $state(false);
 	let error = $state('');
 	let success = $state('');
-    let certificatesEnabled = $state(false);
+	let certificatesEnabled = $state(false);
 
 	async function fetchProfile() {
 		try {
@@ -32,10 +32,10 @@
 				profile = await profileRes.json();
 				newDisplayName = profile?.displayName || '';
 			}
-            if (certRes.ok) {
-                const data = await certRes.json();
-                certificatesEnabled = data.enabled;
-            }
+			if (certRes.ok) {
+				const data = await certRes.json();
+				certificatesEnabled = data.enabled;
+			}
 		} catch (e) {
 			error = 'Profil konnte nicht geladen werden';
 		} finally {
@@ -48,7 +48,7 @@
 		error = '';
 		success = '';
 		try {
-			const res = await auth.apiFetch('/api/users/profile/display-name', {
+			const res = await auth.apiFetch('/api/auth/me/display-name', {
 				method: 'PATCH',
 				body: JSON.stringify({ displayName: newDisplayName })
 			});
@@ -70,8 +70,8 @@
 			error = 'Passwörter stimmen nicht überein.';
 			return;
 		}
-		if (newPassword.length < 6) {
-			error = 'Passwort muss mindestens 6 Zeichen lang sein.';
+		if (newPassword.length < 8) {
+			error = 'Passwort muss mindestens 8 Zeichen lang sein.';
 			return;
 		}
 
@@ -79,7 +79,7 @@
 		error = '';
 		success = '';
 		try {
-			const res = await auth.apiFetch('/api/users/profile/password', {
+			const res = await auth.apiFetch('/api/auth/me/password', {
 				method: 'PATCH',
 				body: JSON.stringify({ password: newPassword })
 			});
@@ -134,19 +134,21 @@
 
 	{#if loading}
 		<div class="flex justify-center py-24">
-			<div class="h-12 w-12 border-4 border-slate-200 border-t-institutional-navy animate-spin"></div>
+			<div
+				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
+			></div>
 		</div>
 	{:else if profile}
 		<div class="space-y-12">
 			<!-- Stats -->
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-				<div class="border border-slate-200 bg-white p-10 text-center shadow-sm rounded-none">
+				<div class="rounded-none border border-slate-200 bg-white p-10 text-center shadow-sm">
 					<p class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
 						Gesamtpunktzahl
 					</p>
 					<p class="font-sans text-5xl font-black text-institutional-gold">{profile.totalPoints}</p>
 				</div>
-				<div class="border border-slate-200 bg-white p-10 text-center shadow-sm rounded-none">
+				<div class="rounded-none border border-slate-200 bg-white p-10 text-center shadow-sm">
 					<p class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
 						Abgeschlossene Aufgaben
 					</p>
@@ -157,20 +159,31 @@
 			</div>
 
 			<!-- Report Card Download -->
-			<div class="border border-slate-200 bg-white p-12 shadow-sm rounded-none">
+			<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
 				<h2 class="mb-6 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
 					Abschluss-Dokumente
 				</h2>
-				<p class="text-sm text-slate-500 mb-10 leading-relaxed">
-					Laden Sie hier Ihren offiziellen Leistungsnachweis als PDF-Dokument herunter. Das Dokument enthält eine Übersicht Ihrer Leistungen in den einzelnen Modulen sowie eine automatisch berechnete Abschlussnote.
+				<p class="mb-10 text-sm leading-relaxed text-slate-500">
+					Laden Sie hier Ihren offiziellen Leistungsnachweis als PDF-Dokument herunter. Das Dokument
+					enthält eine Übersicht Ihrer Leistungen in den einzelnen Modulen sowie eine automatisch
+					berechnete Abschlussnote.
 				</p>
 
 				{#if certificatesEnabled || profile.role === 'ADMIN'}
 					<button
 						onclick={handleDownloadReport}
-						class="flex items-center justify-center gap-4 w-full border-2 border-institutional-gold bg-white py-5 font-sans text-[11px] font-bold tracking-[3px] text-institutional-gold uppercase transition-all hover:bg-amber-50 rounded-none shadow-sm"
+						class="flex w-full items-center justify-center gap-4 rounded-none border-2 border-institutional-gold bg-white py-5 font-sans text-[11px] font-bold tracking-[3px] text-institutional-gold uppercase shadow-sm transition-all hover:bg-amber-50"
 					>
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-5 w-5"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
 							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 							<polyline points="7 10 12 15 17 10"></polyline>
 							<line x1="12" y1="15" x2="12" y2="3"></line>
@@ -178,29 +191,35 @@
 						Zeugnis herunterladen (PDF)
 					</button>
 				{:else}
-					<div class="bg-slate-50 border border-slate-200 p-8 text-center">
-						<p class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-2">Status: Gesperrt</p>
-						<p class="text-xs text-slate-500">Offizielle Zeugnisse werden erst am Ende der Veranstaltung freigegeben.</p>
+					<div class="border border-slate-200 bg-slate-50 p-8 text-center">
+						<p
+							class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+						>
+							Status: Gesperrt
+						</p>
+						<p class="text-xs text-slate-500">
+							Offizielle Zeugnisse werden erst am Ende der Veranstaltung freigegeben.
+						</p>
 					</div>
 				{/if}
 			</div>
 
 			<!-- Settings -->
-			<div class="border border-slate-200 bg-white p-12 shadow-sm rounded-none">
+			<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
 				<h2 class="mb-10 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
 					Benutzer-Einstellungen
 				</h2>
 
 				{#if error}
 					<div
-						class="mb-8 border border-rose-200 bg-rose-50 p-6 font-mono text-xs text-rose-700 rounded-none"
+						class="mb-8 rounded-none border border-rose-200 bg-rose-50 p-6 font-mono text-xs text-rose-700"
 					>
 						{error}
 					</div>
 				{/if}
 				{#if success}
 					<div
-						class="mb-8 border border-green-200 bg-green-50 p-6 font-mono text-xs text-green-700 rounded-none"
+						class="mb-8 rounded-none border border-green-200 bg-green-50 p-6 font-mono text-xs text-green-700"
 					>
 						{success}
 					</div>
@@ -218,7 +237,7 @@
 							id="username"
 							value={profile.username}
 							disabled
-							class="w-full border-slate-100 bg-slate-50 px-5 py-4 font-mono text-sm text-slate-400 cursor-not-allowed rounded-none"
+							class="w-full cursor-not-allowed rounded-none border-slate-100 bg-slate-50 px-5 py-4 font-mono text-sm text-slate-400"
 						/>
 					</div>
 
@@ -232,7 +251,7 @@
 							bind:value={newDisplayName}
 							type="text"
 							id="displayName"
-							class="w-full border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy outline-none focus:border-institutional-navy rounded-none transition-colors"
+							class="w-full rounded-none border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy transition-colors outline-none focus:border-institutional-navy"
 						/>
 					</div>
 
@@ -242,7 +261,7 @@
 							>Berechtigungsstufe</span
 						>
 						<span
-							class="inline-flex border border-slate-200 bg-slate-50 px-4 py-2 font-mono text-[10px] font-black tracking-widest text-slate-600 uppercase rounded-none"
+							class="inline-flex rounded-none border border-slate-200 bg-slate-50 px-4 py-2 font-mono text-[10px] font-black tracking-widest text-slate-600 uppercase"
 							>{profile.role}</span
 						>
 					</div>
@@ -250,7 +269,7 @@
 					<button
 						onclick={handleSave}
 						disabled={saving || newDisplayName === profile.displayName}
-						class="w-full bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:opacity-90 disabled:opacity-20 rounded-none"
+						class="w-full rounded-none bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:opacity-90 disabled:opacity-20"
 					>
 						{saving ? 'Synchronisierung...' : 'Profil-Daten aktualisieren'}
 					</button>
@@ -258,7 +277,7 @@
 			</div>
 
 			<!-- Password Security Section -->
-			<div class="border border-slate-200 bg-white p-12 shadow-sm rounded-none">
+			<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
 				<h2 class="mb-10 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
 					Sicherheits-Parameter
 				</h2>
@@ -274,7 +293,7 @@
 							bind:value={newPassword}
 							type="password"
 							id="newPassword"
-							class="w-full border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy outline-none focus:border-institutional-navy rounded-none transition-colors"
+							class="w-full rounded-none border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy transition-colors outline-none focus:border-institutional-navy"
 						/>
 					</div>
 
@@ -288,14 +307,14 @@
 							bind:value={confirmPassword}
 							type="password"
 							id="confirmPassword"
-							class="w-full border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy outline-none focus:border-institutional-navy rounded-none transition-colors"
+							class="w-full rounded-none border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy transition-colors outline-none focus:border-institutional-navy"
 						/>
 					</div>
 
 					<button
 						onclick={handleChangePassword}
 						disabled={changingPassword || !newPassword || !confirmPassword}
-						class="w-full bg-slate-800 py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:bg-slate-900 disabled:opacity-20 rounded-none"
+						class="w-full rounded-none bg-slate-800 py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:bg-slate-900 disabled:opacity-20"
 					>
 						{changingPassword ? 'Aktualisierung...' : 'System-Passwort überschreiben'}
 					</button>

@@ -1,0 +1,3036 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "CodePath API",
+    "version" : "2"
+  },
+  "paths" : {
+    "/api/admin/announcement" : {
+      "put" : {
+        "operationId" : "announcement",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/content" : {
+      "get" : {
+        "operationId" : "overview",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ModuleRow"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/export" : {
+      "get" : {
+        "operationId" : "export",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/import" : {
+      "post" : {
+        "operationId" : "importZip",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportReport"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/import-bundled" : {
+      "post" : {
+        "operationId" : "importBundled",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportReport"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/modules" : {
+      "post" : {
+        "operationId" : "createModule",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModuleFile"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModuleRow"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/modules/{id}" : {
+      "put" : {
+        "operationId" : "updateModule",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModuleFile"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModuleRow"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/modules/{id}/tasks" : {
+      "post" : {
+        "operationId" : "createTask",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateTaskRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/run-solution" : {
+      "post" : {
+        "operationId" : "runSolution",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RunSolutionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SolutionRun"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}" : {
+      "get" : {
+        "operationId" : "task_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/archived" : {
+      "put" : {
+        "operationId" : "archive",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "value",
+          "required" : true,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/check" : {
+      "post" : {
+        "operationId" : "check",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CheckResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/draft" : {
+      "delete" : {
+        "operationId" : "discardDraft",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      },
+      "put" : {
+        "operationId" : "saveDraft",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TaskFile"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/preview" : {
+      "get" : {
+        "operationId" : "preview",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "preview-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/preview/evaluate" : {
+      "post" : {
+        "operationId" : "evaluate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : { }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubmitResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "preview-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/preview/solution" : {
+      "get" : {
+        "operationId" : "solution",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : { }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "preview-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/publish" : {
+      "post" : {
+        "operationId" : "publish",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/content/tasks/{id}/versions/{versionId}/restore" : {
+      "post" : {
+        "operationId" : "restore",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "versionId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskEditorView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
+    "/api/admin/courses" : {
+      "get" : {
+        "operationId" : "courses",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CourseSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      },
+      "post" : {
+        "operationId" : "createCourse",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateCourseRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CourseSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/courses/{id}/accounts" : {
+      "post" : {
+        "operationId" : "createAccounts",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateAccountsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/GeneratedAccount"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/courses/{id}/certificates" : {
+      "get" : {
+        "operationId" : "courseCertificates",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/admin/courses/{id}/end" : {
+      "post" : {
+        "operationId" : "endCourse",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int32"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/courses/{id}/join-code" : {
+      "post" : {
+        "operationId" : "regenerateJoinCode",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CourseSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/feedback" : {
+      "get" : {
+        "operationId" : "feedback",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "additionalProperties" : { }
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/feedback/status" : {
+      "get" : {
+        "operationId" : "feedbackStatus_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "boolean"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/feedback/toggle" : {
+      "put" : {
+        "operationId" : "toggleFeedback",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "boolean"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/modules" : {
+      "get" : {
+        "operationId" : "modules_1",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ModuleReleaseView"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/modules/{id}/deadline" : {
+      "put" : {
+        "operationId" : "deadline",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/modules/{id}/toggle" : {
+      "put" : {
+        "operationId" : "toggle_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "boolean"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/sessions/logout-students" : {
+      "post" : {
+        "operationId" : "logoutAllStudents",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int32"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/settings/certificates" : {
+      "get" : {
+        "operationId" : "certificates_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "boolean"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/settings/certificates/toggle" : {
+      "put" : {
+        "operationId" : "toggleCertificates",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "boolean"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/statistics/tasks" : {
+      "get" : {
+        "operationId" : "statistics",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TaskStatistic"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-record-controller" ]
+      }
+    },
+    "/api/admin/students" : {
+      "get" : {
+        "operationId" : "students",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/StudentOverview"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-record-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/report" : {
+      "get" : {
+        "operationId" : "studentReport",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/reset-password" : {
+      "put" : {
+        "operationId" : "resetPassword",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/submissions" : {
+      "get" : {
+        "operationId" : "forStudent",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SubmissionSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "review-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/tasks" : {
+      "get" : {
+        "operationId" : "tasks",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/StudentTask"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-record-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/tasks/{taskId}/attempts" : {
+      "get" : {
+        "operationId" : "attempts",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AttemptView"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-record-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/tasks/{taskId}/toggle" : {
+      "put" : {
+        "operationId" : "toggle",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "boolean"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-record-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/tasks/{taskId}/toggle-lock" : {
+      "put" : {
+        "operationId" : "toggleLock",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "boolean"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-record-controller" ]
+      }
+    },
+    "/api/admin/submissions" : {
+      "get" : {
+        "operationId" : "pending",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SubmissionSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "review-controller" ]
+      }
+    },
+    "/api/admin/submissions/{id}" : {
+      "get" : {
+        "operationId" : "detail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubmissionDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "review-controller" ]
+      }
+    },
+    "/api/admin/submissions/{id}/approve" : {
+      "put" : {
+        "operationId" : "approve",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ApproveRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubmissionDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "review-controller" ]
+      }
+    },
+    "/api/admin/submissions/{id}/reject" : {
+      "put" : {
+        "operationId" : "reject",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RejectRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubmissionDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "review-controller" ]
+      }
+    },
+    "/api/auth/login" : {
+      "post" : {
+        "operationId" : "login",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controller" ]
+      }
+    },
+    "/api/auth/logout" : {
+      "post" : {
+        "operationId" : "logout",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controller" ]
+      }
+    },
+    "/api/auth/me" : {
+      "get" : {
+        "operationId" : "me",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controller" ]
+      }
+    },
+    "/api/auth/me/display-name" : {
+      "patch" : {
+        "operationId" : "updateDisplayName",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controller" ]
+      }
+    },
+    "/api/auth/me/password" : {
+      "patch" : {
+        "operationId" : "changePassword",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controller" ]
+      }
+    },
+    "/api/auth/register" : {
+      "post" : {
+        "operationId" : "register",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "auth-controller" ]
+      }
+    },
+    "/api/common/announcement" : {
+      "get" : {
+        "operationId" : "announcement_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-controller" ]
+      }
+    },
+    "/api/common/settings/certificates" : {
+      "get" : {
+        "operationId" : "certificates",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "boolean"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-controller" ]
+      }
+    },
+    "/api/events" : {
+      "get" : {
+        "operationId" : "events",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "text/event-stream" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SseEmitter"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "event-controller" ]
+      }
+    },
+    "/api/feedback" : {
+      "post" : {
+        "operationId" : "submitFeedback",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-controller" ]
+      }
+    },
+    "/api/feedback/status" : {
+      "get" : {
+        "operationId" : "feedbackStatus",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "boolean"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-controller" ]
+      }
+    },
+    "/api/health" : {
+      "get" : {
+        "operationId" : "health",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/leaderboard" : {
+      "get" : {
+        "operationId" : "leaderboard",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Leaderboard"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "progress-controller" ]
+      }
+    },
+    "/api/modules" : {
+      "get" : {
+        "operationId" : "modules",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ModuleSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-controller" ]
+      }
+    },
+    "/api/modules/{moduleSlug}/{taskSlug}" : {
+      "get" : {
+        "operationId" : "task",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "moduleSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "taskSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-controller" ]
+      }
+    },
+    "/api/modules/{moduleSlug}/{taskSlug}/hint" : {
+      "post" : {
+        "operationId" : "hint",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "moduleSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "taskSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HintResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-controller" ]
+      }
+    },
+    "/api/modules/{moduleSlug}/{taskSlug}/reveal" : {
+      "post" : {
+        "operationId" : "reveal",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "moduleSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "taskSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : { }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-controller" ]
+      }
+    },
+    "/api/modules/{moduleSlug}/{taskSlug}/submit" : {
+      "post" : {
+        "operationId" : "submit",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "moduleSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "taskSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : { }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SubmitResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-controller" ]
+      }
+    },
+    "/api/modules/{slug}" : {
+      "get" : {
+        "operationId" : "module",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModuleDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "student-controller" ]
+      }
+    },
+    "/api/reports/my-report" : {
+      "get" : {
+        "operationId" : "myReport",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/users/profile" : {
+      "get" : {
+        "operationId" : "profile",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "username",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Profile"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "progress-controller" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "ApproveRequest" : {
+        "type" : "object",
+        "properties" : {
+          "comment" : {
+            "type" : "string"
+          },
+          "halfPoints" : {
+            "type" : "boolean"
+          },
+          "scores" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          }
+        }
+      },
+      "AttemptView" : {
+        "type" : "object",
+        "properties" : {
+          "answer" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "feedback" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "outcome" : {
+            "type" : "string"
+          },
+          "score" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "taskId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "taskVersionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "userId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "answer", "createdAt", "feedback", "id", "outcome", "score", "taskId", "taskVersionId", "userId" ]
+      },
+      "AuthRequest" : {
+        "type" : "object",
+        "properties" : {
+          "joinCode" : {
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "username" : {
+            "type" : "string",
+            "maxLength" : 30,
+            "minLength" : 3,
+            "pattern" : "[A-Za-z0-9._-]+"
+          }
+        },
+        "required" : [ "password", "username" ]
+      },
+      "AuthResponse" : {
+        "type" : "object",
+        "properties" : {
+          "courseName" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "courseName", "displayName", "role", "username" ]
+      },
+      "CheckResult" : {
+        "type" : "object",
+        "properties" : {
+          "dryRun" : {
+            "$ref" : "#/components/schemas/DryRun"
+          },
+          "problems" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "valid" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "dryRun", "problems", "valid" ]
+      },
+      "CourseSummary" : {
+        "type" : "object",
+        "properties" : {
+          "endsOn" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "joinCode" : {
+            "type" : "string"
+          },
+          "members" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "ACTIVE", "ENDED" ]
+          }
+        },
+        "required" : [ "endsOn", "id", "joinCode", "members", "name", "status" ]
+      },
+      "CreateAccountsRequest" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "prefix" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CreateCourseRequest" : {
+        "type" : "object",
+        "properties" : {
+          "endsOn" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "name" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "name" ]
+      },
+      "CreateTaskRequest" : {
+        "type" : "object",
+        "properties" : {
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+          }
+        }
+      },
+      "Criterion" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "id", "label", "points" ]
+      },
+      "DryRun" : {
+        "type" : "object",
+        "properties" : {
+          "passed" : {
+            "type" : "boolean"
+          },
+          "sampleFeedback" : {
+            "type" : "string"
+          },
+          "sampleOutcome" : {
+            "type" : "string"
+          },
+          "wrongFeedback" : {
+            "type" : "string"
+          },
+          "wrongOutcome" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "passed", "sampleFeedback", "sampleOutcome", "wrongFeedback", "wrongOutcome" ]
+      },
+      "GeneratedAccount" : {
+        "type" : "object",
+        "properties" : {
+          "password" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "password", "username" ]
+      },
+      "HintResult" : {
+        "type" : "object",
+        "properties" : {
+          "hints" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "hintsTotal" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "penaltyPercent" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "hints", "hintsTotal", "penaltyPercent" ]
+      },
+      "ImportReport" : {
+        "type" : "object",
+        "properties" : {
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "modulesCreated" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "tasksCreated" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "unchanged" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "versionsPublished" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "errors", "modulesCreated", "tasksCreated", "unchanged", "versionsPublished" ]
+      },
+      "Leaderboard" : {
+        "type" : "object",
+        "properties" : {
+          "entries" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LeaderboardEntry"
+            }
+          },
+          "ownEntry" : {
+            "$ref" : "#/components/schemas/LeaderboardEntry"
+          },
+          "topThree" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LeaderboardEntry"
+            }
+          }
+        },
+        "required" : [ "entries", "ownEntry", "topThree" ]
+      },
+      "LeaderboardEntry" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rank" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "displayName", "points", "rank", "username" ]
+      },
+      "ModuleDetail" : {
+        "type" : "object",
+        "properties" : {
+          "module" : {
+            "$ref" : "#/components/schemas/ModuleSummary"
+          },
+          "tasks" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TaskSummary"
+            }
+          }
+        },
+        "required" : [ "module", "tasks" ]
+      },
+      "ModuleFile" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "icon" : {
+            "type" : "string"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "sortOrder" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "icon", "slug", "sortOrder", "title" ]
+      },
+      "ModuleReleaseView" : {
+        "type" : "object",
+        "properties" : {
+          "availableUntil" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "icon" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "isUnlocked" : {
+            "type" : "boolean"
+          },
+          "maxPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "taskCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "availableUntil", "description", "icon", "id", "isUnlocked", "maxPoints", "slug", "taskCount", "title" ]
+      },
+      "ModuleRow" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "module" : {
+            "$ref" : "#/components/schemas/ModuleFile"
+          },
+          "tasks" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TaskRow"
+            }
+          }
+        },
+        "required" : [ "id", "module", "tasks" ]
+      },
+      "ModuleSummary" : {
+        "type" : "object",
+        "properties" : {
+          "availableUntil" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "completedTasks" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "icon" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "isOpen" : {
+            "type" : "boolean"
+          },
+          "isUnlocked" : {
+            "type" : "boolean"
+          },
+          "maxPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pointsEarned" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "totalTasks" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "availableUntil", "completedTasks", "description", "icon", "id", "isOpen", "isUnlocked", "maxPoints", "pointsEarned", "slug", "title", "totalTasks" ]
+      },
+      "Profile" : {
+        "type" : "object",
+        "properties" : {
+          "completedTasksCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "pendingSubmissionsCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "role" : {
+            "type" : "string"
+          },
+          "totalPoints" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "completedTasksCount", "courseName", "displayName", "pendingSubmissionsCount", "role", "totalPoints", "username" ]
+      },
+      "RejectRequest" : {
+        "type" : "object",
+        "properties" : {
+          "comment" : {
+            "type" : "string"
+          },
+          "lockTask" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "RunSolutionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "tests" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "additionalProperties" : { }
+            }
+          }
+        }
+      },
+      "SolutionRun" : {
+        "type" : "object",
+        "properties" : {
+          "available" : {
+            "type" : "boolean"
+          },
+          "outputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TestOutput"
+            }
+          }
+        },
+        "required" : [ "available", "outputs" ]
+      },
+      "SseEmitter" : {
+        "type" : "object",
+        "properties" : {
+          "timeout" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "timeout" ]
+      },
+      "StudentOverview" : {
+        "type" : "object",
+        "properties" : {
+          "completedTasks" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "totalPoints" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "completedTasks", "courseId", "courseName", "displayName", "totalPoints", "username" ]
+      },
+      "StudentTask" : {
+        "type" : "object",
+        "properties" : {
+          "failedAttempts" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "hintsUsed" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "isCompleted" : {
+            "type" : "boolean"
+          },
+          "isLocked" : {
+            "type" : "boolean"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pointsEarned" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "solutionRevealed" : {
+            "type" : "boolean"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "supportUsed" : {
+            "type" : "boolean"
+          },
+          "timeSpentSeconds" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "failedAttempts", "hintsUsed", "id", "isCompleted", "isLocked", "moduleTitle", "points", "pointsEarned", "slug", "solutionRevealed", "status", "supportUsed", "timeSpentSeconds", "title", "type" ]
+      },
+      "SubmissionDetail" : {
+        "type" : "object",
+        "properties" : {
+          "awardedPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "comment" : {
+            "type" : "string"
+          },
+          "content" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "hintsUsed" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "instructions" : {
+            "type" : "string"
+          },
+          "maxPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "rubric" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Criterion"
+            }
+          },
+          "scores" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "submittedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "taskTitle" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "awardedPoints", "comment", "content", "displayName", "hintsUsed", "id", "instructions", "maxPoints", "moduleTitle", "rubric", "scores", "status", "submittedAt", "taskTitle", "username" ]
+      },
+      "SubmissionSummary" : {
+        "type" : "object",
+        "properties" : {
+          "awardedPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "submittedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "supportUsed" : {
+            "type" : "boolean"
+          },
+          "taskTitle" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "awardedPoints", "displayName", "id", "moduleTitle", "status", "submittedAt", "supportUsed", "taskTitle", "username" ]
+      },
+      "SubmitResult" : {
+        "type" : "object",
+        "properties" : {
+          "attemptsLeft" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "details" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "failedAttempts" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "feedback" : {
+            "type" : "string"
+          },
+          "isCorrect" : {
+            "type" : "boolean"
+          },
+          "outcome" : {
+            "type" : "string",
+            "enum" : [ "CORRECT", "PARTIAL", "WRONG", "MANUAL", "UNGRADED", "INVALID" ]
+          },
+          "pointsAwarded" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "score" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "OPEN", "SOLVED", "PENDING_REVIEW", "FAILED", "PRACTICED" ]
+          }
+        },
+        "required" : [ "attemptsLeft", "details", "failedAttempts", "feedback", "isCorrect", "outcome", "pointsAwarded", "score", "status" ]
+      },
+      "TaskDetail" : {
+        "type" : "object",
+        "properties" : {
+          "assignment" : {
+            "type" : "string"
+          },
+          "attemptsLeft" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "config" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "deadline" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "difficulty" : {
+            "type" : "string"
+          },
+          "explanation" : {
+            "type" : "string"
+          },
+          "failedAttempts" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "firstTryBonusPercent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "hintPenaltyPercent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "hints" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "hintsTotal" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "isCompleted" : {
+            "type" : "boolean"
+          },
+          "isLocked" : {
+            "type" : "boolean"
+          },
+          "isOpen" : {
+            "type" : "boolean"
+          },
+          "lastAnswer" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "lastFeedback" : {
+            "type" : "string"
+          },
+          "learningGoal" : {
+            "type" : "string"
+          },
+          "maxAttempts" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pointsEarned" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "revealAllowed" : {
+            "type" : "boolean"
+          },
+          "reviewComment" : {
+            "type" : "string"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "solution" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "solutionRevealed" : {
+            "type" : "boolean"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "story" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "assignment", "attemptsLeft", "config", "deadline", "difficulty", "explanation", "failedAttempts", "firstTryBonusPercent", "hintPenaltyPercent", "hints", "hintsTotal", "id", "isCompleted", "isLocked", "isOpen", "lastAnswer", "lastFeedback", "learningGoal", "maxAttempts", "moduleSlug", "moduleTitle", "points", "pointsEarned", "revealAllowed", "reviewComment", "slug", "solution", "solutionRevealed", "status", "story", "title", "type", "version" ]
+      },
+      "TaskEditorView" : {
+        "type" : "object",
+        "properties" : {
+          "archived" : {
+            "type" : "boolean"
+          },
+          "currentVersion" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "draft" : {
+            "$ref" : "#/components/schemas/TaskFile"
+          },
+          "moduleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "published" : {
+            "$ref" : "#/components/schemas/TaskFile"
+          },
+          "taskId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+          },
+          "versions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VersionRow"
+            }
+          }
+        },
+        "required" : [ "archived", "currentVersion", "draft", "moduleId", "moduleSlug", "published", "taskId", "type", "versions" ]
+      },
+      "TaskFile" : {
+        "type" : "object",
+        "properties" : {
+          "assignment" : {
+            "type" : "string"
+          },
+          "config" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "difficulty" : {
+            "type" : "string",
+            "enum" : [ "EASY", "MEDIUM", "HARD" ]
+          },
+          "explanation" : {
+            "type" : "string"
+          },
+          "hints" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "learningGoal" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rules" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "sortOrder" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "story" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+          }
+        },
+        "required" : [ "assignment", "config", "difficulty", "explanation", "hints", "learningGoal", "points", "rules", "slug", "sortOrder", "story", "title", "type" ]
+      },
+      "TaskRow" : {
+        "type" : "object",
+        "properties" : {
+          "archived" : {
+            "type" : "boolean"
+          },
+          "currentVersion" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "hasDraft" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "sortOrder" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT" ]
+          }
+        },
+        "required" : [ "archived", "currentVersion", "hasDraft", "id", "points", "slug", "sortOrder", "title", "type" ]
+      },
+      "TaskStatistic" : {
+        "type" : "object",
+        "properties" : {
+          "attempts" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "averageSeconds" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "failedAttempts" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "solved" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "students" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "taskId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "attempts", "averageSeconds", "failedAttempts", "moduleTitle", "solved", "students", "taskId", "title", "type" ]
+      },
+      "TaskSummary" : {
+        "type" : "object",
+        "properties" : {
+          "difficulty" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "isCompleted" : {
+            "type" : "boolean"
+          },
+          "isLocked" : {
+            "type" : "boolean"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pointsEarned" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "difficulty", "id", "isCompleted", "isLocked", "points", "pointsEarned", "slug", "status", "title", "type" ]
+      },
+      "TestOutput" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string"
+          },
+          "stderr" : {
+            "type" : "string"
+          },
+          "stdout" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "status", "stderr", "stdout" ]
+      },
+      "VersionRow" : {
+        "type" : "object",
+        "properties" : {
+          "createdBy" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "publishedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "createdBy", "id", "points", "publishedAt", "title", "version" ]
+      }
+    }
+  }
+}

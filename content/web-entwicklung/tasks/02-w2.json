@@ -1,0 +1,39 @@
+{
+  "slug": "w2",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Die kaputte URL",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 2,
+  "learningGoal": "Du kannst die Bestandteile einer URL benennen und Fehler darin finden.",
+  "story": "Dein Kollege schickt dir diesen Link und wundert sich warum er nicht funktioniert:\n\n```\nwww.meine-seite.de/shop/artikel\n```",
+  "assignment": "Warum funktioniert diese URL nicht?",
+  "hints": [
+    "Eine vollständige URL hat immer diese Teile: Protokoll://Domain/Pfad. Was fehlt hier am Anfang?"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Die URL ist zu lang"
+      },
+      {
+        "id": "b",
+        "text": "Das Protokoll (https://) fehlt – Browser wissen sonst nicht wie sie kommunizieren sollen"
+      },
+      {
+        "id": "c",
+        "text": "Bindestriche sind in URLs verboten"
+      },
+      {
+        "id": "d",
+        "text": "Unterordner sind nicht erlaubt"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

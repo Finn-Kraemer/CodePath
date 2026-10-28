@@ -1,0 +1,39 @@
+{
+  "slug": "g12",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Typischer Team-Workflow",
+  "difficulty": "HARD",
+  "points": 15,
+  "sortOrder": 12,
+  "learningGoal": "Du kannst die Schritte eines typischen Team-Workflows ordnen.",
+  "story": "Du fängst morgens an zu arbeiten. Dein Team hat gestern noch Änderungen gepusht. Was ist die richtige Reihenfolge?",
+  "assignment": "Bringe die typischen Schritte in die richtige Reihenfolge.",
+  "hints": [
+    "Immer zuerst pullen – sonst arbeitest du auf veraltetem Code und bekommst Probleme beim Push. Dann Branch für dein Feature, coden, committen, pushen."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Sofort coden → commit → push"
+      },
+      {
+        "id": "b",
+        "text": "git pull → neuen Branch erstellen → coden → commit → push"
+      },
+      {
+        "id": "c",
+        "text": "git push → coden → git pull"
+      },
+      {
+        "id": "d",
+        "text": "Neuen Branch erstellen → coden → git pull → commit → push"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

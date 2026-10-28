@@ -1,0 +1,39 @@
+{
+  "slug": "a4",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Binäre Suche – das Ratespiel",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 4,
+  "learningGoal": "Du kannst begründen, warum Halbieren bei sortierten Daten viel schneller ist als Durchzählen.",
+  "story": "Du spielst 'Denk dir eine Zahl zwischen 1 und 1000'. Dein Freund rät immer die Mitte und bekommt 'zu groß' oder 'zu klein' als Antwort. Er halbiert jedes Mal den Suchbereich.",
+  "assignment": "Warum ist diese Strategie viel besser als einfach von 1 bis 1000 zu zählen?",
+  "hints": [
+    "1000 → 500 → 250 → 125 → 62 → 31 → 15 → 7 → 3 → 1. Zähle die Pfeile – das sind die maximalen Schritte! Diese Strategie heißt Binäre Suche."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Sie ist nicht besser – beide brauchen gleich viele Versuche"
+      },
+      {
+        "id": "b",
+        "text": "Jeder Schritt halbiert die verbleibenden Möglichkeiten – statt bis zu 1000 Versuchen braucht man nur etwa 10"
+      },
+      {
+        "id": "c",
+        "text": "Die Mitte zu raten ist nur bei geraden Zahlen besser"
+      },
+      {
+        "id": "d",
+        "text": "Es funktioniert nur wenn die Zahl zwischen 1 und 100 liegt"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

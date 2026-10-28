@@ -1,0 +1,88 @@
+{
+  "slug": "c12",
+  "type": "MATCHING",
+  "title": "Dienste und Ports",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 12,
+  "learningGoal": "Du kannst wichtigen Netzwerkdiensten ihre Standard-Ports zuordnen.",
+  "story": "Ein Server bietet viele Dienste gleichzeitig an. Damit Anfragen beim richtigen Dienst landen, hat jeder eine Port-Nummer – wie Zimmernummern in einem Haus.",
+  "assignment": "Ordne jedem Dienst seinen Standard-Port zu. Ein Port bleibt übrig.",
+  "hints": [
+    "Webseiten ohne Verschlüsselung nutzen Port 80, mit Verschlüsselung 443.",
+    "DNS übersetzt Namen in Adressen und nutzt Port 53; SSH für die Fernwartung Port 22."
+  ],
+  "explanation": "HTTP 80, HTTPS 443, SSH 22, DNS 53, SMTP (E-Mail-Versand) 25. Port 21 gehört zu FTP und war hier der Ablenker.",
+  "config": {
+    "left": [
+      {
+        "id": "l1",
+        "text": "HTTP (Webseiten)"
+      },
+      {
+        "id": "l2",
+        "text": "HTTPS (verschlüsselte Webseiten)"
+      },
+      {
+        "id": "l3",
+        "text": "SSH (Fernwartung)"
+      },
+      {
+        "id": "l4",
+        "text": "DNS (Namensauflösung)"
+      },
+      {
+        "id": "l5",
+        "text": "SMTP (E-Mail-Versand)"
+      }
+    ],
+    "right": [
+      {
+        "id": "r1",
+        "text": "80"
+      },
+      {
+        "id": "r2",
+        "text": "443"
+      },
+      {
+        "id": "r3",
+        "text": "22"
+      },
+      {
+        "id": "r4",
+        "text": "53"
+      },
+      {
+        "id": "r5",
+        "text": "25"
+      },
+      {
+        "id": "r6",
+        "text": "21"
+      }
+    ],
+    "pairs": [
+      {
+        "left": "l1",
+        "right": "r1"
+      },
+      {
+        "left": "l2",
+        "right": "r2"
+      },
+      {
+        "left": "l3",
+        "right": "r3"
+      },
+      {
+        "left": "l4",
+        "right": "r4"
+      },
+      {
+        "left": "l5",
+        "right": "r5"
+      }
+    ]
+  }
+}

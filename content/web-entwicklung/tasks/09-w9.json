@@ -1,0 +1,39 @@
+{
+  "slug": "w9",
+  "type": "MULTIPLE_CHOICE",
+  "title": "JavaScript: Klick-Reaktion",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 9,
+  "learningGoal": "Du kannst nachvollziehen, wie JavaScript auf einen Klick reagiert.",
+  "story": "Mit JavaScript kannst du Webseiten interaktiv machen. Was macht dieser Button?\n\n```\n<button onclick=\"alert('Hallo!')\">\n  Klick mich\n</button>\n```",
+  "assignment": "Was passiert wenn der Nutzer auf den Button klickt?",
+  "hints": [
+    "onclick ist ein Event-Handler – er wartet auf ein Ereignis (den Klick) und führt dann Code aus. alert() zeigt ein Browser-Popup."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Die Seite wird komplett neu geladen"
+      },
+      {
+        "id": "b",
+        "text": "Ein Popup mit dem Text Hallo! erscheint"
+      },
+      {
+        "id": "c",
+        "text": "Die Seite navigiert zu einer neuen URL"
+      },
+      {
+        "id": "d",
+        "text": "Nichts – alert() ist eine veraltete Funktion"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

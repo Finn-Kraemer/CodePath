@@ -1,0 +1,43 @@
+{
+  "slug": "p12",
+  "type": "FILL_CODE",
+  "title": "Liste durchsuchen",
+  "difficulty": "HARD",
+  "points": 15,
+  "sortOrder": 12,
+  "learningGoal": "Du kannst mit einer Schleife über ein Dictionary laufen.",
+  "story": "Du baust ein Mini-Telefonbuch. Alle Kontakte sollen mit ihren Nummern ausgegeben werden. Das Dictionary speichert Name → Nummer:",
+  "assignment": "Ergänze die drei Lücken damit alle Kontakte ausgegeben werden.",
+  "hints": [
+    "Ein Dictionary speichert Schlüssel-Wert-Paare. .items() gibt beides zurück. Du kannst sie direkt in zwei Variablen entpacken: for schlüssel, wert in dict.items()."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "kontakte = {\n    'Anna': '0151-111',\n    'Ben': '0162-222',\n    'Clara': '0173-333'\n}\n\n___ name, nummer ___ kontakte.___():\n    print(f'{name}: {nummer}')",
+    "blanks": [
+      {
+        "answers": [
+          "for"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "in"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "items"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "Anna: 0151-111\nBen: 0162-222\nClara: 0173-333\n"
+      }
+    ]
+  }
+}

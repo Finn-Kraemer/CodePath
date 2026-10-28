@@ -1,0 +1,39 @@
+{
+  "slug": "w7",
+  "type": "MULTIPLE_CHOICE",
+  "title": "GET vs. POST",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 7,
+  "learningGoal": "Du kannst erklären, warum Passwörter per POST und nicht per GET übertragen werden.",
+  "story": "Eine Suchmaschine nutzt `GET /suche?q=Python` – deine Suchanfrage steht direkt in der URL. Ein Login-Formular schickt Nutzername und Passwort per `POST` im unsichtbaren Body.",
+  "assignment": "Warum ist POST für das Login besser als GET?",
+  "hints": [
+    "Öffne mal eine Suchmaschine und such nach etwas – schau dann in die URL-Zeile. Was siehst du dort?"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "POST ist schneller als GET"
+      },
+      {
+        "id": "b",
+        "text": "GET-Parameter erscheinen in der URL – das Passwort wäre im Browser-Verlauf sichtbar"
+      },
+      {
+        "id": "c",
+        "text": "POST-Anfragen werden automatisch verschlüsselt, GET nicht"
+      },
+      {
+        "id": "d",
+        "text": "Formulare funktionieren grundsätzlich nur mit POST"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

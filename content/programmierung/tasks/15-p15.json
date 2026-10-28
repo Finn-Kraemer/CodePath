@@ -1,0 +1,52 @@
+{
+  "slug": "p15",
+  "type": "PARSONS",
+  "title": "Code-Puzzle: Countdown",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 15,
+  "learningGoal": "Du kannst eine Schleife mit Bedingung in die richtige Reihenfolge und Einrückung bringen.",
+  "story": "Für den Start der Schul-Rakete brauchst du einen Countdown: 3, 2, 1 – und dann „Start!“. Die Zeilen sind durcheinandergeraten, und eine Zeile gehört gar nicht dazu.",
+  "assignment": "Setze das Programm zusammen: Es soll von 3 herunterzählen und danach `Start!` ausgeben. Achte auf die Einrückung.",
+  "hints": [
+    "Zuerst braucht die Variable `zahl` einen Startwert, dann kommt die Schleife.",
+    "Alles, was in der Schleife wiederholt wird, ist eine Stufe eingerückt. `Start!` kommt erst nach der Schleife."
+  ],
+  "explanation": "Die Schleife läuft, solange `zahl > 0` gilt. In jedem Durchlauf wird die Zahl ausgegeben und um 1 verkleinert. `print('Start!')` ist nicht eingerückt und läuft deshalb erst nach der Schleife. Die Zeile `while zahl < 0:` würde nie laufen, weil 3 nicht kleiner als 0 ist.",
+  "config": {
+    "lines": [
+      {
+        "id": "z1",
+        "code": "zahl = 3",
+        "indent": 0
+      },
+      {
+        "id": "z2",
+        "code": "while zahl > 0:",
+        "indent": 0
+      },
+      {
+        "id": "z3",
+        "code": "print(zahl)",
+        "indent": 1
+      },
+      {
+        "id": "z4",
+        "code": "zahl = zahl - 1",
+        "indent": 1
+      },
+      {
+        "id": "z5",
+        "code": "print('Start!')",
+        "indent": 0
+      }
+    ],
+    "distractors": [
+      {
+        "id": "d1",
+        "code": "while zahl < 0:"
+      }
+    ],
+    "checkIndent": true
+  }
+}

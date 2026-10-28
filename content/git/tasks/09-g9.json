@@ -1,0 +1,39 @@
+{
+  "slug": "g9",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Merge – Branches zusammenführen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 9,
+  "learningGoal": "Du kannst beschreiben, was beim Zusammenführen zweier Branches passiert.",
+  "story": "Dein Dark-Mode-Feature ist fertig und getestet. Jetzt soll es in den Hauptcode übernommen werden:\n\n```\ngit checkout main\ngit merge dark-mode\n```",
+  "assignment": "Was passiert bei diesem Merge-Befehl?",
+  "hints": [
+    "merge = zusammenführen. Du bist auf main und holst die Änderungen von dark-mode rein. Der dark-mode Branch bleibt dabei erhalten bis du ihn manuell löschst."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Der dark-mode Branch wird automatisch gelöscht"
+      },
+      {
+        "id": "b",
+        "text": "Die Änderungen aus dark-mode werden in main übernommen – die Historien beider Branches werden zusammengeführt"
+      },
+      {
+        "id": "c",
+        "text": "main wird komplett durch dark-mode ersetzt"
+      },
+      {
+        "id": "d",
+        "text": "Nichts – man muss zuerst git push aufrufen"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

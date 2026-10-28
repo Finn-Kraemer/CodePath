@@ -1,109 +1,58 @@
-# CodePath - Technische Dokumentation (AI.md)
+# CodePath – Technische Dokumentation (AI.md)
 
-CodePath ist eine moderne, interaktive Lernplattform zur IT-Berufsorientierung. Diese Dokumentation beschreibt den technischen Aufbau, die Architekturentscheidungen und die Implementierungsdetails des Projekts.
+Stand: CodePath 2.0 (Phasen 0–5 der Überarbeitung). Was sich in welcher Phase geändert hat, steht in `docs/phase-*.md`, die Entscheidungen in `docs/adr/`.
 
-## 🏗️ Systemarchitektur
+## Architektur
 
-Das Projekt ist als **Monorepo** strukturiert und folgt einer klassischen Client-Server-Architektur mit einer persistenten Datenhaltung.
+Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates und das statisch gebaute Frontend aus; dazu PostgreSQL. Optional ein dritter Container, der Code-Runner (ADR-4).
 
-### Übersicht Tech-Stack
-- **Backend:** Java 21, Spring Boot 3.5, Spring Security, Hibernate/JPA.
-- **Frontend:** Svelte 5 (SvelteKit), TypeScript, Tailwind CSS 4.
-- **Datenbank:** PostgreSQL 17 (Produktion) & H2 (In-Memory für SQL-Validierung).
-- **Message Broker:** RabbitMQ (Spring AMQP) für asynchrone Lastabwicklung.
-- **Infrastruktur:** Docker & Docker Compose.
-- **Besonderheiten:** Pyodide (Python), TipTap, Monaco Editor, OpenPDF, Svelte-dnd-action.
+- **Backend:** Java 25, Spring Boot 4.1 (Jackson 3, Security 7, Hibernate 7), Flyway, Spring Session JDBC, springdoc (OpenAPI unter `/api/admin/openapi`)
+- **Frontend:** SvelteKit 2 / Svelte 5 mit adapter-static, Tailwind CSS 4, Monaco, Pyodide, TipTap (Praxisabgaben), marked + DOMPurify – alles lokal gebündelt (`scripts/copy-vendor.mjs`), API-Typen aus OpenAPI generiert (`pnpm gen:api`)
+- **Code-Runner:** `runner/runner.py`, Python-Standardbibliothek + bubblewrap
+- **Tests:** JUnit 5 mit Testcontainers (PostgreSQL 17), ArchUnit, Vitest, Playwright
 
----
+### Pakete (`backend/src/main/java/de/codepath/backend`)
 
-## 🖥️ Backend-Implementierung
+| Paket | Inhalt |
+|---|---|
+| `identity` | Nutzer, Kurse mit Beitrittscode, Mitgliedschaften, Login/Registrierung, Sessions |
+| `content` | Module, Aufgaben, unveränderliche Aufgabenversionen, Content-Pakete, Editor |
+| `engine` | Aufgabentypen: `TaskHandler` je Typ, `Evaluation`, `AttemptRules`, `CodeRunner` – kennt keine anderen Fachpakete |
+| `progress` | Fortschritt, Versuche, Punkte-Journal, Schüler-API, Rangliste, Lehrkraft-Statistik |
+| `review` | Praxisabgaben mit Rubrik-Bewertung |
+| `classroom` | Modulfreigaben und Fristen je Kurs, Ankündigungen, Feedback |
+| `report` | Teilnahmebestätigungen als PDF (OpenPDF) |
+| `platform` | Fehlerbehandlung (ProblemDetail), Audit-Log, Einstellungen, SSE, Auslieferung des Frontends |
 
-Das Backend ist in Java mit Spring Boot realisiert und nutzt eine **Package-by-Feature** Struktur.
+`ArchitectureTest` erzwingt: Repositories nur im eigenen Paket, keine Zyklen, `engine` hängt von keinem Fachpaket ab.
 
-### 1. Sicherheit & Authentifizierung (`/auth`)
-- **JWT-Authentifizierung:** Stateless-Sitzungen via JWT. Das Token wird im Body gesendet und im Frontend verwaltet (HttpOnly Cookies sind für die API-Kommunikation vorbereitet).
-- **CSRF-Schutz:** Aktiviert via `CookieCsrfTokenRepository`. Das Frontend sendet den Token im `X-XSRF-TOKEN` Header bei allen schreibenden Anfragen (POST, PUT, DELETE) mit.
-- **Rollen:** `STUDENT` und `ADMIN`.
-- **Anmerkung:** Spring Security Warnungen bezüglich `AuthenticationManager` wurden explizit unterdrückt (via Logging-Config), da das manuelle Provider-Setup gewollt ist.
+## Sicherheit
 
-### 2. SQL-Aufgaben Validierung (`TaskSubmissionService`)
-- **Sandbox:** Studentische SQL-Abfragen werden in einer isolierten In-Memory H2-Datenbank validiert.
-- **RCE-Schutz:** 
-    - **Whitelist-Validierung:** Nur Abfragen, die mit `SELECT`, `WITH` oder `VALUES` beginnen, sind erlaubt.
-    - **Keyword-Blocking:** Gefährliche administrative Befehle (`CREATE`, `DROP`, `ALTER`, `CALL`, etc.) werden vor der Ausführung blockiert.
-    - **Eingeschränkter Nutzer:** Schema und Musterlösung laufen als Owner, die Schülerabfrage als eigener H2-Nutzer mit reinem `SELECT`-Recht; admin-pflichtige Funktionen wie `FILE_READ`, `CSVREAD` oder `LINK_SCHEMA` schlagen damit fehl. Zusätzlich ist die Verbindung read-only.
-- **DoS-Schutz:** Query-Timeout von 2 Sekunden und höchstens 1.000 Ergebniszeilen.
+- **Sessions statt JWT** (ADR-3): Cookie `CODEPATH_SESSION` (HttpOnly, SameSite=Lax, mit `COOKIE_SECURE=true` nur über HTTPS), Sessions in PostgreSQL. CSRF-Token im Cookie `XSRF-TOKEN`, das Frontend schickt es als `X-XSRF-TOKEN`.
+- **Login-Bremse:** 10 Versuche pro Minute je Benutzername, 100 je IP (Schulnetz hinter NAT).
+- **Keine Standardpasswörter:** Datenbank- und Admin-Passwort kommen aus `.env`; ohne Admin-Passwort wird eins erzeugt und ins Log geschrieben.
+- **Lösungen bleiben auf dem Server:** Der Browser bekommt nur `TaskHandler.publicView` und meldet nie selbst ein Ergebnis. `SecurityCatalogTest` prüft jede mitgelieferte Aufgabe darauf.
+- **SQL-Aufgaben:** eigene H2-Datenbank je Abgabe, JSqlParser lässt genau ein `SELECT` zu, Schülerabfrage läuft als Nutzer ohne Admin-Rechte, read-only, 2 s Timeout, höchstens 1.000 Zeilen.
+- **Code-Aufgaben:** Pyodide im Browser nur zum Ausprobieren. Bewertet wird im Runner: bubblewrap ohne Netz und ohne Dateisystem außer `/usr` (lesend), 2 s CPU, 256 MB, 32 Prozesse, 5 s Wandzeit, 64 KB Ausgabe, eigene Benutzer-ID je parallelem Lauf. Versteckte Tests mit `append` entlarven fest einprogrammierte Ausgaben. Ohne Runner: Übung ohne Punkte.
 
-### Lösungen bleiben auf dem Server
-- `TaskConfigFilter` liefert je Aufgabentyp nur die Felder aus, die der Browser zum Anzeigen braucht. Lösungen und Hinweise werden nie mitgeschickt; der Hinweis kommt erst über `POST /api/modules/{modul}/{aufgabe}/support`, das die Hilfestellung serverseitig vermerkt.
-- Details und offene Punkte: `docs/phase-0.md`.
+## Aufgaben-Engine
 
-### 2. Datenmodell & Migrationen
-- **Flyway:** Verwaltet versionierte SQL-Migrationen.
-- **Wichtige Kernentitäten:**
-    - `User`: Nutzerdaten, Rollen und Gesamtpunkte.
-    - `Module`: Enthält nun `available_until` für zeitgesteuerte Sperrungen (Deadlines).
-    - `UserTaskCompletion`: Speichert Fortschritt, Bearbeitungszeit, Fehlversuche, Sperr-Status (`is_locked`) und `support_used`.
-    - `PracticeSubmission`: Freitext-Lösungen inkl. Statusverlauf und Korrekturkommentaren.
+Ein Aufgabentyp besteht aus `TaskHandler` (validieren, öffentliche Sicht, bewerten, Lösungssicht, Musterlösung und Falschantwort für den Probelauf, Vorlage für den Editor), einer Svelte-Komponente unter `frontend/src/lib/tasks/` und einem Editor-Formular unter `frontend/src/lib/editor/config/`.
 
-### 3. Zeugnis-Generierung (`ReportService`)
-- **PDF-Export:** Nutzt `OpenPDF` zur Erstellung offizieller Leistungsnachweise (inkl. Wasserzeichen und offiziellem Header).
-- **Noten-Logik:** Berechnet automatisch eine Note (1-6) basierend auf erreichten Prozentpunkten (IHK-Spiegel).
-- **Validierung:** Nur vom Admin freigeschaltete Module werden bewertet. Durch Fehlversuche gesperrte Aufgaben zählen als 0 Punkte.
+Typen: `MULTIPLE_CHOICE`, `FILL_BLANK`, `FILL_CODE`, `CODE`, `SORTING`, `SQL`, `TERMINAL`, `PRACTICE` (Lehrkraft bewertet nach Rubrik), `MATCHING`, `PARSONS`, `NUMBER_CONVERT`, `HOTSPOT`. Formate: `content/README.md`.
 
-### 4. Skalierung & Asynchronität (RabbitMQ)
-Um das System vor Überlastung zu schützen (z.B. wenn eine ganze Klasse gleichzeitig Aufgaben abgibt), ist **RabbitMQ** integriert:
-- **Event-Driven:** Speicherintensive Prozesse wie die Freitext-Praxisabgaben (`PracticeSubmissionEvent`) werden nicht synchron in die Datenbank geschrieben, sondern als Event an RabbitMQ (`codepath.practice.submissions`) übergeben.
-- **Consumer:** Der `SubmissionConsumer` arbeitet die Queue asynchron und idempotent im Hintergrund ab.
-- **User Experience:** Das Backend blockiert nicht; der Schüler erhält sofort eine Rückmeldung, dass die Abgabe erfolgreich in Prüfung ist.
+Bewertung: CORRECT, PARTIAL (Teilpunkte), WRONG, MANUAL, UNGRADED, INVALID (zählt nicht als Versuch). `AttemptRules` je Typ, je Aufgabe überschreibbar: Versuchsgrenze, 25 % Abzug je Hinweis (höchstens 75 %), 20 % Bonus beim ersten Versuch ohne Hinweis, Lösung aufdecken = 0 Punkte. Zufällige Reihenfolgen und Zahlen hängen an einem Seed je Person und Aufgabe.
 
-### 5. Dateninitialisierung & Kommunikation
-- **Flyway Seeding:** Neue Module und Aufgaben werden beim Systemstart automatisch über SQL-Migrationen (`V7__seed_tasks.sql`) in die Datenbank geladen. Dies ersetzt das Laden aus einer `content.json` und stellt sicher, dass die Daten bei jedem Start (auch mit `docker compose down -v`) konsistent vorhanden sind.
-- **Live-Editor (Ankündigungen):** Admins können globale Mitteilungen veröffentlichen. Diese unterstützen Zeilenumbrüche (`\n`) und verschiedene Anzeige-Modi (Header, Info-Seite).
-- **Globales Feedback:** Admins können eine Feedback-Runde starten/stoppen. Schüler können einmalig nach Bestätigung eine Rückmeldung abgeben.
+Punkte stehen in einem Journal (`points_entries`); ein eindeutiger Index sorgt dafür, dass eine Aufgabe genau einmal Punkte bringt, auch bei parallelen Abgaben. Korrekturen sind eigene Buchungen.
 
----
+## Inhalte
 
-## 🎨 Frontend-Implementierung
+Content-Pakete unter `content/<modul>/` (`module.json`, `tasks/NN-slug.json`, Markdown), geprüft per JSON-Schema (`content/validate.py`) und Probelauf (`ContentPackagesTest`). Beim Start werden fehlende Aufgaben als Version 1 angelegt. Im Editor (Admin → Inhalte) entstehen Entwürfe; Veröffentlichen friert eine Version ein, bisherige Versuche bleiben an ihrer Version (ADR-5). Export/Import als ZIP.
 
-Das Frontend nutzt **Svelte 5** und moderne Browser-APIs für Stabilität und Performance.
+## Live-Updates
 
-### 1. Stabilität & Sandbox (Web Worker)
-- **Code-Execution:** Python-Code (Pyodide) wird in einem dedizierten **Web Worker** (`pyodide-worker.js`) ausgeführt.
-- **Timeout-Mechanismus:** Ein 5-Sekunden-Timeout verhindert, dass Endlosschleifen im Schüler-Code den Browser einfrieren lassen. Nach Ablauf wird der Worker automatisch terminiert.
+Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, gesendet erst nach dem Commit. Die Beamer-Ansicht `/projector` nutzt dasselbe.
 
-### 2. Offline-Fähigkeit (Service Worker)
-- **PWA-Features:** Ein Service Worker (`service-worker.js`) implementiert eine "Network First"-Strategie.
-- **Caching:** Wichtige Bibliotheken (Monaco, Pyodide) und bereits geladene Aufgaben-Daten werden lokal gespeichert, um bei instabilem Schul-WLAN einen unterbrechungsfreien Betrieb zu ermöglichen.
+## Betrieb
 
-### 3. UI & Design ("Institutional Navy")
-- **Dashboard:** Modernes Control-Center mit Schnellzugriffen und Teilnehmer-Ranking.
-- **Teilnehmer-Akte:** Module sind standardmäßig eingeklappt für bessere Übersicht. Bietet granulare Steuerung (100%, 50%, Sperren).
-- **Frontpage:** Öffentliche Landingpage mit Agenda, Zeitplan und Lehrer-Profil (Informatikstudent, 22 Jahre).
-- **Beamer-Ansicht (`/projector`):** Spezielles, abgedunkeltes Full-Screen-Layout ohne Navigation für die Präsentation im Raum. Zeigt das Live-Leaderboard, eine Echtzeituhr und globale Mitteilungen an (Updates via MQTT + 30s Fallback-Polling).
-
----
-
-## 🚀 Key Features & Aufgaben-Formate
-
-### Vielfältige Aufgaben-Typen (`TaskType`)
-Die Plattform unterstützt interaktive Aufgaben zur IT-Berufsorientierung:
-1. **Multiple Choice / Fill Blank:** Automatisierte Text- und Logikprüfungen.
-2. **Python Code (`CODE`, `FILL_CODE`):** Browserbasierte Python-Ausführung via Pyodide.
-3. **SQL-Abfragen (`SQL`):** Schüler schreiben `SELECT`-Queries im Monaco Editor. Das Backend validiert das Result-Set dynamisch gegen eine isolierte In-Memory H2-Datenbank.
-4. **Terminal Simulator (`TERMINAL`):** Virtuelle Kommandozeile. Das Backend prüft den finalen Dateisystem-Status (z.B. nach `mkdir`, `touch`, `rm`).
-5. **Drag & Drop (`SORTING`):** Sortieraufgaben (z.B. für Prozessabläufe) über flüssige Animationen mit `svelte-dnd-action`.
-6. **Praxis (`PRACTICE`):** Freitext-Einreichungen mit TipTap-Rich-Text-Editor für manuelle Dozenten-Korrekturen.
-
-### Granulare Validierung
-Admins können im Korrektur-Workflow differenziert entscheiden:
-- **Volle Punkte:** Standard-Freigabe.
-- **Halbe Punkte:** Freigabe mit Punktabzug (überschreibt `support_used`).
-- **Endgültig Sperren:** Lehnt ab und verhindert weitere Einreichungen für diese Aufgabe.
-
-### Korrektur-Kultur
-- Bei einer Ablehnung zur Korrektur bleibt die ursprüngliche Lösung des Schülers im Editor erhalten (`submissionContent`), um eine iterative Verbesserung zu ermöglichen.
-
-### Zeit- und Sperrmanagement
-- **Modul-Deadlines:** Admins können End-Uhrzeiten für Module festlegen. Schüler sehen einen Live-Countdown; nach Ablauf wird das Modul optisch ("Zeit abgelaufen") und technisch gesperrt.
-- **Automatisches Sperren:** Multiple-Choice-Aufgaben werden nach **3 Fehlversuchen** gesperrt.
+`docker-compose.yml`: `postgres`, `app`, optional `runner` (Profil) und `pgadmin` (Profil `tools`). TLS mit Caddy: `deploy/`. Backup: `deploy/backup.sh`. CI (`.github/workflows/ci.yml`): Backend mit Testcontainers und echtem Runner, Frontend (Lint, Typen, Tests, Build), Content-Schema, Runner-Angriffe im gehärteten Container, E2E gegen den gebauten Stack.

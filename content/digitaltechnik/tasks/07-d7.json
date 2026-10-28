@@ -1,0 +1,39 @@
+{
+  "slug": "d7",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Boolesche Algebra: Gatter erkennen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 7,
+  "learningGoal": "Du kannst Gatter in einer booleschen Formel erkennen und in der richtigen Reihenfolge auswerten.",
+  "story": "Ein Wecker soll klingeln wenn: (es ist 7 Uhr UND der Wecker ist aktiviert) ODER der Test-Knopf gedrückt wird.\n\n```\nklingeln = (es_ist_7_uhr AND aktiviert) OR test_knopf\n```",
+  "assignment": "Welche Gatter werden in dieser Formel kombiniert und in welcher Reihenfolge werden sie ausgewertet?",
+  "hints": [
+    "Klammern werden zuerst ausgewertet – genau wie in normaler Mathematik. (A AND B) ergibt einen Zwischenwert, der dann mit test_knopf ODER verknüpft wird."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Erst OR dann AND – weil OR wichtiger ist"
+      },
+      {
+        "id": "b",
+        "text": "Erst AND dann OR – die Klammern bestimmen die Reihenfolge"
+      },
+      {
+        "id": "c",
+        "text": "Alle gleichzeitig – Computer rechnen parallel"
+      },
+      {
+        "id": "d",
+        "text": "Erst NOT dann AND dann OR"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

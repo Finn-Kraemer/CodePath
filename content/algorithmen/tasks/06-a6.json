@@ -1,0 +1,39 @@
+{
+  "slug": "a6",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Stack – Last In, First Out",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 6,
+  "learningGoal": "Du kannst das LIFO-Prinzip eines Stacks an einem Alltagsbeispiel erklären.",
+  "story": "Der Browser-Zurück-Button merkt sich deine besuchten Seiten. Du besuchst: Google → YouTube → Reddit. Dann drückst du zweimal Zurück.",
+  "assignment": "Welche Datenstruktur steckt hinter dem Zurück-Button – und in welcher Reihenfolge kehrst du zurück?",
+  "hints": [
+    "Stack = Kartenstapel. Das zuletzt draufgelegte kommt als erstes wieder runter (LIFO = Last In, First Out). Reddit war zuletzt – also kommt YouTube als nächstes."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Queue (Warteschlange): Zurück zu Google, dann YouTube"
+      },
+      {
+        "id": "b",
+        "text": "Stack (Stapel): Zurück zu YouTube, dann Google"
+      },
+      {
+        "id": "c",
+        "text": "Liste: Zurück zu Reddit, dann YouTube"
+      },
+      {
+        "id": "d",
+        "text": "Dictionary: Reihenfolge ist zufällig"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

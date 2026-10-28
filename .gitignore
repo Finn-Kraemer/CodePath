@@ -15,3 +15,5 @@ frontend/build/
 .idea/
 .vscode/
 *.iml
+backups/
+backend/src/main/resources/static/

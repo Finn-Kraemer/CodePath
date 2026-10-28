@@ -1,0 +1,39 @@
+{
+  "slug": "s13",
+  "type": "PRACTICE",
+  "title": "Red Team vs. Blue Team",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 13,
+  "learningGoal": "Du kannst auf einen Angriff mit passenden Schutzmaßnahmen reagieren.",
+  "story": "Alarm! Die Schulwebseite wurde gehackt. Der Angreifer hat Zugriff auf alle Schülerdaten bekommen. Erste Erkenntnisse: Das Admin-Passwort war \\\"schule123\", es gab kein HTTPS, und es waren keine Updates eingespielt.",
+  "assignment": "Du bist das Blue Team. Reagiere auf den Angriff und schütze das System.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Dein Einsatzplan muss enthalten:\n1. Sofortmaßnahmen (3 Dinge die du in den nächsten 30 Minuten tust)\n2. Mittelfristige Maßnahmen (was wird in den nächsten Wochen umgesetzt?)\n3. Wie war der Angreifer erfolgreich? Was war die eigentliche Schwachstelle?\n4. Bonus: Was hätte verhindert werden können wenn du vorher einen Pen-Test gemacht hättest?",
+    "submissionNote": "Incident-Response-Plan als strukturierter Text.",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Sofortmaßnahmen (3 Dinge die du in den nächsten 30 Minuten tust)",
+        "points": 13
+      },
+      {
+        "id": "k2",
+        "label": "Mittelfristige Maßnahmen (was wird in den nächsten Wochen umgesetzt?)",
+        "points": 13
+      },
+      {
+        "id": "k3",
+        "label": "Wie war der Angreifer erfolgreich? Was war die eigentliche Schwachstelle?",
+        "points": 12
+      },
+      {
+        "id": "k4",
+        "label": "Bonus: Was hätte verhindert werden können wenn du vorher einen Pen-Test gemacht hättest?",
+        "points": 12
+      }
+    ]
+  }
+}

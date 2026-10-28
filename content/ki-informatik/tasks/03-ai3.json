@@ -1,0 +1,35 @@
+{
+  "slug": "ai3",
+  "type": "FILL_BLANK",
+  "title": "Training vs. Test-Daten",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 3,
+  "learningGoal": "Du kannst erklären, warum Trainings- und Testdaten getrennt werden.",
+  "story": "Warum teilen KI-Entwickler ihre Daten in zwei Gruppen auf bevor sie ein Modell trainieren?",
+  "assignment": "Ergänze die Begriffe.",
+  "hints": [
+    "Overfitting ist wie ein Schüler der die Musterklausur auswendig lernt aber bei der echten Klausur versagt – er hat nicht wirklich verstanden."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "Die ___ -Daten werden zum Lernen verwendet. Mit den ___ -Daten prüft man ob die KI wirklich gelernt hat oder nur auswendig kennt. Wenn das Modell nur auf bekannten Daten gut ist nennt man das ___.",
+    "blanks": [
+      {
+        "answers": [
+          "Trainings"
+        ]
+      },
+      {
+        "answers": [
+          "Test"
+        ]
+      },
+      {
+        "answers": [
+          "Overfitting"
+        ]
+      }
+    ]
+  }
+}

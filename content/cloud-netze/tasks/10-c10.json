@@ -1,0 +1,33 @@
+{
+  "slug": "c10",
+  "type": "CODE",
+  "title": "HTTP-Request simulieren",
+  "difficulty": "HARD",
+  "points": 20,
+  "sortOrder": 10,
+  "learningGoal": "Du kannst den Aufbau einer HTTP-Anfrage mit Request-Zeile und Headern wiedergeben.",
+  "story": "Du simulierst wie ein Browser eine HTTP-Anfrage aufbaut – genau das macht dein Browser unsichtbar jedes Mal wenn du eine URL aufrufst:",
+  "assignment": "Schreibe eine Funktion die einen vollständigen HTTP GET-Request-String aufbaut.",
+  "hints": [
+    "Baue den String mit f-Strings zusammen. Jede HTTP-Zeile endet mit \\r\\n (Carriage Return + Newline). Am Ende kommt eine Leerzeile (nur \\r\\n) die das Ende der Header anzeigt."
+  ],
+  "explanation": "",
+  "config": {
+    "starterCode": "def http_get(host, pfad):\n    # HTTP GET Format:\n    # GET /pfad HTTP/1.1\\r\\n\n    # Host: hostname\\r\\n\n    # Connection: close\\r\\n\n    # \\r\\n  (Leerzeile = Ende der Header)\n    pass\n\nresult = http_get('www.schule.de', '/stundenplan')\nprint(result)",
+    "tests": [
+      {
+        "expectedOutput": "GET /stundenplan HTTP/1.1\nHost: www.schule.de\nConnection: close\n\n\n",
+        "hidden": false
+      },
+      {
+        "append": "print(http_get('example.org', '/'))",
+        "expectedOutput": "GET /stundenplan HTTP/1.1\nHost: www.schule.de\nConnection: close\n\n\nGET / HTTP/1.1\nHost: example.org\nConnection: close\n\n\n"
+      },
+      {
+        "append": "print(repr(http_get('api.test', '/v1/noten?klasse=8a')))",
+        "expectedOutput": "GET /stundenplan HTTP/1.1\nHost: www.schule.de\nConnection: close\n\n\n'GET /v1/noten?klasse=8a HTTP/1.1\\r\\nHost: api.test\\r\\nConnection: close\\r\\n\\r\\n'\n"
+      }
+    ],
+    "solution": "def http_get(host, pfad):\n    return f'GET {pfad} HTTP/1.1\\r\\nHost: {host}\\r\\nConnection: close\\r\\n\\r\\n'\n\nresult = http_get('www.schule.de', '/stundenplan')\nprint(result)\n"
+  }
+}

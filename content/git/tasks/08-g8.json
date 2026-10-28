@@ -1,0 +1,35 @@
+{
+  "slug": "g8",
+  "type": "FILL_BLANK",
+  "title": "Branch-Befehle",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 8,
+  "learningGoal": "Du kannst Branches anlegen und zwischen ihnen wechseln.",
+  "story": "Du willst einen neuen Branch für das Dark-Mode-Feature erstellen, zu ihm wechseln und am Ende wieder zurück zu main.",
+  "assignment": "Ergänze die fehlenden Branch-Befehle.",
+  "hints": [
+    "checkout -b = Branch erstellen und direkt wechseln (b wie 'branch'). git branch ohne Argument zeigt alle vorhandenen Branches. main ist der Standard-Hauptbranch."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "# Neuen Branch erstellen UND direkt wechseln\ngit checkout ___ dark-mode\n\n# Alle Branches anzeigen\ngit ___\n\n# Zurück zu main wechseln\ngit checkout ___",
+    "blanks": [
+      {
+        "answers": [
+          "-b"
+        ]
+      },
+      {
+        "answers": [
+          "branch"
+        ]
+      },
+      {
+        "answers": [
+          "main"
+        ]
+      }
+    ]
+  }
+}

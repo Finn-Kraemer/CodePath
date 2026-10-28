@@ -1,0 +1,30 @@
+{
+  "slug": "g11",
+  "type": "FILL_BLANK",
+  "title": "Push & Pull",
+  "difficulty": "HARD",
+  "points": 15,
+  "sortOrder": 11,
+  "learningGoal": "Du kannst Änderungen mit push und pull austauschen.",
+  "story": "Du hast lokal committed und willst deinen Code auf GitHub hochladen. Dein Teamkollege hat inzwischen neue Commits gepusht – du willst seine Änderungen holen.",
+  "assignment": "Ergänze die Befehle für die Zusammenarbeit über GitHub.",
+  "hints": [
+    "push = hochladen (du drückst deinen Code zu GitHub). pull = runterladen + automatisch integrieren (du ziehst die Änderungen von GitHub). Merkhilfe: push raus, pull rein."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "# Remote-Adresse einmalig hinterlegen\ngit remote add origin https://github.com/user/repo.git\n\n# Lokale Commits auf GitHub hochladen\ngit ___ origin main\n\n# Neueste Änderungen von GitHub holen und integrieren\ngit ___ origin main",
+    "blanks": [
+      {
+        "answers": [
+          "push"
+        ]
+      },
+      {
+        "answers": [
+          "pull"
+        ]
+      }
+    ]
+  }
+}

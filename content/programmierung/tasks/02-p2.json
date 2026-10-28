@@ -1,0 +1,39 @@
+{
+  "slug": "p2",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Flussdiagramm lesen",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 2,
+  "learningGoal": "Du kannst die Symbole eines Flussdiagramms lesen.",
+  "story": "Im Programmablaufplan (Flussdiagramm) hat jede Form eine eigene Bedeutung. Dein Chef fragt dich beim Code-Review: *\"Welche Form nutzt man für eine Ja/Nein-Entscheidung?\"*",
+  "assignment": "Welche Form stellt eine Verzweigung (Entscheidung) im Flussdiagramm dar?",
+  "hints": [
+    "Die Raute hat zwei Ausgänge – einer für JA (Bedingung erfüllt) und einer für NEIN (Bedingung nicht erfüllt). Das macht sie zum Symbol für Entscheidungen."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Ein Rechteck – für alle Aktionen und Entscheidungen"
+      },
+      {
+        "id": "b",
+        "text": "Ein Oval/abgerundetes Rechteck – wie Start und Ende"
+      },
+      {
+        "id": "c",
+        "text": "Eine Raute – sie hat zwei Ausgänge: JA und NEIN"
+      },
+      {
+        "id": "d",
+        "text": "Ein Parallelogramm – für Eingabe und Ausgabe"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "slug": "a13",
+  "type": "FILL_CODE",
+  "title": "Graph – Verbindungen modellieren",
+  "difficulty": "HARD",
+  "points": 15,
+  "sortOrder": 13,
+  "learningGoal": "Du kannst einen Graphen als Adjazenzliste speichern und mit Breitensuche durchlaufen.",
+  "story": "Ein Graph besteht aus Knoten (Nodes) und Kanten (Edges). Soziale Netzwerke, Stadtpläne und das Internet sind Graphen. Ein einfacher Weg einen Graphen in Python darzustellen: als Dictionary von Nachbarlisten (Adjazenzliste).",
+  "assignment": "Ergänze den Code der alle Nachbarn eines Knotens ausgibt und per BFS (Breitensuche) den Graphen durchsucht.",
+  "hints": [
+    "BFS nutzt eine Queue (FIFO). Start-Knoten in Queue legen. Solange Queue nicht leer: Knoten vorne nehmen, alle unbesuchten Nachbarn hinten anstellen. 'not in' prüft ob Nachbar noch nicht besucht wurde."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "# Adjazenzliste: Wer ist mit wem verbunden?\nstadtplan = {\n    \"A\": [\"B\", \"C\"],\n    \"B\": [\"A\", \"D\"],\n    \"C\": [\"A\"],\n    \"D\": [\"B\"]\n}\n\n# Breitensuche (BFS) – besucht alle erreichbaren Knoten\nfrom collections import deque\n\ndef bfs(graph, start):\n    besucht = set()\n    queue = deque([___])\n    besucht.add(start)\n    \n    while queue:\n        knoten = queue.___()\n        print(knoten, end=\" \")\n        \n        for nachbar in graph[___]:\n            if nachbar ___ besucht:\n                besucht.add(nachbar)\n                queue.append(nachbar)\n\nbfs(stadtplan, \"A\")\nprint()",
+    "blanks": [
+      {
+        "answers": [
+          "start"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "popleft"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "knoten"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "not in"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "A B C D \n"
+      }
+    ]
+  }
+}

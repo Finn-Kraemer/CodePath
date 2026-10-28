@@ -1,0 +1,39 @@
+{
+  "slug": "db5",
+  "type": "MULTIPLE_CHOICE",
+  "title": "JOIN verstehen",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 5,
+  "learningGoal": "Du kannst erklären, wie ein JOIN Tabellen über Schlüssel verbindet.",
+  "story": "Du hast zwei Tabellen: `nutzer` (id, name, email) und `bestellungen` (id, nutzer_id, betrag). Du willst den Namen und den Betrag zusammen sehen.",
+  "assignment": "Wie verknüpfst du Daten aus zwei verschiedenen Tabellen?",
+  "hints": [
+    "Ein JOIN verbindet Zeilen aus zwei Tabellen die eine gemeinsame ID haben. Nutzer-ID in der Bestellungs-Tabelle zeigt auf die ID in der Nutzer-Tabelle."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Zwei separate SELECT-Abfragen nacheinander"
+      },
+      {
+        "id": "b",
+        "text": "Eine WHERE-Bedingung mit zwei Tabellennamen"
+      },
+      {
+        "id": "c",
+        "text": "Mit einem JOIN über eine gemeinsame ID-Spalte"
+      },
+      {
+        "id": "d",
+        "text": "Das geht nur mit speziellem Datenbankcode, nicht mit SQL"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

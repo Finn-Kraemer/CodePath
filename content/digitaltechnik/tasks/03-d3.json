@@ -1,0 +1,30 @@
+{
+  "slug": "d3",
+  "type": "FILL_BLANK",
+  "title": "Dezimal zu Binär umrechnen",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 3,
+  "learningGoal": "Du kannst Dezimalzahlen in Binärzahlen umrechnen.",
+  "story": "Um 13 in Binär umzurechnen teilst du wiederholt durch 2 und notierst die Reste von unten nach oben:\n\n```\n13 ÷ 2 = 6  Rest 1\n 6 ÷ 2 = 3  Rest 0\n 3 ÷ 2 = 1  Rest 1\n 1 ÷ 2 = 0  Rest 1\n→ von unten lesen: 1101\n```",
+  "assignment": "Rechne jetzt selbst: Was ist 10 (dezimal) als Binärzahl? Und was ist 7?",
+  "hints": [
+    "10: 10÷2=5R0, 5÷2=2R1, 2÷2=1R0, 1÷2=0R1 → von unten: 1010. 7: 7÷2=3R1, 3÷2=1R1, 1÷2=0R1 → von unten: 111."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "10 (dezimal) = ___ (binär)\n 7 (dezimal) = ___ (binär)",
+    "blanks": [
+      {
+        "answers": [
+          "1010"
+        ]
+      },
+      {
+        "answers": [
+          "111"
+        ]
+      }
+    ]
+  }
+}

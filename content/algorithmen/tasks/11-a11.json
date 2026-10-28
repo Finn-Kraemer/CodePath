@@ -1,0 +1,39 @@
+{
+  "slug": "a11",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Baum-Struktur verstehen",
+  "difficulty": "HARD",
+  "points": 10,
+  "sortOrder": 11,
+  "learningGoal": "Du kannst die Inorder-Traversierung eines Binärbaums von Hand durchführen.",
+  "story": "Ein Binärbaum ist eine Datenstruktur wo jeder Knoten maximal 2 Kinder hat. Hier ein Beispiel:\n\n```\n        4\n       / \\\n      2   6\n     / \\\n    1   3\n```",
+  "assignment": "In welcher Reihenfolge gibt die Inorder-Traversierung (links → Wurzel → rechts) die Werte aus?",
+  "hints": [
+    "Inorder: erst komplett links, dann Wurzel, dann rechts. Starte bei 4 → gehe links zu 2 → gehe links zu 1 (kein Kind mehr) → ausgeben: 1. Zurück zu 2 → ausgeben: 2. Gehe rechts zu 3 → ausgeben: 3. Zurück zu 4 → ausgeben: 4. Rechts zu 6 → ausgeben: 6."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "4, 2, 6, 1, 3"
+      },
+      {
+        "id": "b",
+        "text": "1, 2, 3, 4, 6"
+      },
+      {
+        "id": "c",
+        "text": "4, 2, 1, 3, 6"
+      },
+      {
+        "id": "d",
+        "text": "1, 3, 2, 6, 4"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

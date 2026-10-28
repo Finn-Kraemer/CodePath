@@ -1,0 +1,39 @@
+{
+  "slug": "g10",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Remote Repository – Was ist GitHub?",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 10,
+  "learningGoal": "Du kannst lokales und entferntes Repository unterscheiden.",
+  "story": "Du hast lokal Commits gemacht. Dein Teamkollege auf der anderen Seite der Stadt soll deinen Code sehen und damit weiterarbeiten können.",
+  "assignment": "Was ist der Unterschied zwischen lokalem Repository und Remote Repository (GitHub)?",
+  "hints": [
+    "Lokal = deine Festplatte. Remote = ein Server irgendwo auf der Welt. GitHub ist der bekannteste Anbieter für Remote-Repositories."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "GitHub ist schneller als ein lokales Repository"
+      },
+      {
+        "id": "b",
+        "text": "GitHub kostet Geld, lokale Repos sind kostenlos"
+      },
+      {
+        "id": "c",
+        "text": "Lokal = nur auf deinem Rechner. Remote (GitHub) = auf einem Server, von überall erreichbar und für das Team zugänglich"
+      },
+      {
+        "id": "d",
+        "text": "Es gibt keinen Unterschied – beide speichern den Code gleich"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

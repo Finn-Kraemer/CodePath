@@ -1,0 +1,39 @@
+{
+  "slug": "d1",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Wie viele Symbole passen in N Bits?",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "Du kannst berechnen, wie viele Zustände mit N Bits darstellbar sind.",
+  "story": "Dein Smartphone speichert alles als Bits. Ein Bit kann nur 0 oder 1 sein – aber wie viele verschiedene Symbole kannst du mit 3 Bits darstellen?\n\n```\n3 Bits → 000, 001, 010, 011, 100, 101, 110, 111\n```",
+  "assignment": "Wie viele verschiedene Muster kann man mit 3 Bits darstellen – und was ist die allgemeine Formel für N Bits?",
+  "hints": [
+    "Jedes zusätzliche Bit verdoppelt die Anzahl der Möglichkeiten. 1 Bit = 2 Muster, 2 Bit = 4 Muster, 3 Bit = 8 Muster. Die Formel lautet: 2^N."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "6 Muster – 3 × 2 = 6"
+      },
+      {
+        "id": "b",
+        "text": "8 Muster – 2³ = 8"
+      },
+      {
+        "id": "c",
+        "text": "9 Muster – 3² = 9"
+      },
+      {
+        "id": "d",
+        "text": "3 Muster – eines pro Bit"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "slug": "s5",
+  "type": "FILL_CODE",
+  "title": "Caesar-Verschlüsselung knacken",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 5,
+  "learningGoal": "Du kannst die Caesar-Verschlüsselung umkehren.",
+  "story": "Julius Caesar hat seine Nachrichten verschlüsselt indem er jeden Buchstaben um 3 Stellen verschoben hat (A→D, B→E...). Dekodiere \\\"KHOOR\":",
+  "assignment": "Vervollständige die Dekodier-Funktion.",
+  "hints": [
+    "ord(''A'') gibt die ASCII-Zahl eines Buchstabens (65 für A). chr(65) gibt den Buchstaben zur Zahl zurück. isalpha() prüft ob ein Zeichen ein Buchstabe ist."
+  ],
+  "explanation": "",
+  "config": {
+    "template": "def caesar_decode(text, versatz):\n    res = \"\"\n    for c in text:\n        if c.___(  ):\n            n = ___(c) - versatz\n            res += ___(n)\n        else:\n            res += c\n    return res\n\nprint(caesar_decode('KHOOR', 3))",
+    "blanks": [
+      {
+        "answers": [
+          "isalpha"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "ord"
+        ],
+        "caseSensitive": true
+      },
+      {
+        "answers": [
+          "chr"
+        ],
+        "caseSensitive": true
+      }
+    ],
+    "tests": [
+      {
+        "expectedOutput": "HELLO\n"
+      }
+    ]
+  }
+}

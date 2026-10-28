@@ -1,6 +1,6 @@
 # ADR-6: Umbau im Bestand statt Neuschreiben
 
-**Status:** Vorgeschlagen
+**Status:** Akzeptiert
 
 **Kontext:** Der Stack bleibt, viele Funktionen (Zeugnis, Beamer, Admin-Akte) funktionieren fachlich. Eine Person nebenbei kann sich keinen langen Zeitraum ohne lauffähiges System leisten.
 

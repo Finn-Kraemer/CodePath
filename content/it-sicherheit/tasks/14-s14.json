@@ -1,0 +1,27 @@
+{
+  "slug": "s14",
+  "type": "HOTSPOT",
+  "title": "Phishing-Mail entlarven",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 14,
+  "learningGoal": "Du erkennst typische Warnzeichen einer Phishing-Mail.",
+  "story": "Diese Mail ist bei dir angekommen. Sie sieht auf den ersten Blick echt aus – aber einiges passt nicht.",
+  "assignment": "Markiere alle Zeilen, die ein Warnzeichen für Phishing enthalten.",
+  "hints": [
+    "Schau dir den Absender und den Link genau an – Buchstabe für Buchstabe.",
+    "Auch Zeitdruck und die Frage nach dem Passwort sind typische Tricks."
+  ],
+  "explanation": "Warnzeichen: Die Absenderadresse ist gefälscht (`paypa1` mit einer Eins statt l), die Anrede ist unpersönlich, es wird Zeitdruck aufgebaut, nach dem Passwort gefragt, und der Link führt auf eine fremde Domain. Echte Firmen fragen nie per Mail nach deinem Passwort.",
+  "config": {
+    "text": "Von: service@paypa1-sicherheit.com\nAn: dich\nBetreff: Dringend: Ihr Konto wird gesperrt\n\nSehr geehrter Kunde,\nwir haben ungewöhnliche Aktivitäten festgestellt.\nBestätigen Sie innerhalb von 24 Stunden Ihre Daten,\nsonst wird Ihr Konto dauerhaft gesperrt.\nGeben Sie dazu Ihr Passwort auf unserer Seite ein:\nhttps://paypa1-konto-check.example/login\n\nMit freundlichen Grüßen\nIhr Service-Team",
+    "targets": [
+      1,
+      5,
+      7,
+      9,
+      10
+    ],
+    "showCount": true
+  }
+}

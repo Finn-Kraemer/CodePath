@@ -1,261 +1,300 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { auth } from '$lib/auth.svelte';
-	import MultipleChoice from './MultipleChoice.svelte';
-	import FillBlank from './FillBlank.svelte';
-	import FillCode from './FillCode.svelte';
-	import CodeTask from './CodeTask.svelte';
-	import PracticeTask from './PracticeTask.svelte';
-	import SortingTask from './SortingTask.svelte';
-	import SQLTask from './SQLTask.svelte';
-	import TerminalTask from './TerminalTask.svelte';
-
-	interface Task {
-		slug: string;
-		title: string;
-		story: string;
-		description: string;
-		type: string;
-		difficulty: string;
-		points: number;
-		config: any;
-		hint: string | null;
-		isCompleted: boolean;
-		isLocked: boolean;
-		supportUsed: boolean;
-		submissionStatus: string;
-		submissionContent: string;
-		adminComment: string;
-	}
-
-	let task = $state<Task | null>(null);
-	let loading = $state(true);
-	let error = $state('');
-	let supportUsed = $state(false);
-	let supportLoading = $state(false);
-
-	// Der Server merkt sich die Hilfestellung und liefert erst dann den Hinweis
-	async function requestSupport() {
-		if (!task) return;
-		supportLoading = true;
-		try {
-			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${taskSlug}/support`, {
-				method: 'POST'
-			});
-			if (!res.ok) throw new Error('Hilfestellung konnte nicht geladen werden');
-			const data = await res.json();
-			task.hint = data.hint;
-			supportUsed = data.supportUsed;
-		} catch (err: any) {
-			error = err.message;
-		} finally {
-			supportLoading = false;
-		}
-	}
+	import { goto } from '$app/navigation';
+	import { api, ApiError, type HintResult, type SubmitResult, type TaskDetail } from '$lib/api';
+	import Markdown from '$lib/Markdown.svelte';
+	import TaskRenderer from '$lib/tasks/TaskRenderer.svelte';
+	import type { Answer } from '$lib/tasks/types';
+	import { DIFFICULTY_LABELS, STATUS_LABELS, TYPE_LABELS } from '$lib/tasks/labels';
 
 	const moduleSlug = page.params.slug;
 	const taskSlug = page.params.taskSlug;
+	const base = `/api/modules/${moduleSlug}/${taskSlug}`;
 
-	onMount(async () => {
+	let task = $state<TaskDetail | null>(null);
+	let result = $state<SubmitResult | null>(null);
+	let error = $state('');
+	let busy = $state(false);
+	// Erzwingt ein Neuzeichnen der Aufgabe, wenn sich Lösung oder Status ändern
+	let renderKey = $state(0);
+
+	const disabled = $derived(
+		!task ||
+			!task.isOpen ||
+			task.isLocked ||
+			task.status === 'SOLVED' ||
+			task.status === 'PENDING_REVIEW'
+	);
+	const canHint = $derived(
+		!!task && (task.hints?.length ?? 0) < (task.hintsTotal ?? 0) && task.status === 'OPEN'
+	);
+
+	async function load() {
 		try {
-			const res = await auth.apiFetch(`/api/modules/${moduleSlug}/${taskSlug}`);
-			if (res.status === 403) {
-				import('$app/navigation').then(nav => nav.goto('/modules'));
-				return;
-			}
-			if (!res.ok) throw new Error('Aufgabe konnte nicht geladen werden');
-			task = await res.json();
-			if (task?.supportUsed) supportUsed = true;
-		} catch (err: any) {
-			error = err.message;
-		} finally {
-			loading = false;
+			task = await api<TaskDetail>(base);
+			renderKey++;
+		} catch (e) {
+			if (e instanceof ApiError && e.status === 403) goto('/modules');
+			else error = (e as Error).message;
 		}
-	});
+	}
+
+	onMount(load);
+
+	async function submit(answer: Answer) {
+		busy = true;
+		error = '';
+		try {
+			result = await api<SubmitResult>(`${base}/submit`, { method: 'POST', body: answer });
+			if (result.outcome !== 'INVALID') {
+				const before = task?.status;
+				await reload();
+				if (before !== task?.status) renderKey++;
+			}
+		} catch (e) {
+			error = (e as Error).message;
+		} finally {
+			busy = false;
+		}
+	}
+
+	async function reload() {
+		task = await api<TaskDetail>(base);
+	}
+
+	async function requestHint() {
+		if (!task) return;
+		const penalty = task.hintPenaltyPercent ?? 0;
+		if (
+			penalty > 0 &&
+			!confirm(`Ein Hinweis kostet ${penalty} % der Punkte dieser Aufgabe. Anzeigen?`)
+		)
+			return;
+		try {
+			const hint = await api<HintResult>(`${base}/hint`, { method: 'POST' });
+			task.hints = hint.hints;
+		} catch (e) {
+			error = (e as Error).message;
+		}
+	}
+
+	async function reveal() {
+		if (
+			!confirm(
+				'Wenn du die Lösung aufdeckst, bekommst du für diese Aufgabe keine Punkte mehr. Fortfahren?'
+			)
+		)
+			return;
+		try {
+			await api(`${base}/reveal`, { method: 'POST' });
+			await reload();
+			renderKey++;
+		} catch (e) {
+			error = (e as Error).message;
+		}
+	}
+
+	const outcomeStyle: Record<string, string> = {
+		CORRECT: 'border-green-200 bg-green-50 text-green-800',
+		PARTIAL: 'border-amber-200 bg-amber-50 text-amber-800',
+		WRONG: 'border-rose-200 bg-rose-50 text-rose-800',
+		INVALID: 'border-slate-200 bg-slate-50 text-slate-700',
+		MANUAL: 'border-blue-200 bg-blue-50 text-blue-800',
+		UNGRADED: 'border-slate-200 bg-slate-50 text-slate-700'
+	};
 </script>
+
+<svelte:head><title>{task?.title ?? 'Aufgabe'} | CodePath</title></svelte:head>
 
 <div class="mx-auto max-w-7xl">
 	<div class="mb-12 border-b border-slate-200 pb-8">
 		<a
 			href={`/modules/${moduleSlug}`}
-			class="mb-6 inline-flex items-center font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
+			class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
 		>
-			← Zurück zum Kursmodul
+			← Zurück zu {task?.moduleTitle ?? 'Modul'}
 		</a>
-
 		{#if task}
 			<div class="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-				<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+				<h1
+					class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase"
+				>
 					{task.title}
 				</h1>
-				<div class="flex items-center gap-4">
-					<span
-						class="border border-institutional-navy/10 bg-slate-50 px-4 py-2 font-mono text-[10px] font-black tracking-widest text-institutional-navy uppercase rounded-none"
+				<div
+					class="flex flex-wrap items-center gap-3 font-mono text-[10px] font-black tracking-widest uppercase"
+				>
+					<span class="border border-slate-200 bg-slate-50 px-3 py-2"
+						>{TYPE_LABELS[task.type ?? ''] ?? task.type}</span
 					>
-						Wertung: {task.points} Punkte
+					<span class="border border-slate-200 bg-slate-50 px-3 py-2"
+						>{DIFFICULTY_LABELS[task.difficulty ?? ''] ?? task.difficulty}</span
+					>
+					<span class="border border-institutional-navy/10 bg-slate-50 px-3 py-2"
+						>{task.points} Punkte</span
+					>
+					<span
+						class="border px-3 py-2 {task.status === 'SOLVED'
+							? 'border-green-200 bg-green-50 text-green-700'
+							: task.isLocked
+								? 'border-red-200 bg-red-50 text-red-700'
+								: 'border-slate-200 bg-white text-slate-500'}"
+					>
+						{task.isLocked && task.status !== 'FAILED'
+							? 'Gesperrt'
+							: STATUS_LABELS[task.status ?? 'OPEN']}
 					</span>
-					{#if task.isLocked}
-						<span
-							class="flex items-center gap-2 border border-red-200 bg-red-50 px-4 py-2 font-mono text-[10px] font-black tracking-widest text-red-700 uppercase rounded-none"
-						>
-							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-								<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-							</svg>
-							Gesperrt
-						</span>
-					{:else if task.isCompleted}
-						<span
-							class="flex items-center gap-2 border px-4 py-2 font-mono text-[10px] font-black tracking-widest uppercase rounded-none
-							{task.supportUsed ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-green-200 bg-green-50 text-green-700'}"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4"
-								viewBox="0 0 20 20"
-								fill="currentColor"
-							>
-								<path
-									fill-rule="evenodd"
-									d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-									clip-rule="evenodd"
-								/>
-							</svg>
-							{task.supportUsed ? 'Teil-Validiert (50%)' : 'Validiert'}
-						</span>
-					{/if}
 				</div>
 			</div>
 		{/if}
 	</div>
 
-	{#if loading}
+	{#if error}
+		<div
+			class="mb-8 border border-red-200 bg-red-50 p-6 font-mono text-sm text-red-700"
+			role="alert"
+		>
+			{error}
+		</div>
+	{/if}
+
+	{#if !task}
 		<div class="flex justify-center py-24">
-			<div class="h-12 w-12 border-4 border-slate-200 border-t-institutional-navy animate-spin"></div>
+			<div
+				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
+			></div>
 		</div>
-	{:else if error}
-		<div class="border border-red-200 bg-red-50 p-8 text-red-700 font-mono text-sm rounded-none">
-			<span class="font-bold uppercase tracking-widest">Systemfehler:</span> {error}
-		</div>
-	{:else if task}
+	{:else}
 		<div class="grid grid-cols-1 gap-12 lg:grid-cols-3">
-			<div class="lg:col-span-2">
-				{#if task.isLocked}
-					<div class="mb-8 border border-red-200 bg-red-50 p-8 flex items-center gap-6 font-sans font-bold text-red-700 uppercase tracking-widest text-xs rounded-none shadow-sm">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
-							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-						</svg>
-						Diese Aufgabe wurde nach zu vielen Fehlversuchen gesperrt.
+			<div class="space-y-8 lg:col-span-2">
+				{#if task.learningGoal}
+					<div class="border-l-4 border-institutional-gold bg-amber-50/50 p-5 text-sm">
+						<span
+							class="mr-2 font-mono text-[10px] font-black tracking-widest text-amber-700 uppercase"
+							>Lernziel</span
+						>{task.learningGoal}
+					</div>
+				{/if}
+				<div class="prose max-w-none border border-slate-200 bg-white p-10 shadow-sm prose-slate">
+					{#if task.story}<Markdown source={task.story} class="mb-6 text-slate-600" />{/if}
+					{#if task.assignment}
+						<p
+							class="mb-2 font-sans text-xs font-black tracking-widest text-institutional-navy uppercase"
+						>
+							Deine Aufgabe
+						</p>
+						<Markdown source={task.assignment} />
+					{/if}
+				</div>
+
+				{#if task.reviewComment}
+					<div class="border border-blue-200 bg-blue-50 p-6 text-sm text-blue-900">
+						<span class="mb-1 block font-mono text-[10px] font-black tracking-widest uppercase"
+							>Rückmeldung der Lehrkraft</span
+						>
+						{task.reviewComment}
+					</div>
+				{/if}
+				{#if !task.isOpen && task.status !== 'SOLVED'}
+					<div class="border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+						Die Bearbeitungszeit für dieses Modul ist abgelaufen.
 					</div>
 				{/if}
 
-				<div
-					class="prose prose-slate mb-12 max-w-none border border-slate-200 bg-white p-10 shadow-sm rounded-none"
-				>
-					<div class="mb-6 border-b border-slate-100 pb-4">
-						<span class="font-mono text-[9px] font-bold tracking-[3px] text-slate-400 uppercase"
-							>Aufgabenstellung</span
+				{#if result}
+					<div
+						class="border p-6 text-sm {outcomeStyle[result.outcome ?? 'INVALID']}"
+						role="status"
+						aria-live="polite"
+					>
+						<p class="font-bold">{result.feedback}</p>
+						{#if result.attemptsLeft !== undefined && result.attemptsLeft !== null && !result.isCorrect && result.outcome !== 'INVALID'}
+							<p class="mt-2 font-mono text-xs">Verbleibende Versuche: {result.attemptsLeft}</p>
+						{/if}
+					</div>
+				{/if}
+
+				{#key renderKey}
+					<TaskRenderer {task} {disabled} {busy} {result} {submit} />
+				{/key}
+
+				{#if task.explanation}
+					<div class="border border-green-200 bg-green-50 p-8">
+						<p
+							class="mb-3 font-mono text-[10px] font-black tracking-widest text-green-700 uppercase"
 						>
-					</div>
-					
-					{#if task.story}
-						<div class="mb-8">
-							<p class="mb-2 font-sans text-xs font-black tracking-widest text-institutional-navy uppercase">
-								Kontext:
-							</p>
-							<div class="text-slate-600">
-								{@html task.story}
-							</div>
-						</div>
-					{/if}
-
-					<div class="mb-4">
-						<p class="mb-2 font-sans text-xs font-black tracking-widest text-institutional-navy uppercase">
-							Aufgabenbeschreibung:
+							Erklärung
 						</p>
-						<div class="text-slate-600">
-							{@html task.description}
-						</div>
+						<Markdown source={task.explanation} class="text-sm text-green-900" />
 					</div>
-				</div>
-
-				<div class={task.isLocked ? 'opacity-50 pointer-events-none grayscale' : ''}>
-					{#if task.type === 'MULTIPLE_CHOICE'}
-						<MultipleChoice {task} {moduleSlug} {supportUsed} />
-					{:else if task.type === 'FILL_BLANK'}
-						<FillBlank {task} {moduleSlug} {supportUsed} />
-					{:else if task.type === 'FILL_CODE'}
-						<FillCode {task} {moduleSlug} {supportUsed} />
-					{:else if task.type === 'CODE'}
-						<CodeTask {task} {moduleSlug} {supportUsed} />
-					{:else if task.type === 'PRACTICE'}
-						<PracticeTask {task} {moduleSlug} {supportUsed} />
-					{:else if task.type === 'SORTING'}
-						<SortingTask {task} {moduleSlug} {supportUsed} />
-					{:else if task.type === 'SQL'}
-						<SQLTask {task} {moduleSlug} {supportUsed} />
-					{:else if task.type === 'TERMINAL'}
-						<TerminalTask {task} {moduleSlug} {supportUsed} />
-					{/if}
-				</div>
+				{/if}
 			</div>
 
-			<div class="space-y-8">
-				<div class="bg-institutional-navy p-10 text-white shadow-sm rounded-none">
-					<h3
+			<aside class="space-y-8">
+				<div class="bg-institutional-navy p-10 text-white shadow-sm">
+					<h2
 						class="mb-6 font-sans text-[10px] font-black tracking-[4px] text-institutional-gold uppercase"
 					>
-						Unterstützung
-					</h3>
-
-					{#if !supportUsed && !task.isCompleted && !task.isLocked}
+						Hinweise
+					</h2>
+					{#if task.hintsTotal === 0}
+						<p class="text-sm text-slate-300">Für diese Aufgabe gibt es keine Hinweise.</p>
+					{/if}
+					<ol class="space-y-4">
+						{#each task.hints ?? [] as hint, i (i)}
+							<li class="text-sm leading-relaxed text-slate-200">
+								<span class="mr-2 font-mono text-institutional-gold">{i + 1}.</span><Markdown
+									source={hint}
+									class="inline"
+								/>
+							</li>
+						{/each}
+					</ol>
+					{#if canHint}
 						<button
-							disabled={supportLoading}
-							onclick={() => {
-								if (confirm('Wenn Sie die Unterstützung nutzen, erhalten Sie für diese Aufgabe nur noch die hälfte der Punkte. Möchten Sie fortfahren?')) {
-									requestSupport();
-								}
-							}}
-							class="w-full border border-institutional-gold/30 bg-white/5 py-4 font-mono text-[9px] font-bold tracking-[2px] text-institutional-gold uppercase transition-all hover:bg-white/10 rounded-none"
+							onclick={requestHint}
+							class="mt-6 w-full border border-institutional-gold/30 bg-white/5 py-4 font-mono text-[9px] font-bold tracking-[2px] text-institutional-gold uppercase hover:bg-white/10"
 						>
-							Hilfestellung anfordern
+							Hinweis {(task.hints?.length ?? 0) + 1} von {task.hintsTotal} anzeigen (−{task.hintPenaltyPercent}
+							%)
 						</button>
-						<p class="mt-4 text-[10px] text-slate-400 italic leading-relaxed">
-							Hinweis: Die Inanspruchnahme reduziert die erreichbare Punktzahl um 50%.
-						</p>
-					{:else}
-						<div class="animate-in fade-in slide-in-from-top-2 duration-500">
-							<p class="font-sans text-sm leading-relaxed italic text-slate-300">
-								"{task.hint ||
-									'Prüfen Sie Ihre Eingaben sorgfältig, bevor Sie die Validierung starten.'}"
-							</p>
-							{#if supportUsed && !task.isCompleted && !task.isLocked}
-								<div class="mt-6 flex items-center gap-3 border border-amber-500/30 bg-amber-500/10 p-3">
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-										<path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-									</svg>
-									<span class="font-mono text-[8px] font-bold tracking-widest text-amber-500 uppercase">Punktabzug aktiv (50%)</span>
-								</div>
-							{/if}
+					{/if}
+				</div>
+
+				<div class="space-y-4 border border-slate-200 bg-white p-8 text-sm shadow-sm">
+					<div class="flex justify-between">
+						<span class="text-slate-500">Erreichte Punkte</span><span class="font-bold"
+							>{task.pointsEarned}</span
+						>
+					</div>
+					{#if task.maxAttempts}
+						<div class="flex justify-between">
+							<span class="text-slate-500">Versuche übrig</span><span class="font-bold"
+								>{task.attemptsLeft} von {task.maxAttempts}</span
+							>
 						</div>
 					{/if}
-
-					<div class="mt-8 border-t border-white/10 pt-6">
-						<a
-							href="/knowledge"
-							class="text-[10px] font-bold tracking-widest text-institutional-gold underline transition-all hover:text-white uppercase"
-							>Zum Wissens-Wiki →</a
+					{#if (task.firstTryBonusPercent ?? 0) > 0 && task.status === 'OPEN'}
+						<p class="text-xs text-slate-500">
+							Im ersten Versuch ohne Hinweis gibt es {task.firstTryBonusPercent} % Bonus.
+						</p>
+					{/if}
+					{#if task.revealAllowed && !task.solutionRevealed && task.status !== 'SOLVED' && task.status !== 'FAILED'}
+						<button
+							onclick={reveal}
+							class="mt-2 w-full border border-slate-300 py-3 font-mono text-[10px] font-bold tracking-widest text-slate-500 uppercase hover:border-rose-400 hover:text-rose-600"
 						>
-					</div>
+							Lösung aufdecken (0 Punkte)
+						</button>
+					{/if}
+					<a
+						href="/knowledge"
+						class="block pt-2 text-[10px] font-bold tracking-widest text-institutional-navy uppercase underline"
+						>Zum Wissens-Wiki →</a
+					>
 				</div>
-
-				<div class="border border-slate-200 bg-white p-10 shadow-sm rounded-none text-center">
-					<span class="block mb-2 font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">Kurs-Kontext</span>
-					<div class="text-xl font-black text-institutional-navy uppercase tracking-tighter">
-						{moduleSlug?.replace('-', ' ')}
-					</div>
-				</div>
-			</div>
+			</aside>
 		</div>
 	{/if}
 </div>

@@ -1,0 +1,39 @@
+{
+  "slug": "s2",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Passwort-Stärke einschätzen",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 2,
+  "learningGoal": "Du kannst die Stärke von Passwörtern einschätzen.",
+  "story": "Dein Chef bittet dich, Passwörter auf Sicherheit zu prüfen. Welches der folgenden Passwörter ist am sichersten?",
+  "assignment": "Wähle das sicherste Passwort aus.",
+  "hints": [
+    "Gutes Passwort: lang, kein echtes Wort, Groß+Klein+Zahlen+Sonderzeichen kombiniert. Wörterbuch-Wörter (auch mit Zahlen) sind durch automatische Angriffe leicht zu knacken."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "hund2024"
+      },
+      {
+        "id": "b",
+        "text": "Hund2024!"
+      },
+      {
+        "id": "c",
+        "text": "tr0ub4dor&3"
+      },
+      {
+        "id": "d",
+        "text": "passwort123"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

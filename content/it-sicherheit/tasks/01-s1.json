@@ -1,0 +1,39 @@
+{
+  "slug": "s1",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Phishing-Mail enttarnen",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 1,
+  "learningGoal": "Du kannst typische Warnsignale einer Phishing-Mail erkennen.",
+  "story": "Du bekommst diese E-Mail:\n\n```\nVon: support@paypa1.com\nBetreff: Dein Konto wird in 24h gelöscht!!!\nInhalt: Klicke hier sofort:\nLink: http://paypal-sicher.xyz/login\n```",
+  "assignment": "Wie viele Warnsignale findest du in dieser E-Mail?",
+  "hints": [
+    "Schaue dir folgende Dinge an: 1. Die Absender-Domain (paypa1 statt paypal), 2. Der Betreff mit !!! (künstliche Dringlichkeit), 3. Die Link-Domain (paypal-sicher.xyz – kein offizielles paypal.com)"
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Keine – die Mail sieht legitim aus"
+      },
+      {
+        "id": "b",
+        "text": "1 Signal (der verdächtige Link)"
+      },
+      {
+        "id": "c",
+        "text": "2 Signale"
+      },
+      {
+        "id": "d",
+        "text": "Mindestens 3 Signale"
+      }
+    ],
+    "correct": [
+      "d"
+    ],
+    "multiple": false
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "slug": "ai13",
+  "type": "PRACTICE",
+  "title": "Trainiere deine eigene KI-Idee",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 13,
+  "learningGoal": "Du kannst ein KI-System von den Daten bis zur Bewertung planen.",
+  "story": "Du bist Gründer eines KI-Startups! Investors Day: Du hast 3 Minuten um deine Idee zu pitchen. Entwirf ein KI-System für ein Problem das dir wichtig ist.",
+  "assignment": "Entwirf ein vollständiges KI-System für ein echtes Problem.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Dein KI-Konzept muss enthalten:\n1. Das Problem: Welches echte Problem löst deine KI? Warum ist das nützlich?\n2. Die Lösung: Eingabe → KI → Ausgabe (konkret beschreiben)\n3. Die Daten: Womit würdest du sie trainieren? Woher kommen die Daten?\n4. Die Bewertung: Wie misst du ob sie gut ist? (Genauigkeit? Was wäre 100%?)\n5. Die Risiken: Welche Fehler kann sie machen? Welche ethischen Probleme gibt es?\n6. Bonus: Schreibe einen Python-Prototyp mit if/elif (Entscheidungsbaum-Logik)",
+    "submissionNote": "Konzeptpapier mit allen 5 Punkten. Bonus: Python-Code.",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Das Problem: Welches echte Problem löst deine KI? Warum ist das nützlich?",
+        "points": 9
+      },
+      {
+        "id": "k2",
+        "label": "Die Lösung: Eingabe → KI → Ausgabe (konkret beschreiben)",
+        "points": 9
+      },
+      {
+        "id": "k3",
+        "label": "Die Daten: Womit würdest du sie trainieren? Woher kommen die Daten?",
+        "points": 8
+      },
+      {
+        "id": "k4",
+        "label": "Die Bewertung: Wie misst du ob sie gut ist? (Genauigkeit? Was wäre 100%?)",
+        "points": 8
+      },
+      {
+        "id": "k5",
+        "label": "Die Risiken: Welche Fehler kann sie machen? Welche ethischen Probleme gibt es?",
+        "points": 8
+      },
+      {
+        "id": "k6",
+        "label": "Bonus: Schreibe einen Python-Prototyp mit if/elif (Entscheidungsbaum-Logik)",
+        "points": 8
+      }
+    ]
+  }
+}

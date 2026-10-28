@@ -1,0 +1,33 @@
+{
+  "slug": "s7",
+  "type": "CODE",
+  "title": "Passwort-Checker programmieren",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 7,
+  "learningGoal": "Du kannst Regeln für sichere Passwörter in einem Programm prüfen.",
+  "story": "Du baust ein Tool für die Schulwebseite das prüft ob Passwörter sicher genug sind.",
+  "assignment": "Schreibe die Funktion `passwort_check(pw)` die ein Passwort bewertet.",
+  "hints": [
+    "len(pw) gibt die Länge zurück. any(c.isdigit() for c in pw) prüft ob mindestens eine Ziffer im Passwort steckt."
+  ],
+  "explanation": "",
+  "config": {
+    "starterCode": "def passwort_check(pw):\n    # Bedingungen für ein sicheres Passwort:\n    # 1. Mindestens 8 Zeichen lang\n    # 2. Mindestens eine Zahl enthalten\n    # Wenn beide Bedingungen erfüllt: 'Sicher', sonst: 'Unsicher'\n    pass\n\nprint(passwort_check('abc'))        # → Unsicher\nprint(passwort_check('abcdef12'))   # → Sicher",
+    "tests": [
+      {
+        "expectedOutput": "Unsicher\nSicher\n",
+        "hidden": false
+      },
+      {
+        "append": "print(passwort_check('abcdefgh'))\nprint(passwort_check('1234567'))\nprint(passwort_check('12345678'))",
+        "expectedOutput": "Unsicher\nSicher\nUnsicher\nUnsicher\nSicher\n"
+      },
+      {
+        "append": "print(passwort_check('langes passwort ohne zahl'))\nprint(passwort_check('a1'))\nprint(passwort_check('Sommer2026!'))",
+        "expectedOutput": "Unsicher\nSicher\nUnsicher\nUnsicher\nSicher\n"
+      }
+    ],
+    "solution": "def passwort_check(pw):\n    hat_zahl = any(zeichen.isdigit() for zeichen in pw)\n    if len(pw) >= 8 and hat_zahl:\n        return 'Sicher'\n    return 'Unsicher'\n\nprint(passwort_check('abc'))        # → Unsicher\nprint(passwort_check('abcdef12'))   # → Sicher\n"
+  }
+}

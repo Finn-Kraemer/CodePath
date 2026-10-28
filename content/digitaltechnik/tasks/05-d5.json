@@ -1,0 +1,39 @@
+{
+  "slug": "d5",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Warum variabler Code spart",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 5,
+  "learningGoal": "Du kannst erklären, warum häufige Zeichen mit kurzen Codes Speicher sparen.",
+  "story": "In einem deutschen Text kommt das **E** mit 18% Häufigkeit vor, das **Y** nur mit 0,04%.\n\nDer Huffman-Algorithmus weist häufigen Symbolen kurze Bitmuster zu, seltenen längere.",
+  "assignment": "Warum spart ein variabler Huffman-Code im Vergleich zu einem festen Code Speicher?",
+  "hints": [
+    "Stell dir vor: E kommt 1000× vor und hat im Huffman nur 2 Bit statt 8 → du sparst 6000 Bit nur bei E. Y kommt kaum vor – da ist es egal wenn es 10 Bit braucht."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Weil er keine 0en verwendet – nur 1en"
+      },
+      {
+        "id": "b",
+        "text": "Weil häufige Zeichen kurze Bitmuster bekommen – und sie kommen so oft vor dass der Gesamtspeicher sinkt"
+      },
+      {
+        "id": "c",
+        "text": "Weil er automatisch Duplikate löscht"
+      },
+      {
+        "id": "d",
+        "text": "Weil er nur die wichtigsten Zeichen speichert und den Rest weglässt"
+      }
+    ],
+    "correct": [
+      "b"
+    ],
+    "multiple": false
+  }
+}

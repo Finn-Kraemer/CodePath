@@ -25,5 +25,6 @@ Ein gutes Design ist entscheidend. Man sollte niemals Namen als Identifikator nu
 - **Fremdschlüssel:** In der Tabelle `bestellungen` speichert man nicht den Namen des Kunden, sondern dessen `nutzer_id`. Dies nennt man einen Fremdschlüssel.
 
 ### Beispiel-Struktur (Schema)
+
 - **nutzer:** `id`, `name`, `email`
 - **bestellungen:** `id`, `nutzer_id`, `produkt`, `betrag`

@@ -1,0 +1,39 @@
+{
+  "slug": "s12",
+  "type": "PRACTICE",
+  "title": "Sicherheits-Audit: Die App deines Mitschülers",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 12,
+  "learningGoal": "Du kannst Sicherheitslücken einer Anwendung strukturiert dokumentieren.",
+  "story": "Dein Mitschüler hat eine Login-App gebaut und bittet dich um einen Sicherheitscheck:\n\n```\n// Sein Code:\nconst query = `SELECT * FROM users\n  WHERE user='${eingabe}'\n  AND pass='${passwort}'`\n\nconst admin_pw = \"admin123\"  // Im Code gespeichert!\n// Kein HTTPS, kein Rate-Limiting, keine Fehlerbehandlung\n```",
+  "assignment": "Erstelle einen professionellen Sicherheitsbericht.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Dein Audit-Bericht muss enthalten:\n1. Mindestens 4 konkrete Sicherheitslücken benennen und erklären (was ist das Problem?)\n2. Für jede Lücke: einen konkreten Lösungsvorschlag\n3. Eine Priorisierung: Was ist am gefährlichsten? (Kritisch / Mittel / Niedrig)\n4. Bonus: Erkläre wie ein Angreifer die SQL Injection konkret ausnutzen würde\n\nHinweis: Schaue nach SQL Injection, Klartext-Passwort, fehlendem HTTPS, fehlendem Rate-Limiting.",
+    "submissionNote": "Strukturierter Bericht mit: Lücke → Erklärung → Lösung → Priorität",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Mindestens 4 konkrete Sicherheitslücken benennen und erklären (was ist das Problem?)",
+        "points": 13
+      },
+      {
+        "id": "k2",
+        "label": "Für jede Lücke: einen konkreten Lösungsvorschlag",
+        "points": 13
+      },
+      {
+        "id": "k3",
+        "label": "Eine Priorisierung: Was ist am gefährlichsten? (Kritisch / Mittel / Niedrig)",
+        "points": 12
+      },
+      {
+        "id": "k4",
+        "label": "Bonus: Erkläre wie ein Angreifer die SQL Injection konkret ausnutzen würde",
+        "points": 12
+      }
+    ]
+  }
+}

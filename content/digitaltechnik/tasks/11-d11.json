@@ -1,0 +1,39 @@
+{
+  "slug": "d11",
+  "type": "MULTIPLE_CHOICE",
+  "title": "Don't-Care verstehen",
+  "difficulty": "HARD",
+  "points": 10,
+  "sortOrder": 11,
+  "learningGoal": "Du kannst erklären, wie Don't-Care-Einträge die Vereinfachung erleichtern.",
+  "story": "Eine Schaltung wertet BCD-Zahlen aus (Binary Coded Decimal – nur 0–9 sind gültig). Die Binärmuster 1010 bis 1111 (dezimal 10–15) **kommen nie vor**.",
+  "assignment": "Was bedeutet es diese Einträge als \"Don't Care\" (X) zu markieren?",
+  "hints": [
+    "Da diese Eingaben nie auftreten, ist es egal was die Schaltung ausgibt. Man nutzt diese Freiheit um im KV-Diagramm größere Gruppen zu bilden → einfachere Formel → weniger Gatter nötig."
+  ],
+  "explanation": "",
+  "config": {
+    "options": [
+      {
+        "id": "a",
+        "text": "Diese Eingaben werden immer als 0 behandelt"
+      },
+      {
+        "id": "b",
+        "text": "Diese Eingaben werden immer als 1 behandelt"
+      },
+      {
+        "id": "c",
+        "text": "Man kann X beliebig als 0 oder 1 wählen – immer so wie es größere Gruppen im KV-Diagramm erlaubt und damit den Ausdruck vereinfacht"
+      },
+      {
+        "id": "d",
+        "text": "Diese Eingaben werden vom Compiler automatisch entfernt"
+      }
+    ],
+    "correct": [
+      "c"
+    ],
+    "multiple": false
+  }
+}

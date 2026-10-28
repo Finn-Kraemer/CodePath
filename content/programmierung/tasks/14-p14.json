@@ -1,0 +1,44 @@
+{
+  "slug": "p14",
+  "type": "PRACTICE",
+  "title": "Dein erstes vollständiges Programm",
+  "difficulty": "HARD",
+  "points": 50,
+  "sortOrder": 14,
+  "learningGoal": "Du kannst ein kleines Programm planen, umsetzen und deinen Entwurf erklären.",
+  "story": "Du hast alle Grundbausteine gelernt: Algorithmen planen, Variablen, Datentypen, Vergleiche, if-else, match-case, Arrays und Schleifen. Zeit, alles zusammenzubringen!",
+  "assignment": "Schreibe ein vollständiges Programm und erkläre deinen Entwurf.",
+  "hints": [],
+  "explanation": "",
+  "config": {
+    "instructions": "Dein Programm muss enthalten:\n1. Einen kurzen Pseudocode-Plan VOR dem Code (als Kommentar)\n2. Mindestens zwei Variablen mit verschiedenen Datentypen (int, str, bool)\n3. Eine if-elif-else-Bedingung oder ein match-case\n4. Eine for-Schleife die über eine Liste iteriert\n5. Mindestens einen logischen Ausdruck mit and, or oder not\n\nThemen-Ideen: Notenverwaltung, Quiz-Spiel, Wochenplan-Auswertung, Zugangssystem",
+    "submissionNote": "Pseudocode-Plan + vollständiger Python-Code + kurze Erklärung welche Konzepte du benutzt hast.",
+    "rubric": [
+      {
+        "id": "k1",
+        "label": "Einen kurzen Pseudocode-Plan VOR dem Code (als Kommentar)",
+        "points": 10
+      },
+      {
+        "id": "k2",
+        "label": "Mindestens zwei Variablen mit verschiedenen Datentypen (int, str, bool)",
+        "points": 10
+      },
+      {
+        "id": "k3",
+        "label": "Eine if-elif-else-Bedingung oder ein match-case",
+        "points": 10
+      },
+      {
+        "id": "k4",
+        "label": "Eine for-Schleife die über eine Liste iteriert",
+        "points": 10
+      },
+      {
+        "id": "k5",
+        "label": "Mindestens einen logischen Ausdruck mit and, or oder not",
+        "points": 10
+      }
+    ]
+  }
+}

@@ -26,12 +26,12 @@ Die kleinste Informationseinheit heißt **Bit**. Ein Bit kann genau einen von zw
 
 Mit **N Bits** kann man genau **2^N verschiedene** Muster speichern:
 
-| Bits (N) | Mögliche Muster (2^N) | Beispiel |
-|---|---|---|
-| 1 | 2 | 0, 1 |
-| 2 | 4 | 00, 01, 10, 11 |
-| 3 | 8 | 000 bis 111 |
-| 8 | 256 | 0 bis 255 (ein Byte) |
+| Bits (N) | Mögliche Muster (2^N) | Beispiel             |
+| -------- | --------------------- | -------------------- |
+| 1        | 2                     | 0, 1                 |
+| 2        | 4                     | 00, 01, 10, 11       |
+| 3        | 8                     | 000 bis 111          |
+| 8        | 256                   | 0 bis 255 (ein Byte) |
 
 > **Merksatz:** Jedes zusätzliche Bit **verdoppelt** die Anzahl der möglichen Werte.
 
@@ -64,14 +64,14 @@ Multipliziere jede Ziffer mit ihrem Stellenwert und addiere alles:
 
 **Weitere Beispiele:**
 
-| Binär | Rechnung | Dezimal |
-|---|---|---|
-| `0001` | 1 | 1 |
-| `0010` | 2 | 2 |
-| `0100` | 4 | 4 |
-| `1000` | 8 | 8 |
-| `1010` | 8+2 | 10 |
-| `1111` | 8+4+2+1 | 15 |
+| Binär  | Rechnung | Dezimal |
+| ------ | -------- | ------- |
+| `0001` | 1        | 1       |
+| `0010` | 2        | 2       |
+| `0100` | 4        | 4       |
+| `1000` | 8        | 8       |
+| `1010` | 8+2      | 10      |
+| `1111` | 8+4+2+1  | 15      |
 
 ### Dezimal → Binär
 
@@ -118,14 +118,14 @@ Die Menge der Symbole heißt **Ursprungsmenge** (z.B. alle Buchstaben), die Meng
 
 Der **ASCII-Code** (American Standard Code for Information Interchange) ordnet jedem Zeichen eine Zahl von 0 bis 127 zu – diese Zahl wird dann binär gespeichert. ASCII nutzt 7 Bit → 2^7 = **128 verschiedene Zeichen**.
 
-| Zeichen | Dezimal | Binär (7-bit) |
-|---|---|---|
-| `A` | 65 | 1000001 |
-| `B` | 66 | 1000010 |
-| `Z` | 90 | 1011010 |
-| `a` | 97 | 1100001 |
-| `0` | 48 | 0110000 |
-| Leerzeichen | 32 | 0100000 |
+| Zeichen     | Dezimal | Binär (7-bit) |
+| ----------- | ------- | ------------- |
+| `A`         | 65      | 1000001       |
+| `B`         | 66      | 1000010       |
+| `Z`         | 90      | 1011010       |
+| `a`         | 97      | 1100001       |
+| `0`         | 48      | 0110000       |
+| Leerzeichen | 32      | 0100000       |
 
 ```python
 # Zeichen → ASCII-Zahl
@@ -172,19 +172,21 @@ Bei 1000 Symbolen: **1000 × 2 = 2000 Bit**.
 Wenn manche Symbole **viel häufiger** vorkommen als andere, kann man Speicher sparen: Häufige Symbole bekommen **kurze** Bitmuster, seltene bekommen **längere**.
 
 **Grundidee:**
+
 > Hohe Wahrscheinlichkeit = wenig Information = kurzes Codewort  
 > Geringe Wahrscheinlichkeit = viel Information = langes Codewort
 
 **Beispiel:** 4 Symbole mit unterschiedlicher Häufigkeit:
 
 | Symbol | Wahrscheinlichkeit | Fester Code | Huffman-Code |
-|---|---|---|---|
-| B | 50 % (1/2) | 00 | **0** |
-| A | 33 % (1/3) | 01 | **11** |
-| C | 8 % (1/12) | 10 | **100** |
-| D | 8 % (1/12) | 11 | **101** |
+| ------ | ------------------ | ----------- | ------------ |
+| B      | 50 % (1/2)         | 00          | **0**        |
+| A      | 33 % (1/3)         | 01          | **11**       |
+| C      | 8 % (1/12)         | 10          | **100**      |
+| D      | 8 % (1/12)         | 11          | **101**      |
 
 **Erwartete Länge pro Symbol:**
+
 - Fester Code: **2 Bit** (immer)
 - Huffman: 0,5×1 + 0,33×2 + 0,08×3 + 0,08×3 ≈ **1,67 Bit**
 
@@ -249,32 +251,32 @@ Die **Boolesche Algebra** ist die Mathematik hinter Logikgattern. Sie arbeitet n
 
 **AND (UND) – Konjunktion:** Ergebnis ist 1 nur wenn **beide** Eingänge 1 sind.
 
-| A | B | A AND B |
-|:---:|:---:|:---:|
-| 0 | 0 | **0** |
-| 0 | 1 | **0** |
-| 1 | 0 | **0** |
-| 1 | 1 | **1** |
+|  A  |  B  | A AND B |
+| :-: | :-: | :-----: |
+|  0  |  0  |  **0**  |
+|  0  |  1  |  **0**  |
+|  1  |  0  |  **0**  |
+|  1  |  1  |  **1**  |
 
 Schreibweise: `A · B` oder `A ∧ B` oder in Python: `A and B`
 
 **OR (ODER) – Disjunktion:** Ergebnis ist 1 wenn **mindestens ein** Eingang 1 ist.
 
-| A | B | A OR B |
-|:---:|:---:|:---:|
-| 0 | 0 | **0** |
-| 0 | 1 | **1** |
-| 1 | 0 | **1** |
-| 1 | 1 | **1** |
+|  A  |  B  | A OR B |
+| :-: | :-: | :----: |
+|  0  |  0  | **0**  |
+|  0  |  1  | **1**  |
+|  1  |  0  | **1**  |
+|  1  |  1  | **1**  |
 
 Schreibweise: `A + B` oder `A ∨ B` oder in Python: `A or B`
 
 **NOT (NICHT) – Negation / Invertierung:** Kehrt den Wert um – aus 0 wird 1 und umgekehrt.
 
-| A | NOT A |
-|:---:|:---:|
-| 0 | **1** |
-| 1 | **0** |
+|  A  | NOT A |
+| :-: | :---: |
+|  0  | **1** |
+|  1  | **0** |
 
 Schreibweise: `Ā` oder `¬A` oder in Python: `not A`
 
@@ -282,12 +284,12 @@ Schreibweise: `Ā` oder `¬A` oder in Python: `not A`
 
 Ergebnis ist 1 wenn die Eingänge **verschieden** sind.
 
-| A | B | A XOR B |
-|:---:|:---:|:---:|
-| 0 | 0 | **0** |
-| 0 | 1 | **1** |
-| 1 | 0 | **1** |
-| 1 | 1 | **0** |
+|  A  |  B  | A XOR B |
+| :-: | :-: | :-----: |
+|  0  |  0  |  **0**  |
+|  0  |  1  |  **1**  |
+|  1  |  0  |  **1**  |
+|  1  |  1  |  **0**  |
 
 Schreibweise: `A ⊕ B` oder in Python: `A != B`
 
@@ -361,6 +363,7 @@ XOR:   A ──┐
 ### Schaltnetz entwerfen: Vom Problem zur Schaltung
 
 **Vorgehen:**
+
 1. Problem beschreiben
 2. Wahrheitstabelle aufstellen (alle Eingangskombinationen)
 3. Boolesche Formel ablesen
@@ -372,20 +375,21 @@ Drei Personen (A, B, C) stimmen ab. Ausgang Y = 1 wenn **mindestens 2** mit Ja (
 
 **Wahrheitstabelle:**
 
-| A | B | C | Y |
-|:---:|:---:|:---:|:---:|
-| 0 | 0 | 0 | 0 |
-| 0 | 0 | 1 | 0 |
-| 0 | 1 | 0 | 0 |
-| 0 | 1 | 1 | 1 |
-| 1 | 0 | 0 | 0 |
-| 1 | 0 | 1 | 1 |
-| 1 | 1 | 0 | 1 |
-| 1 | 1 | 1 | 1 |
+|  A  |  B  |  C  |  Y  |
+| :-: | :-: | :-: | :-: |
+|  0  |  0  |  0  |  0  |
+|  0  |  0  |  1  |  0  |
+|  0  |  1  |  0  |  0  |
+|  0  |  1  |  1  |  1  |
+|  1  |  0  |  0  |  0  |
+|  1  |  0  |  1  |  1  |
+|  1  |  1  |  0  |  1  |
+|  1  |  1  |  1  |  1  |
 
 **Boolesche Formel:** Y = (A·B) + (A·C) + (B·C)
 
 **In Python:**
+
 ```python
 def mehrheit(A, B, C):
     return (A and B) or (A and C) or (B and C)
@@ -442,6 +446,7 @@ A=1  |  1  |  1  |
 ```
 
 Gruppen:
+
 - Die beiden 1en in Spalte C=1: A ändert sich (0→1), C=1 bleibt → Term: **C**
 - Die beiden 1en in Zeile A=1: C ändert sich, A=1 bleibt → Term: **A**
 
@@ -467,21 +472,23 @@ Anders als ein Schaltnetz hat ein **Schaltwerk** ein **Gedächtnis**: Der Ausgan
 
 **Vergleich:**
 
-| | Schaltnetz | Schaltwerk |
-|---|---|---|
-| Gedächtnis | ❌ Nein | ✅ Ja |
+|                      | Schaltnetz          | Schaltwerk                    |
+| -------------------- | ------------------- | ----------------------------- |
+| Gedächtnis           | ❌ Nein             | ✅ Ja                         |
 | Ausgang hängt ab von | Aktuellen Eingängen | Eingängen + aktuellem Zustand |
-| Beispiel | Addierer | Ampelsteuerung, Schloss |
+| Beispiel             | Addierer            | Ampelsteuerung, Schloss       |
 
 ### Endliche Automaten (Zustandsautomaten)
 
 Ein **endlicher Automat** besteht aus:
+
 - einer endlichen Menge von **Zuständen** (z.B. Z0, Z1, Z2)
 - einem **Startzustand**
 - **Übergängen**: Bei Eingabe X wechsle von Zustand A nach Zustand B
 - ggf. **Ausgaben** je nach Zustand oder Übergang
 
 **Darstellung als Zustandsdiagramm:**
+
 - Kreise = Zustände
 - Pfeile = Übergänge (beschriftet mit Eingabe)
 - Doppelkreis = Endzustand (Akzeptierzustand)
@@ -499,22 +506,22 @@ Das Schloss öffnet wenn die Sequenz `1 → 0 → 1` eingegeben wird.
 
 Zustandstabelle:
 
-| Zustand | Eingabe | Nächster Zustand | Ausgabe |
-|---|---|---|---|
-| Z0 (Start) | 1 | Z1 | geschlossen |
-| Z0 | 0 | Z0 | geschlossen |
-| Z1 | 0 | Z2 | geschlossen |
-| Z1 | 1 | Z1 | geschlossen |
-| Z2 | 1 | Z3 | **offen!** |
-| Z2 | 0 | Z0 | geschlossen |
+| Zustand    | Eingabe | Nächster Zustand | Ausgabe     |
+| ---------- | ------- | ---------------- | ----------- |
+| Z0 (Start) | 1       | Z1               | geschlossen |
+| Z0         | 0       | Z0               | geschlossen |
+| Z1         | 0       | Z2               | geschlossen |
+| Z1         | 1       | Z1               | geschlossen |
+| Z2         | 1       | Z3               | **offen!**  |
+| Z2         | 0       | Z0               | geschlossen |
 
 ### Moore- vs. Mealy-Automat
 
-| | Moore-Automat | Mealy-Automat |
-|---|---|---|
-| Ausgabe hängt ab von | Nur dem Zustand | Zustand **und** Eingabe |
-| Ausgabe steht | Am Zustand (im Kreis) | Am Übergang (am Pfeil) |
-| Vorteil | Einfacher zu verstehen | Weniger Zustände nötig |
+|                      | Moore-Automat          | Mealy-Automat           |
+| -------------------- | ---------------------- | ----------------------- |
+| Ausgabe hängt ab von | Nur dem Zustand        | Zustand **und** Eingabe |
+| Ausgabe steht        | Am Zustand (im Kreis)  | Am Übergang (am Pfeil)  |
+| Vorteil              | Einfacher zu verstehen | Weniger Zustände nötig  |
 
 **Moore-Beispiel:** Ampelsteuerung – die Ausgabe (Farbe) hängt nur vom aktuellen Zustand ab.
 
@@ -538,6 +545,7 @@ for _ in range(5):
 ```
 
 **Ausgabe:**
+
 ```
 ROT
 ROTGELB
