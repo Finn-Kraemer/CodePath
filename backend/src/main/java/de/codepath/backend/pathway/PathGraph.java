@@ -22,9 +22,19 @@ public final class PathGraph {
     /**
      * @param module Slug des Moduls (MODULE und TASK)
      * @param task   Slug der Aufgabe (nur TASK)
+     * @param tasks  nur MODULE: Slugs der Aufgaben, die diese Station nutzt; leer oder null für alle – so lässt
+     *               sich ein Modul auf mehrere Stationen verteilen (Programmierung 1, Web 1, Programmierung 2)
      * @param label  eigene Beschriftung; Pflicht für Meilensteine, sonst gilt der Titel von Modul bzw. Aufgabe
      */
-    public record Node(String id, NodeKind kind, String module, String task, String label, int x, int y) {
+    public record Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label, int x, int y) {
+        public Node {
+            tasks = tasks == null || tasks.isEmpty() ? null : List.copyOf(new LinkedHashSet<>(tasks));
+        }
+
+        /** Nutzt die Station nur einen Teil der Aufgaben ihres Moduls? */
+        public boolean partial() {
+            return kind == NodeKind.MODULE && tasks != null;
+        }
     }
 
     public record Edge(String from, String to) {
@@ -64,6 +74,7 @@ public final class PathGraph {
                 }
                 case MODULE -> {
                     if (isBlank(node.module())) throw ApiException.badRequest("Station " + node.id() + ": Modul fehlt.");
+                    if (node.tasks() != null && node.tasks().size() > 200) throw ApiException.badRequest("Station " + node.id() + ": zu viele Aufgaben.");
                 }
                 case TASK -> {
                     if (isBlank(node.module()) || isBlank(node.task())) throw ApiException.badRequest("Station " + node.id() + ": Aufgabe fehlt.");

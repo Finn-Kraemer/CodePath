@@ -10,9 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -118,5 +116,57 @@ public class ReleaseService {
         details.put("module", module.getSlug());
         details.put("deadline", deadline == null ? null : deadline.toString());
         auditService.log("MODULE_DEADLINE_SET", "course:" + courseId, details);
+    }
+
+    /**
+     * Übernimmt einen Lernpfad in die Modul-Steuerung eines Kurses. Jedes Modul im Plan wird freigegeben;
+     * mit Aufgabenauswahl werden die übrigen Aufgaben des Moduls einzeln gesperrt, ohne Auswahl folgen alle
+     * Aufgaben wieder dem Modul. Fristen bleiben unangetastet.
+     *
+     * @param plan       Modul-Slug → Slugs der genutzten Aufgaben, null für alle Aufgaben
+     * @param lockOthers Module, die nicht im Plan stehen, sperren (samt einzeln freigegebener Aufgaben)
+     * @return was sich geändert hat, lesbar für die Lehrkraft
+     */
+    @Transactional
+    public List<String> applyPlan(Long courseId, Map<String, Set<String>> plan, boolean lockOthers) {
+        courseService.get(courseId);
+        Map<Long, TaskReleaseMode> modes = taskModes(courseId);
+        List<String> changes = new ArrayList<>();
+        for (Module module : contentService.modules()) {
+            var tasks = contentService.publishedTasks(module);
+            ModuleRelease release = repository.findById(new ModuleRelease.Key(courseId, module.getId()))
+                    .orElseGet(() -> new ModuleRelease(courseId, module.getId()));
+            boolean inPlan = plan.containsKey(module.getSlug());
+            if (!inPlan && !lockOthers) continue;
+            Set<String> selected = inPlan ? plan.get(module.getSlug()) : Set.of();
+            int shown = 0, hidden = 0;
+            for (var task : tasks) {
+                // Im Plan: ausgewählte Aufgaben folgen dem (freigegebenen) Modul, die anderen sind gesperrt.
+                // Nicht im Plan: einzelne Freigaben aufheben, damit das gesperrte Modul ganz verschwindet.
+                TaskReleaseMode wanted = !inPlan || selected == null || selected.contains(task.task().getSlug())
+                        ? null : TaskReleaseMode.HIDDEN;
+                TaskReleaseMode current = modes.get(task.taskId());
+                if (!inPlan && current == TaskReleaseMode.HIDDEN) continue;
+                if (current == wanted) continue;
+                TaskRelease.Key key = new TaskRelease.Key(courseId, task.taskId());
+                if (wanted == null) taskReleaseRepository.deleteById(key);
+                else taskReleaseRepository.save(new TaskRelease(courseId, task.taskId(), wanted));
+                if (wanted == null) shown++;
+                else hidden++;
+            }
+            if (release.isUnlocked() != inPlan) {
+                release.setUnlocked(inPlan);
+                repository.save(release);
+                changes.add(module.getTitle() + (inPlan ? " freigegeben" : " gesperrt"));
+            }
+            if (inPlan && selected != null && (shown > 0 || hidden > 0)) {
+                long used = tasks.stream().filter(t -> selected.contains(t.task().getSlug())).count();
+                changes.add(module.getTitle() + ": " + used + " von " + tasks.size() + " Aufgaben freigegeben, die übrigen gesperrt");
+            } else if (shown > 0 || hidden > 0) {
+                changes.add(module.getTitle() + ": einzelne Aufgaben-Freigaben aufgehoben");
+            }
+        }
+        if (!changes.isEmpty()) auditService.log("LEARNING_PATH_APPLIED", "course:" + courseId, Map.of("changes", changes.size()));
+        return changes;
     }
 }
