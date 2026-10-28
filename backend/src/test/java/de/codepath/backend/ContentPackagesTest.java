@@ -51,14 +51,14 @@ class ContentPackagesTest extends IntegrationTestBase {
                 if (wrong.isCorrect()) failures.add(where + ": falsche Antwort gilt als richtig");
             }
         }
-        assertEquals(123, count);
+        assertEquals(127, count);
         assertTrue(failures.isEmpty(), String.join("\n", failures));
     }
 
     @Test
     void seederImportedEverythingAsVersionOne(@Autowired ContentService content) {
         var tasks = content.allPublishedTasks();
-        assertEquals(123, tasks.size());
+        assertEquals(127, tasks.size());
         assertTrue(tasks.stream().allMatch(t -> t.version().getVersion() >= 1 && t.version().isPublished()));
     }
 }

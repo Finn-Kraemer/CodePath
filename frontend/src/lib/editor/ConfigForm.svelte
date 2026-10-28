@@ -6,6 +6,10 @@
 	import SqlForm from './config/SqlForm.svelte';
 	import TerminalForm from './config/TerminalForm.svelte';
 	import PracticeForm from './config/PracticeForm.svelte';
+	import MatchingForm from './config/MatchingForm.svelte';
+	import ParsonsForm from './config/ParsonsForm.svelte';
+	import NumberConvertForm from './config/NumberConvertForm.svelte';
+	import HotspotForm from './config/HotspotForm.svelte';
 	import JsonForm from './config/JsonForm.svelte';
 	import type { Config } from './types';
 
@@ -40,6 +44,14 @@
 	<TerminalForm bind:config />
 {:else if type === 'PRACTICE'}
 	<PracticeForm bind:config {points} />
+{:else if type === 'MATCHING'}
+	<MatchingForm bind:config />
+{:else if type === 'PARSONS'}
+	<ParsonsForm bind:config />
+{:else if type === 'NUMBER_CONVERT'}
+	<NumberConvertForm bind:config />
+{:else if type === 'HOTSPOT'}
+	<HotspotForm bind:config />
 {:else}
 	<JsonForm bind:config />
 {/if}

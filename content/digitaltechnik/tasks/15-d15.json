@@ -1,0 +1,23 @@
+{
+  "slug": "d15",
+  "type": "NUMBER_CONVERT",
+  "title": "Dezimal in Binär umrechnen",
+  "difficulty": "MEDIUM",
+  "points": 15,
+  "sortOrder": 15,
+  "learningGoal": "Du kannst Dezimalzahlen bis 255 in Binärzahlen umrechnen.",
+  "story": "Ein Byte hat 8 Bits. Damit lassen sich die Zahlen 0 bis 255 speichern – zum Beispiel die Helligkeit eines Pixels.\n\n| Stelle | 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1 |\n|---|---|---|---|---|---|---|---|---|\n| 37 | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 1 |",
+  "assignment": "Rechne die drei Dezimalzahlen in Binärzahlen um. Jede Person bekommt eigene Zahlen.",
+  "hints": [
+    "Beginne bei der größten Zweierpotenz, die noch hineinpasst (128, 64, 32 …). Passt sie, schreibst du eine 1 und ziehst sie ab, sonst eine 0.",
+    "Beispiel 37: 32 passt (Rest 5), 16 und 8 nicht, 4 passt (Rest 1), 2 nicht, 1 passt → 100101."
+  ],
+  "explanation": "Jede Stelle einer Binärzahl steht für eine Zweierpotenz. Du zerlegst die Zahl in eine Summe von Zweierpotenzen – genau so speichert der Computer sie. Führende Nullen darfst du weglassen.",
+  "config": {
+    "from": 10,
+    "to": 2,
+    "min": 5,
+    "max": 255,
+    "count": 3
+  }
+}

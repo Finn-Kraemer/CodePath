@@ -57,6 +57,9 @@ test('Kurs anlegen, beitreten, Aufgabe lösen, Punkte sehen', async ({ browser }
 	await expect(student.getByRole('status')).toContainText('Richtig');
 
 	await student.goto('/leaderboard');
-	await expect(student.getByText(`e2e-${suffix}`)).toBeVisible();
+	// Der Name steht je nach Platz in der Liste und im eigenen Rang – einmal reicht
+	await expect(
+		student.getByRole('main').getByText(`e2e-${suffix}`, { exact: true }).first()
+	).toBeVisible();
 	await expect(student.getByText('24', { exact: true }).first()).toBeVisible();
 });

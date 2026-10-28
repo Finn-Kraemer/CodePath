@@ -47,7 +47,10 @@ content/
 | `SQL` | `schemaSql`, `solutionSql` (ein SELECT), `starterSql?`, `orderMatters?` |
 | `TERMINAL` | `initialDirectories?`, `initialFiles?`, `expectedDirectories`, `expectedFiles`, `expectedContents?`, `allowExtra?` |
 | `PRACTICE` | `instructions` (Markdown), `submissionNote?`, `rubric: [{id, label, points}]` – Summe = Punkte der Aufgabe |
-| `MATCHING`, `PARSONS`, `NUMBER_CONVERT`, `HOTSPOT` | siehe `docs/phase-5.md` |
+| `MATCHING` | `left: [{id, text}]`, `right: [{id, text}]` (darf Ablenker enthalten), `pairs: [{left, right}]` – Teilpunkte je Paar |
+| `PARSONS` | `lines: [{id, code, indent?}]` in richtiger Reihenfolge, `distractors?: [{id, code}]`, `checkIndent?` (Standard `true`) |
+| `NUMBER_CONVERT` | `from`, `to` (2, 8, 10, 16) und entweder `min`, `max`, `count` (eigene Zufallszahlen je Person) oder feste `values` |
+| `HOTSPOT` | `text` (mehrzeilig), `targets: [Zeilennummer ab 1]`, `mono?`, `showCount?` (Standard `true`) – Fehlmarkierungen kosten Punkte |
 
 ## Prüfen
 

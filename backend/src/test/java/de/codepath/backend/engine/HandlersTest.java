@@ -14,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class HandlersTest {
 
     static final Set<String> SOLUTION_KEYS = Set.of("correct", "correctOrder", "answers", "solutionSql", "schemaSql",
-            "expectedDirectories", "expectedFiles", "expectedContents", "tests", "solution", "hint", "hints");
+            "expectedDirectories", "expectedFiles", "expectedContents", "tests", "solution", "hint", "hints",
+            "pairs", "targets", "indent");
 
     static void assertNoSolution(Map<String, Object> view) {
         String json = view.toString();
@@ -237,6 +238,137 @@ class HandlersTest {
             assertTrue(new FillCodeHandler(new DisabledCodeRunner()).evaluate(fill, Map.of("answers", List.of("42")), CONTEXT).isCorrect());
             assertFalse(new FillCodeHandler(new DisabledCodeRunner()).evaluate(fill, Map.of("answers", List.of("6*7")), CONTEXT).isCorrect());
             assertTrue(new FillCodeHandler(fakeRunner).evaluate(fill, Map.of("answers", List.of("6*7")), CONTEXT).isCorrect());
+        }
+    }
+
+    @Nested
+    class Matching {
+        final MatchingHandler handler = new MatchingHandler();
+        final TaskSpec spec = spec(TaskType.MATCHING, 10, handler.template());
+
+        @Test
+        void partialCreditPerPairAndNoSolutionInView() {
+            assertTrue(handler.validate(spec.config(), 10).isEmpty());
+            assertNoSolution(handler.publicView(spec, CONTEXT));
+            assertTrue(handler.evaluate(spec, handler.sampleAnswer(spec, CONTEXT), CONTEXT).isCorrect());
+            assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(spec, handler.wrongAnswer(spec, CONTEXT), CONTEXT).outcome());
+            Evaluation partial = handler.evaluate(spec, Map.of("pairs", Map.of("l1", "r1", "l2", "r3", "l3", "r2")), CONTEXT);
+            assertEquals(Evaluation.Outcome.PARTIAL, partial.outcome());
+            assertEquals(1 / 3.0, partial.score(), 1e-9);
+            // Unvollständig oder kaputt zählt nicht als Versuch
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("pairs", Map.of("l1", "r1")), CONTEXT).outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("pairs", "l1=r1"), CONTEXT).outcome());
+            // Alles auf ein Element zu setzen bringt höchstens einen Treffer
+            Evaluation same = handler.evaluate(spec, Map.of("pairs", Map.of("l1", "r1", "l2", "r1", "l3", "r1")), CONTEXT);
+            assertEquals(1 / 3.0, same.score(), 1e-9);
+        }
+
+        @Test
+        void validation() {
+            assertFalse(handler.validate(Map.of(
+                    "left", List.of(Map.of("id", "a", "text", "A"), Map.of("id", "b", "text", "B")),
+                    "right", List.of(Map.of("id", "x", "text", "X")),
+                    "pairs", List.of(Map.of("left", "a", "right", "x"), Map.of("left", "b", "right", "x"))), 10).isEmpty());
+        }
+    }
+
+    @Nested
+    class Parsons {
+        final ParsonsHandler handler = new ParsonsHandler();
+        final TaskSpec spec = spec(TaskType.PARSONS, 10, handler.template());
+
+        static List<Map<String, Object>> lines(Object... idIndent) {
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (int i = 0; i < idIndent.length; i += 2) result.add(Map.of("id", idIndent[i], "indent", idIndent[i + 1]));
+            return result;
+        }
+
+        @Test
+        void orderIndentAndDistractors() {
+            assertTrue(handler.validate(spec.config(), 10).isEmpty());
+            Map<String, Object> view = handler.publicView(spec, CONTEXT);
+            assertNoSolution(view);
+            assertEquals(4, ((List<?>) view.get("blocks")).size());
+            assertTrue(handler.evaluate(spec, handler.sampleAnswer(spec, CONTEXT), CONTEXT).isCorrect());
+            assertFalse(handler.evaluate(spec, handler.wrongAnswer(spec, CONTEXT), CONTEXT).isCorrect());
+
+            Evaluation indent = handler.evaluate(spec, Map.of("lines", lines("z1", 0, "z2", 0, "z3", 0)), CONTEXT);
+            assertEquals(0.75, indent.score(), 1e-9);
+            assertTrue(indent.feedback().contains("Einrückung"));
+
+            Evaluation distractor = handler.evaluate(spec, Map.of("lines", lines("d1", 0, "z2", 1, "z3", 0)), CONTEXT);
+            assertFalse(distractor.isCorrect());
+            assertTrue(distractor.feedback().contains("Nicht jede Zeile"));
+
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("lines", lines("z1", 0, "z1", 0)), CONTEXT).outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("lines", lines("zz", 0)), CONTEXT).outcome());
+        }
+
+        @Test
+        void identicalLinesAreInterchangeable() {
+            TaskSpec twice = spec(TaskType.PARSONS, 10, Map.of("lines", List.of(
+                    Map.of("id", "a", "code", "print('x')"), Map.of("id", "b", "code", "print('y')"), Map.of("id", "c", "code", "print('x')"))));
+            assertTrue(handler.evaluate(twice, Map.of("lines", lines("c", 0, "b", 0, "a", 0)), CONTEXT).isCorrect());
+        }
+    }
+
+    @Nested
+    class NumberConvert {
+        final NumberConvertHandler handler = new NumberConvertHandler();
+        final TaskSpec spec = spec(TaskType.NUMBER_CONVERT, 10, Map.of("from", 10, "to", 2, "min", 1, "max", 255, "count", 3));
+
+        @Test
+        void valuesPerStudentAndLenientParsing() {
+            assertTrue(handler.validate(spec.config(), 10).isEmpty());
+            Map<String, Object> view = handler.publicView(spec, CONTEXT);
+            assertNoSolution(view);
+            assertEquals(view, handler.publicView(spec, CONTEXT));
+            assertNotEquals(view, handler.publicView(spec, new TaskContext(99)), "Nachbarn bekommen andere Zahlen");
+
+            List<String> values = Cfg.strings(view, "values");
+            List<String> answers = values.stream().map(v -> "0b " + Integer.toBinaryString(Integer.parseInt(v))).toList();
+            assertTrue(handler.evaluate(spec, Map.of("answers", answers), CONTEXT).isCorrect());
+            assertTrue(handler.evaluate(spec, handler.sampleAnswer(spec, CONTEXT), CONTEXT).isCorrect());
+            assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(spec, handler.wrongAnswer(spec, CONTEXT), CONTEXT).outcome());
+            // Die Dezimalzahl abschreiben ist keine Binärzahl
+            assertFalse(handler.evaluate(spec, Map.of("answers", values), CONTEXT).isCorrect());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("answers", List.of("1")), CONTEXT).outcome());
+        }
+
+        @Test
+        void fixedHexValues() {
+            TaskSpec hex = spec(TaskType.NUMBER_CONVERT, 10, Map.of("from", 16, "to", 10, "values", List.of("FF", "1a")));
+            assertTrue(handler.validate(hex.config(), 10).isEmpty());
+            assertEquals(List.of("FF", "1A"), handler.publicView(hex, CONTEXT).get("values"));
+            assertTrue(handler.evaluate(hex, Map.of("answers", List.of("255", " 26 ")), CONTEXT).isCorrect());
+            assertFalse(handler.validate(Map.of("from", 10, "to", 10), 10).isEmpty());
+            assertFalse(handler.validate(Map.of("from", 2, "to", 10, "values", List.of("102")), 10).isEmpty());
+        }
+    }
+
+    @Nested
+    class Hotspot {
+        final HotspotHandler handler = new HotspotHandler();
+        final TaskSpec spec = spec(TaskType.HOTSPOT, 10, handler.template());
+
+        @Test
+        void wrongMarksCostPoints() {
+            assertTrue(handler.validate(spec.config(), 10).isEmpty());
+            Map<String, Object> view = handler.publicView(spec, CONTEXT);
+            assertNoSolution(view);
+            assertEquals(4, view.get("count"));
+            assertTrue(handler.evaluate(spec, handler.sampleAnswer(spec, CONTEXT), CONTEXT).isCorrect());
+            assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(spec, handler.wrongAnswer(spec, CONTEXT), CONTEXT).outcome());
+            assertEquals(0.5, handler.evaluate(spec, Map.of("selected", List.of(1, 2)), CONTEXT).score(), 1e-9);
+            // Alles markieren lohnt sich nicht
+            assertFalse(handler.evaluate(spec, Map.of("selected", List.of(1, 2, 3, 4, 5, 6, 7, 8)), CONTEXT).isCorrect());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("selected", List.of()), CONTEXT).outcome());
+        }
+
+        @Test
+        void validation() {
+            assertFalse(handler.validate(Map.of("text", "a\nb", "targets", List.of(3)), 10).isEmpty());
+            assertFalse(handler.validate(Map.of("text", "a\nb", "targets", List.of(1, 2)), 10).isEmpty());
         }
     }
 

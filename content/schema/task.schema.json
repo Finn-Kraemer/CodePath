@@ -273,7 +273,8 @@
         "properties": {
           "config": {
             "required": [
-              "tests"
+              "tests",
+              "solution"
             ],
             "properties": {
               "starterCode": {
@@ -461,6 +462,233 @@
                     }
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "MATCHING"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "required": [
+              "left",
+              "right",
+              "pairs"
+            ],
+            "properties": {
+              "left": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "$ref": "#/$defs/item"
+                }
+              },
+              "right": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "$ref": "#/$defs/item"
+                }
+              },
+              "pairs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "left",
+                    "right"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "left": {
+                      "type": "string"
+                    },
+                    "right": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "PARSONS"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "required": [
+              "lines"
+            ],
+            "properties": {
+              "lines": {
+                "type": "array",
+                "minItems": 2,
+                "description": "In der richtigen Reihenfolge",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "code"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "indent": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 6
+                    }
+                  }
+                }
+              },
+              "distractors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "code"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "checkIndent": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "NUMBER_CONVERT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "required": [
+              "from",
+              "to"
+            ],
+            "properties": {
+              "from": {
+                "enum": [
+                  2,
+                  8,
+                  10,
+                  16
+                ]
+              },
+              "to": {
+                "enum": [
+                  2,
+                  8,
+                  10,
+                  16
+                ]
+              },
+              "min": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 65535
+              },
+              "max": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              },
+              "values": {
+                "type": "array",
+                "maxItems": 10,
+                "items": {
+                  "type": "string"
+                },
+                "description": "Feste Werte in der Basis from statt Zufallszahlen"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "HOTSPOT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "required": [
+              "text",
+              "targets"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "targets": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "Zeilennummern ab 1"
+              },
+              "mono": {
+                "type": "boolean"
+              },
+              "showCount": {
+                "type": "boolean"
               }
             }
           }

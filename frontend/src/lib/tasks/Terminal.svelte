@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tick } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import SubmitButton from './SubmitButton.svelte';
 	import { config, solution, type TaskProps } from './types';
 	import { TerminalSimulator } from './terminal';
@@ -21,9 +21,15 @@
 	let screen = $state<HTMLElement | null>(null);
 
 	$effect.pre(() => {
-		sim = new TerminalSimulator(cfg.initialDirectories, cfg.initialFiles);
+		const { initialDirectories, initialFiles } = cfg;
 		const previous = (task.lastAnswer?.commands as string[] | undefined) ?? [];
-		for (const c of previous) run(c);
+		// run() liest und schreibt commands/lines – ohne untrack würde der Effekt sich selbst neu auslösen
+		untrack(() => {
+			sim = new TerminalSimulator(initialDirectories, initialFiles);
+			commands = [];
+			prompt = '~';
+			for (const c of previous) run(c);
+		});
 	});
 
 	function run(command: string) {

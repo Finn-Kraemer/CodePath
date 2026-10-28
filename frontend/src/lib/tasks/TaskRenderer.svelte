@@ -6,6 +6,10 @@
 	import Sql from './Sql.svelte';
 	import Terminal from './Terminal.svelte';
 	import Practice from './Practice.svelte';
+	import Matching from './Matching.svelte';
+	import Parsons from './Parsons.svelte';
+	import NumberConvert from './NumberConvert.svelte';
+	import Hotspot from './Hotspot.svelte';
 	import type { TaskProps } from './types';
 
 	let props: TaskProps = $props();
@@ -27,6 +31,14 @@
 	<Terminal {...props} />
 {:else if props.task.type === 'PRACTICE'}
 	<Practice {...props} />
+{:else if props.task.type === 'MATCHING'}
+	<Matching {...props} />
+{:else if props.task.type === 'PARSONS'}
+	<Parsons {...props} />
+{:else if props.task.type === 'NUMBER_CONVERT'}
+	<NumberConvert {...props} />
+{:else if props.task.type === 'HOTSPOT'}
+	<Hotspot {...props} />
 {:else}
 	<p class="border border-amber-200 bg-amber-50 p-6 text-sm">
 		Dieser Aufgabentyp wird noch nicht angezeigt: {props.task.type}
