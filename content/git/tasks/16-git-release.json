@@ -1,0 +1,91 @@
+{
+  "slug": "git-release",
+  "type": "TERMINAL",
+  "title": "Release-Mission",
+  "difficulty": "HARD",
+  "points": 30,
+  "sortOrder": 16,
+  "learningGoal": "Du kannst den Git-Arbeitsablauf eines Teams selbstständig anwenden.",
+  "story": "Morgen kommt die neue Version des SchulPlaners in den App-Store. Ein Fehler muss noch raus: Der Kalender zeigt nur 6 Tage pro Woche. Mia ist krank – du übernimmst. Diesmal ohne Anleitung.",
+  "assignment": "Erledige die Checkliste:\n\n- [ ] Arbeite auf einem eigenen Branch `fix-kalender`.\n- [ ] Repariere `termine.js`: Dort muss `const tageProWoche = 7;` stehen.\n- [ ] Committe die Reparatur und führe den Branch in `main` zusammen.\n- [ ] Markiere den neuen Stand von `main` mit dem Tag `v1.0`.\n- [ ] Lade `main` auf den Server.\n- [ ] Die Datei `zugangsdaten.txt` darf **nie** in einem Commit landen.",
+  "hints": [
+    "Neuer Branch: `git switch -c fix-kalender`. Die Datei kannst du mit `echo \"const tageProWoche = 7;\" > termine.js` überschreiben.",
+    "Merke nur `termine.js` vor (`git add termine.js`) – nicht alles mit `git add .`.",
+    "Nach dem Commit: `git switch main`, `git merge fix-kalender`, `git tag v1.0`, `git push`."
+  ],
+  "explanation": "Branch, Commit, Merge, Tag, Push – das ist der Alltag in Software-Teams. Tags wie `v1.0` markieren Versionen, die veröffentlicht wurden; so findet man später genau den Stand wieder, den Nutzerinnen und Nutzer bekommen haben.",
+  "knowledgeArticle": "git",
+  "config": {
+    "initialFiles": {
+      "schulplaner/zugangsdaten.txt": "App-Store-Konto: schulplaner / Kennwort: geheim-2024\n"
+    },
+    "git": {
+      "root": "schulplaner",
+      "history": [
+        {
+          "message": "Erste Version",
+          "author": "Mia",
+          "files": {
+            "index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n"
+          }
+        },
+        {
+          "message": "Stil angelegt",
+          "author": "Jonas",
+          "files": {
+            "style.css": "h1 { color: teal; }\n"
+          }
+        },
+        {
+          "message": "Kalender eingebaut",
+          "author": "Mia",
+          "files": {
+            "termine.js": "// Wochenansicht im Kalender\nconst tageProWoche = 6;\n"
+          }
+        }
+      ],
+      "remote": true
+    },
+    "gitChecks": [
+      {
+        "check": "branch",
+        "name": "fix-kalender"
+      },
+      {
+        "check": "merged",
+        "branch": "fix-kalender",
+        "into": "main"
+      },
+      {
+        "check": "committed",
+        "path": "termine.js",
+        "branch": "main",
+        "contains": "const tageProWoche = 7;"
+      },
+      {
+        "check": "tag",
+        "name": "v1.0",
+        "at": "main"
+      },
+      {
+        "check": "pushed",
+        "branch": "main"
+      },
+      {
+        "check": "neverCommitted",
+        "path": "zugangsdaten.txt"
+      }
+    ],
+    "solution": [
+      "cd schulplaner",
+      "git switch -c fix-kalender",
+      "echo \"const tageProWoche = 7;\" > termine.js",
+      "git add termine.js",
+      "git commit -m \"Kalender zeigt wieder 7 Tage\"",
+      "git switch main",
+      "git merge fix-kalender",
+      "git tag v1.0",
+      "git push"
+    ]
+  }
+}

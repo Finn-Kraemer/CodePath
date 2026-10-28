@@ -1,0 +1,49 @@
+{
+  "slug": "terminal-notfall",
+  "type": "TERMINAL",
+  "title": "Der Server-Notfall",
+  "difficulty": "HARD",
+  "points": 30,
+  "sortOrder": 14,
+  "learningGoal": "Du kannst einen Fehler mit den Werkzeugen der Kommandozeile selbstständig beheben.",
+  "story": "Herr Yilmaz ist im Urlaub, das Kundenportal ist seit gestern Nacht offline – und du hast Bereitschaft. Auf dem Server liegt seine Notfall-Notiz.",
+  "assignment": "Bring den Server wieder in Ordnung. Diesmal gibt es keine Schritt-für-Schritt-Anleitung: Lies `notfall.txt` und arbeite die Punkte ab.",
+  "hints": [
+    "Fang mit `cat notfall.txt` an. Danach hilft `grep ERROR` im Log weiter.",
+    "Sicherungskopie zuerst: `mkdir backup` und `cp` – erst danach die Konfiguration ändern.",
+    "Ein Eintrag lässt sich mit `echo \"port=8080\" >> datei` anhängen. Ganze Ordner löscht `rm -r`."
+  ],
+  "explanation": "Genau so arbeiten Admins im Ernstfall: erst sichern, dann Ursache im Log suchen, gezielt beheben und aufräumen. Die Sicherungskopie vor jeder Änderung ist kein Luxus – wenn die Reparatur schiefgeht, ist sie der Weg zurück.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "initialDirectories": [
+      "server/logs",
+      "server/config",
+      "server/tmp"
+    ],
+    "initialFiles": {
+      "notfall.txt": "NOTFALLPLAN KUNDENPORTAL\n1. Vor jeder Änderung: Sicherungskopie von server/config/app.conf in einen neuen Ordner ~/backup legen.\n2. Im Log (server/logs/app.log) nach Fehlern suchen und den fehlenden Eintrag ergänzen. Unser Port ist 8080 (Eintrag: port=8080).\n3. Der Ordner server/tmp enthält nur Zwischendateien und läuft über – komplett löschen.\n",
+      "server/logs/app.log": "22:58 INFO  Kundenportal läuft\n23:30 INFO  Update installiert\n23:31 INFO  Neustart\n23:31 ERROR Konfiguration: Eintrag port fehlt in server/config/app.conf – Portal kann nicht starten\n23:32 WARN  Ordner server/tmp läuft voll (98 %)\n23:45 ERROR Portal nicht erreichbar\n",
+      "server/config/app.conf": "name=kundenportal\nmodus=live\n",
+      "server/tmp/cache-001.tmp": "x\n",
+      "server/tmp/cache-002.tmp": "x\n",
+      "server/tmp/speicher.dump": "xxxxxxxxxxxxxxxxxxxxxxxx\n"
+    },
+    "expectedContents": {
+      "backup/app.conf": "name=kundenportal\nmodus=live",
+      "server/config/app.conf": "name=kundenportal\nmodus=live\nport=8080"
+    },
+    "absent": [
+      "server/tmp"
+    ],
+    "allowExtra": true,
+    "solution": [
+      "cat notfall.txt",
+      "grep ERROR server/logs/app.log",
+      "mkdir backup",
+      "cp server/config/app.conf backup/",
+      "echo \"port=8080\" >> server/config/app.conf",
+      "rm -r server/tmp"
+    ]
+  }
+}

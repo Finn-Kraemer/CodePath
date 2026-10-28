@@ -7,6 +7,9 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ## Unveröffentlicht
 
 ### Neu
+- **Modul „Die Kommandozeile“** (14 Aufgaben): Als Azubi im IT-Team der Stadtwerke orientiert man sich im Ordnerbaum, räumt auf, liest und durchsucht Logs mit `grep`, `find`, `head`/`tail` und Pipes und behebt am Ende einen Server-Notfall ohne Anleitung.
+- **Git zum Anfassen**: Das Git-Modul ist neu aufgebaut (16 Aufgaben) – Repository anlegen, committen, im Verlauf den Verursacher eines Fehlers finden, Änderungen zurückholen, `.gitignore`, Branches, Merge, Merge-Konflikt, `pull`/`push` gegen einen simulierten Server und eine Release-Mission. Ein Commit-Graph unter dem Terminal zeigt alles live.
+- **Terminal-Aufgaben** können mehr: neue Befehle (`grep`, `find`, `head`, `tail`, `wc`, `sort`, `uniq`, `history`, `man`, `ls -a`), Pipes und `>`/`>>` für alle Befehle, simuliertes Git, Antwortfeld, Prüfungen auf den Zustand des Repositorys, „muss weg sein“, Varianten und Codes je Person. Im Browser: Verlauf mit ↑/↓, Tab-Vervollständigung, Spickzettel.
 - **Mitnehm-Paket**: Schülerinnen und Schüler laden vor dem Kursende im Profil ein PDF mit ihren Ergebnissen, ihrem Code, ihrem Berufe-Kompass und Links zum Weiterlernen herunter. Es entsteht beim Abruf und wird auf dem Server nicht gespeichert.
 - **Berufe-Kompass**: Jedes Modul hat ein Berufsfeld; der Kompass im Profil zeigt, in welche Richtung die eigenen Ergebnisse weisen. Berufsfeld und Weiterlern-Links lassen sich unter *Inhalte → Modul bearbeiten* pflegen.
 - **Lernpfade und empfohlene nächste Aufgabe**: Die Lehrkraft zeichnet im Editor (Leitstand → Lernpfade) eine Karte aus Modulen, Aufgaben und Meilensteinen. Die Klasse sieht sie mit ihrem Stand in der Modulübersicht und bekommt dort und nach jeder gelösten Aufgabe die empfohlene nächste Aufgabe.
@@ -31,7 +34,8 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update
-- Migration V22 ordnet Lernpfade optional einem Kurs zu.
+- Migration V23 ordnet Lernpfade optional einem Kurs zu.
+- Migration V22 legt das Modul *Die Kommandozeile* an und verschiebt die Aufgabe *Projekt-Setup im Terminal* samt Versuchen und Punkten dorthin. Im Git-Modul werden die durch Terminal-Aufgaben ersetzten Fragen (g2, g4, g8–g11, g13, g14) archiviert – Versuche, Punkte und Praxisabgaben bleiben erhalten, im Editor lassen sie sich zurückholen. Die neuen Aufgaben legt der Start an; beide Module sind danach für alle Kurse gesperrt, bis die Lehrkraft sie freischaltet. Die Modulreihenfolge wird nur angepasst, wo sie noch der ausgelieferten entspricht.
 - Migration V21 ergänzt Module um Berufsfeld und Weiterlern-Links (beim Start für die mitgelieferten Module nachgetragen, wenn noch leer) und legt die Tabelle `learning_paths` an.
 - Migration V20 merkt sich, welcher mitgelieferte Text in einem Wissensartikel steht. Artikel, die niemand im Browser geändert hat, bekommen beim Start die neue Fassung; bearbeitete Artikel bleiben unverändert.
 - Migration V19 ergänzt Aufgabenversionen um den passenden Wissensartikel (`knowledgeArticle`, auch im Content-Paket).

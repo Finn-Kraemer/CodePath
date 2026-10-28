@@ -28,7 +28,7 @@ class ContentPackagesTest extends IntegrationTestBase {
     @Test
     void everyPackagedTaskPassesTheDryRun() throws Exception {
         List<ContentPackage.ModuleBundle> bundles = reader.fromClasspath("content");
-        assertEquals(10, bundles.size());
+        assertEquals(11, bundles.size());
         List<String> failures = new ArrayList<>();
         int count = 0;
         for (var bundle : bundles) {
@@ -51,14 +51,14 @@ class ContentPackagesTest extends IntegrationTestBase {
                 if (wrong.isCorrect()) failures.add(where + ": falsche Antwort gilt als richtig");
             }
         }
-        assertEquals(132, count);
+        assertEquals(147, count);
         assertTrue(failures.isEmpty(), String.join("\n", failures));
     }
 
     @Test
     void seederImportedEverythingAsVersionOne(@Autowired ContentService content) {
         var tasks = content.allPublishedTasks();
-        assertEquals(132, tasks.size());
+        assertEquals(147, tasks.size());
         assertTrue(tasks.stream().allMatch(t -> t.version().getVersion() >= 1 && t.version().isPublished()));
     }
 }

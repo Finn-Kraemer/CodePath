@@ -76,4 +76,38 @@ class LegacyMigrationTest {
             assertEquals(1, jdbc.queryForObject("select count(*) from tasks where slug = 'lab-escape'", Integer.class));
         }
     }
+
+    /** V20: Die Terminal-Aufgabe zieht samt Punkten ins Modul „Die Kommandozeile“, ersetzte Git-Fragen werden archiviert. */
+    @Test
+    void movesTerminalTaskAndArchivesReplacedGitQuestions() {
+        try (PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17")) {
+            postgres.start();
+            DriverManagerDataSource ds = new DriverManagerDataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+            Flyway.configure().dataSource(ds).target("19").placeholderReplacement(false).load().migrate();
+            JdbcTemplate jdbc = new JdbcTemplate(ds);
+            jdbc.execute("""
+                    insert into users (username, password_hash, role) values ('lena', 'x', 'STUDENT');
+                    insert into modules (slug, title, sort_order) values ('git', 'Git', 8), ('algorithmen', 'Algorithmen', 3);
+                    insert into tasks (module_id, slug, type, sort_order)
+                      select m.id, s.slug, s.type, s.sort_order from modules m,
+                        (values ('g1', 'MULTIPLE_CHOICE', 1), ('g7', 'MULTIPLE_CHOICE', 7), ('g14', 'PRACTICE', 14),
+                                ('terminal-git-init', 'TERMINAL', 15)) as s (slug, type, sort_order)
+                      where m.slug = 'git';
+                    insert into points_entries (user_id, task_id, amount, reason)
+                      select u.id, t.id, 24, 'SOLVED' from users u, tasks t where u.username = 'lena' and t.slug = 'terminal-git-init';
+                    """);
+
+            Flyway.configure().dataSource(ds).placeholderReplacement(false).load().migrate();
+
+            assertEquals("terminal", jdbc.queryForObject(
+                    "select m.slug from tasks t join modules m on m.id = t.module_id where t.slug = 'terminal-git-init'", String.class));
+            assertEquals(24, jdbc.queryForObject("select sum(amount) from points_entries p join tasks t on t.id = p.task_id where t.slug = 'terminal-git-init'", Integer.class));
+            assertEquals(8, jdbc.queryForObject("select sort_order from modules where slug = 'terminal'", Integer.class));
+            assertEquals(9, jdbc.queryForObject("select sort_order from modules where slug = 'git'", Integer.class));
+            assertEquals(3, jdbc.queryForObject("select sort_order from modules where slug = 'algorithmen'", Integer.class), "Eigene Reihenfolge bleibt");
+            assertEquals(Boolean.TRUE, jdbc.queryForObject("select archived from tasks where slug = 'g14'", Boolean.class));
+            assertEquals(Boolean.FALSE, jdbc.queryForObject("select archived from tasks where slug = 'g1'", Boolean.class));
+            assertEquals(10, jdbc.queryForObject("select sort_order from tasks where slug = 'g7'", Integer.class));
+        }
+    }
 }

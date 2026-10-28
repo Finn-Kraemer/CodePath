@@ -1,0 +1,74 @@
+{
+  "slug": "git-ignore",
+  "type": "TERMINAL",
+  "title": "Geheimnisse gehören nicht ins Repo",
+  "difficulty": "MEDIUM",
+  "points": 25,
+  "sortOrder": 9,
+  "learningGoal": "Du kannst mit einer .gitignore verhindern, dass Passwörter und Logdateien ins Repository gelangen.",
+  "story": "Die neue Kontaktseite ist fertig. Aber Vorsicht: Im Ordner liegen auch die Datei `.env` mit dem Datenbank-Passwort und eine Logdatei. Was einmal im Repository ist, sehen alle im Team – und oft das ganze Internet.",
+  "assignment": "1. Lege eine Datei `.gitignore` an, die `.env` und alle Dateien mit der Endung `.log` ausschließt (ein Muster je Zeile).\n2. Committe `kontakt.html` **und** die `.gitignore`.\n3. `.env` und `fehler.log` dürfen in keinem Commit landen.\n\nTipp: `ls -a` zeigt auch versteckte Dateien.",
+  "hints": [
+    "`echo .env > .gitignore` legt die Datei mit der ersten Zeile an, `echo \"*.log\" >> .gitignore` hängt die zweite an.",
+    "Prüfe mit `git status`: Wenn die .gitignore stimmt, tauchen `.env` und `fehler.log` dort nicht mehr auf.",
+    "Dann `git add .` und `git commit -m \"Kontaktseite\"`. Schon vorgemerkt? `git restore --staged datei` nimmt eine Datei wieder heraus."
+  ],
+  "explanation": "Die `.gitignore` sagt Git, welche Dateien es nie beachten soll: Passwörter, Logs, riesige Abhängigkeiten. `*.log` steht für alle Dateien mit der Endung `.log`. Passwörter, die einmal gepusht wurden, gelten als verraten – sie müssen geändert werden, selbst wenn man den Commit später löscht.",
+  "knowledgeArticle": "git",
+  "config": {
+    "initialFiles": {
+      "schulplaner/.env": "DB_PASSWORT=Sommer2024!\n",
+      "schulplaner/fehler.log": "12:01 Verbindung abgebrochen\n",
+      "schulplaner/kontakt.html": "<h1>Kontakt</h1>\n<p>schulplaner@schule.example</p>\n"
+    },
+    "git": {
+      "root": "schulplaner",
+      "history": [
+        {
+          "message": "Erste Version",
+          "author": "Mia",
+          "files": {
+            "index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n"
+          }
+        }
+      ]
+    },
+    "gitChecks": [
+      {
+        "check": "committed",
+        "path": "kontakt.html"
+      },
+      {
+        "check": "committed",
+        "path": ".gitignore"
+      },
+      {
+        "check": "ignored",
+        "path": ".env"
+      },
+      {
+        "check": "ignored",
+        "path": "fehler.log"
+      },
+      {
+        "check": "neverCommitted",
+        "path": ".env"
+      },
+      {
+        "check": "neverCommitted",
+        "path": "fehler.log"
+      },
+      {
+        "check": "clean"
+      }
+    ],
+    "solution": [
+      "cd schulplaner",
+      "echo .env > .gitignore",
+      "echo \"*.log\" >> .gitignore",
+      "git status",
+      "git add .",
+      "git commit -m \"Kontaktseite und gitignore\""
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "slug": "git-branch",
+  "type": "TERMINAL",
+  "title": "Ein eigener Branch",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 11,
+  "learningGoal": "Du kannst einen Branch anlegen, darauf committen und zwischen Branches wechseln.",
+  "story": "Du sollst die Kontaktseite bauen. Auf `main` liegt die Version, die gerade alle benutzen – dort wird nicht experimentiert. Du arbeitest auf deinem eigenen Branch.",
+  "assignment": "1. Lege einen Branch `kontakt` an und wechsle hinein: `git switch -c kontakt`\n2. Lege dort `kontakt.html` an und committe sie.\n3. Wechsle zurück zu `main` (`git switch main`) und schau mit `ls`, was passiert.\n\nBeobachte dabei den Commit-Verlauf.",
+  "hints": [
+    "Erst `cd schulplaner`. Mit `git branch` siehst du alle Branches – der mit `*` ist der aktuelle.",
+    "Datei anlegen: `echo \"<h1>Kontakt</h1>\" > kontakt.html`, dann `git add kontakt.html` und `git commit -m \"Kontaktseite\"`.",
+    "Nach `git switch main` ist `kontakt.html` verschwunden – keine Sorge, sie liegt sicher im Branch `kontakt`."
+  ],
+  "explanation": "Ein Branch ist eine eigene Entwicklungslinie. Commits auf `kontakt` verändern `main` nicht – deshalb verschwindet `kontakt.html` beim Wechsel auf `main` und kommt beim Zurückwechseln wieder. So können viele Leute gleichzeitig an verschiedenen Funktionen arbeiten.",
+  "knowledgeArticle": "git",
+  "config": {
+    "git": {
+      "root": "schulplaner",
+      "history": [
+        {
+          "message": "Erste Version",
+          "author": "Mia",
+          "files": {
+            "index.html": "<h1>SchulPlaner</h1>\n<p>Dein Stundenplan, deine Hausaufgaben.</p>\n"
+          }
+        },
+        {
+          "message": "Stil angelegt",
+          "author": "Jonas",
+          "files": {
+            "style.css": "h1 { color: teal; }\n"
+          }
+        }
+      ]
+    },
+    "gitChecks": [
+      {
+        "check": "branch",
+        "name": "kontakt"
+      },
+      {
+        "check": "committed",
+        "path": "kontakt.html",
+        "branch": "kontakt"
+      },
+      {
+        "check": "head",
+        "branch": "main"
+      }
+    ],
+    "solution": [
+      "cd schulplaner",
+      "git switch -c kontakt",
+      "echo \"<h1>Kontakt</h1>\" > kontakt.html",
+      "git add kontakt.html",
+      "git commit -m \"Kontaktseite angelegt\"",
+      "git switch main",
+      "ls"
+    ]
+  }
+}

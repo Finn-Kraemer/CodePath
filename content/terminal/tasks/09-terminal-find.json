@@ -1,0 +1,59 @@
+{
+  "slug": "terminal-find",
+  "type": "TERMINAL",
+  "title": "Die verlorene Datei",
+  "difficulty": "MEDIUM",
+  "points": 20,
+  "sortOrder": 9,
+  "learningGoal": "Du kannst Dateien mit find suchen und mit cp kopieren.",
+  "story": "In zehn Minuten beginnt die Präsentation vor der Geschäftsführung. Die Datei praesentation.pdf ist irgendwo in den Projekt- und Archivordnern verschwunden.",
+  "assignment": "Finde `praesentation.pdf` und **kopiere** sie in den Ordner `abgabe`.\n\n`find . -name \"name\"` sucht ab dem aktuellen Ordner in allen Unterordnern.",
+  "hints": [
+    "Durch alle Ordner zu klicken dauert ewig. `find . -name praesentation.pdf` sucht für dich.",
+    "`find` zeigt dir den Pfad. Kopieren geht mit `cp pfad/zur/datei abgabe/`.",
+    "Achtung, es gibt auch eine `praesentation-alt.pdf` – du brauchst die Datei mit genau dem Namen `praesentation.pdf`."
+  ],
+  "explanation": "`find` durchsucht ganze Ordnerbäume nach Namen – mit `*` als Platzhalter, z. B. `find . -name \"*.pdf\"`. `cp` (copy) kopiert, das Original bleibt liegen.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "initialDirectories": [
+      "abgabe",
+      "archiv/2021/sonstiges",
+      "archiv/2022",
+      "archiv/alt/kopien",
+      "projekte/2022/sommer",
+      "projekte/2023/herbst/entwurf",
+      "projekte/2024/fruehling"
+    ],
+    "initialFiles": {
+      "projekte/2024/fruehling/plan.txt": "Plan Frühling\n",
+      "projekte/2023/herbst/notizen.txt": "Herbstfest\n",
+      "projekte/2022/sommer/fotos.zip": "",
+      "archiv/2022/rechnung.pdf": "",
+      "archiv/alt/kopien/praesentation-alt.pdf": "%PDF veraltet\n",
+      "{{ort}}/praesentation.pdf": "%PDF Präsentation Stadtwerke {{code}}\n"
+    },
+    "variants": [
+      {
+        "ort": "projekte/2023/herbst/entwurf"
+      },
+      {
+        "ort": "archiv/alt/kopien"
+      },
+      {
+        "ort": "projekte/2022/sommer"
+      },
+      {
+        "ort": "archiv/2021/sonstiges"
+      }
+    ],
+    "expectedContents": {
+      "abgabe/praesentation.pdf": "%PDF Präsentation Stadtwerke {{code}}"
+    },
+    "allowExtra": true,
+    "solution": [
+      "find . -name praesentation.pdf",
+      "cp {{ort}}/praesentation.pdf abgabe/"
+    ]
+  }
+}

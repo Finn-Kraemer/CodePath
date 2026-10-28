@@ -12,6 +12,7 @@
     "Eine gute Commit-Nachricht beantwortet: Was wurde geändert? In 3 Monaten musst du noch verstehen was passiert ist – schreib für dein zukünftiges Ich."
   ],
   "explanation": "",
+  "knowledgeArticle": "git",
   "config": {
     "options": [
       {

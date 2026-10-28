@@ -70,7 +70,7 @@ class LearningPathTest extends IntegrationTestBase {
         long id = create("Git-Pfad", "git-pfad");
         var graph = Map.of(
                 "nodes", List.of(node("start", "MILESTONE", null, null, "Los geht's", 0),
-                        node("t1", "TASK", "git", "g1", null, 100), node("t2", "TASK", "git", "g2", "Zweite Frage", 200),
+                        node("t1", "TASK", "git", "g1", null, 100), node("t2", "TASK", "git", "g5", "Zweite Frage", 200),
                         node("db", "MODULE", "datenbanken", null, null, 300), node("ziel", "MILESTONE", null, null, "Geschafft", 400)),
                 "edges", List.of(edge("start", "t1"), edge("t1", "t2"), edge("t2", "db"), edge("db", "ziel")));
         putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", graph, "description", "Erst Git, dann Datenbanken"))
@@ -105,17 +105,17 @@ class LearningPathTest extends IntegrationTestBase {
         assertEquals(1, view.get("stationsDone").asInt());
         assertEquals(3, view.get("stations").asInt());
         JsonNode next = body(getAs(as(lena), "/api/learning/next"));
-        assertEquals("g2", next.get("taskSlug").asString());
+        assertEquals("g5", next.get("taskSlug").asString());
         assertEquals("git-pfad", next.get("pathSlug").asString());
 
         // Pfad geschafft (gesperrte Stationen halten nicht auf): weiter mit den übrigen Aufgaben im begonnenen Modul
-        postAs(as(lena), "/api/modules/git/g2/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        postAs(as(lena), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
         view = body(getAs(as(lena), "/api/learning-paths/git-pfad"));
         assertEquals("DONE", state(view, "ziel"));
         assertTrue(view.get("recommendation").isNull());
         next = body(getAs(as(lena), "/api/learning/next"));
         assertEquals("git", next.get("moduleSlug").asString());
-        assertNotEquals("g2", next.get("taskSlug").asString());
+        assertNotEquals("g5", next.get("taskSlug").asString());
         assertTrue(next.get("pathSlug").isNull());
         assertTrue(next.get("reason").asString().contains("schon angefangen"));
 
@@ -132,7 +132,7 @@ class LearningPathTest extends IntegrationTestBase {
         User tom = student("tom", other);
         long id = create("Projekttag 9a", "projekttag-9a");
         Map<String, Object> git1 = node("git1", "MODULE", "git", null, "Git 1", 0);
-        git1.put("tasks", List.of("g1", "g2"));
+        git1.put("tasks", List.of("g1", "g5"));
         Map<String, Object> git2 = node("git2", "MODULE", "git", null, "Git 2", 200);
         git2.put("tasks", List.of("g3"));
         var graph = Map.of(
@@ -155,7 +155,7 @@ class LearningPathTest extends IntegrationTestBase {
         assertEquals(3, module(modules, "git").get("taskCount").asInt(), "Nur die drei Git-Aufgaben aus dem Lernpfad");
         long gitId = module(modules, "git").get("id").asLong();
         for (JsonNode task : body(getAs(teacher(), "/api/admin/modules/" + gitId + "/tasks?courseId=" + course.getId()))) {
-            boolean used = List.of("g1", "g2", "g3").contains(task.get("slug").asString());
+            boolean used = List.of("g1", "g5", "g3").contains(task.get("slug").asString());
             assertEquals(used, task.get("visible").asBoolean(), task.get("slug").asString());
         }
         assertEquals(0, body(putAs(teacher(), "/api/admin/learning-paths/" + id, update)).get("applied").size(),
@@ -171,7 +171,7 @@ class LearningPathTest extends IntegrationTestBase {
         assertEquals("g1", body(getAs(as(lena), "/api/learning/next")).get("taskSlug").asString());
 
         postAs(as(lena), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
-        postAs(as(lena), "/api/modules/git/g2/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        postAs(as(lena), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
         view = body(getAs(as(lena), "/api/learning-paths/projekttag-9a"));
         assertEquals("DONE", state(view, "git1"), "Teil 1 ist mit zwei Aufgaben fertig");
         assertEquals("UPCOMING", state(view, "git2"));

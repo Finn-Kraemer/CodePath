@@ -1,0 +1,89 @@
+{
+  "slug": "terminal-pfade",
+  "type": "MATCHING",
+  "title": "Pfade verstehen",
+  "difficulty": "EASY",
+  "points": 10,
+  "sortOrder": 3,
+  "learningGoal": "Du kannst absolute und relative Pfade unterscheiden.",
+  "story": "Im Terminal gibst du Orte als Pfade an – wie eine Wegbeschreibung. Manche starten dort, wo du gerade stehst („zwei Türen weiter“), andere ganz am Anfang („Hauptstraße 5“).",
+  "assignment": "Du bist im Ordner `~/server`. Ordne jedem Befehl zu, was er bewirkt. Eine Beschreibung bleibt übrig.",
+  "hints": [
+    "`..` bedeutet immer „eine Ebene höher“, `~` ist dein Home-Ordner.",
+    "Ein Pfad, der mit `/` oder `~` beginnt, ist absolut – er funktioniert von überall gleich."
+  ],
+  "explanation": "Relative Pfade (`logs`, `../bilder`) gehen vom aktuellen Ordner aus. Absolute Pfade (`/home/azubi/logs`, `~/logs`) beginnen ganz oben und führen immer zum selben Ziel. `cd` löscht nie etwas – dafür gibt es `rm`.",
+  "knowledgeArticle": "linux",
+  "config": {
+    "left": [
+      {
+        "id": "l1",
+        "text": "cd .."
+      },
+      {
+        "id": "l2",
+        "text": "cd ~"
+      },
+      {
+        "id": "l3",
+        "text": "cd logs"
+      },
+      {
+        "id": "l4",
+        "text": "cd ../bilder"
+      },
+      {
+        "id": "l5",
+        "text": "cd /home/azubi/server/logs"
+      }
+    ],
+    "right": [
+      {
+        "id": "r1",
+        "text": "eine Ebene nach oben (nach ~)"
+      },
+      {
+        "id": "r2",
+        "text": "zurück in den Home-Ordner, egal von wo"
+      },
+      {
+        "id": "r3",
+        "text": "relativer Pfad: in den Ordner logs im aktuellen Ordner"
+      },
+      {
+        "id": "r4",
+        "text": "erst eine Ebene hoch, dann in den Nachbarordner bilder"
+      },
+      {
+        "id": "r5",
+        "text": "absoluter Pfad: führt von überall zum selben Ordner"
+      },
+      {
+        "id": "r6",
+        "text": "löscht den Ordner logs"
+      }
+    ],
+    "pairs": [
+      {
+        "left": "l1",
+        "right": "r1"
+      },
+      {
+        "left": "l2",
+        "right": "r2"
+      },
+      {
+        "left": "l3",
+        "right": "r3"
+      },
+      {
+        "left": "l4",
+        "right": "r4"
+      },
+      {
+        "left": "l5",
+        "right": "r5"
+      }
+    ]
+  }
+}

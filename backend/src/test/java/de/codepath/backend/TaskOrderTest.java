@@ -40,7 +40,7 @@ class TaskOrderTest extends IntegrationTestBase {
             assertEquals(moved, order(moduleId));
             List<String> slugs = studentSlugs(lena, "git");
             assertEquals("g1", slugs.getLast());
-            assertEquals("g2", slugs.getFirst());
+            assertEquals("g3", slugs.getFirst());
 
             int versions = jdbc.queryForObject("select count(*) from task_versions", Integer.class);
             postAs(teacher(), "/api/admin/content/import-bundled", null).andExpect(status().isOk());

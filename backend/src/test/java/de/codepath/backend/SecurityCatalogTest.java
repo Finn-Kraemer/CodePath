@@ -194,9 +194,9 @@ class SecurityCatalogTest extends IntegrationTestBase {
     void terminalAndSqlAreGradedOnTheServer() throws Exception {
         Course course = course("8a");
         User user = student("lena", course);
-        unlock(course, "git");
+        unlock(course, "terminal");
         unlock(course, "datenbanken");
-        PublishedTask terminal = contentService.publishedTask("git", "terminal-git-init");
+        PublishedTask terminal = contentService.publishedTask("terminal", "terminal-git-init");
         postAs(as(user), url(terminal) + "/submit", Map.of("finalState", "website,website/index.html,website/styles.css"))
                 .andExpect(jsonPath("$.isCorrect").value(false));
         postAs(as(user), url(terminal) + "/submit", Map.of("commands", List.of("mkdir website", "cd website", "touch index.html", "touch styles.css")))

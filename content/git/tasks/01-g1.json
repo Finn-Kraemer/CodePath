@@ -12,6 +12,7 @@
     "Stell dir vor zwei Personen tippen gleichzeitig in dasselbe Dokument. Was passiert mit den Änderungen des einen wenn der andere speichert?"
   ],
   "explanation": "",
+  "knowledgeArticle": "git",
   "config": {
     "options": [
       {
