@@ -4,13 +4,16 @@
 
 Die vollständige Prüfung samt Probelauf macht der Server (ContentPackagesTest, Editor „Prüfen“).
 """
+import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).parent
+MEDIA_KEY = re.compile(r"(?<![0-9a-f])[0-9a-f]{64}\.(?:png|jpg|gif|webp)")
 
 
 def load(path):
@@ -33,6 +36,16 @@ def main():
             errors.append(f"{module_dir.name}: doppelter Modul-Slug")
         module_slugs.add(module.get("slug"))
 
+        media = {}
+        for path in sorted((module_dir / "media").glob("*")) if (module_dir / "media").is_dir() else []:
+            if not MEDIA_KEY.fullmatch(path.name):
+                errors.append(f"{module_dir.name}/media/{path.name}: Name muss SHA-256 + Endung sein (tools/add_media.py)")
+            elif hashlib.sha256(path.read_bytes()).hexdigest() != path.name.split(".")[0]:
+                errors.append(f"{module_dir.name}/media/{path.name}: Inhalt passt nicht zum Namen")
+            elif path.stat().st_size > 2 * 1024 * 1024:
+                errors.append(f"{module_dir.name}/media/{path.name}: größer als 2 MB")
+            media[path.name] = False
+
         slugs = set()
         for path in sorted((module_dir / "tasks").glob("*.json")):
             tasks += 1
@@ -44,6 +57,11 @@ def main():
             slugs.add(task.get("slug"))
             if not path.stem.endswith(task.get("slug", "")):
                 errors.append(f"{where}: Dateiname sollte auf den Slug enden")
+            for key in MEDIA_KEY.findall(path.read_text(encoding="utf-8")):
+                if key not in media:
+                    errors.append(f"{where}: Bild {key} fehlt in {module_dir.name}/media/")
+                else:
+                    media[key] = True
             config = task.get("config", {})
             if task.get("type") in ("FILL_BLANK", "FILL_CODE"):
                 gaps = config.get("template", "").count("___")
@@ -53,6 +71,8 @@ def main():
                 total = sum(c.get("points", 0) for c in config.get("rubric", []))
                 if total != task.get("points"):
                     errors.append(f"{where}: Rubrik ergibt {total} Punkte, Aufgabe hat {task.get('points')}")
+
+        errors += [f"{module_dir.name}/media/{k}: wird von keiner Aufgabe verwendet" for k, used in media.items() if not used]
 
     for e in errors:
         print("FEHLER", e)

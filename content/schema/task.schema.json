@@ -32,7 +32,9 @@
         "MATCHING",
         "PARSONS",
         "NUMBER_CONVERT",
-        "HOTSPOT"
+        "HOTSPOT",
+        "IMAGE_HOTSPOT",
+        "LOGIC_CIRCUIT"
       ]
     },
     "title": {
@@ -689,6 +691,193 @@
               },
               "showCount": {
                 "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "IMAGE_HOTSPOT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "required": [
+              "image",
+              "alt",
+              "targets"
+            ],
+            "properties": {
+              "image": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}\\.(png|jpg|gif|webp)$",
+                "description": "Schlüssel eines Bildes in media/"
+              },
+              "alt": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Bildbeschreibung für Screenreader – ohne die Lösung zu verraten"
+              },
+              "targets": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 10,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "x",
+                    "y",
+                    "w",
+                    "h"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "x": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "y": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "w": {
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "h": {
+                      "type": "number",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  }
+                }
+              },
+              "showCount": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "LOGIC_CIRCUIT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "required": [
+              "inputs",
+              "expression",
+              "solution"
+            ],
+            "properties": {
+              "inputs": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 4,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Z]$"
+                }
+              },
+              "expression": {
+                "type": "string",
+                "minLength": 1,
+                "description": "z. B. (A OR B) AND NOT C"
+              },
+              "allowedGates": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "AND",
+                    "OR",
+                    "NOT",
+                    "XOR",
+                    "NAND",
+                    "NOR",
+                    "XNOR"
+                  ]
+                }
+              },
+              "maxGates": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              "showExpression": {
+                "type": "boolean"
+              },
+              "solution": {
+                "type": "object",
+                "required": [
+                  "gates",
+                  "output"
+                ],
+                "properties": {
+                  "gates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "type",
+                        "inputs"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9]{0,9}$"
+                        },
+                        "type": {
+                          "enum": [
+                            "AND",
+                            "OR",
+                            "NOT",
+                            "XOR",
+                            "NAND",
+                            "NOR",
+                            "XNOR"
+                          ]
+                        },
+                        "inputs": {
+                          "type": "array",
+                          "minItems": 1,
+                          "maxItems": 2,
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "output": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }

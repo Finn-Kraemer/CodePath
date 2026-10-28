@@ -1,0 +1,55 @@
+{
+  "slug": "s15",
+  "type": "IMAGE_HOTSPOT",
+  "title": "Clean Desk: Was stimmt hier nicht?",
+  "difficulty": "EASY",
+  "points": 15,
+  "sortOrder": 15,
+  "learningGoal": "Du erkennst Sicherheitsrisiken an einem Büro-Arbeitsplatz.",
+  "story": "Frau Schulz ist kurz zur Kaffeemaschine gegangen. Ihr Arbeitsplatz verrät mehr, als ihr lieb sein dürfte – jeder, der vorbeikommt, kann ihn sehen.",
+  "assignment": "Klicke im Bild auf alle Stellen, die ein Sicherheitsrisiko sind. Ein erneuter Klick auf eine Markierung entfernt sie.",
+  "hints": [
+    "Was könnte jemand sehen, mitnehmen oder benutzen, während niemand am Platz ist?",
+    "Achte auf den Bildschirm, auf Zettel, auf Papier und auf Dinge, die nicht hierher gehören."
+  ],
+  "explanation": "Die vier Risiken: Der Bildschirm ist nicht gesperrt (Windows + L!), das Passwort klebt am Monitor, ein vertrauliches Dokument liegt offen herum, und ein fremder USB-Stick liegt bereit – solche Sticks sind ein beliebter Trick, um Schadsoftware einzuschleusen. Die **Clean-Desk-Regel**: Wer den Platz verlässt, sperrt den Rechner und räumt Vertrauliches weg.",
+  "config": {
+    "image": "4206d5871e58d7238b3ef9b0ee4947a35c784946158c73fd75b97f59344913e9.png",
+    "alt": "Ein Büro-Schreibtisch mit Monitor, Tastatur, Maus, einem Zettel, einem USB-Stick, einem Dokument, Kaffeetasse und Pflanze",
+    "targets": [
+      {
+        "id": "screen",
+        "label": "Bildschirm nicht gesperrt – Kundendaten offen sichtbar",
+        "x": 33.3,
+        "y": 16.2,
+        "w": 33.3,
+        "h": 31.2
+      },
+      {
+        "id": "postit",
+        "label": "Passwort auf einem Zettel am Monitor",
+        "x": 66.2,
+        "y": 29.4,
+        "w": 10.4,
+        "h": 15.6
+      },
+      {
+        "id": "usb",
+        "label": "Unbekannter USB-Stick – nie einstecken",
+        "x": 79.6,
+        "y": 80.0,
+        "w": 17.1,
+        "h": 8.8
+      },
+      {
+        "id": "paper",
+        "label": "Vertrauliches Dokument offen auf dem Tisch",
+        "x": 7.1,
+        "y": 67.5,
+        "w": 22.1,
+        "h": 30.0
+      }
+    ],
+    "showCount": true
+  }
+}

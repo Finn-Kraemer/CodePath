@@ -15,20 +15,8 @@
 	let newTask = $state<Record<number, { slug: string; type: string; title: string }>>({});
 	let showArchived = $state(false);
 
-	const types = [
-		'MULTIPLE_CHOICE',
-		'FILL_BLANK',
-		'FILL_CODE',
-		'CODE',
-		'SORTING',
-		'SQL',
-		'TERMINAL',
-		'PRACTICE',
-		'MATCHING',
-		'PARSONS',
-		'NUMBER_CONVERT',
-		'HOTSPOT'
-	];
+	// Alle Typen mit Beschriftung – neue Typen erscheinen so automatisch
+	const types = Object.keys(TYPE_LABELS);
 
 	async function load() {
 		try {

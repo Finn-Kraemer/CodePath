@@ -30,7 +30,7 @@ class SecurityCatalogTest extends IntegrationTestBase {
 
     private static final List<String> SOLUTION_FIELDS = List.of("\"correct\"", "\"correctOrder\"", "\"solutionSql\"",
             "\"schemaSql\"", "\"expectedDirectories\"", "\"expectedFiles\"", "\"expectedContents\"", "\"solution\":{",
-            "\"explanation\":\"", "\"answers\"", "\"rubricScores\"", "\"pairs\"", "\"targets\"", "\"indent\"");
+            "\"explanation\":\"", "\"answers\"", "\"rubricScores\"", "\"pairs\"", "\"targets\"", "\"indent\"", "\"gates\"");
 
     private Map<String, Object> sample(PublishedTask task, User user) {
         return registry.get(task.type()).sampleAnswer(task.spec(), TaskContext.of(user.getId(), task.taskId()));

@@ -19,4 +19,14 @@ describe('renderMarkdown', () => {
 		expect(html).not.toContain('<script');
 		expect(html).not.toContain('javascript:');
 	});
+
+	it('lässt nur Bilder aus der eigenen Medienablage zu', () => {
+		const key = 'a'.repeat(64) + '.png';
+		const html = renderMarkdown(
+			`![Schreibtisch](/api/media/${key}) ![fremd](https://example.com/x.png)`
+		);
+		expect(html).toContain(`src="/api/media/${key}"`);
+		expect(html).toContain('loading="lazy"');
+		expect(html).not.toContain('example.com');
+	});
 });

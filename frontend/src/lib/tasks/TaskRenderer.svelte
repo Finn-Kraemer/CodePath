@@ -10,6 +10,8 @@
 	import Parsons from './Parsons.svelte';
 	import NumberConvert from './NumberConvert.svelte';
 	import Hotspot from './Hotspot.svelte';
+	import ImageHotspot from './ImageHotspot.svelte';
+	import LogicCircuit from './LogicCircuit.svelte';
 	import type { TaskProps } from './types';
 
 	let props: TaskProps = $props();
@@ -39,6 +41,10 @@
 	<NumberConvert {...props} />
 {:else if props.task.type === 'HOTSPOT'}
 	<Hotspot {...props} />
+{:else if props.task.type === 'IMAGE_HOTSPOT'}
+	<ImageHotspot {...props} />
+{:else if props.task.type === 'LOGIC_CIRCUIT'}
+	<LogicCircuit {...props} />
 {:else}
 	<p class="border border-amber-200 bg-amber-50 p-6 text-sm">
 		Dieser Aufgabentyp wird noch nicht angezeigt: {props.task.type}

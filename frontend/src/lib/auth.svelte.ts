@@ -59,7 +59,7 @@ class AuthStore {
 		return !!this.user;
 	}
 
-	private getCsrfToken(): string | null {
+	getCsrfToken(): string | null {
 		if (!browser) return null;
 		const match = document.cookie
 			.split(';')

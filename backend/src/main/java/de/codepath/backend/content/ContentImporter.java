@@ -1,6 +1,8 @@
 package de.codepath.backend.content;
 
 import de.codepath.backend.engine.InvalidTaskConfigException;
+import de.codepath.backend.engine.MediaKeys;
+import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.engine.TaskHandlerRegistry;
 import de.codepath.backend.platform.audit.AuditService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class ContentImporter {
     private final TaskHandlerRegistry registry;
     private final ObjectMapper objectMapper;
     private final AuditService auditService;
+    private final MediaService mediaService;
 
     @Transactional
     public ImportReport importBundles(List<ContentPackage.ModuleBundle> bundles, Mode mode, Long actorId) {
@@ -59,10 +62,28 @@ public class ContentImporter {
             }
             if (existing.isEmpty()) modulesCreated++;
 
+            // Bilder zuerst, damit die Aufgaben sie finden
+            for (var media : bundle.media().entrySet()) {
+                String where = mf.slug() + "/media/" + media.getKey();
+                try {
+                    MediaService.Inspected inspected = mediaService.inspect(media.getValue());
+                    // Der Name muss zum Inhalt passen, sonst zeigt ein Schlüssel auf ein fremdes Bild
+                    if (!inspected.key().equals(media.getKey())) {
+                        errors.add(where + ": Inhalt passt nicht zum Namen (erwartet " + inspected.key() + ")");
+                        continue;
+                    }
+                    mediaService.save(inspected, media.getValue(), media.getKey(), actorId);
+                } catch (ApiException e) {
+                    errors.add(where + ": " + e.getMessage());
+                }
+            }
+
             for (ContentPackage.TaskFile tf : bundle.tasks()) {
                 String where = mf.slug() + "/" + tf.slug();
                 try {
                     validate(tf);
+                    Set<String> missing = mediaService.missing(mediaKeys(tf));
+                    if (!missing.isEmpty()) throw new IllegalArgumentException("Bild fehlt: " + String.join(", ", missing));
                 } catch (InvalidTaskConfigException | IllegalArgumentException e) {
                     errors.add(where + ": " + e.getMessage());
                     continue;
@@ -123,6 +144,11 @@ public class ContentImporter {
         if (!problems.isEmpty()) throw new InvalidTaskConfigException(problems);
         if (!registry.supports(tf.type())) throw new IllegalArgumentException("Aufgabentyp " + tf.type() + " wird nicht unterstützt");
         registry.requireValid(tf.type(), tf.config() != null ? tf.config() : Map.of(), tf.points());
+    }
+
+    /** Schlüssel aller Bilder, auf die eine Aufgabe in Konfiguration oder Texten verweist. */
+    Set<String> mediaKeys(ContentPackage.TaskFile tf) {
+        return MediaKeys.find(objectMapper.writeValueAsString(tf));
     }
 
     static TaskVersion toVersion(ContentPackage.TaskFile tf) {

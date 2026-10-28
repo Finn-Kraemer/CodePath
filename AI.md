@@ -39,7 +39,7 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 
 Ein Aufgabentyp besteht aus `TaskHandler` (validieren, öffentliche Sicht, bewerten, Lösungssicht, Musterlösung und Falschantwort für den Probelauf, Vorlage für den Editor), einer Svelte-Komponente unter `frontend/src/lib/tasks/` und einem Editor-Formular unter `frontend/src/lib/editor/config/`.
 
-Typen: `MULTIPLE_CHOICE`, `FILL_BLANK`, `FILL_CODE`, `CODE`, `SORTING`, `SQL`, `TERMINAL`, `PRACTICE` (Lehrkraft bewertet nach Rubrik), `MATCHING`, `PARSONS`, `NUMBER_CONVERT`, `HOTSPOT`. Formate: `content/README.md`.
+Typen: `MULTIPLE_CHOICE`, `FILL_BLANK`, `FILL_CODE`, `CODE`, `SORTING`, `SQL`, `TERMINAL`, `PRACTICE` (Lehrkraft bewertet nach Rubrik), `MATCHING`, `PARSONS`, `NUMBER_CONVERT`, `HOTSPOT`, `IMAGE_HOTSPOT`, `LOGIC_CIRCUIT`. Formate: `content/README.md`.
 
 Bewertung: CORRECT, PARTIAL (Teilpunkte), WRONG, MANUAL, UNGRADED, INVALID (zählt nicht als Versuch). `AttemptRules` je Typ, je Aufgabe überschreibbar: Versuchsgrenze, 25 % Abzug je Hinweis (höchstens 75 %), 20 % Bonus beim ersten Versuch ohne Hinweis, Lösung aufdecken = 0 Punkte. Zufällige Reihenfolgen und Zahlen hängen an einem Seed je Person und Aufgabe.
 
@@ -48,6 +48,10 @@ Punkte stehen in einem Journal (`points_entries`); ein eindeutiger Index sorgt d
 ## Inhalte
 
 Content-Pakete unter `content/<modul>/` (`module.json`, `tasks/NN-slug.json`, Markdown), geprüft per JSON-Schema (`content/validate.py`) und Probelauf (`ContentPackagesTest`). Beim Start werden fehlende Aufgaben als Version 1 angelegt. Im Editor (Admin → Inhalte) entstehen Entwürfe; Veröffentlichen friert eine Version ein, bisherige Versuche bleiben an ihrer Version (ADR-5). Export/Import als ZIP.
+
+## Medien
+
+Bilder liegen in PostgreSQL, Schlüssel = SHA-256 + Endung (ADR-7). Upload nur für die Lehrkraft, nur PNG/JPEG/GIF/WebP bis 2 MB, Auslieferung unter `/api/media/` mit restriktiver CSP. Markdown zeigt nur diese Bilder. Details: `docs/medien-und-neue-typen.md`.
 
 ## Live-Updates
 

@@ -12,5 +12,7 @@ public enum TaskType {
     MATCHING,
     PARSONS,
     NUMBER_CONVERT,
-    HOTSPOT
+    HOTSPOT,
+    IMAGE_HOTSPOT,
+    LOGIC_CIRCUIT
 }

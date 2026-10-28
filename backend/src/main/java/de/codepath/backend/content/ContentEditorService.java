@@ -36,6 +36,8 @@ public class ContentEditorService {
     private final AuditService auditService;
     private final ObjectMapper objectMapper;
     private final CodeHandler codeHandler;
+    private final MediaService mediaService;
+    private final MediaRepository mediaRepository;
 
     public record RunSolutionRequest(String code, List<Map<String, Object>> tests) {
     }
@@ -188,6 +190,8 @@ public class ContentEditorService {
         } catch (IllegalArgumentException e) {
             problems.add(e.getMessage());
         }
+        Set<String> missingMedia = mediaService.missing(importer.mediaKeys(file));
+        if (!missingMedia.isEmpty()) problems.add("Bild fehlt: " + String.join(", ", missingMedia));
         if (!problems.isEmpty()) return new CheckResult(false, problems, null);
 
         TaskHandler handler = registry.get(task.getType());
@@ -272,10 +276,20 @@ public class ContentEditorService {
         try (ZipOutputStream zip = new ZipOutputStream(out, StandardCharsets.UTF_8)) {
             for (Module m : moduleRepository.findAllByOrderBySortOrderAsc()) {
                 write(zip, "content/" + m.getSlug() + "/module.json", moduleFile(m));
+                Set<String> media = new TreeSet<>();
                 for (Task t : taskRepository.findByModuleWithVersion(m.getId())) {
                     if (t.getCurrentVersion() == null || t.isArchived()) continue;
-                    write(zip, String.format("content/%s/tasks/%02d-%s.json", m.getSlug(), t.getSortOrder(), t.getSlug()),
-                            TaskFiles.fromVersion(t, t.getCurrentVersion()));
+                    ContentPackage.TaskFile file = TaskFiles.fromVersion(t, t.getCurrentVersion());
+                    write(zip, String.format("content/%s/tasks/%02d-%s.json", m.getSlug(), t.getSortOrder(), t.getSlug()), file);
+                    media.addAll(importer.mediaKeys(file));
+                }
+                // Bilder liegen beim Modul, das sie verwendet
+                for (String key : media) {
+                    var image = mediaRepository.findById(key);
+                    if (image.isEmpty()) continue;
+                    zip.putNextEntry(new ZipEntry("content/" + m.getSlug() + "/media/" + key));
+                    zip.write(image.get().getData());
+                    zip.closeEntry();
                 }
             }
         } catch (IOException e) {

@@ -15,7 +15,7 @@ class HandlersTest {
 
     static final Set<String> SOLUTION_KEYS = Set.of("correct", "correctOrder", "answers", "solutionSql", "schemaSql",
             "expectedDirectories", "expectedFiles", "expectedContents", "tests", "solution", "hint", "hints",
-            "pairs", "targets", "indent");
+            "pairs", "targets", "indent", "gates");
 
     static void assertNoSolution(Map<String, Object> view) {
         String json = view.toString();
@@ -369,6 +369,94 @@ class HandlersTest {
         void validation() {
             assertFalse(handler.validate(Map.of("text", "a\nb", "targets", List.of(3)), 10).isEmpty());
             assertFalse(handler.validate(Map.of("text", "a\nb", "targets", List.of(1, 2)), 10).isEmpty());
+        }
+    }
+
+    @Nested
+    class ImageHotspot {
+        final ImageHotspotHandler handler = new ImageHotspotHandler();
+        final TaskSpec spec = spec(TaskType.IMAGE_HOTSPOT, 10, Map.of(
+                "image", "a".repeat(64) + ".png", "alt", "Schreibtisch",
+                "targets", List.of(Map.of("id", "a", "x", 10, "y", 10, "w", 20, "h", 20, "label", "Zettel"),
+                        Map.of("id", "b", "x", 60.5, "y", 50, "w", 10, "h", 10))));
+
+        static Map<String, Object> marks(double... xy) {
+            List<Map<String, Object>> marks = new ArrayList<>();
+            for (int i = 0; i < xy.length; i += 2) marks.add(Map.of("x", xy[i], "y", xy[i + 1]));
+            return Map.of("marks", marks);
+        }
+
+        @Test
+        void hitsMissesAndCarpetBombing() {
+            assertTrue(handler.validate(spec.config(), 10).isEmpty());
+            Map<String, Object> view = handler.publicView(spec, CONTEXT);
+            assertNoSolution(view);
+            assertFalse(view.toString().contains("Zettel"));
+            assertEquals(2, view.get("count"));
+            assertEquals(4, view.get("maxMarks"));
+            assertTrue(handler.evaluate(spec, handler.sampleAnswer(spec, CONTEXT), CONTEXT).isCorrect());
+            assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(spec, handler.wrongAnswer(spec, CONTEXT), CONTEXT).outcome());
+            assertEquals(0.5, handler.evaluate(spec, marks(15, 15), CONTEXT).score(), 1e-9);
+            // Zweimal dasselbe Ziel zählt einmal, daneben kostet
+            assertEquals(0.5, handler.evaluate(spec, marks(15, 15, 16, 16), CONTEXT).score(), 1e-9);
+            assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(spec, marks(15, 15, 90, 90), CONTEXT).outcome());
+            // Mehr Markierungen als erlaubt oder kaputte Werte zählen nicht als Versuch
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, marks(1, 1, 2, 2, 3, 3, 4, 4, 5, 5), CONTEXT).outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, marks(150, 10), CONTEXT).outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("marks", "alles"), CONTEXT).outcome());
+        }
+
+        @Test
+        void validation() {
+            assertFalse(handler.validate(handler.template(), 10).isEmpty(), "Ohne Bild ungültig");
+            assertFalse(handler.validate(Map.of("image", "x.png", "alt", "a", "targets", List.of(Map.of("id", "a", "x", 1, "y", 1, "w", 5, "h", 5))), 10).isEmpty());
+            assertFalse(handler.validate(Map.of("image", "a".repeat(64) + ".png", "alt", "a",
+                    "targets", List.of(Map.of("id", "a", "x", 90, "y", 1, "w", 20, "h", 5))), 10).isEmpty(), "ragt aus dem Bild");
+            assertFalse(handler.validate(Map.of("image", "a".repeat(64) + ".png", "alt", "a",
+                    "targets", List.of(Map.of("id", "a", "x", 0, "y", 0, "w", 100, "h", 100))), 10).isEmpty(), "ganzes Bild");
+        }
+    }
+
+    @Nested
+    class LogicCircuitTask {
+        final LogicCircuitHandler handler = new LogicCircuitHandler();
+        final TaskSpec xor = spec(TaskType.LOGIC_CIRCUIT, 10, Map.of(
+                "inputs", List.of("A", "B"), "expression", "A XOR B", "allowedGates", List.of("AND", "OR", "NOT"), "maxGates", 4,
+                "solution", Map.of("gates", List.of(
+                        gate("g1", "OR", "A", "B"), gate("g2", "AND", "A", "B"), gate("g3", "NOT", "g2"), gate("g4", "AND", "g1", "g3")),
+                        "output", "g4")));
+
+        static Map<String, Object> gate(String id, String type, String... inputs) {
+            return Map.of("id", id, "type", type, "inputs", List.of(inputs));
+        }
+
+        @Test
+        void gradesByTruthTable() {
+            assertTrue(handler.validate(xor.config(), 10).isEmpty(), handler.validate(xor.config(), 10).toString());
+            Map<String, Object> view = handler.publicView(xor, CONTEXT);
+            assertNoSolution(view);
+            assertEquals(List.of(false, true, true, false), view.get("expected"));
+            assertTrue(handler.evaluate(xor, handler.sampleAnswer(xor, CONTEXT), CONTEXT).isCorrect());
+            assertFalse(handler.evaluate(xor, handler.wrongAnswer(xor, CONTEXT), CONTEXT).isCorrect());
+            // Eine andere richtige Schaltung zählt genauso
+            Map<String, Object> other = Map.of("gates", List.of(gate("n", "NOT", "A"), gate("m", "NOT", "B"),
+                    gate("x", "AND", "A", "m"), gate("y", "AND", "n", "B")), "output", "y");
+            Evaluation partial = handler.evaluate(xor, other, CONTEXT);
+            assertEquals(Evaluation.Outcome.PARTIAL, partial.outcome(), "3 von 4 Zeilen");
+            assertEquals(0.5, partial.score(), 1e-9);
+            // ODER statt XOR: 3 von 4; konstante 0: 2 von 4 → keine Punkte
+            assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(xor, Map.of("gates", List.of(gate("z", "AND", "A", "B"), gate("y", "NOT", "z"), gate("w", "AND", "z", "y")), "output", "w"), CONTEXT).outcome());
+        }
+
+        @Test
+        void rejectsForbiddenOrBrokenCircuits() {
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(xor, Map.of("gates", List.of(gate("g1", "XOR", "A", "B")), "output", "g1"), CONTEXT).outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(xor, Map.of("gates", List.of(gate("g1", "AND", "A", "g2"), gate("g2", "OR", "A", "g1")), "output", "g2"), CONTEXT).outcome(), "Schleife");
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(xor, Map.of("gates", List.of(gate("g1", "NOT", "A", "B")), "output", "g1"), CONTEXT).outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(xor, Map.of("gates", List.of(), "output", "C"), CONTEXT).outcome());
+            List<Map<String, Object>> many = new ArrayList<>();
+            for (int i = 0; i < 5; i++) many.add(gate("g" + i, "NOT", "A"));
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(xor, Map.of("gates", many, "output", "g4"), CONTEXT).outcome());
         }
     }
 

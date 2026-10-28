@@ -10,6 +10,8 @@
 	import ParsonsForm from './config/ParsonsForm.svelte';
 	import NumberConvertForm from './config/NumberConvertForm.svelte';
 	import HotspotForm from './config/HotspotForm.svelte';
+	import ImageHotspotForm from './config/ImageHotspotForm.svelte';
+	import LogicCircuitForm from './config/LogicCircuitForm.svelte';
 	import JsonForm from './config/JsonForm.svelte';
 	import type { Config } from './types';
 
@@ -52,6 +54,10 @@
 	<NumberConvertForm bind:config />
 {:else if type === 'HOTSPOT'}
 	<HotspotForm bind:config />
+{:else if type === 'IMAGE_HOTSPOT'}
+	<ImageHotspotForm bind:config />
+{:else if type === 'LOGIC_CIRCUIT'}
+	<LogicCircuitForm bind:config />
 {:else}
 	<JsonForm bind:config />
 {/if}
