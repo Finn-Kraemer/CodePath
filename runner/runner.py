@@ -123,6 +123,8 @@ def execute(code, stdin, uid, wall_seconds=WALL_SECONDS):
             raise SandboxError("Sandbox-Prozess lässt sich nicht beenden – fehlt CAP_KILL?")
     for reader in readers:
         reader.join(timeout=1)
+    process.stdout.close()
+    process.stderr.close()
 
     stdout = output["stdout"].decode("utf-8", errors="replace")
     stderr = output["stderr"].decode("utf-8", errors="replace")
@@ -171,11 +173,12 @@ except OSError:
     print('no-net')
 """
 HEALTH_EXPECTED = "42 ok\nFalse False\nno-net\n"
-health = {"checked": 0.0, "ok": False}
+health = {"checked": None, "ok": False}
 
 
 def healthy():
-    if time.monotonic() - health["checked"] > 60:
+    # Erster Aufruf prüft immer – monotonic() kann kurz nach dem Booten kleiner als 60 sein
+    if health["checked"] is None or time.monotonic() - health["checked"] > 60:
         result = run(HEALTH_CODE, "ok\n")
         health["ok"] = bool(result) and result["status"] == "OK" and result["stdout"] == HEALTH_EXPECTED
         health["checked"] = time.monotonic()
