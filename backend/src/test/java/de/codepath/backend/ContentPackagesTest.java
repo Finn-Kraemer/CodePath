@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Probelauf für jede mitgelieferte Aufgabe: Konfiguration gültig, Musterlösung wird als richtig,
- * eine falsche Antwort als falsch bewertet.
+ * eine falsche Antwort als falsch bewertet. Mit CODEPATH_RUNNER_URL laufen auch die Code-Tests wirklich.
  */
 class ContentPackagesTest extends IntegrationTestBase {
 
@@ -22,6 +22,8 @@ class ContentPackagesTest extends IntegrationTestBase {
     ContentPackageReader reader;
     @Autowired
     TaskHandlerRegistry registry;
+    @Autowired
+    CodeRunner runner;
 
     @Test
     void everyPackagedTaskPassesTheDryRun() throws Exception {
@@ -44,9 +46,7 @@ class ContentPackagesTest extends IntegrationTestBase {
                 Evaluation right = handler.evaluate(spec, handler.sampleAnswer(spec, context), context);
                 Evaluation wrong = handler.evaluate(spec, handler.wrongAnswer(spec, context), context);
                 Evaluation.Outcome expected = !handler.autoGraded() ? Evaluation.Outcome.MANUAL
-                        : tf.type() == TaskType.CODE ? Evaluation.Outcome.UNGRADED : Evaluation.Outcome.CORRECT;
-                // Code-Aufgaben ohne hinterlegte Musterlösung lassen sich nur mit Runner prüfen (Phase 4)
-                if (tf.type() == TaskType.CODE && right.outcome() == Evaluation.Outcome.INVALID) continue;
+                        : tf.type() == TaskType.CODE && !runner.available() ? Evaluation.Outcome.UNGRADED : Evaluation.Outcome.CORRECT;
                 if (right.outcome() != expected) failures.add(where + ": Musterlösung ergibt " + right.outcome() + " (" + right.feedback() + ")");
                 if (wrong.isCorrect()) failures.add(where + ": falsche Antwort gilt als richtig");
             }

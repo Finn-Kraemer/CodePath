@@ -1,4 +1,5 @@
-# CodePath: zwei Container – Anwendung und PostgreSQL.
+# CodePath: zwei Container – Anwendung und PostgreSQL. Optional ein dritter, der Code-Runner
+# (Profil "runner", siehe docs/phase-4.md): bewertet Python-Aufgaben serverseitig.
 # Secrets kommen aus der Datei .env (Vorlage: .env.example). Ohne sie startet der Stack nicht.
 services:
   postgres:
@@ -30,9 +31,38 @@ services:
       ADMIN_SEED_PASSWORD: ${ADMIN_SEED_PASSWORD:-}
       # Hinter TLS (z. B. Caddy, siehe deploy/) auf true setzen
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      # Mit Code-Runner: in .env COMPOSE_PROFILES=runner, CODEPATH_RUNNER_URL und RUNNER_TOKEN setzen
+      CODEPATH_RUNNER_URL: ${CODEPATH_RUNNER_URL:-}
+      CODEPATH_RUNNER_TOKEN: ${RUNNER_TOKEN:-}
+    networks: [default, runner]
     depends_on:
       postgres:
         condition: service_healthy
+
+  # Führt eingereichten Python-Code in einer bubblewrap-Sandbox aus. Nur die App erreicht ihn;
+  # das Netz "runner" hat keinen Weg nach draußen.
+  runner:
+    image: ghcr.io/finn-kraemer/codepath-runner:${CODEPATH_VERSION:-latest}
+    build: ./runner
+    profiles: ["runner"]
+    restart: unless-stopped
+    environment:
+      RUNNER_TOKEN: ${RUNNER_TOKEN:-}
+    networks: [runner]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    # Nur zum Wechsel auf eine unprivilegierte Benutzer-ID je Lauf und um diese Läufe wieder zu beenden
+    cap_add: [SETUID, SETGID, KILL]
+    # bubblewrap braucht user namespaces; Dockers Standardprofile verbieten sie.
+    # Die Sandbox-Grenze ist bubblewrap selbst (siehe runner/test_runner.py).
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=unconfined
+      - apparmor=unconfined
+    pids_limit: 256
+    mem_limit: 1g
+    cpus: 2
 
   # Nur bei Bedarf: docker compose --profile tools up -d pgadmin
   # Ohne eigenen Login, daher nur auf diesem Rechner erreichbar.
@@ -51,6 +81,11 @@ services:
       - ./servers.json:/pgadmin4/servers.json
     depends_on:
       - postgres
+
+networks:
+  default:
+  runner:
+    internal: true
 
 volumes:
   postgres_data:

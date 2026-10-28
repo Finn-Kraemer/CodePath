@@ -16,4 +16,4 @@
 		bind:value={config.solution}
 	></textarea></label
 >
-<div class="mt-3"><TestsForm bind:config /></div>
+<div class="mt-3"><TestsForm bind:config solution={config.solution} /></div>

@@ -16,8 +16,18 @@
     "starterCode": "class Knoten:\n    def __init__(self, wert):\n        self.wert = wert\n        self.links = None\n        self.rechts = None\n\ndef inorder(knoten):\n    # Basisfall: wenn knoten None ist → return\n    # Schritt 1: inorder(knoten.links)  – erst ganz links\n    # Schritt 2: print(knoten.wert)     – dann Wurzel\n    # Schritt 3: inorder(knoten.rechts) – dann rechts\n    pass\n\n# Baum aufbauen\nwurzel = Knoten(4)\nwurzel.links = Knoten(2)\nwurzel.rechts = Knoten(6)\nwurzel.links.links = Knoten(1)\nwurzel.links.rechts = Knoten(3)\n\ninorder(wurzel)\nprint()  # Zeilenumbruch",
     "tests": [
       {
-        "expectedOutput": "1 2 3 4 6 \n"
+        "expectedOutput": "1 2 3 4 6 \n",
+        "hidden": false
+      },
+      {
+        "append": "b = Knoten(10)\nb.links = Knoten(5)\nb.links.links = Knoten(2)\nb.rechts = Knoten(20)\nb.rechts.links = Knoten(15)\ninorder(b)\nprint()",
+        "expectedOutput": "1 2 3 4 6 \n2 5 10 15 20 \n"
+      },
+      {
+        "append": "inorder(None)\nprint('leer')\ninorder(Knoten(7))\nprint()",
+        "expectedOutput": "1 2 3 4 6 \nleer\n7 \n"
       }
-    ]
+    ],
+    "solution": "class Knoten:\n    def __init__(self, wert):\n        self.wert = wert\n        self.links = None\n        self.rechts = None\n\ndef inorder(knoten):\n    if knoten is None:\n        return\n    inorder(knoten.links)\n    print(knoten.wert, end=' ')\n    inorder(knoten.rechts)\n\n# Baum aufbauen\nwurzel = Knoten(4)\nwurzel.links = Knoten(2)\nwurzel.rechts = Knoten(6)\nwurzel.links.links = Knoten(1)\nwurzel.links.rechts = Knoten(3)\n\ninorder(wurzel)\nprint()  # Zeilenumbruch\n"
   }
 }

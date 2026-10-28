@@ -1,6 +1,7 @@
 package de.codepath.backend.content;
 
 import de.codepath.backend.engine.*;
+import de.codepath.backend.engine.handlers.CodeHandler;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,16 @@ public class ContentEditorService {
     private final ContentPackageReader reader;
     private final AuditService auditService;
     private final ObjectMapper objectMapper;
+    private final CodeHandler codeHandler;
+
+    public record RunSolutionRequest(String code, List<Map<String, Object>> tests) {
+    }
+
+    public record TestOutput(String status, String stdout, String stderr) {
+    }
+
+    public record SolutionRun(boolean available, List<TestOutput> outputs) {
+    }
 
     public record TaskRow(Long id, String slug, TaskType type, String title, Integer currentVersion, boolean hasDraft,
                           boolean archived, int sortOrder, int points) {
@@ -191,6 +202,19 @@ public class ContentEditorService {
         if (wrong.isCorrect()) problems.add("Probelauf: Eine falsche Antwort wird als richtig bewertet");
         return new CheckResult(passed, problems,
                 new DryRun(sample.outcome().name(), sample.feedback(), wrong.outcome().name(), wrong.feedback(), passed));
+    }
+
+    /** Musterlösung gegen jeden Testfall laufen lassen, damit der Editor die erwarteten Ausgaben übernehmen kann. */
+    public SolutionRun runSolution(RunSolutionRequest request) {
+        if (request.code() == null || request.code().isBlank()) throw ApiException.badRequest("Bitte zuerst eine Musterlösung eintragen.");
+        List<Map<String, Object>> tests = request.tests() == null ? List.of() : request.tests();
+        if (tests.size() > 20) throw ApiException.badRequest("Höchstens 20 Testfälle.");
+        if (!codeHandler.graded()) return new SolutionRun(false, List.of());
+        List<TestOutput> outputs = tests.stream().map(test -> {
+            CodeRunner.RunResult result = codeHandler.runAsTest(request.code(), test);
+            return new TestOutput(result.status().name(), result.stdout(), result.stderr());
+        }).toList();
+        return new SolutionRun(true, outputs);
     }
 
     @Transactional

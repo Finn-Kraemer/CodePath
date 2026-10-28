@@ -223,6 +223,34 @@
         "tags" : [ "content-editor-controller" ]
       }
     },
+    "/api/admin/content/run-solution" : {
+      "post" : {
+        "operationId" : "runSolution",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RunSolutionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SolutionRun"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "content-editor-controller" ]
+      }
+    },
     "/api/admin/content/tasks/{id}" : {
       "get" : {
         "operationId" : "task_1",
@@ -2364,6 +2392,36 @@
           }
         }
       },
+      "RunSolutionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "tests" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "additionalProperties" : { }
+            }
+          }
+        }
+      },
+      "SolutionRun" : {
+        "type" : "object",
+        "properties" : {
+          "available" : {
+            "type" : "boolean"
+          },
+          "outputs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TestOutput"
+            }
+          }
+        },
+        "required" : [ "available", "outputs" ]
+      },
       "SseEmitter" : {
         "type" : "object",
         "properties" : {
@@ -2928,6 +2986,21 @@
           }
         },
         "required" : [ "difficulty", "id", "isCompleted", "isLocked", "points", "pointsEarned", "slug", "status", "title", "type" ]
+      },
+      "TestOutput" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string"
+          },
+          "stderr" : {
+            "type" : "string"
+          },
+          "stdout" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "status", "stderr", "stdout" ]
       },
       "VersionRow" : {
         "type" : "object",

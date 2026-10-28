@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Lässt Code gegen die Testfälle einer Aufgabe laufen: { tests: [{stdin?, expectedOutput, hidden?}] }.
+ * Lässt Code gegen die Testfälle einer Aufgabe laufen: { tests: [{stdin?, append?, expectedOutput, hidden?}] }.
+ * {@code append} wird an den Code angehängt, z. B. weitere Aufrufe der Funktion mit anderen Werten –
+ * so fällt auf, wenn jemand nur die sichtbare Ausgabe fest einprogrammiert.
  * Tests sind standardmäßig versteckt; versteckte Tests verraten in der Rückmeldung weder Eingabe noch erwartete Ausgabe.
  */
 final class CodeTests {
@@ -33,7 +35,7 @@ final class CodeTests {
         String firstError = null;
         for (int i = 0; i < tests.size(); i++) {
             Map<String, Object> test = tests.get(i);
-            CodeRunner.RunResult result = runner.run(code, Cfg.string(test, "stdin", ""));
+            CodeRunner.RunResult result = runner.run(program(code, test), Cfg.string(test, "stdin", ""));
             if (result.status() == CodeRunner.RunResult.Status.UNAVAILABLE) {
                 return new Evaluation(Evaluation.Outcome.UNGRADED, 0, "Der Code-Prüfer ist gerade nicht erreichbar.", Map.of());
             }
@@ -60,6 +62,11 @@ final class CodeTests {
                 ? "Alle " + tests.size() + " Tests bestanden!"
                 : passed + " von " + tests.size() + " Tests bestanden. " + firstError;
         return Evaluation.scored(tests.isEmpty() ? 0 : (double) passed / tests.size(), feedback, Map.of("tests", results));
+    }
+
+    static String program(String code, Map<String, Object> test) {
+        String append = Cfg.string(test, "append", "");
+        return append.isBlank() ? code : code + "\n\n" + append + "\n";
     }
 
     /** Testfälle sind versteckt, solange sie nicht ausdrücklich hidden: false haben. */

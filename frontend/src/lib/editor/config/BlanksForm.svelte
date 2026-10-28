@@ -5,6 +5,16 @@
 	let { config = $bindable(), code = false }: { config: Config; code?: boolean } = $props();
 
 	const gaps = $derived((config.template ?? '').split('___').length - 1);
+	// Vorlage mit der jeweils ersten richtigen Antwort, für „Ausgaben erzeugen“
+	const filled = $derived(
+		(config.template ?? '')
+			.split('___')
+			.map(
+				(part: string, i: number) =>
+					part + (i < gaps ? (config.blanks?.[i]?.answers?.[0] ?? '') : '')
+			)
+			.join('')
+	);
 
 	// Anzahl der Lösungen folgt der Anzahl der Lücken in der Vorlage
 	$effect(() => {
@@ -61,5 +71,5 @@
 	{/each}
 </div>
 {#if code}
-	<div class="mt-4"><TestsForm bind:config /></div>
+	<div class="mt-4"><TestsForm bind:config solution={filled} /></div>
 {/if}

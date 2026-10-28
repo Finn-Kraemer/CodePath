@@ -7,17 +7,27 @@
   "sortOrder": 10,
   "learningGoal": "Du kannst einen Brute-Force-Angriff auf die Caesar-Verschlüsselung programmieren.",
   "story": "Du baust ein Tool das zeigt wie schwach Caesar-Verschlüsselung ist. Es probiert automatisch alle 25 möglichen Versätze durch – ein echter Brute-Force-Angriff!",
-  "assignment": "Der Code probiert alle 25 möglichen Versätze durch. Ergänze die fehlenden Teile.",
+  "assignment": "Der Code soll alle 25 möglichen Versätze durchprobieren. Ergänze die Zeile, die ein Zeichen zurückschiebt. In welcher Zeile steht der Klartext?",
   "hints": [
     "Der Code ist vollständig – führe ihn aus! Bei welchem Versatz erscheint lesbarer Text? Das ist ein echter Brute-Force-Angriff: alle Möglichkeiten ausprobieren bis man eine Lösung findet."
   ],
   "explanation": "",
   "config": {
-    "starterCode": "def caesar_brute_force(text):\n    for versatz in range(1, 26):\n        ergebnis = \"\"\n        for zeichen in text:\n            if zeichen.isalpha():\n                basis = ord(''A'') if zeichen.isupper() else ord(''a'')\n                ergebnis += chr((ord(zeichen) - basis - versatz) % 26 + basis)\n            else:\n                ergebnis += zeichen\n        print(f'Versatz {versatz:2}: {ergebnis}')\n\ncaesar_brute_force('KHOOR')",
+    "starterCode": "def caesar_brute_force(text):\n    for versatz in range(1, 26):\n        ergebnis = \"\"\n        for zeichen in text:\n            if zeichen.isalpha():\n                basis = ord('A') if zeichen.isupper() else ord('a')\n                # Zeichen um \"versatz\" Stellen zurückschieben (Tipp: % 26)\n                ergebnis += ...\n            else:\n                ergebnis += zeichen\n        print(f'Versatz {versatz:2}: {ergebnis}')\n\ncaesar_brute_force('KHOOR')\n",
     "tests": [
       {
-        "expectedOutput": "Versatz  1: JGNNQ\nVersatz  2: IFMMP\nVersatz  3: HELLO\nVersatz  4: GDKKN\nVersatz  5: FCJJM\nVersatz  6: EBIIL\nVersatz  7: DAHHK\nVersatz  8: CZGGJ\nVersatz  9: BYFFI\nVersatz 10: AXEEH\nVersatz 11: ZWDDG\nVersatz 12: YVCCE\nVersatz 13: XUBBF\nVersatz 14: WTAAE\nVersatz 15: VS99D\nVersatz 16: UR88C\nVersatz 17: TQ77B\nVersatz 18: SP66A\nVersatz 19: RO559\nVersatz 20: QN448\nVersatz 21: PM337\nVersatz 22: OL226\nVersatz 23: NK115\nVersatz 24: MJ004\nVersatz 25: LIPWP\n"
+        "expectedOutput": "Versatz  1: JGNNQ\nVersatz  2: IFMMP\nVersatz  3: HELLO\nVersatz  4: GDKKN\nVersatz  5: FCJJM\nVersatz  6: EBIIL\nVersatz  7: DAHHK\nVersatz  8: CZGGJ\nVersatz  9: BYFFI\nVersatz 10: AXEEH\nVersatz 11: ZWDDG\nVersatz 12: YVCCF\nVersatz 13: XUBBE\nVersatz 14: WTAAD\nVersatz 15: VSZZC\nVersatz 16: URYYB\nVersatz 17: TQXXA\nVersatz 18: SPWWZ\nVersatz 19: ROVVY\nVersatz 20: QNUUX\nVersatz 21: PMTTW\nVersatz 22: OLSSV\nVersatz 23: NKRRU\nVersatz 24: MJQQT\nVersatz 25: LIPPS\n",
+        "hidden": false
+      },
+      {
+        "append": "caesar_brute_force('Bcd, efg!')",
+        "expectedOutput": "Versatz  1: JGNNQ\nVersatz  2: IFMMP\nVersatz  3: HELLO\nVersatz  4: GDKKN\nVersatz  5: FCJJM\nVersatz  6: EBIIL\nVersatz  7: DAHHK\nVersatz  8: CZGGJ\nVersatz  9: BYFFI\nVersatz 10: AXEEH\nVersatz 11: ZWDDG\nVersatz 12: YVCCF\nVersatz 13: XUBBE\nVersatz 14: WTAAD\nVersatz 15: VSZZC\nVersatz 16: URYYB\nVersatz 17: TQXXA\nVersatz 18: SPWWZ\nVersatz 19: ROVVY\nVersatz 20: QNUUX\nVersatz 21: PMTTW\nVersatz 22: OLSSV\nVersatz 23: NKRRU\nVersatz 24: MJQQT\nVersatz 25: LIPPS\nVersatz  1: Abc, def!\nVersatz  2: Zab, cde!\nVersatz  3: Yza, bcd!\nVersatz  4: Xyz, abc!\nVersatz  5: Wxy, zab!\nVersatz  6: Vwx, yza!\nVersatz  7: Uvw, xyz!\nVersatz  8: Tuv, wxy!\nVersatz  9: Stu, vwx!\nVersatz 10: Rst, uvw!\nVersatz 11: Qrs, tuv!\nVersatz 12: Pqr, stu!\nVersatz 13: Opq, rst!\nVersatz 14: Nop, qrs!\nVersatz 15: Mno, pqr!\nVersatz 16: Lmn, opq!\nVersatz 17: Klm, nop!\nVersatz 18: Jkl, mno!\nVersatz 19: Ijk, lmn!\nVersatz 20: Hij, klm!\nVersatz 21: Ghi, jkl!\nVersatz 22: Fgh, ijk!\nVersatz 23: Efg, hij!\nVersatz 24: Def, ghi!\nVersatz 25: Cde, fgh!\n"
+      },
+      {
+        "append": "caesar_brute_force('ZAB')",
+        "expectedOutput": "Versatz  1: JGNNQ\nVersatz  2: IFMMP\nVersatz  3: HELLO\nVersatz  4: GDKKN\nVersatz  5: FCJJM\nVersatz  6: EBIIL\nVersatz  7: DAHHK\nVersatz  8: CZGGJ\nVersatz  9: BYFFI\nVersatz 10: AXEEH\nVersatz 11: ZWDDG\nVersatz 12: YVCCF\nVersatz 13: XUBBE\nVersatz 14: WTAAD\nVersatz 15: VSZZC\nVersatz 16: URYYB\nVersatz 17: TQXXA\nVersatz 18: SPWWZ\nVersatz 19: ROVVY\nVersatz 20: QNUUX\nVersatz 21: PMTTW\nVersatz 22: OLSSV\nVersatz 23: NKRRU\nVersatz 24: MJQQT\nVersatz 25: LIPPS\nVersatz  1: YZA\nVersatz  2: XYZ\nVersatz  3: WXY\nVersatz  4: VWX\nVersatz  5: UVW\nVersatz  6: TUV\nVersatz  7: STU\nVersatz  8: RST\nVersatz  9: QRS\nVersatz 10: PQR\nVersatz 11: OPQ\nVersatz 12: NOP\nVersatz 13: MNO\nVersatz 14: LMN\nVersatz 15: KLM\nVersatz 16: JKL\nVersatz 17: IJK\nVersatz 18: HIJ\nVersatz 19: GHI\nVersatz 20: FGH\nVersatz 21: EFG\nVersatz 22: DEF\nVersatz 23: CDE\nVersatz 24: BCD\nVersatz 25: ABC\n"
       }
-    ]
+    ],
+    "solution": "def caesar_brute_force(text):\n    for versatz in range(1, 26):\n        ergebnis = \"\"\n        for zeichen in text:\n            if zeichen.isalpha():\n                basis = ord('A') if zeichen.isupper() else ord('a')\n                # Zeichen um \"versatz\" Stellen zurückschieben (Tipp: % 26)\n                ergebnis += chr((ord(zeichen) - basis - versatz) % 26 + basis)\n            else:\n                ergebnis += zeichen\n        print(f'Versatz {versatz:2}: {ergebnis}')\n\ncaesar_brute_force('KHOOR')\n"
   }
 }

@@ -19,6 +19,8 @@ CodePath besteht aus zwei Containern: der Anwendung (API und Oberfläche) und Po
 - **Backup**: `./deploy/backup.sh` (schreibt `backups/codepath-<datum>.sql.gz`)
 - **TLS**: `docker compose -f docker-compose.yml -f deploy/docker-compose.tls.yml up -d` mit Caddy davor; Domain in `deploy/Caddyfile` eintragen und `COOKIE_SECURE=true` setzen.
 
+- **Code-Aufgaben mit Punkten** (optional): dritter Container `runner`, der Python-Abgaben in einer Sandbox ausführt – einschalten wie in `docs/phase-4.md` beschrieben. Ohne ihn sind Code-Aufgaben Übungen ohne Punkte.
+
 Nach der Installation läuft CodePath vollständig offline: Monaco-Editor, Pyodide und Schriften sind im Image enthalten.
 
 ### Datenbank ansehen (optional)
@@ -32,6 +34,7 @@ Nach der Installation läuft CodePath vollständig offline: Monaco-Editor, Pyodi
 Ein modularer Monolith (siehe `docs/adr/`): Eine Spring-Boot-Anwendung liefert API, Live-Updates und das statisch gebaute Frontend aus, dazu PostgreSQL.
 
 - **Backend:** Java 25, Spring Boot 4.1, Spring Security mit serverseitigen Sessions (Spring Session JDBC), Flyway, PostgreSQL 17
+- **Code-Runner (optional):** Python-Dienst mit bubblewrap-Sandbox (`runner/`, ADR-4)
 - **Live-Updates:** Server-Sent Events unter `/api/events` (Leaderboard, Ankündigungen)
 - **Frontend:** SvelteKit 2 mit Svelte 5 (adapter-static), Tailwind CSS 4, Monaco, TipTap, Pyodide – alles lokal gebündelt
 - **Tests:** JUnit 5 mit Testcontainers (PostgreSQL), Vitest; CI über GitHub Actions auf jedem Pull Request

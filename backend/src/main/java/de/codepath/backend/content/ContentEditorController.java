@@ -55,6 +55,11 @@ public class ContentEditorController {
         return editor.discardDraft(id);
     }
 
+    @PostMapping("/run-solution")
+    public ContentEditorService.SolutionRun runSolution(@RequestBody ContentEditorService.RunSolutionRequest request) {
+        return editor.runSolution(request);
+    }
+
     @PostMapping("/tasks/{id}/check")
     public ContentEditorService.CheckResult check(@PathVariable("id") Long id) {
         return editor.check(id);

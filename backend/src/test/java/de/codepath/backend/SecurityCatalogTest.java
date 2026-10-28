@@ -1,6 +1,7 @@
 package de.codepath.backend;
 
 import de.codepath.backend.content.PublishedTask;
+import de.codepath.backend.engine.CodeRunner;
 import de.codepath.backend.engine.TaskContext;
 import de.codepath.backend.engine.TaskHandlerRegistry;
 import de.codepath.backend.identity.Course;
@@ -14,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -209,5 +211,33 @@ class SecurityCatalogTest extends IntegrationTestBase {
         postAs(as(user), url(sql) + "/submit", Map.of("query", "SELECT * FROM mitarbeiter WHERE abteilung = 'IT' AND gehalt > 5000"))
                 .andExpect(jsonPath("$.isCorrect").value(true))
                 .andExpect(jsonPath("$.details.result.rowCount").value(2));
+    }
+
+    @Test
+    void codeIsGradedByTheRunnerAndHardcodedOutputFails(@Autowired CodeRunner runner) throws Exception {
+        assumeTrue(runner.available(), "Nur mit Code-Runner (CODEPATH_RUNNER_URL)");
+        Course course = course("8a");
+        User user = student("lena", course);
+        unlock(course, "algorithmen");
+        PublishedTask search = contentService.publishedTask("algorithmen", "a5");
+        // Nur die sichtbare Ausgabe nachdrucken reicht nicht: versteckte Tests rufen die Funktion anders auf
+        postAs(as(user), url(search) + "/submit", Map.of("code", "def binaere_suche(liste, ziel):\n    return 5\nprint(5)\nprint(-1)\n"))
+                .andExpect(jsonPath("$.isCorrect").value(false))
+                .andExpect(jsonPath("$.outcome").value("PARTIAL"));
+        postAs(as(user), url(search) + "/submit", Map.of("code", "import socket\nsocket.create_connection(('1.1.1.1', 80), timeout=1)\n"))
+                .andExpect(jsonPath("$.isCorrect").value(false));
+        postAs(as(user), url(search) + "/submit", sample(search, user))
+                .andExpect(jsonPath("$.isCorrect").value(true));
+        assertTrue(points(user) > 0);
+    }
+
+    @Test
+    void onlyTeachersMayRunCodeFromTheEditor(@Autowired CodeRunner runner) throws Exception {
+        User user = student("lena", course("8a"));
+        Map<String, Object> request = Map.of("code", "print(input() * 2)", "tests", List.of(Map.of("stdin", "ab")));
+        postAs(as(user), "/api/admin/content/run-solution", request).andExpect(status().isForbidden());
+        var result = postAs(teacher(), "/api/admin/content/run-solution", request).andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(runner.available()));
+        if (runner.available()) result.andExpect(jsonPath("$.outputs[0].stdout").value("abab\n"));
     }
 }

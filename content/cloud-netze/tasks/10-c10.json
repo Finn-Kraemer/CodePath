@@ -16,8 +16,18 @@
     "starterCode": "def http_get(host, pfad):\n    # HTTP GET Format:\n    # GET /pfad HTTP/1.1\\r\\n\n    # Host: hostname\\r\\n\n    # Connection: close\\r\\n\n    # \\r\\n  (Leerzeile = Ende der Header)\n    pass\n\nresult = http_get('www.schule.de', '/stundenplan')\nprint(result)",
     "tests": [
       {
-        "expectedOutput": "GET /stundenplan HTTP/1.1\r\nHost: www.schule.de\r\nConnection: close\r\n\r\n\n"
+        "expectedOutput": "GET /stundenplan HTTP/1.1\nHost: www.schule.de\nConnection: close\n\n\n",
+        "hidden": false
+      },
+      {
+        "append": "print(http_get('example.org', '/'))",
+        "expectedOutput": "GET /stundenplan HTTP/1.1\nHost: www.schule.de\nConnection: close\n\n\nGET / HTTP/1.1\nHost: example.org\nConnection: close\n\n\n"
+      },
+      {
+        "append": "print(repr(http_get('api.test', '/v1/noten?klasse=8a')))",
+        "expectedOutput": "GET /stundenplan HTTP/1.1\nHost: www.schule.de\nConnection: close\n\n\n'GET /v1/noten?klasse=8a HTTP/1.1\\r\\nHost: api.test\\r\\nConnection: close\\r\\n\\r\\n'\n"
       }
-    ]
+    ],
+    "solution": "def http_get(host, pfad):\n    return f'GET {pfad} HTTP/1.1\\r\\nHost: {host}\\r\\nConnection: close\\r\\n\\r\\n'\n\nresult = http_get('www.schule.de', '/stundenplan')\nprint(result)\n"
   }
 }

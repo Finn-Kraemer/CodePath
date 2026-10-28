@@ -23,8 +23,20 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: maven
+      # Code-Runner direkt auf dem CI-Rechner, damit auch die Code-Aufgaben im Probelauf wirklich laufen.
+      # Ubuntu 24.04 sperrt user namespaces für unprivilegierte Prozesse; bubblewrap braucht sie.
+      - name: Code-Runner starten
+        working-directory: runner
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          sudo apt-get install -y --no-install-recommends bubblewrap
+          RUNNER_TOKEN=ci-runner-token-123456 RUNNER_PORT=8765 sudo -E python3 -I runner.py &
+          timeout 30 bash -c 'until curl -sf localhost:8765/health; do sleep 1; done'
       # Testcontainers startet PostgreSQL über den Docker-Daemon des Runners
       - name: Tests
+        env:
+          CODEPATH_RUNNER_URL: http://localhost:8765
+          CODEPATH_RUNNER_TOKEN: ci-runner-token-123456
         run: ./mvnw -B verify
       # OpenApiExportTest schreibt die API-Beschreibung neu; sie muss eingecheckt sein
       - name: API-Beschreibung aktuell
@@ -71,15 +83,32 @@ jobs:
       - name: Schema-Validierung
         run: python content/validate.py
 
+  runner:
+    name: Code-Runner (Angriffe auf die Sandbox)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Image bauen
+        run: docker build -t codepath-runner:ci runner
+      - name: Sandbox-Tests im gehärteten Container
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          docker run --rm -e RUNNER_TOKEN=ci-runner-token-123456 --read-only --tmpfs /tmp \
+            --cap-drop ALL --cap-add SETUID --cap-add SETGID --cap-add KILL \
+            --security-opt no-new-privileges:true --security-opt seccomp=unconfined --security-opt apparmor=unconfined \
+            --pids-limit 256 --network none codepath-runner:ci python -m unittest -v test_runner
+
   e2e:
     name: Docker-Image + End-to-End-Test
     runs-on: ubuntu-latest
-    needs: [backend, frontend]
+    needs: [backend, frontend, runner]
     steps:
       - uses: actions/checkout@v4
       - name: Stack mit frisch gebautem Image starten
         run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           printf 'POSTGRES_PASSWORD=ci-postgres\nADMIN_SEED_PASSWORD=ci-admin-passwort\n' > .env
+          printf 'COMPOSE_PROFILES=runner\nCODEPATH_RUNNER_URL=http://runner:8000\nRUNNER_TOKEN=ci-runner-token-123456\n' >> .env
           docker compose up -d --build --wait
       - uses: pnpm/action-setup@v4
         with:
@@ -100,4 +129,4 @@ jobs:
           pnpm test:e2e
       - name: Logs bei Fehler
         if: failure()
-        run: docker compose logs app
+        run: docker compose logs app runner

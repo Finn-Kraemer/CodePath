@@ -132,6 +132,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/content/run-solution': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['runSolution'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/content/tasks/{id}': {
 		parameters: {
 			query?: never;
@@ -1247,6 +1263,16 @@ export interface components {
 			comment?: string;
 			lockTask?: boolean;
 		};
+		RunSolutionRequest: {
+			code?: string;
+			tests?: {
+				[key: string]: unknown;
+			}[];
+		};
+		SolutionRun: {
+			available: boolean;
+			outputs: components['schemas']['TestOutput'][];
+		};
 		SseEmitter: {
 			/** Format: int64 */
 			timeout: number;
@@ -1516,6 +1542,11 @@ export interface components {
 			title: string;
 			type: string;
 		};
+		TestOutput: {
+			status: string;
+			stderr: string;
+			stdout: string;
+		};
 		VersionRow: {
 			/** Format: int64 */
 			createdBy: number;
@@ -1721,6 +1752,30 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['TaskEditorView'];
+				};
+			};
+		};
+	};
+	runSolution: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['RunSolutionRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['SolutionRun'];
 				};
 			};
 		};

@@ -16,8 +16,18 @@
     "starterCode": "def tier_klassifizieren(hat_fluegel, ist_saeugetier, lebt_im_wasser):\n    # Regeln (Entscheidungsbaum):\n    # hat_fluegel=True, ist_saeugetier=False → 'Vogel'\n    # hat_fluegel=True, ist_saeugetier=True  → 'Fledermaus'\n    # lebt_im_wasser=True, ist_saeugetier=True  → 'Delphin'\n    # lebt_im_wasser=True, ist_saeugetier=False → 'Fisch'\n    # Alle anderen Fälle → 'Hund'\n    pass\n\nprint(tier_klassifizieren(True, False, False))   # → Vogel\nprint(tier_klassifizieren(True, True, False))    # → Fledermaus\nprint(tier_klassifizieren(False, True, True))    # → Delphin\nprint(tier_klassifizieren(False, False, True))   # → Fisch\nprint(tier_klassifizieren(False, True, False))   # → Hund",
     "tests": [
       {
-        "expectedOutput": "Vogel\nFledermaus\nDelphin\nFisch\nHund\n"
+        "expectedOutput": "Vogel\nFledermaus\nDelphin\nFisch\nHund\n",
+        "hidden": false
+      },
+      {
+        "append": "print(tier_klassifizieren(True, False, True))\nprint(tier_klassifizieren(True, True, True))",
+        "expectedOutput": "Vogel\nFledermaus\nDelphin\nFisch\nHund\nVogel\nFledermaus\n"
+      },
+      {
+        "append": "print(tier_klassifizieren(False, False, False))\nprint(tier_klassifizieren(False, True, True))",
+        "expectedOutput": "Vogel\nFledermaus\nDelphin\nFisch\nHund\nHund\nDelphin\n"
       }
-    ]
+    ],
+    "solution": "def tier_klassifizieren(hat_fluegel, ist_saeugetier, lebt_im_wasser):\n    if hat_fluegel:\n        return 'Fledermaus' if ist_saeugetier else 'Vogel'\n    if lebt_im_wasser:\n        return 'Delphin' if ist_saeugetier else 'Fisch'\n    return 'Hund'\n\nprint(tier_klassifizieren(True, False, False))   # → Vogel\nprint(tier_klassifizieren(True, True, False))    # → Fledermaus\nprint(tier_klassifizieren(False, True, True))    # → Delphin\nprint(tier_klassifizieren(False, False, True))   # → Fisch\nprint(tier_klassifizieren(False, True, False))   # → Hund\n"
   }
 }

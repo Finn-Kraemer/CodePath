@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Config: { starterCode, tests: [{stdin?, expectedOutput, hidden?}], solution? }
+ * Config: { starterCode, tests: [{stdin?, append?, expectedOutput, hidden?}], solution }
  * Antwort: { code }
  * Bewertung nur mit Code-Runner (ADR-4); ohne Runner ist die Aufgabe eine Übung ohne Punkte.
  */
@@ -29,7 +29,11 @@ public class CodeHandler implements TaskHandler {
 
     @Override
     public List<String> validate(Map<String, Object> config, int points) {
-        return CodeTests.validate(config);
+        List<String> problems = new java.util.ArrayList<>(CodeTests.validate(config));
+        if (Cfg.string(config, "solution", "").isBlank()) {
+            problems.add("Musterlösung fehlt – ohne sie lassen sich die Testfälle nicht im Probelauf prüfen");
+        }
+        return problems;
     }
 
     @Override
@@ -58,6 +62,15 @@ public class CodeHandler implements TaskHandler {
                     "Gespeichert. Code-Aufgaben sind auf diesem Server eine Übung ohne Punkte.", Map.of());
         }
         return CodeTests.run(runner, code, spec.config());
+    }
+
+    /** Für den Editor: Code so ausführen, wie ein Testfall ihn ausführen würde. */
+    public CodeRunner.RunResult runAsTest(String code, Map<String, Object> test) {
+        return runner.run(CodeTests.program(code, test), Cfg.string(test, "stdin", ""));
+    }
+
+    public boolean graded() {
+        return runner.available();
     }
 
     @Override

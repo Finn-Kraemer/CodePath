@@ -41,8 +41,8 @@ content/
 |---|---|
 | `MULTIPLE_CHOICE` | `options: [{id, text, explanation?}]`, `correct: [id]`, `multiple?`, `keepOrder?` |
 | `FILL_BLANK` | `template` mit `___` je Lücke, `blanks: [{answers: [...], caseSensitive?, options?}]` |
-| `FILL_CODE` | wie `FILL_BLANK`, dazu `tests: [{stdin?, expectedOutput, hidden?}]` |
-| `CODE` | `starterCode`, `solution`, `tests: [{stdin?, expectedOutput, hidden?}]` – Tests sind versteckt, solange nicht `hidden: false` |
+| `FILL_CODE` | wie `FILL_BLANK`, dazu `tests: [{stdin?, append?, expectedOutput, hidden?}]` |
+| `CODE` | `starterCode`, `solution` (Pflicht), `tests: [{stdin?, append?, expectedOutput, hidden?}]` – Tests sind versteckt, solange nicht `hidden: false`; `append` wird an die Abgabe angehängt. Erwartete Ausgaben am besten mit `tools/code_tasks.py` oder im Editor aus der Musterlösung erzeugen. |
 | `SORTING` | `items: [{id, text}]`, `correctOrder: [id]` (Schüler bekommen die Elemente gemischt) |
 | `SQL` | `schemaSql`, `solutionSql` (ein SELECT), `starterSql?`, `orderMatters?` |
 | `TERMINAL` | `initialDirectories?`, `initialFiles?`, `expectedDirectories`, `expectedFiles`, `expectedContents?`, `allowExtra?` |

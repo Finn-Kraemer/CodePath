@@ -190,6 +190,7 @@ class HandlersTest {
             public RunResult run(String code, String stdin) {
                 // Simuliert ein Programm, das die Eingabe verdoppelt ausgibt
                 if (code.contains("while True")) return new RunResult(RunResult.Status.TIMEOUT, "", "");
+                if (code.contains("verdoppeln") && code.endsWith("noch_einmal()\n")) return new RunResult(RunResult.Status.OK, "7\n", "");
                 if (code.contains("verdoppeln")) return new RunResult(RunResult.Status.OK, String.valueOf(Integer.parseInt(stdin.strip()) * 2) + "\n", "");
                 return new RunResult(RunResult.Status.OK, "42\n", "");
             }
@@ -208,6 +209,15 @@ class HandlersTest {
             assertEquals(Evaluation.Outcome.WRONG, handler.evaluate(spec, Map.of("code", "while True: pass"), CONTEXT).outcome());
             // Ausgabe melden wie früher bringt nichts
             assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("output", "42"), CONTEXT).outcome());
+        }
+
+        @Test
+        void appendedCallsRunAfterTheStudentCode() {
+            TaskSpec withAppend = spec(TaskType.CODE, 10, Map.of("starterCode", "", "solution", "verdoppeln", "tests", List.of(
+                    Map.of("append", "noch_einmal()", "expectedOutput", "7"))));
+            assertTrue(new CodeHandler(fakeRunner).evaluate(withAppend, Map.of("code", "verdoppeln"), CONTEXT).isCorrect());
+            assertTrue(new CodeHandler(fakeRunner).validate(withAppend.config(), 10).isEmpty());
+            assertFalse(new CodeHandler(fakeRunner).validate(spec.config(), 10).isEmpty(), "Ohne Musterlösung kein Probelauf");
         }
 
         @Test
