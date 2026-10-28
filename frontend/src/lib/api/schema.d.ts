@@ -1754,6 +1754,8 @@ export interface components {
 			totalTasks: number;
 		};
 		NavLink: {
+			description: string;
+			showInNav: boolean;
 			slug: string;
 			title: string;
 		};
@@ -1763,6 +1765,7 @@ export interface components {
 			published: components['schemas']['JsonNode'];
 		};
 		PageSettings: {
+			description: string;
 			showInNav: boolean;
 			slug: string;
 			title: string;
@@ -1771,6 +1774,7 @@ export interface components {
 		};
 		PageSummary: {
 			changed: boolean;
+			description: string;
 			/** Format: int64 */
 			id: number;
 			published: boolean;

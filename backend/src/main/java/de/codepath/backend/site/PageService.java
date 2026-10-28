@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PageService implements MediaUsage {
 
-    public record PageSummary(Long id, String slug, String title, Page.Visibility visibility, boolean showInNav,
+    public record PageSummary(Long id, String slug, String title, String description, Page.Visibility visibility, boolean showInNav,
                               boolean published, boolean changed, LocalDateTime updatedAt) {
     }
 
@@ -35,10 +35,11 @@ public class PageService implements MediaUsage {
     public record PublicPage(String slug, String title, JsonNode content) {
     }
 
-    public record NavLink(String slug, String title) {
+    /** Veröffentlichte Seite für Menü und Übersicht; showInNav: zusätzlich direkt in der Menüleiste */
+    public record NavLink(String slug, String title, String description, boolean showInNav) {
     }
 
-    public record PageSettings(String title, String slug, Page.Visibility visibility, Boolean showInNav) {
+    public record PageSettings(String title, String slug, String description, Page.Visibility visibility, Boolean showInNav) {
     }
 
     private final PageRepository repository;
@@ -73,6 +74,11 @@ public class PageService implements MediaUsage {
         Page page = get(id);
         if (settings.title() != null) page.setTitle(Slugs.title(settings.title()));
         if (settings.slug() != null) page.setSlug(uniqueSlug(Slugs.require(settings.slug()), page.getId()));
+        if (settings.description() != null) {
+            String description = settings.description().strip();
+            if (description.length() > 300) throw ApiException.badRequest("Die Kurzbeschreibung ist zu lang (höchstens 300 Zeichen).");
+            page.setDescription(description);
+        }
         if (settings.visibility() != null) page.setVisibility(settings.visibility());
         if (settings.showInNav() != null) page.setShowInNav(settings.showInNav());
         page.setUpdatedAt(LocalDateTime.now());
@@ -136,12 +142,13 @@ public class PageService implements MediaUsage {
         return new PublicPage(page.getSlug(), page.getTitle(), blockContent.read(page.getPublished()));
     }
 
+    /** Alle veröffentlichten Seiten, die diese Person sehen darf – für das Seiten-Menü und die Übersicht. */
     @Transactional(readOnly = true)
     public List<NavLink> navigation(boolean loggedIn) {
         return repository.findAllByOrderByPositionAscIdAsc().stream()
-                .filter(p -> p.isShowInNav() && p.getPublished() != null)
+                .filter(p -> p.getPublished() != null)
                 .filter(p -> loggedIn || p.getVisibility() == Page.Visibility.PUBLIC)
-                .map(p -> new NavLink(p.getSlug(), p.getTitle()))
+                .map(p -> new NavLink(p.getSlug(), p.getTitle(), p.getDescription(), p.isShowInNav()))
                 .toList();
     }
 
@@ -175,7 +182,7 @@ public class PageService implements MediaUsage {
     }
 
     private static PageSummary summary(Page page) {
-        return new PageSummary(page.getId(), page.getSlug(), page.getTitle(), page.getVisibility(), page.isShowInNav(),
+        return new PageSummary(page.getId(), page.getSlug(), page.getTitle(), page.getDescription(), page.getVisibility(), page.isShowInNav(),
                 page.getPublished() != null, !page.getDraft().equals(page.getPublished()), page.getUpdatedAt());
     }
 }

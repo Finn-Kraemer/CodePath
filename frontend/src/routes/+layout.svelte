@@ -22,7 +22,11 @@
 		// Public pages that don't need auth
 		// Eigene Seiten prüft der Server selbst (öffentlich oder nur angemeldet)
 		const isPublicPage =
-			path === '/login' || path === '/register' || path === '/' || path.startsWith('/seiten/');
+			path === '/login' ||
+			path === '/register' ||
+			path === '/' ||
+			path === '/seiten' ||
+			path.startsWith('/seiten/');
 
 		if (!auth.isAuthenticated && !isPublicPage) {
 			goto('/login');
@@ -87,11 +91,22 @@
 		{ name: 'Rangliste', path: '/leaderboard' }
 	];
 
-	// Feste Menüpunkte für Angemeldete, dazu die eigenen Seiten der Lehrkraft (öffentliche auch ohne Login)
+	// Feste Menüpunkte für Angemeldete, dazu angeheftete eigene Seiten (öffentliche auch ohne Login).
+	// Alle übrigen Seiten stehen im Aufklappmenü „Seiten“ und unter /seiten.
 	const allLinks = $derived([
 		...(auth.isAuthenticated ? navLinks : []),
-		...siteNavigation.links.map((l) => ({ name: l.title, path: `/seiten/${l.slug}` }))
+		...siteNavigation.links
+			.filter((l) => l.showInNav)
+			.map((l) => ({ name: l.title, path: `/seiten/${l.slug}` }))
 	]);
+	let pagesMenuOpen = $state(false);
+	let pagesMenu = $state<HTMLElement | null>(null);
+
+	// Aufklappmenü beim Seitenwechsel schließen
+	$effect(() => {
+		void page.url.pathname;
+		pagesMenuOpen = false;
+	});
 
 	// Helpers for special layouts
 	let isFrontpage = $derived(page.url.pathname === '/' || page.url.pathname.startsWith('/seiten/'));
@@ -101,6 +116,15 @@
 <svelte:head>
 	<title>CodePath | IT Berufsorientierung</title>
 </svelte:head>
+
+<svelte:window
+	onclick={(e) => {
+		if (pagesMenuOpen && pagesMenu && !pagesMenu.contains(e.target as Node)) pagesMenuOpen = false;
+	}}
+	onkeydown={(e) => {
+		if (e.key === 'Escape') pagesMenuOpen = false;
+	}}
+/>
 
 <div class="flex min-h-screen flex-col bg-white text-slate-900">
 	<!-- Official Header / Sticky Nav -->
@@ -144,7 +168,7 @@
 						</a>
 
 						<!-- Desktop Nav -->
-						{#if allLinks.length}
+						{#if allLinks.length || siteNavigation.links.length}
 							<div class="hidden h-10 w-px bg-slate-200 md:block"></div>
 							<div class="hidden space-x-6 lg:flex">
 								{#each allLinks as link (link.path)}
@@ -163,6 +187,67 @@
 										{/if}
 									</a>
 								{/each}
+								{#if siteNavigation.links.length}
+									<div class="relative" bind:this={pagesMenu}>
+										<button
+											type="button"
+											class="relative flex items-center gap-1 py-2 text-[10px] font-black tracking-widest uppercase transition-all {isActive(
+												'/seiten'
+											)
+												? 'text-institutional-navy'
+												: 'text-slate-500 hover:text-institutional-navy'}"
+											aria-expanded={pagesMenuOpen}
+											aria-haspopup="true"
+											onclick={() => (pagesMenuOpen = !pagesMenuOpen)}
+										>
+											Seiten
+											<svg
+												class="h-3 w-3"
+												viewBox="0 0 20 20"
+												fill="currentColor"
+												aria-hidden="true"
+												><path
+													fill-rule="evenodd"
+													d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+													clip-rule="evenodd"
+												/></svg
+											>
+										</button>
+										{#if pagesMenuOpen}
+											<div
+												class="absolute top-full left-0 z-50 mt-3 w-72 border border-slate-200 bg-white py-2 shadow-xl"
+												role="menu"
+											>
+												{#each siteNavigation.links as link (link.slug)}
+													<a
+														href={`/seiten/${link.slug}`}
+														role="menuitem"
+														class="block px-4 py-2 hover:bg-slate-50 {isActive(
+															`/seiten/${link.slug}`
+														)
+															? 'border-l-4 border-institutional-gold'
+															: ''}"
+													>
+														<span class="block text-xs font-bold text-institutional-navy"
+															>{link.title}</span
+														>
+														{#if link.description}
+															<span class="block truncate text-[11px] text-slate-500"
+																>{link.description}</span
+															>
+														{/if}
+													</a>
+												{/each}
+												<a
+													href="/seiten"
+													role="menuitem"
+													class="mt-2 block border-t border-slate-100 px-4 pt-3 pb-1 text-[10px] font-black tracking-widest text-institutional-gold uppercase hover:underline"
+													>Alle Seiten im Überblick →</a
+												>
+											</div>
+										{/if}
+									</div>
+								{/if}
 							</div>
 						{/if}
 					</div>
@@ -237,6 +322,14 @@
 							</button>
 						{:else}
 							<div class="flex items-center gap-4">
+								{#if siteNavigation.links.length}
+									<!-- Auf kleinen Bildschirmen fehlt die Menüleiste: Link zur Seitenübersicht -->
+									<a
+										href="/seiten"
+										class="text-[10px] font-black tracking-widest text-slate-500 uppercase hover:text-institutional-navy lg:hidden"
+										>Seiten</a
+									>
+								{/if}
 								<a
 									href="/login"
 									class="rounded-none bg-institutional-gold px-6 py-2.5 text-[10px] font-black tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90"
@@ -268,6 +361,18 @@
 								{link.name}
 							</a>
 						{/each}
+						{#if siteNavigation.links.length}
+							<a
+								href="/seiten"
+								onclick={() => (mobileMenuOpen = false)}
+								class="px-4 py-3 text-[11px] font-black tracking-[2px] uppercase {page.url
+									.pathname === '/seiten'
+									? 'border-l-4 border-institutional-gold bg-slate-50 text-institutional-navy'
+									: 'text-slate-500'}"
+							>
+								Seiten
+							</a>
+						{/if}
 
 						<div class="my-4 h-px bg-slate-100"></div>
 

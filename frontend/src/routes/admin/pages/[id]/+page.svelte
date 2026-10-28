@@ -10,6 +10,7 @@
 	let summary = $state<PageSummary | null>(null);
 	let title = $state('');
 	let slug = $state('');
+	let description = $state('');
 	let visibility = $state<'PUBLIC' | 'LOGGED_IN'>('LOGGED_IN');
 	let showInNav = $state(false);
 	let settingsMessage = $state('');
@@ -26,6 +27,7 @@
 		summary = p;
 		title = p.title;
 		slug = p.slug;
+		description = p.description;
 		visibility = p.visibility;
 		showInNav = p.showInNav;
 	}
@@ -41,7 +43,7 @@
 			apply(
 				await api<PageSummary>(`/api/admin/pages/${id}`, {
 					method: 'PUT',
-					body: { title, slug, visibility, showInNav }
+					body: { title, slug, description, visibility, showInNav }
 				})
 			);
 			settingsMessage = 'Einstellungen gespeichert.';
@@ -113,6 +115,10 @@
 							pattern="[a-z0-9]+(-[a-z0-9]+)*"
 						/>
 					</label>
+					<label class="ed-label sm:col-span-2"
+						>Kurzbeschreibung (für Menü und Seitenübersicht)
+						<input class="ed-input" bind:value={description} maxlength="300" />
+					</label>
 					<label class="ed-label"
 						>Wer darf die Seite sehen?
 						<select class="ed-input" bind:value={visibility}>
@@ -122,7 +128,7 @@
 					</label>
 					<label class="flex items-center gap-2 self-end pb-2 text-sm text-slate-700">
 						<input type="checkbox" bind:checked={showInNav} />
-						Im Menü anzeigen (sobald veröffentlicht)
+						Zusätzlich direkt in der Menüleiste anzeigen
 					</label>
 					<div class="flex items-center gap-4 sm:col-span-2">
 						<button class="ed-button bg-white">Einstellungen speichern</button>

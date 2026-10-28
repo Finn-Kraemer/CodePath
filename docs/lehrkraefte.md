@@ -69,7 +69,7 @@ Jede Aufgabe hat eine kurze Geschichte, einen Auftrag und ein Lernziel. Pro Aufg
 
 ### Eigene Seiten
 
-**Leitstand → Seiten.** Neue Seiten wie „Anfahrt“, „Ablauf“ oder „Kontakt“ anlegen: Titel eingeben, die Adresse (`/seiten/…`) wird vorgeschlagen. Bearbeitet wird mit demselben Abschnitts-Editor wie die Startseite, ebenfalls mit Entwurf und *Veröffentlichen*. In den Einstellungen jeder Seite legst du fest, ob sie **nur für Angemeldete** oder **für alle** sichtbar ist und ob sie **im Menü** erscheint; die Reihenfolge im Menü stellst du in der Seitenliste mit ↑/↓ ein. *Offline nehmen* versteckt eine Seite wieder, ohne den Entwurf zu verlieren.
+**Leitstand → Seiten.** Neue Seiten wie „Anfahrt“, „Ablauf“ oder „Kontakt“ anlegen: Titel eingeben, die Adresse (`/seiten/…`) wird vorgeschlagen. Bearbeitet wird mit demselben Abschnitts-Editor wie die Startseite, ebenfalls mit Entwurf und *Veröffentlichen*. Jede veröffentlichte Seite erscheint automatisch im Aufklappmenü **„Seiten“** in der Menüleiste und in der **Seitenübersicht** (`/seiten`, mit Kurzbeschreibung als Kachel). In den Einstellungen jeder Seite legst du fest, ob sie **nur für Angemeldete** oder **für alle** sichtbar ist, gibst ihr eine Kurzbeschreibung und kannst sie **zusätzlich direkt in die Menüleiste** holen; die Reihenfolge stellst du in der Seitenliste mit ↑/↓ ein. *Offline nehmen* versteckt eine Seite wieder, ohne den Entwurf zu verlieren.
 
 ### Wissensdatenbank bearbeiten
 

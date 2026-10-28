@@ -24,6 +24,10 @@ public class Page {
     @Column(nullable = false)
     private String title;
 
+    /** Kurzbeschreibung für die Seitenübersicht */
+    @Column(nullable = false)
+    private String description = "";
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Visibility visibility = Visibility.LOGGED_IN;

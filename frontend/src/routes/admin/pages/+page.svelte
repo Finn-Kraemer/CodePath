@@ -83,8 +83,10 @@
 		</h1>
 		<p class="mt-3 max-w-2xl text-sm text-slate-500">
 			Eigene Seiten wie „Anfahrt“, „Ablauf“ oder „Kontakt“ – aufgebaut aus denselben Abschnitten wie
-			die <a href="/admin/homepage" class="underline">Startseite</a>. Sie erscheinen unter
-			<code>/seiten/…</code> und auf Wunsch im Menü.
+			die <a href="/admin/homepage" class="underline">Startseite</a>. Veröffentlichte Seiten
+			erscheinen im Menü unter „Seiten“ und in der
+			<a href="/seiten" class="underline">Übersicht</a>; einzelne kannst du zusätzlich direkt in die
+			Menüleiste holen.
 		</p>
 	</header>
 
@@ -149,7 +151,8 @@
 						<span class="bg-slate-100 px-2 py-1 text-slate-500"
 							>{page.visibility === 'PUBLIC' ? 'Öffentlich' : 'Nur angemeldet'}</span
 						>
-						{#if page.showInNav}<span class="bg-amber-50 px-2 py-1 text-amber-700">Im Menü</span
+						{#if page.showInNav}<span class="bg-amber-50 px-2 py-1 text-amber-700"
+								>In der Menüleiste</span
 							>{/if}
 					</div>
 					<div class="flex gap-1">
