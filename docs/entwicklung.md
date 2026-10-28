@@ -25,7 +25,7 @@ CodePath ist ein **modularer Monolith** ([ADR-1](adr/0001-modularer-monolith-ohn
 | `engine` | Aufgabentypen (`TaskHandler`), Bewertung, Regeln, Code-Runner-Anbindung, Browser-Labor – **kennt kein anderes Fachpaket** |
 | `progress` | Fortschritt, Versuche, Punkte-Journal, Schüler-API, Rangliste, Statistik, Labor-Auslieferung |
 | `review` | Praxisabgaben mit Rubrik-Bewertung |
-| `classroom` | Modulfreigaben und Fristen je Kurs, Mitteilungen, Feedback |
+| `classroom` | Freigaben von Modulen und einzelnen Aufgaben, Fristen je Kurs (`AccessPolicy`), Mitteilungen, Feedback |
 | `report` | Teilnahmebestätigungen als PDF |
 | `platform` | Fehlerbehandlung, Audit-Log, Einstellungen, Server-Sent Events, Auslieferung des Frontends |
 
@@ -52,6 +52,7 @@ Browser ──POST /api/modules/{modul}/{aufgabe}/submit {antwort}──▶ Stud
 | `modules`, `tasks` | Struktur; `tasks.current_version_id` zeigt auf die veröffentlichte Version |
 | `task_versions` | unveränderliche Fassungen (Texte, Konfiguration, Regeln); Entwürfe haben kein `published_at` |
 | `courses`, `memberships`, `module_releases` | Kurse, Zugehörigkeit, Freigaben und Fristen je Kurs |
+| `task_releases` | Abweichungen einzelner Aufgaben je Kurs (`SHOWN`/`HIDDEN`); ohne Eintrag gilt das Modul |
 | `progress`, `attempts` | Status je Person und Aufgabe, jeder Versuch mit Antwort und Version |
 | `points_entries` | Punkte-Journal; der Punktestand ist die Summe |
 | `practice_reviews` | Rubrik-Bewertung von Praxisabgaben |
@@ -96,7 +97,7 @@ cd runner && RUNNER_TOKEN=lokal-lokal-lokal-1 RUNNER_PORT=8765 python3 -I runner
 | `python content/validate.py` | Content-Pakete gegen das JSON-Schema, Bilder, Lücken, Rubriken |
 | `cd runner && python -m unittest test_runner` | Angriffe auf die Sandbox |
 
-Wichtige Testklassen: `SecurityCatalogTest` (keine Lösung im Browser, Zugriffsregeln, Punkte genau einmal), `ContentPackagesTest` (Probelauf jeder mitgelieferten Aufgabe), `BrowserLabTest` (jedes Labor-Szenario durchgespielt), `LegacyMigrationTest` (Migrationen mit Altdaten).
+Wichtige Testklassen: `TaskReleaseTest` (Freigaben einzelner Aufgaben bis zur Bestätigung), `SecurityCatalogTest` (keine Lösung im Browser, Zugriffsregeln, Punkte genau einmal), `ContentPackagesTest` (Probelauf jeder mitgelieferten Aufgabe), `BrowserLabTest` (jedes Labor-Szenario durchgespielt), `LegacyMigrationTest` (Migrationen mit Altdaten).
 
 Die CI (`.github/workflows/ci.yml`) führt all das auf jedem Pull Request aus, startet dafür den echten Code-Runner und testet zum Schluss das gebaute Docker-Image mit Playwright.
 

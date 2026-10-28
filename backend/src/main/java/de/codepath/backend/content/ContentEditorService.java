@@ -271,6 +271,23 @@ public class ContentEditorService {
         return view(taskId);
     }
 
+    /** Neue Reihenfolge der Aufgaben eines Moduls; die Liste muss jede Aufgabe des Moduls genau einmal enthalten. */
+    @Transactional
+    public List<ModuleRow> reorder(Long moduleId, List<Long> taskIds) {
+        Module module = moduleRepository.findById(moduleId).orElseThrow(() -> ApiException.notFound("Modul nicht gefunden."));
+        List<Task> tasks = taskRepository.findByModuleWithVersion(moduleId);
+        Set<Long> expected = new HashSet<>();
+        tasks.forEach(t -> expected.add(t.getId()));
+        if (taskIds == null || taskIds.size() != expected.size() || !expected.equals(new HashSet<>(taskIds))) {
+            throw ApiException.badRequest("Die Reihenfolge muss jede Aufgabe des Moduls genau einmal enthalten – bitte neu laden.");
+        }
+        Map<Long, Task> byId = new HashMap<>();
+        tasks.forEach(t -> byId.put(t.getId(), t));
+        for (int i = 0; i < taskIds.size(); i++) byId.get(taskIds.get(i)).setSortOrder(i + 1);
+        auditService.log("TASKS_REORDERED", "module:" + module.getSlug(), Map.of("tasks", taskIds.size()));
+        return overview();
+    }
+
     @Transactional(readOnly = true)
     public DeleteImpact deleteImpact(Long taskId) {
         Task task = task(taskId);

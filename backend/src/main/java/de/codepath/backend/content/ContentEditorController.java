@@ -35,6 +35,14 @@ public class ContentEditorController {
         return editor.saveModule(id, module);
     }
 
+    public record ReorderRequest(List<Long> taskIds) {
+    }
+
+    @PutMapping("/modules/{id}/order")
+    public List<ContentEditorService.ModuleRow> reorder(@PathVariable("id") Long moduleId, @RequestBody ReorderRequest request) {
+        return editor.reorder(moduleId, request.taskIds());
+    }
+
     @PostMapping("/modules/{id}/tasks")
     public ContentEditorService.TaskEditorView createTask(@PathVariable("id") Long moduleId, @RequestBody ContentEditorService.CreateTaskRequest request) {
         return editor.createTask(moduleId, request, userService.currentUser().getId());

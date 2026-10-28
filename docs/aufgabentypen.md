@@ -13,7 +13,7 @@ CodePath kennt 15 Aufgabentypen. Alle werden **auf dem Server** bewertet: Der Br
 | `SORTING` | Sortieren | bringt Schritte per Drag & Drop in die richtige Reihenfolge | Teilpunkte nach der längsten richtig geordneten Folge |
 | `SQL` | SQL | schreibt eine `SELECT`-Abfrage gegen eine Übungsdatenbank | Ergebnis wird mit dem der Musterlösung verglichen; Reihenfolge optional egal |
 | `TERMINAL` | Terminal | arbeitet in einer simulierten Kommandozeile (`mkdir`, `cd`, `touch`, …) | der Server spielt die Befehle nach und prüft das entstandene Dateisystem |
-| `PRACTICE` | Praxis | gibt einen Freitext mit Formatierung ab | die Lehrkraft bewertet nach einer Rubrik |
+| `PRACTICE` | Praxis | gibt einen Freitext mit Formatierung ab, optional mit Python-Programm aus der Werkbank | die Lehrkraft bewertet nach einer Rubrik und kann den Code ausführen |
 | `MATCHING` | Zuordnen | ordnet Begriffe zu, rechts gibt es Ablenker | Teilpunkte je richtigem Paar |
 | `PARSONS` | Code-Puzzle | setzt ein Programm aus Bausteinen zusammen und rückt ein | richtig nur mit Reihenfolge und Einrückung; nur die Einrückung falsch: 75 %; Ablenker kosten |
 | `NUMBER_CONVERT` | Zahlensysteme | rechnet zwischen binär, oktal, dezimal und hexadezimal um | Teilpunkte je Zahl; jede Person bekommt eigene Zufallszahlen |

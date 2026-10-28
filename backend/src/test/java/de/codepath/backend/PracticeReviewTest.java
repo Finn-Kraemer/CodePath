@@ -77,4 +77,21 @@ class PracticeReviewTest extends IntegrationTestBase {
         assertEquals(0, points(user));
         assertEquals(3, jdbc.queryForObject("select count(*) from points_entries where reason = 'CORRECTION'", Integer.class));
     }
+
+    @Test
+    void practiceWithCodeEditorRequiresCodeAndShowsItInReview() throws Exception {
+        Course course = course("8a");
+        User user = student("lena", course);
+        unlock(course, "programmierung");
+        String url = "/api/modules/programmierung/p14";
+
+        getAs(as(user), url).andExpect(jsonPath("$.config.codeEditor").value(true))
+                .andExpect(jsonPath("$.config.codeRequired").value(true));
+        postAs(as(user), url + "/submit", Map.of("content", "<p>Mein Plan</p>")).andExpect(jsonPath("$.outcome").value("INVALID"));
+        postAs(as(user), url + "/submit", Map.of("content", "<p>Mein Plan</p>", "code", "print('Hallo')"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("PENDING_REVIEW"));
+
+        long reviewId = body(getAs(teacher(), "/api/admin/submissions")).get(0).get("id").asLong();
+        getAs(teacher(), "/api/admin/submissions/" + reviewId).andExpect(jsonPath("$.code").value("print('Hallo')"));
+    }
 }

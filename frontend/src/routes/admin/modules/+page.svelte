@@ -3,6 +3,7 @@
 	import { auth } from '$lib/auth.svelte';
 	import type { ModuleReleaseView } from '$lib/api';
 	import CourseSelect from '$lib/components/CourseSelect.svelte';
+	import TaskReleases from '$lib/components/TaskReleases.svelte';
 	import { courseSelection } from '$lib/courses.svelte';
 
 	type Module = ModuleReleaseView;
@@ -44,6 +45,7 @@
 			if (res.ok) {
 				const data = await res.json();
 				mod.isUnlocked = data.isUnlocked;
+				fetchModules();
 			} else {
 				alert(`Fehler beim Speichern der Einstellung (Status: ${res.status}).`);
 			}
@@ -91,7 +93,9 @@
 		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
 			Modul-Steuerung
 		</h1>
-		<p class="mt-4 text-slate-500">Module je Kurs freischalten und Fristen setzen.</p>
+		<p class="mt-4 text-slate-500">
+			Module und einzelne Aufgaben je Kurs freischalten, Fristen setzen.
+		</p>
 		<div class="mt-6"><CourseSelect onchange={fetchModules} /></div>
 	</header>
 
@@ -120,8 +124,14 @@
 								<p
 									class="mt-1 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
 								>
-									REF: {mod.slug}
+									REF: {mod.slug} · {mod.taskCount} Aufgaben · {mod.maxPoints} P.
 								</p>
+								{#if mod.adjustedTasks > 0}
+									<p class="mt-1 text-[10px] font-bold text-amber-700" data-adjusted>
+										{mod.adjustedTasks}
+										{mod.adjustedTasks === 1 ? 'Aufgabe' : 'Aufgaben'} einzeln eingestellt
+									</p>
+								{/if}
 							</div>
 						</div>
 
@@ -168,6 +178,9 @@
 							Geben Sie nur die Uhrzeit an. Das Datum wird automatisch auf den heutigen Tag gesetzt.
 						</p>
 					</div>
+					{#key courseSelection.selectedId}
+						<TaskReleases moduleId={mod.id} onchange={fetchModules} />
+					{/key}
 				</div>
 			{/each}
 		</div>

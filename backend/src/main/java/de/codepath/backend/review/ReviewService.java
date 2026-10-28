@@ -39,7 +39,7 @@ public class ReviewService {
     public record SubmissionDetail(Long id, String username, String displayName, String moduleTitle, String taskTitle,
                                    String instructions, LocalDateTime submittedAt, String content, String status,
                                    List<Criterion> rubric, Map<String, Integer> scores, Integer awardedPoints,
-                                   String comment, int hintsUsed, int maxPoints) {
+                                   String comment, int hintsUsed, int maxPoints, String code) {
     }
 
     /** Läuft in der Transaktion der Abgabe: die Bewertung entsteht zusammen mit dem Versuch. */
@@ -72,7 +72,7 @@ public class ReviewService {
                 task.version().getTitle(), Cfg.string(task.version().getConfig(), "instructions", ""), attempt.createdAt(),
                 Cfg.string(attempt.answer(), "content", ""), review.getStatus().name(), rubric(task), review.getScores(),
                 review.getAwardedPoints(), review.getComment(), progressService.hintsUsed(user.getId(), task.taskId()),
-                task.version().getPoints());
+                task.version().getPoints(), Cfg.string(attempt.answer(), "code", ""));
     }
 
     /**

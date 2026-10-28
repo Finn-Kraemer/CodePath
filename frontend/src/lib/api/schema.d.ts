@@ -116,6 +116,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/content/modules/{id}/order': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['reorder'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/content/modules/{id}/tasks': {
 		parameters: {
 			query?: never;
@@ -493,6 +509,38 @@ export interface paths {
 		};
 		get?: never;
 		put: operations['deadline'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/modules/{id}/tasks': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['moduleTasks'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/modules/{id}/tasks/{taskId}/release': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['setTaskRelease'];
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -1331,6 +1379,8 @@ export interface components {
 			title: string;
 		};
 		ModuleReleaseView: {
+			/** Format: int32 */
+			adjustedTasks: number;
 			/** Format: date-time */
 			availableUntil: string;
 			description: string;
@@ -1387,6 +1437,9 @@ export interface components {
 			comment?: string;
 			lockTask?: boolean;
 		};
+		ReorderRequest: {
+			taskIds?: number[];
+		};
 		RunSolutionRequest: {
 			code?: string;
 			tests?: {
@@ -1438,6 +1491,7 @@ export interface components {
 		SubmissionDetail: {
 			/** Format: int32 */
 			awardedPoints: number;
+			code: string;
 			comment: string;
 			content: string;
 			displayName: string;
@@ -1611,6 +1665,18 @@ export interface components {
 				| 'IMAGE_HOTSPOT'
 				| 'LOGIC_CIRCUIT'
 				| 'DEVTOOLS';
+		};
+		TaskReleaseView: {
+			/** Format: int64 */
+			id: number;
+			/** @enum {string} */
+			mode: 'SHOWN' | 'HIDDEN';
+			/** Format: int32 */
+			points: number;
+			slug: string;
+			title: string;
+			type: string;
+			visible: boolean;
 		};
 		TaskRow: {
 			archived: boolean;
@@ -1859,6 +1925,32 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['ModuleRow'];
+				};
+			};
+		};
+	};
+	reorder: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ReorderRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ModuleRow'][];
 				};
 			};
 		};
@@ -2510,6 +2602,56 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content?: never;
+			};
+		};
+	};
+	moduleTasks: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskReleaseView'][];
+				};
+			};
+		};
+	};
+	setTaskRelease: {
+		parameters: {
+			query: {
+				mode: string;
+				courseId?: number;
+			};
+			header?: never;
+			path: {
+				id: number;
+				taskId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TaskReleaseView'];
+				};
 			};
 		};
 	};

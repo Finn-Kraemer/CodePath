@@ -465,6 +465,17 @@
                     }
                   }
                 }
+              },
+              "codeEditor": {
+                "type": "boolean",
+                "description": "Python-Werkbank anbieten: Code schreiben, im Browser ausführen, mit abgeben"
+              },
+              "starterCode": {
+                "type": "string"
+              },
+              "codeRequired": {
+                "type": "boolean",
+                "description": "Abgabe nur mit Code"
               }
             }
           }

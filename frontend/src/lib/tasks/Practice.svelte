@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import PracticeEditor from '$lib/components/editor/PracticeEditor.svelte';
+	import PythonWorkbench from '$lib/components/PythonWorkbench.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import SubmitButton from './SubmitButton.svelte';
 	import { config, draftKey, type TaskProps } from './types';
@@ -9,16 +11,41 @@
 
 	type Criterion = { id: string; label: string; points: number };
 	const cfg = $derived(
-		config<{ instructions: string; submissionNote: string; rubric: Criterion[] }>(task)
+		config<{
+			instructions: string;
+			submissionNote: string;
+			rubric: Criterion[];
+			codeEditor?: boolean;
+			starterCode?: string;
+			codeRequired?: boolean;
+		}>(task)
 	);
 	const pending = $derived(task.status === 'PENDING_REVIEW');
-	const initial =
-		(task.lastAnswer?.content as string | undefined) ?? loadDraft<string>(draftKey(task)) ?? '';
+	// Startwerte einmalig beim Öffnen der Aufgabe
+	const { initial, codeKey, initialCode } = untrack(() => {
+		const codeKey = `${draftKey(task)}:code`;
+		return {
+			initial:
+				(task.lastAnswer?.content as string | undefined) ?? loadDraft<string>(draftKey(task)) ?? '',
+			codeKey,
+			initialCode:
+				(task.lastAnswer?.code as string | undefined) ??
+				loadDraft<string>(codeKey) ??
+				config<{ starterCode?: string }>(task).starterCode ??
+				''
+		};
+	});
 	let content = $state(initial);
+	let code = $state(initialCode);
+	const hasText = $derived(!!content.replace(/<[^>]*>/g, '').trim());
+	const ready = $derived(
+		cfg.codeEditor ? (hasText || !!code.trim()) && (!cfg.codeRequired || !!code.trim()) : hasText
+	);
 
 	async function send() {
-		await submit({ content });
+		await submit(cfg.codeEditor ? { content, code } : { content });
 		clearDraft(draftKey(task));
+		clearDraft(codeKey);
 	}
 </script>
 
@@ -58,9 +85,24 @@
 			}}
 		/>
 	</div>
+	{#if cfg.codeEditor}
+		<div class="mb-8">
+			<p class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+				Dein Programm{cfg.codeRequired ? ' (wird mit abgegeben)' : ' (optional)'}
+			</p>
+			<PythonWorkbench
+				{initialCode}
+				readOnly={disabled || pending}
+				onchange={(value) => {
+					code = value;
+					saveDraft(codeKey, value);
+				}}
+			/>
+		</div>
+	{/if}
 	<SubmitButton
 		{busy}
-		disabled={disabled || pending || !content.replace(/<[^>]*>/g, '').trim()}
+		disabled={disabled || pending || !ready}
 		label="Zur Bewertung einreichen"
 		onclick={send}
 	/>

@@ -63,7 +63,7 @@ test('Bild-Aufgabe mit Upload im Editor anlegen', async ({ page }) => {
 		.filter({ hasText: 'Warum brauchen wir Git?' });
 	await gitSection.getByLabel('Neue Aufgabe: Titel').fill('Finde den Monitor');
 	await gitSection.getByLabel('Slug').fill(slug);
-	await gitSection.getByLabel('Typ').selectOption('IMAGE_HOTSPOT');
+	await gitSection.getByRole('combobox').selectOption('IMAGE_HOTSPOT');
 	await gitSection.getByRole('button', { name: 'Anlegen' }).click();
 	await expect(page).toHaveURL(/\/admin\/content\/\d+/);
 

@@ -23,6 +23,11 @@ public final class TaskFiles {
                 tf.rules() != null ? tf.rules() : Map.of(), tf.config() != null ? tf.config() : Map.of());
     }
 
+    static ContentPackage.TaskFile withoutOrder(ContentPackage.TaskFile tf) {
+        return new ContentPackage.TaskFile(tf.slug(), tf.type(), tf.title(), tf.difficulty(), tf.points(), null,
+                tf.learningGoal(), tf.story(), tf.assignment(), tf.hints(), tf.explanation(), tf.rules(), tf.config());
+    }
+
     private static String nullToEmpty(String value) {
         return value == null ? "" : value;
     }

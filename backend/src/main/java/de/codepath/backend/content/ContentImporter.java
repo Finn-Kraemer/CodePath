@@ -47,8 +47,9 @@ public class ContentImporter {
     }
 
     /**
-     * @param revive true holt endgültig gelöschte Aufgaben zurück (bewusster ZIP-Import der Lehrkraft);
-     *               sonst bleiben sie gelöscht und werden übersprungen.
+     * @param revive true für einen bewussten ZIP-Import der Lehrkraft: holt endgültig gelöschte Aufgaben
+     *               zurück und übernimmt die Reihenfolge aus dem Paket. Sonst bleiben gelöschte Aufgaben
+     *               gelöscht und die im Editor festgelegte Reihenfolge erhalten.
      */
     @Transactional
     public ImportReport importBundles(List<ContentPackage.ModuleBundle> bundles, Mode mode, Long actorId, boolean revive) {
@@ -118,7 +119,9 @@ public class ContentImporter {
                     task.setType(tf.type());
                     tasksCreated++;
                 }
-                if (existingTask.isEmpty() || mode == Mode.UPDATE) {
+                // Die Reihenfolge, die die Lehrkraft im Editor festgelegt hat, überschreiben nur ihre eigenen
+                // ZIP-Importe – nicht die mitgelieferten Inhalte bei einem Update
+                if (existingTask.isEmpty() || (mode == Mode.UPDATE && revive)) {
                     task.setSortOrder(tf.sortOrder() != null ? tf.sortOrder() : 0);
                 }
                 taskRepository.save(task);
@@ -192,7 +195,9 @@ public class ContentImporter {
 
     /** Vergleich über normalisiertes JSON, damit Zahlentypen und Schlüsselreihenfolge keine Rolle spielen. */
     boolean sameContent(TaskVersion current, ContentPackage.TaskFile tf) {
-        return json(TaskFiles.fromVersion(current.getTask(), current)).equals(json(TaskFiles.normalize(tf)));
+        // Die Position gehört zur Aufgabe, nicht zur Version: umsortieren erzeugt keine neue Version
+        return json(TaskFiles.withoutOrder(TaskFiles.fromVersion(current.getTask(), current)))
+                .equals(json(TaskFiles.withoutOrder(TaskFiles.normalize(tf))));
     }
 
     private Object json(Object value) {

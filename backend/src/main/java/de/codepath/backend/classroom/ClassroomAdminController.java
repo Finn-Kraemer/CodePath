@@ -30,6 +30,26 @@ public class ClassroomAdminController {
         return releaseService.forCourse(resolveCourse(courseId));
     }
 
+    @GetMapping("/modules/{id}/tasks")
+    public List<ReleaseService.TaskReleaseView> moduleTasks(@PathVariable("id") Long moduleId,
+                                                            @RequestParam(name = "courseId", required = false) Long courseId) {
+        return releaseService.tasks(resolveCourse(courseId), moduleId);
+    }
+
+    /** mode: SHOWN, HIDDEN oder MODULE (folgt wieder dem Modul). */
+    @PutMapping("/modules/{id}/tasks/{taskId}/release")
+    public ReleaseService.TaskReleaseView setTaskRelease(@PathVariable("id") Long moduleId, @PathVariable("taskId") Long taskId,
+                                                         @RequestParam("mode") String mode,
+                                                         @RequestParam(name = "courseId", required = false) Long courseId) {
+        TaskReleaseMode parsed;
+        try {
+            parsed = "MODULE".equals(mode) ? null : TaskReleaseMode.valueOf(mode);
+        } catch (IllegalArgumentException e) {
+            throw ApiException.badRequest("mode: SHOWN, HIDDEN oder MODULE");
+        }
+        return releaseService.setTaskMode(resolveCourse(courseId), moduleId, taskId, parsed);
+    }
+
     @PutMapping("/modules/{id}/toggle")
     public Map<String, Boolean> toggle(@PathVariable("id") Long moduleId, @RequestParam(name = "courseId", required = false) Long courseId) {
         return Map.of("isUnlocked", releaseService.toggle(resolveCourse(courseId), moduleId));

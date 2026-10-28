@@ -46,7 +46,7 @@ content/
 | `SORTING` | `items: [{id, text}]`, `correctOrder: [id]` (Schüler bekommen die Elemente gemischt) |
 | `SQL` | `schemaSql`, `solutionSql` (ein SELECT), `starterSql?`, `orderMatters?` |
 | `TERMINAL` | `initialDirectories?`, `initialFiles?`, `expectedDirectories`, `expectedFiles`, `expectedContents?`, `allowExtra?` |
-| `PRACTICE` | `instructions` (Markdown), `submissionNote?`, `rubric: [{id, label, points}]` – Summe = Punkte der Aufgabe |
+| `PRACTICE` | `instructions` (Markdown), `submissionNote?`, `rubric: [{id, label, points}]` – Summe = Punkte der Aufgabe; `codeEditor?` bietet eine Python-Werkbank an (`starterCode?`, `codeRequired?`), deren Code mit der Abgabe zur Lehrkraft geht |
 | `MATCHING` | `left: [{id, text}]`, `right: [{id, text}]` (darf Ablenker enthalten), `pairs: [{left, right}]` – Teilpunkte je Paar |
 | `PARSONS` | `lines: [{id, code, indent?}]` in richtiger Reihenfolge, `distractors?: [{id, code}]`, `checkIndent?` (Standard `true`) |
 | `NUMBER_CONVERT` | `from`, `to` (2, 8, 10, 16) und entweder `min`, `max`, `count` (eigene Zufallszahlen je Person) oder feste `values` |
