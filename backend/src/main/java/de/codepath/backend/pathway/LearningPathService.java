@@ -72,9 +72,9 @@ public class LearningPathService implements PathGate {
     public record PathLink(String slug, String title, String description) {
     }
 
-    /** href: Ziel beim Anklicken, null bei gesperrten/blockierten Stationen und Meilensteinen */
+    /** href: Ziel beim Anklicken, null bei gesperrten/blockierten Stationen, Meilensteinen und Logik-Blöcken */
     public record NodeView(String id, PathGraph.NodeKind kind, String label, String icon, int x, int y, NodeState state,
-                           String href, int done, int total, boolean recommended, String reason) {
+                           String href, int done, int total, boolean recommended, String reason, Integer min) {
     }
 
     public record PathView(String slug, String title, String description, boolean enforce,
@@ -181,7 +181,7 @@ public class LearningPathService implements PathGate {
     static Map<String, Set<String>> plan(PathGraph.Graph graph) {
         Map<String, Set<String>> plan = new LinkedHashMap<>();
         for (PathGraph.Node node : graph.nodes()) {
-            if (node.kind() == PathGraph.NodeKind.MILESTONE) continue;
+            if (!node.station()) continue;
             boolean all = node.kind() == PathGraph.NodeKind.MODULE && !node.partial();
             if (plan.containsKey(node.module()) && plan.get(node.module()) == null) continue;
             if (all) {
@@ -219,7 +219,7 @@ public class LearningPathService implements PathGate {
         Map<String, Module> modules = contentService.modules().stream().collect(Collectors.toMap(Module::getSlug, Function.identity()));
         Map<String, Set<String>> tasks = new HashMap<>();
         for (PathGraph.Node node : graph.nodes()) {
-            if (node.kind() == PathGraph.NodeKind.MILESTONE) continue;
+            if (!node.station()) continue;
             Module module = modules.get(node.module());
             if (module == null) throw ApiException.badRequest("Das Modul „" + node.module() + "“ gibt es nicht.");
             Set<String> slugs = tasks.computeIfAbsent(module.getSlug(), m -> contentService.publishedTasks(module).stream()
@@ -328,7 +328,7 @@ public class LearningPathService implements PathGate {
         Map<String, List<PathGraph.Node>> taskNodes = new HashMap<>();
         Set<String> modulesInPath = new HashSet<>();
         for (PathGraph.Node node : evaluated.live().nodes()) {
-            if (node.kind() == PathGraph.NodeKind.MILESTONE) continue;
+            if (!node.station()) continue;
             modulesInPath.add(node.module());
             if (node.kind() == PathGraph.NodeKind.TASK) {
                 taskNodes.computeIfAbsent(node.module() + "/" + node.task(), k -> new ArrayList<>()).add(node);
@@ -412,23 +412,86 @@ public class LearningPathService implements PathGate {
         PathGraph.Graph live = new PathGraph.Graph(nodes, edges);
         Map<String, List<String>> predecessors = PathGraph.predecessors(live);
         Map<String, List<String>> requiredPredecessors = PathGraph.requiredPredecessors(live);
+        List<PathGraph.Node> ordered = PathGraph.order(live);
 
         Map<String, NodeState> states = new HashMap<>();
         Map<String, String> reasons = new HashMap<>();
         Map<String, Station> stations = new HashMap<>();
+        Map<String, Integer> gateDone = new HashMap<>();
+        Map<String, Integer> gateTotal = new HashMap<>();
         // clear: Station und alles davor ist erledigt oder gar nicht machbar – erst dann geht es dahinter weiter
         Set<String> clear = new HashSet<>();
-        for (PathGraph.Node node : PathGraph.order(live)) {
+        // achieved: Station ist tatsächlich erledigt (nicht nur wegen gesperrter/abgelaufener Vorgänger übersprungen)
+        Set<String> achieved = new HashSet<>();
+
+        for (PathGraph.Node node : ordered) {
             List<String> allPreds = predecessors.getOrDefault(node.id(), List.of());
             List<String> reqPreds = path.isEnforce() ? requiredPredecessors.getOrDefault(node.id(), List.of()) : List.of();
-            boolean allReady = clear.containsAll(allPreds);
-            boolean requiredReady = clear.containsAll(reqPreds);
-            if (!requiredReady) {
-                List<String> openNames = reqPreds.stream()
+            if (node.gate()) {
+                List<String> inputs = !reqPreds.isEmpty() ? reqPreds : allPreds;
+                int m = inputs.size();
+                int achievedCount = (int) inputs.stream().filter(achieved::contains).count();
+                int unfeasibleCount = (int) inputs.stream().filter(id -> clear.contains(id) && !achieved.contains(id)).count();
+                int pendingCount = m - achievedCount - unfeasibleCount;
+                gateDone.put(node.id(), achievedCount);
+                gateTotal.put(node.id(), m);
+                List<String> openNames = inputs.stream()
                         .filter(id -> !clear.contains(id))
                         .map(id -> s.label(nodeById.get(id)))
                         .toList();
-                reasons.put(node.id(), "Erst „" + String.join("“, „", openNames) + "“ abschließen.");
+                NodeState state;
+                if (node.kind() == PathGraph.NodeKind.AND) {
+                    boolean gateClear = pendingCount == 0;
+                    boolean gateAchieved = gateClear && (achievedCount > 0 || m == 0);
+                    if (gateClear) {
+                        state = NodeState.DONE;
+                        clear.add(node.id());
+                        if (gateAchieved) achieved.add(node.id());
+                        reasons.put(node.id(), "Alle Eingänge erfüllt.");
+                    } else {
+                        state = !reqPreds.isEmpty() ? NodeState.BLOCKED : NodeState.UPCOMING;
+                        reasons.put(node.id(), "Schaffe alle dieser Stationen: „" + String.join("“, „", openNames) + "“.");
+                    }
+                } else {
+                    int k = Math.min(node.min() != null ? node.min() : 1, Math.max(1, m));
+                    boolean normalMet = achievedCount >= k;
+                    boolean fallbackMet = pendingCount == 0 && achievedCount >= 1;
+                    boolean allUnfeasible = m > 0 && unfeasibleCount == m;
+                    boolean gateClear = normalMet || fallbackMet || allUnfeasible;
+                    boolean gateAchieved = normalMet || fallbackMet;
+                    if (gateClear) {
+                        state = NodeState.DONE;
+                        clear.add(node.id());
+                        if (gateAchieved) achieved.add(node.id());
+                        reasons.put(node.id(), "Bedingung erfüllt.");
+                    } else {
+                        state = !reqPreds.isEmpty() ? NodeState.BLOCKED : NodeState.UPCOMING;
+                        String explain = k <= 1
+                                ? "Schaffe eine dieser Stationen: „" + String.join("“, „", openNames) + "“."
+                                : "Schaffe mindestens " + k + " dieser Stationen: „" + String.join("“, „", openNames) + "“.";
+                        reasons.put(node.id(), explain);
+                    }
+                }
+                states.put(node.id(), state);
+                continue;
+            }
+
+            boolean allReady = clear.containsAll(allPreds);
+            boolean requiredReady = clear.containsAll(reqPreds);
+            if (!requiredReady) {
+                List<String> openPreds = reqPreds.stream().filter(id -> !clear.contains(id)).toList();
+                if (openPreds.size() == 1
+                        && nodeById.get(openPreds.getFirst()) != null
+                        && nodeById.get(openPreds.getFirst()).gate()
+                        && (nodeById.get(openPreds.getFirst()).label() == null || nodeById.get(openPreds.getFirst()).label().isBlank())
+                        && reasons.containsKey(openPreds.getFirst())) {
+                    reasons.put(node.id(), reasons.get(openPreds.getFirst()));
+                } else {
+                    List<String> openNames = openPreds.stream()
+                            .map(id -> s.label(nodeById.get(id)))
+                            .toList();
+                    reasons.put(node.id(), "Erst „" + String.join("“, „", openNames) + "“ abschließen.");
+                }
             }
             NodeState state;
             if (node.kind() == PathGraph.NodeKind.MILESTONE) {
@@ -438,6 +501,12 @@ public class LearningPathService implements PathGate {
                     state = NodeState.DONE;
                 } else {
                     state = allReady ? NodeState.DONE : NodeState.UPCOMING;
+                }
+                if (state == NodeState.DONE) {
+                    clear.add(node.id());
+                    if (allPreds.isEmpty() || allPreds.stream().anyMatch(achieved::contains)) {
+                        achieved.add(node.id());
+                    }
                 }
             } else {
                 Station station = s.station(node);
@@ -451,26 +520,35 @@ public class LearningPathService implements PathGate {
                 } else {
                     state = station.state();
                 }
+                boolean canClear = state == NodeState.DONE
+                        ? requiredReady
+                        : (path.isEnforce() && !reqPreds.isEmpty() ? requiredReady : allReady) && settled(state);
+                if (canClear) {
+                    clear.add(node.id());
+                    if (state == NodeState.DONE) achieved.add(node.id());
+                }
             }
             states.put(node.id(), state);
-            boolean canClear = state == NodeState.DONE
-                    ? requiredReady
-                    : (path.isEnforce() && !reqPreds.isEmpty() ? requiredReady : allReady) && settled(state);
-            if (canClear) clear.add(node.id());
         }
 
+        // Bei offenen ODER-Blöcken wird der Zweig mit dem meisten Fortschritt bevorzugt, bei Gleichstand nach Lage auf der Karte
+        Map<String, Integer> branchProgress = orBranchProgress(live, predecessors, states, stations);
         String recommendedId = null;
         Recommendation recommendation = null;
-        for (PathGraph.Node node : PathGraph.order(live)) {
-            Station station = stations.get(node.id());
-            if (states.get(node.id()) != NodeState.AVAILABLE || station == null || station.next() == null) continue;
-            recommendedId = node.id();
-            PublishedTask task = station.next();
-            String reason = node.kind() == PathGraph.NodeKind.TASK
+        List<PathGraph.Node> candidates = ordered.stream()
+                .filter(n -> states.get(n.id()) == NodeState.AVAILABLE && stations.get(n.id()) != null && stations.get(n.id()).next() != null)
+                .toList();
+        if (!candidates.isEmpty()) {
+            PathGraph.Node best = candidates.stream()
+                    .max(Comparator.comparingInt((PathGraph.Node n) -> branchProgress.getOrDefault(n.id(), 0))
+                            .thenComparingInt(n -> -ordered.indexOf(n)))
+                    .orElseThrow();
+            recommendedId = best.id();
+            PublishedTask task = stations.get(best.id()).next();
+            String reason = best.kind() == PathGraph.NodeKind.TASK
                     ? "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“."
                     : "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“: Modul „" + task.module().getTitle() + "“.";
             recommendation = recommendation(task, reason, path);
-            break;
         }
 
         List<NodeView> views = new ArrayList<>();
@@ -478,18 +556,66 @@ public class LearningPathService implements PathGate {
         for (PathGraph.Node node : nodes) {
             NodeState state = states.getOrDefault(node.id(), NodeState.LOCKED);
             Station station = stations.get(node.id());
-            if (node.kind() != PathGraph.NodeKind.MILESTONE) {
+            if (node.station()) {
                 total++;
                 if (state == NodeState.DONE) done++;
             }
             String href = station == null || state == NodeState.LOCKED || state == NodeState.BLOCKED ? null : station.href();
+            int nodeDone = node.gate() ? gateDone.getOrDefault(node.id(), 0) : (station == null ? 0 : station.done());
+            int nodeTotal = node.gate() ? gateTotal.getOrDefault(node.id(), 0) : (station == null ? 0 : station.total());
+            String nodeReason = node.gate() || state == NodeState.BLOCKED ? reasons.get(node.id()) : null;
             views.add(new NodeView(node.id(), node.kind(), s.label(node), s.icon(node), node.x(), node.y(), state,
-                    href, station == null ? 0 : station.done(), station == null ? 0 : station.total(),
-                    node.id().equals(recommendedId), state == NodeState.BLOCKED ? reasons.get(node.id()) : null));
+                    href, nodeDone, nodeTotal, node.id().equals(recommendedId), nodeReason, node.min()));
         }
         PathView pathView = new PathView(path.getSlug(), path.getTitle(), path.getDescription(), path.isEnforce(),
                 views, edges, done, total, recommendation);
         return new EvaluatedPath(pathView, live, nodeById, states, reasons, clear);
+    }
+
+    private static Map<String, Integer> orBranchProgress(PathGraph.Graph live, Map<String, List<String>> predecessors,
+                                                         Map<String, NodeState> states, Map<String, Station> stations) {
+        Map<String, Integer> branchProgress = new HashMap<>();
+        Map<String, PathGraph.Node> byId = live.nodes().stream()
+                .collect(Collectors.toMap(PathGraph.Node::id, Function.identity(), (a, b) -> a));
+        for (PathGraph.Node gate : live.nodes()) {
+            if (gate.kind() != PathGraph.NodeKind.OR || states.get(gate.id()) == NodeState.DONE) continue;
+            List<String> inputs = predecessors.getOrDefault(gate.id(), List.of());
+            if (inputs.size() < 2) continue;
+            List<Set<String>> branches = inputs.stream()
+                    .map(in -> branchAncestors(in, predecessors, byId))
+                    .toList();
+            Set<String> common = new HashSet<>(branches.getFirst());
+            for (Set<String> b : branches) common.retainAll(b);
+            for (Set<String> raw : branches) {
+                Set<String> branch = new HashSet<>(raw);
+                branch.removeAll(common);
+                int progress = branch.stream()
+                        .mapToInt(id -> stations.containsKey(id) ? stations.get(id).done() : 0)
+                        .sum();
+                for (String member : branch) {
+                    branchProgress.merge(member, progress, Math::max);
+                }
+            }
+        }
+        return branchProgress;
+    }
+
+    /** Vorgänger eines ODER-Zweigs bis zum nächsten inneren ODER-Gatter. */
+    private static Set<String> branchAncestors(String startId, Map<String, List<String>> predecessors,
+                                               Map<String, PathGraph.Node> byId) {
+        Set<String> visited = new LinkedHashSet<>();
+        Deque<String> stack = new ArrayDeque<>();
+        stack.push(startId);
+        while (!stack.isEmpty()) {
+            String curr = stack.pop();
+            if (!visited.add(curr)) continue;
+            PathGraph.Node node = byId.get(curr);
+            if (node != null && node.kind() == PathGraph.NodeKind.OR) continue;
+            for (String p : predecessors.getOrDefault(curr, List.of())) {
+                stack.push(p);
+            }
+        }
+        return visited;
     }
 
     /** Ein Vorgänger, der erledigt ist oder gar nicht erledigt werden kann, hält niemanden auf. */
@@ -556,7 +682,7 @@ public class LearningPathService implements PathGate {
 
         boolean exists(PathGraph.Node node) {
             return switch (node.kind()) {
-                case MILESTONE -> true;
+                case MILESTONE, AND, OR -> true;
                 case MODULE -> modules.containsKey(node.module());
                 case TASK -> task(node.module(), node.task()).isPresent();
             };
@@ -598,6 +724,11 @@ public class LearningPathService implements PathGate {
         String label(PathGraph.Node node) {
             if (node == null) return "";
             if (node.label() != null && !node.label().isBlank()) return node.label();
+            if (node.kind() == PathGraph.NodeKind.AND) return "UND-Block";
+            if (node.kind() == PathGraph.NodeKind.OR) {
+                int min = node.min() != null ? node.min() : 1;
+                return min > 1 ? "ODER-Block (mind. " + min + ")" : "ODER-Block";
+            }
             if (node.kind() == PathGraph.NodeKind.MODULE) {
                 Module m = modules.get(node.module());
                 String title = m != null ? m.getTitle() : node.module();
@@ -608,6 +739,11 @@ public class LearningPathService implements PathGate {
 
         String icon(PathGraph.Node node) {
             if (node.kind() == PathGraph.NodeKind.MILESTONE) return "🏁";
+            if (node.kind() == PathGraph.NodeKind.AND) return "&";
+            if (node.kind() == PathGraph.NodeKind.OR) {
+                int min = node.min() != null ? node.min() : 1;
+                return "≥" + min;
+            }
             Module module = modules.get(node.module());
             return module == null ? "" : module.getIcon();
         }
@@ -624,17 +760,36 @@ public class LearningPathService implements PathGate {
             AccessPolicy.Releases courseRel = accessPolicy.forCourse(p.getCourseId());
             Set<String> hasSuccessors = graph.edges().stream().map(PathGraph.Edge::from).collect(Collectors.toSet());
             Map<String, Module> modules = contentService.modules().stream().collect(Collectors.toMap(Module::getSlug, Function.identity()));
+            Set<String> unfeasibleNodes = new HashSet<>();
             for (PathGraph.Node node : graph.nodes()) {
-                if (node.kind() == PathGraph.NodeKind.MILESTONE || !hasSuccessors.contains(node.id())) continue;
+                if (!node.station()) continue;
                 Module m = modules.get(node.module());
                 if (m == null) continue;
                 List<PublishedTask> all = contentService.publishedTasks(m);
                 AccessPolicy.ModuleAccess ma = courseRel.moduleAccess(m, all);
                 String name = node.label() != null && !node.label().isBlank() ? node.label() : m.getTitle();
                 if (!ma.visible()) {
-                    result.add("Station „" + name + "“ ist im Kurs gesperrt und hält nachfolgende Stationen nicht auf.");
+                    unfeasibleNodes.add(node.id());
+                    if (hasSuccessors.contains(node.id())) {
+                        result.add("Station „" + name + "“ ist im Kurs gesperrt und hält nachfolgende Stationen nicht auf.");
+                    }
                 } else if (!ma.open()) {
-                    result.add("Station „" + name + "“: Die Bearbeitungszeit ist abgelaufen – sie hält nachfolgende Stationen nicht auf.");
+                    unfeasibleNodes.add(node.id());
+                    if (hasSuccessors.contains(node.id())) {
+                        result.add("Station „" + name + "“: Die Bearbeitungszeit ist abgelaufen – sie hält nachfolgende Stationen nicht auf.");
+                    }
+                }
+            }
+            Map<String, List<String>> preds = PathGraph.predecessors(graph);
+            for (PathGraph.Node node : graph.nodes()) {
+                if (!node.gate()) continue;
+                List<String> inputs = preds.getOrDefault(node.id(), List.of());
+                long feasible = inputs.stream().filter(id -> !unfeasibleNodes.contains(id)).count();
+                String gateName = node.label() != null && !node.label().isBlank() ? node.label() : node.id();
+                if (feasible == 0) {
+                    result.add("Logik-Block „" + gateName + "“ hat im Kurs keine machbaren Eingänge und hält nachfolgende Stationen nicht auf.");
+                } else if (node.kind() == PathGraph.NodeKind.OR && node.min() != null && feasible < node.min()) {
+                    result.add("ODER-Block „" + gateName + "“ hat nur " + feasible + " machbare Eingänge (gefordert: mindestens " + node.min() + ").");
                 }
             }
         }
@@ -684,8 +839,9 @@ public class LearningPathService implements PathGate {
     }
 
     private PathSummary summary(LearningPath p) {
+        int stations = (int) read(p.getGraph()).nodes().stream().filter(n -> !n.gate()).count();
         return new PathSummary(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(),
-                p.isEnforce(), read(p.getGraph()).nodes().size(), p.getCourseId(), courseName(p), p.getUpdatedAt());
+                p.isEnforce(), stations, p.getCourseId(), courseName(p), p.getUpdatedAt());
     }
 
     private PathAdmin admin(LearningPath p, List<String> applied) {

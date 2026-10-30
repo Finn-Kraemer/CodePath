@@ -11,7 +11,15 @@
 		type Schemas,
 		type StudentOverview
 	} from '$lib/api';
-	import { canvasSize, edgePath, layered, NODE_H, NODE_W, snap } from '$lib/pathway/geometry';
+	import {
+		canvasSize,
+		edgePath,
+		incomingSlot,
+		layered,
+		NODE_H,
+		NODE_W,
+		snap
+	} from '$lib/pathway/geometry';
 	import PathMap from '$lib/pathway/PathMap.svelte';
 	import { exportUrl } from '$lib/transfer';
 
@@ -50,11 +58,12 @@
 	let connectFrom = $state<string | null>(null);
 	let preview = $state<PathView | null>(null);
 
-	let draft = $state<{ kind: Kind; module: string; task: string; label: string }>({
+	let draft = $state<{ kind: Kind; module: string; task: string; label: string; min: number }>({
 		kind: 'MODULE',
 		module: '',
 		task: '',
-		label: ''
+		label: '',
+		min: 1
 	});
 
 	const selected = $derived(nodes.find((n) => n.id === selectedId) ?? null);
@@ -134,6 +143,7 @@
 		if (n.task) node.task = n.task;
 		if (n.kind === 'MODULE' && n.tasks?.length) node.tasks = n.tasks;
 		if (n.label) node.label = n.label;
+		if (n.kind === 'OR') node.min = Math.max(1, n.min ?? 1);
 		node.x = n.x;
 		node.y = n.y;
 		return node as unknown as PathNode;
@@ -208,6 +218,11 @@
 
 	function label(n: PathNode): string {
 		if (n.label) return n.label;
+		if (n.kind === 'AND') return 'UND-Block';
+		if (n.kind === 'OR') {
+			const min = n.min ?? 1;
+			return min > 1 ? `ODER-Block (mind. ${min})` : 'ODER-Block';
+		}
 		const module = modulesBySlug.get(n.module);
 		if (n.kind === 'MODULE') {
 			if (!module) return `⚠ ${n.module} fehlt`;
@@ -221,13 +236,17 @@
 
 	function icon(n: PathNode): string {
 		if (n.kind === 'MILESTONE') return '🏁';
+		if (n.kind === 'AND') return '&';
+		if (n.kind === 'OR') return `≥${n.min ?? 1}`;
 		return modulesBySlug.get(n.module)?.module.icon ?? '';
 	}
 
 	const KIND_LABELS: Record<Kind, string> = {
 		MODULE: 'Modul',
 		TASK: 'Aufgabe',
-		MILESTONE: 'Meilenstein'
+		MILESTONE: 'Meilenstein',
+		AND: 'Logik-Block: UND',
+		OR: 'Logik-Block: ODER'
 	};
 
 	function freeId(): string {
@@ -251,14 +270,16 @@
 			error = 'Bitte eine Aufgabe wählen.';
 			return;
 		}
+		const isStation = draft.kind === 'MODULE' || draft.kind === 'TASK';
 		const anchor = selected;
 		const node: PathNode = normalize({
 			id: freeId(),
 			kind: draft.kind,
-			module: draft.kind === 'MILESTONE' ? '' : draft.module,
+			module: isStation ? draft.module : '',
 			task: draft.kind === 'TASK' ? draft.task : '',
 			tasks: [],
-			label: draft.kind === 'MILESTONE' ? draft.label.trim() : '',
+			label: draft.label.trim(),
+			min: draft.kind === 'OR' ? Math.max(1, draft.min || 1) : undefined,
 			x: anchor ? anchor.x : 60,
 			y: anchor
 				? anchor.y + NODE_H + 70
@@ -269,6 +290,7 @@
 		if (anchor) edges = [...edges, { from: anchor.id, to: node.id, required: form.enforce }];
 		selectedId = node.id;
 		draft.label = '';
+		draft.min = 1;
 	}
 
 	/** Veröffentlichte, nicht archivierte Aufgaben eines Moduls in ihrer Reihenfolge */
@@ -694,7 +716,9 @@
 								{@const from = byId.get(edge.from)}
 								{@const to = byId.get(edge.to)}
 								{#if from && to}
-									{@const d = edgePath(from, to)}
+									{@const isGateTarget = to.kind === 'AND' || to.kind === 'OR'}
+									{@const slot = isGateTarget ? incomingSlot(edges, byId, edge) : { index: 0, count: 1 }}
+									{@const d = edgePath(from, to, slot.index, slot.count)}
 									<path
 										{d}
 										fill="none"
@@ -723,11 +747,14 @@
 							{/each}
 						</svg>
 						{#each nodes as node (node.id)}
+							{@const isGate = node.kind === 'AND' || node.kind === 'OR'}
 							<div
 								class="absolute flex cursor-grab touch-none flex-col justify-between border-2 bg-white p-3 select-none active:cursor-grabbing {node.kind ===
 								'MILESTONE'
 									? 'rounded-full border-dashed border-institutional-gold text-center'
-									: 'border-slate-300'} {selectedId === node.id
+									: isGate
+										? 'border-institutional-navy bg-slate-50'
+										: 'border-slate-300'} {selectedId === node.id
 									? 'ring-4 ring-institutional-navy/30'
 									: ''} {connectFrom === node.id ? 'ring-4 ring-institutional-gold/60' : ''}"
 								style="left: {node.x}px; top: {node.y}px; width: {NODE_W}px; height: {NODE_H}px"
@@ -742,7 +769,15 @@
 								<div
 									class="flex items-start gap-2 {node.kind === 'MILESTONE' ? 'justify-center' : ''}"
 								>
-									<span class="text-lg leading-none">{icon(node)}</span>
+									{#if isGate}
+										<span
+											class="flex h-7 w-7 shrink-0 items-center justify-center border-2 border-slate-900 bg-white font-mono text-xs font-black text-institutional-navy"
+										>
+											{icon(node)}
+										</span>
+									{:else}
+										<span class="text-lg leading-none">{icon(node)}</span>
+									{/if}
 									<span class="line-clamp-2 text-sm leading-tight font-bold text-institutional-navy"
 										>{label(node)}</span
 									>
@@ -795,15 +830,40 @@
 				{/if}
 
 				{#if selected}
+					{@const incomingCount = edges.filter((e) => e.to === selected.id).length}
 					<section
 						class="flex flex-col gap-3 border border-slate-200 bg-white p-4"
 						aria-label="Station bearbeiten"
 					>
 						<h2 class="ed-label">{KIND_LABELS[selected.kind]}</h2>
-						{#if selected.kind !== 'MILESTONE'}
+						{#if selected.kind === 'MODULE' || selected.kind === 'TASK'}
 							<p class="font-mono text-xs text-slate-500">
 								{selected.module}{selected.task ? `/${selected.task}` : ''}
 							</p>
+						{/if}
+						{#if selected.kind === 'AND' || selected.kind === 'OR'}
+							<p class="text-xs text-slate-600">
+								{incomingCount} eingehende Verbindung{incomingCount === 1 ? '' : 'en'}
+								{#if incomingCount < 2}
+									<span class="font-bold text-amber-700">(mindestens 2 erforderlich)</span>
+								{/if}
+							</p>
+						{/if}
+						{#if selected.kind === 'OR'}
+							<label class="ed-label">
+								Mindestens erfüllte Eingänge (von {Math.max(2, incomingCount)})
+								<input
+									type="number"
+									class="ed-input"
+									min="1"
+									max={Math.max(2, incomingCount)}
+									value={selected.min ?? 1}
+									oninput={(e) =>
+										updateNode(selected.id, {
+											min: Math.max(1, Number((e.currentTarget as HTMLInputElement).value) || 1)
+										})}
+								/>
+							</label>
 						{/if}
 						{#if selected.kind === 'MODULE'}
 							{@const node = selected}
@@ -910,8 +970,10 @@
 						<option value="MODULE">Modul</option>
 						<option value="TASK">Einzelne Aufgabe</option>
 						<option value="MILESTONE">Meilenstein</option>
+						<option value="AND">Logik-Block · UND (&amp;)</option>
+						<option value="OR">Logik-Block · ODER (≥1)</option>
 					</select>
-					{#if draft.kind !== 'MILESTONE'}
+					{#if draft.kind === 'MODULE' || draft.kind === 'TASK'}
 						<select
 							class="ed-input"
 							bind:value={draft.module}
@@ -929,11 +991,26 @@
 							{#each draftTasks as t (t.slug)}<option value={t.slug}>{t.title}</option>{/each}
 						</select>
 					{/if}
-					{#if draft.kind === 'MILESTONE'}
+					{#if draft.kind === 'OR'}
+						<label class="ed-label">
+							Mindestens erfüllte Eingänge
+							<input
+								type="number"
+								class="ed-input"
+								min="1"
+								max="10"
+								aria-label="Mindestens erfüllte Eingänge"
+								bind:value={draft.min}
+							/>
+						</label>
+					{/if}
+					{#if draft.kind === 'MILESTONE' || draft.kind === 'AND' || draft.kind === 'OR'}
 						<input
 							class="ed-input"
-							placeholder="z. B. Grundlagen geschafft!"
-							aria-label="Beschriftung des Meilensteins"
+							placeholder={draft.kind === 'MILESTONE'
+								? 'z. B. Grundlagen geschafft!'
+								: 'Beschriftung (optional)'}
+							aria-label="Beschriftung"
 							maxlength="80"
 							bind:value={draft.label}
 						/>

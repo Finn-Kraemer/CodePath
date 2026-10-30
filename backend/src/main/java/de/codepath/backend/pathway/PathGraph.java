@@ -17,7 +17,7 @@ public final class PathGraph {
     private PathGraph() {
     }
 
-    public enum NodeKind { MODULE, TASK, MILESTONE }
+    public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR }
 
     /**
      * @param module Slug des Moduls (MODULE und TASK)
@@ -25,15 +25,30 @@ public final class PathGraph {
      * @param tasks  nur MODULE: Slugs der Aufgaben, die diese Station nutzt; leer oder null für alle – so lässt
      *               sich ein Modul auf mehrere Stationen verteilen (Programmierung 1, Web 1, Programmierung 2)
      * @param label  eigene Beschriftung; Pflicht für Meilensteine, sonst gilt der Titel von Modul bzw. Aufgabe
+     * @param min    nur OR: Mindestanzahl erfüllter Eingänge (Standard 1)
      */
-    public record Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label, int x, int y) {
+    public record Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
+                       Integer min, int x, int y) {
         public Node {
             tasks = tasks == null || tasks.isEmpty() ? null : List.copyOf(new LinkedHashSet<>(tasks));
+            min = kind == NodeKind.OR ? (min == null ? 1 : min) : null;
+        }
+
+        public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label, int x, int y) {
+            this(id, kind, module, task, tasks, label, null, x, y);
         }
 
         /** Nutzt die Station nur einen Teil der Aufgaben ihres Moduls? */
         public boolean partial() {
             return kind == NodeKind.MODULE && tasks != null;
+        }
+
+        public boolean gate() {
+            return kind == NodeKind.AND || kind == NodeKind.OR;
+        }
+
+        public boolean station() {
+            return kind == NodeKind.MODULE || kind == NodeKind.TASK;
         }
     }
 
@@ -86,15 +101,35 @@ public final class PathGraph {
                 case TASK -> {
                     if (isBlank(node.module()) || isBlank(node.task())) throw ApiException.badRequest("Station " + node.id() + ": Aufgabe fehlt.");
                 }
+                case AND, OR -> {
+                }
             }
         }
         Set<String> seen = new HashSet<>();
+        Map<String, Integer> inCount = new HashMap<>();
+        Map<String, Integer> outCount = new HashMap<>();
         for (Edge edge : graph.edges()) {
             if (edge == null || !ids.contains(edge.from()) || !ids.contains(edge.to())) {
                 throw ApiException.badRequest("Eine Verbindung zeigt auf eine Station, die es nicht gibt.");
             }
             if (edge.from().equals(edge.to())) throw ApiException.badRequest("Eine Station kann nicht mit sich selbst verbunden sein.");
             if (!seen.add(edge.from() + "→" + edge.to())) throw ApiException.badRequest("Eine Verbindung kommt doppelt vor.");
+            inCount.merge(edge.to(), 1, Integer::sum);
+            outCount.merge(edge.from(), 1, Integer::sum);
+        }
+        for (Node node : graph.nodes()) {
+            if (!node.gate()) continue;
+            int inc = inCount.getOrDefault(node.id(), 0);
+            int out = outCount.getOrDefault(node.id(), 0);
+            String kindName = node.kind() == NodeKind.AND ? "UND-Block" : "ODER-Block";
+            String name = isBlank(node.label()) ? node.id() : node.label();
+            if (inc < 2 || out < 1) {
+                throw ApiException.badRequest(kindName + " „" + name + "“ braucht mindestens 2 eingehende und 1 ausgehende Verbindung.");
+            }
+            if (node.kind() == NodeKind.OR && (node.min() == null || node.min() < 1 || node.min() > inc)) {
+                throw ApiException.badRequest(kindName + " „" + name + "“: Mindestanzahl (" + node.min()
+                        + ") muss zwischen 1 und der Anzahl der Eingänge (" + inc + ") liegen.");
+            }
         }
         if (order(graph).size() != graph.nodes().size()) {
             throw ApiException.badRequest("Die Verbindungen bilden einen Kreis – ein Lernpfad muss irgendwo anfangen und enden.");
@@ -143,6 +178,21 @@ public final class PathGraph {
         Map<String, List<String>> result = new HashMap<>();
         for (Edge e : graph.edges()) {
             if (e.required()) result.computeIfAbsent(e.to(), k -> new ArrayList<>()).add(e.from());
+        }
+        return result;
+    }
+
+    /** Alle mittelbaren und unmittelbaren Vorgänger je Station (inklusive der Station selbst). */
+    static Map<String, Set<String>> ancestors(Graph graph) {
+        Map<String, List<String>> preds = predecessors(graph);
+        Map<String, Set<String>> result = new HashMap<>();
+        for (Node node : order(graph)) {
+            Set<String> set = new LinkedHashSet<>();
+            set.add(node.id());
+            for (String p : preds.getOrDefault(node.id(), List.of())) {
+                set.addAll(result.getOrDefault(p, Set.of(p)));
+            }
+            result.put(node.id(), set);
         }
         return result;
     }

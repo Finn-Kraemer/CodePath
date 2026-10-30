@@ -4182,10 +4182,14 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR" ]
           },
           "label" : {
             "type" : "string"
+          },
+          "min" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "module" : {
             "type" : "string"
@@ -4208,7 +4212,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "id", "kind", "label", "module", "task", "tasks", "x", "y" ]
+        "required" : [ "id", "kind", "label", "min", "module", "task", "tasks", "x", "y" ]
       },
       "NodeView" : {
         "type" : "object",
@@ -4228,10 +4232,14 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR" ]
           },
           "label" : {
             "type" : "string"
+          },
+          "min" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "reason" : {
             "type" : "string"
@@ -4256,7 +4264,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "done", "href", "icon", "id", "kind", "label", "reason", "recommended", "state", "total", "x", "y" ]
+        "required" : [ "done", "href", "icon", "id", "kind", "label", "min", "reason", "recommended", "state", "total", "x", "y" ]
       },
       "PageDetail" : {
         "type" : "object",

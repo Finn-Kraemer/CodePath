@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { canvasSize, edgePath, layered, NODE_H, NODE_W, snap } from './geometry';
+import {
+	canvasSize,
+	edgePath,
+	gateInputOffset,
+	incomingSlot,
+	layered,
+	NODE_H,
+	NODE_W,
+	snap
+} from './geometry';
 
 describe('Lernpfad-Karte', () => {
 	it('macht die Fläche groß genug für alle Stationen', () => {
@@ -15,6 +24,28 @@ describe('Lernpfad-Karte', () => {
 		);
 		expect(edgePath({ x: 0, y: 0 }, { x: 600, y: 0 })).toMatch(
 			new RegExp(`^M ${NODE_W} ${NODE_H / 2} `)
+		);
+	});
+
+	it('verteilt mehrere Eingänge an einem Logik-Gatter auf getrennte Anschlusspunkte', () => {
+		expect(gateInputOffset(0, 1, 120)).toBe(0);
+		expect(gateInputOffset(0, 2, 120)).toBeLessThan(0);
+		expect(gateInputOffset(1, 2, 120)).toBeGreaterThan(0);
+		expect(gateInputOffset(0, 2, 120)).toBe(-gateInputOffset(1, 2, 120));
+
+		const byId = new Map([
+			['left', { x: 0, y: 0 }],
+			['right', { x: 300, y: 0 }],
+			['gate', { x: 150, y: 200 }]
+		]);
+		const edges = [
+			{ from: 'right', to: 'gate' },
+			{ from: 'left', to: 'gate' }
+		];
+		expect(incomingSlot(edges, byId, edges[1])).toEqual({ index: 0, count: 2 });
+		expect(incomingSlot(edges, byId, edges[0])).toEqual({ index: 1, count: 2 });
+		expect(edgePath(byId.get('left')!, byId.get('gate')!, 0, 2)).not.toEqual(
+			edgePath(byId.get('right')!, byId.get('gate')!, 1, 2)
 		);
 	});
 

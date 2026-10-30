@@ -65,13 +65,21 @@ class TransferTest extends IntegrationTestBase {
                 .andExpect(status().isNoContent());
         long article = body(postAs(teacher(), "/api/admin/knowledge", Map.of("title", "Transfer", "slug", "transfer-test"))).get("id").asLong();
         long pathId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Standard", "slug", "standard")).andExpect(status().isOk())).get("id").asLong();
+        Map<String, Object> orGate = new java.util.HashMap<>(LearningPathTest.node("or1", "OR", null, null, "Wahl", 100));
+        orGate.put("min", 2);
         putAs(teacher(), "/api/admin/learning-paths/" + pathId, Map.of(
                 "enforce", true,
-                "unlockRestAfter", "m1",
+                "unlockRestAfter", "m3",
                 "graph", Map.of(
-                        "nodes", List.of(LearningPathTest.node("m1", "MODULE", "git", null, null, 0),
-                                LearningPathTest.node("m2", "MODULE", "datenbanken", null, null, 100)),
-                        "edges", List.of(LearningPathTest.requiredEdge("m1", "m2"))))).andExpect(status().isOk());
+                        "nodes", List.of(
+                                LearningPathTest.node("m1", "MODULE", "git", null, null, 0),
+                                LearningPathTest.node("m2", "MODULE", "datenbanken", null, null, 0),
+                                orGate,
+                                LearningPathTest.node("m3", "MILESTONE", null, null, "Ziel", 200)),
+                        "edges", List.of(
+                                LearningPathTest.requiredEdge("m1", "or1"),
+                                LearningPathTest.requiredEdge("m2", "or1"),
+                                LearningPathTest.requiredEdge("or1", "m3"))))).andExpect(status().isOk());
 
         byte[] zip = export("");
         Map<String, byte[]> files = unzip(zip);
@@ -82,7 +90,9 @@ class TransferTest extends IntegrationTestBase {
             assertTrue(manifest.at("/sections").has(section), section);
         }
         assertTrue(manifest.at("/sections/learningPaths/0/enforce").asBoolean());
-        assertEquals("m1", manifest.at("/sections/learningPaths/0/unlockRestAfter").asString());
+        assertEquals("m3", manifest.at("/sections/learningPaths/0/unlockRestAfter").asString());
+        assertEquals("OR", manifest.at("/sections/learningPaths/0/graph/nodes/2/kind").asString());
+        assertEquals(2, manifest.at("/sections/learningPaths/0/graph/nodes/2/min").asInt());
         assertTrue(manifest.at("/sections/learningPaths/0/graph/edges/0/required").asBoolean());
 
         // Seite und Lernpfad weg, Artikel geändert → angelegt, überarbeitet, Rest unverändert

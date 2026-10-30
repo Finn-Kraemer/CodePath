@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PathView } from '$lib/api';
-	import { canvasSize, edgePath, NODE_H, NODE_W } from './geometry';
+	import { canvasSize, edgePath, incomingSlot, NODE_H, NODE_W } from './geometry';
 
 	let { path }: { path: PathView } = $props();
 
@@ -64,8 +64,10 @@
 				{#if from && to}
 					{@const done = from.state === 'DONE'}
 					{@const required = !!path.enforce && !!edge.required}
+					{@const isGateTarget = to.kind === 'AND' || to.kind === 'OR'}
+					{@const slot = isGateTarget ? incomingSlot(path.edges, byId, edge) : { index: 0, count: 1 }}
 					<path
-						d={edgePath(from, to)}
+						d={edgePath(from, to, slot.index, slot.count)}
 						fill="none"
 						stroke-width="2.5"
 						class={done
@@ -99,6 +101,42 @@
 					<span class="text-xs font-black tracking-wide text-institutional-navy uppercase"
 						>{node.label}</span
 					>
+				</div>
+			{:else if node.kind === 'AND' || node.kind === 'OR'}
+				{@const needed = node.kind === 'OR' ? (node.min ?? 1) : node.total}
+				<div
+					class="absolute flex flex-col justify-between border-2 p-3 {node.state === 'DONE'
+						? 'border-emerald-400 bg-emerald-50'
+						: node.state === 'BLOCKED'
+							? 'border-amber-300 bg-amber-50/50'
+							: 'border-slate-300 bg-white'}"
+					{style}
+					title={node.reason ?? undefined}
+					aria-label="{node.label}: {node.done} von {needed} erfüllt ({node.reason ?? ''})"
+				>
+					<div class="flex items-center gap-2.5">
+						<span
+							class="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-slate-900 bg-white font-mono text-sm font-black text-institutional-navy"
+						>
+							{node.icon}
+						</span>
+						<div class="min-w-0">
+							<span class="block truncate text-xs font-black tracking-wide text-institutional-navy uppercase">
+								{node.label}
+							</span>
+							<span class="block font-mono text-[10px] font-bold text-slate-600">
+								{node.done} von {needed} erfüllt
+							</span>
+						</div>
+					</div>
+					<span
+						class="line-clamp-1 font-mono text-[9px] font-bold tracking-widest uppercase {node.state ===
+						'DONE'
+							? 'text-emerald-700'
+							: 'text-amber-700'}"
+					>
+						{node.reason ?? STATE_LABELS[node.state]}
+					</span>
 				</div>
 			{:else}
 				<svelte:element

@@ -23,10 +23,40 @@ export function canvasSize(nodes: Box[], minWidth = 0, minHeight = 0) {
 }
 
 /**
- * Pfad einer Verbindung als weiche Kurve. Liegt das Ziel eher darunter, läuft die Linie von unten nach
- * oben, sonst von der Seite zur Seite.
+ * Versatz eines Eingangs-Anschlusspunkts relativ zur Mitte, wenn mehrere Verbindungen an einem Gatter ankommen.
  */
-export function edgePath(from: Box, to: Box): string {
+export function gateInputOffset(index: number, count: number, maxSpan: number): number {
+	if (count <= 1) return 0;
+	const clampedIndex = Math.max(0, Math.min(index, count - 1));
+	const span = Math.min(maxSpan, (count - 1) * 32);
+	return Math.round(-span / 2 + (clampedIndex * span) / (count - 1));
+}
+
+/**
+ * Bestimmt für eine eingehende Verbindung an einem Gatter den sortierten Anschluss-Index (von links nach rechts
+ * bzw. von oben nach unten), damit sich Linien vor dem Gatter möglichst nicht kreuzen.
+ */
+export function incomingSlot(
+	edges: { from: string; to: string }[],
+	byId: Map<string, Box>,
+	edge: { from: string; to: string }
+): { index: number; count: number } {
+	const incoming = edges
+		.filter((e) => e.to === edge.to && byId.has(e.from))
+		.sort((a, b) => {
+			const fa = byId.get(a.from)!;
+			const fb = byId.get(b.from)!;
+			return fa.x - fb.x || fa.y - fb.y || a.from.localeCompare(b.from);
+		});
+	const index = incoming.findIndex((e) => e.from === edge.from);
+	return { index: Math.max(0, index), count: Math.max(1, incoming.length) };
+}
+
+/**
+ * Pfad einer Verbindung als weiche Kurve. Liegt das Ziel eher darunter, läuft die Linie von unten nach
+ * oben, sonst von der Seite zur Seite. Bei Gattern mit mehreren Eingängen verteilen sich die Anschlusspunkte.
+ */
+export function edgePath(from: Box, to: Box, inputIndex = 0, inputCount = 1): string {
 	const fc = { x: from.x + NODE_W / 2, y: from.y + NODE_H / 2 };
 	const tc = { x: to.x + NODE_W / 2, y: to.y + NODE_H / 2 };
 	const dx = tc.x - fc.x;
@@ -34,15 +64,17 @@ export function edgePath(from: Box, to: Box): string {
 	let a: Point, b: Point, c1: Point, c2: Point;
 	if (Math.abs(dy) * 2 >= Math.abs(dx)) {
 		const down = dy >= 0;
+		const offsetX = gateInputOffset(inputIndex, inputCount, NODE_W - 48);
 		a = { x: fc.x, y: down ? from.y + NODE_H : from.y };
-		b = { x: tc.x, y: down ? to.y - 6 : to.y + NODE_H + 6 };
+		b = { x: tc.x + offsetX, y: down ? to.y - 6 : to.y + NODE_H + 6 };
 		const bend = Math.max(30, Math.abs(b.y - a.y) / 2);
 		c1 = { x: a.x, y: a.y + (down ? bend : -bend) };
 		c2 = { x: b.x, y: b.y - (down ? bend : -bend) };
 	} else {
 		const right = dx >= 0;
+		const offsetY = gateInputOffset(inputIndex, inputCount, NODE_H - 28);
 		a = { x: right ? from.x + NODE_W : from.x, y: fc.y };
-		b = { x: right ? to.x - 6 : to.x + NODE_W + 6, y: tc.y };
+		b = { x: right ? to.x - 6 : to.x + NODE_W + 6, y: tc.y + offsetY };
 		const bend = Math.max(30, Math.abs(b.x - a.x) / 2);
 		c1 = { x: a.x + (right ? bend : -bend), y: a.y };
 		c2 = { x: b.x - (right ? bend : -bend), y: b.y };

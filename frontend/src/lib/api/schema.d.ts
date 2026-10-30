@@ -1986,8 +1986,10 @@ export interface components {
 		Node: {
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE';
+			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR';
 			label: string;
+			/** Format: int32 */
+			min: number;
 			module: string;
 			task: string;
 			tasks: string[];
@@ -2003,8 +2005,10 @@ export interface components {
 			icon: string;
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE';
+			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR';
 			label: string;
+			/** Format: int32 */
+			min: number;
 			reason: string;
 			recommended: boolean;
 			/** @enum {string} */

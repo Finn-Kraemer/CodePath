@@ -330,6 +330,122 @@ class LearningPathTest extends IntegrationTestBase {
         assertTrue(hasArticleForModule(articlesAfter, "datenbanken"), "Artikel wird mit Freischaltung der Station sichtbar");
     }
 
+    @Test
+    void andOrGatesEvaluateInputsLockedBranchesAndRecommendation() throws Exception {
+        Course course = course("10c");
+        unlock(course, "git");
+        User lena = student("lena", course);
+        long id = create("Logikpfad", "logikpfad");
+
+        // Ungültige Gatter ablehnen: < 2 Eingänge, < 1 Ausgang, ungültiges min
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", Map.of(
+                "nodes", List.of(
+                        node("t1", "TASK", "git", "g1", "A1", 0),
+                        node("g", "AND", null, null, "Zu wenig Eingänge", 100),
+                        node("t2", "TASK", "git", "g5", "Ziel", 200)),
+                "edges", List.of(requiredEdge("t1", "g"), requiredEdge("g", "t2")))))
+                .andExpect(status().isBadRequest());
+
+        Map<String, Object> badOr = new java.util.HashMap<>(node("g", "OR", null, null, "Ungültiges min", 100));
+        badOr.put("min", 3);
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", Map.of(
+                "nodes", List.of(
+                        node("t1", "TASK", "git", "g1", "A1", 0),
+                        node("t2", "TASK", "git", "g5", "A2", 0),
+                        badOr,
+                        node("t3", "TASK", "git", "g3", "Ziel", 200)),
+                "edges", List.of(requiredEdge("t1", "g"), requiredEdge("t2", "g"), requiredEdge("g", "t3")))))
+                .andExpect(status().isBadRequest());
+
+        // Gültiger Pfad mit ODER-Verzweigung (2 Zweige à 2 Aufgaben), UND-Zusammenführung und 2-von-3-ODER
+        Map<String, Object> orMin2 = new java.util.HashMap<>(node("or2", "OR", null, null, "2 von 3", 100));
+        orMin2.put("min", 2);
+        var graph = Map.of(
+                "nodes", List.of(
+                        // Zweig B liegt höher auf der Karte (y=0), Zweig A tiefer (y=50)
+                        node("b1", "TASK", "git", "g5", "Zweig B1", 0),
+                        node("b2", "TASK", "git", "g6", "Zweig B2", 150),
+                        node("a1", "TASK", "git", "g1", "Zweig A1", 50),
+                        node("a2", "TASK", "git", "g3", "Zweig A2", 150),
+                        node("or1", "OR", null, null, null, 250),
+                        // Gesperrtes Modul „datenbanken“ als zweiter Eingang an einem weiteren ODER-Gatter
+                        node("lockedMod", "MODULE", "datenbanken", null, "Gesperrt", 250),
+                        node("orLocked", "OR", null, null, null, 350),
+                        node("and1", "AND", null, null, null, 450),
+                        node("ziel", "TASK", "git", "g7", "Abschluss", 550)),
+                "edges", List.of(
+                        requiredEdge("b1", "b2"),
+                        requiredEdge("a1", "a2"),
+                        requiredEdge("b2", "or1"),
+                        requiredEdge("a2", "or1"),
+                        requiredEdge("or1", "orLocked"),
+                        requiredEdge("lockedMod", "orLocked"),
+                        requiredEdge("orLocked", "and1"),
+                        requiredEdge("or1", "and1"),
+                        requiredEdge("and1", "ziel")));
+
+        // Hinweis: ohne courseId testen wir auch die Handhabung gesperrter Module (datenbanken ist nicht freigegeben)
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of(
+                "graph", graph, "enforce", true, "published", true)).andExpect(status().isOk());
+
+        JsonNode view = body(getAs(as(lena), "/api/learning-paths/logikpfad"));
+        assertEquals(6, view.get("stations").asInt(), "Gatter zählen nicht als Station");
+        assertEquals("BLOCKED", state(view, "or1"));
+        assertEquals(0, find(view, "or1").get("done").asInt());
+        assertEquals(2, find(view, "or1").get("total").asInt());
+        assertEquals("BLOCKED", state(view, "orLocked"), "Gesperrter Eingang an ODER öffnet das Gatter nicht sofort");
+        assertEquals("BLOCKED", state(view, "and1"));
+        assertEquals("BLOCKED", state(view, "ziel"));
+
+        // Bei Gleichstand (0 Fortschritt in beiden Zweigen) entscheidet die Lage auf der Karte -> b1 (y=0 vor a1 y=50)
+        assertEquals("g5", view.at("/recommendation/taskSlug").asString());
+
+        // Lena löst stattdessen a1 im Zweig A -> Zweig A hat nun mehr Fortschritt (1 > 0), daher wird a2 (g3) empfohlen!
+        postAs(as(lena), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        view = body(getAs(as(lena), "/api/learning-paths/logikpfad"));
+        assertEquals("g3", view.at("/recommendation/taskSlug").asString(), "Zweig mit dem meisten Fortschritt wird empfohlen");
+        assertEquals("BLOCKED", state(view, "or1"));
+
+        // Lena schließt Zweig A mit a2 (g3) ab -> or1 (1 von 2), orLocked und and1 sind erfüllt, ziel wird AVAILABLE!
+        postAs(as(lena), "/api/modules/git/g3/submit", Map.of("answers", List.of("Working Directory", "Staging Area", "Repository")))
+                .andExpect(status().isOk());
+        view = body(getAs(as(lena), "/api/learning-paths/logikpfad"));
+        assertEquals("DONE", state(view, "or1"));
+        assertEquals(1, find(view, "or1").get("done").asInt());
+        assertEquals("DONE", state(view, "orLocked"));
+        assertEquals("DONE", state(view, "and1"));
+        assertEquals("AVAILABLE", state(view, "ziel"));
+
+        // Test für ODER mit min = 2 (2 von 3 Eingängen erforderlich)
+        var graphMin2 = Map.of(
+                "nodes", List.of(
+                        node("x1", "TASK", "git", "g1", "X1", 0),
+                        node("x2", "TASK", "git", "g5", "X2", 0),
+                        node("x3", "TASK", "git", "g6", "X3", 0),
+                        orMin2,
+                        node("end", "TASK", "git", "g7", "Ende", 200)),
+                "edges", List.of(
+                        requiredEdge("x1", "or2"),
+                        requiredEdge("x2", "or2"),
+                        requiredEdge("x3", "or2"),
+                        requiredEdge("or2", "end")));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", graphMin2)).andExpect(status().isOk());
+
+        // x1 (g1) ist schon erledigt (1 von 2) -> or2 und end noch BLOCKED
+        view = body(getAs(as(lena), "/api/learning-paths/logikpfad"));
+        assertEquals("BLOCKED", state(view, "or2"));
+        assertEquals(1, find(view, "or2").get("done").asInt());
+        assertEquals(2, find(view, "or2").get("min").asInt());
+        assertEquals("BLOCKED", state(view, "end"));
+
+        // Nach x2 (g5) sind 2 von 3 erledigt -> or2 ist DONE, end ist AVAILABLE
+        postAs(as(lena), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        view = body(getAs(as(lena), "/api/learning-paths/logikpfad"));
+        assertEquals("DONE", state(view, "or2"));
+        assertEquals(2, find(view, "or2").get("done").asInt());
+        assertEquals("AVAILABLE", state(view, "end"));
+    }
+
     static boolean hasArticleForModule(JsonNode articles, String moduleSlug) {
         for (JsonNode a : articles) {
             if (moduleSlug.equals(a.path("moduleSlug").asString(null))) return true;

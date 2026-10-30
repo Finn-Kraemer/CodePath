@@ -7,6 +7,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ## Unveröffentlicht
 
 ### Neu
+- **UND- und ODER-Blöcke in Lernpfaden** (#22): Logik-Blöcke (`&` und `≥1` bzw. `≥n` für „mindestens n von m Eingängen“) verknüpfen mehrere Zweige sichtbar auf der Karte, zeigen ihren Erfüllungsstand („1 von 2 erfüllt“) und bevorzugen bei der Aufgabenempfehlung an ODER-Blöcken den bereits begonnenen Zweig.
 - **Verbindliche Lernpfade** (#21): Lernpfade lassen sich als *verbindlich* einstellen – Pflicht-Verbindungen (durchgezogen) sperren nachfolgende Stationen auf dem Server, bis ihre Vorgänger erledigt sind; Empfehlungs-Verbindungen (gestrichelt) bleiben sofort bearbeitbar. Übrige Module außerhalb des Pfads sind wahlweise frei, gesperrt oder erst ab einer bestimmten Station (z. B. Meilenstein „Freies Arbeiten“) automatisch freigeschaltet. Vorschau im Editor auch aus Sicht einzelner Schülerkonten.
 - **Modul „Die Kommandozeile“** (14 Aufgaben): Als Azubi im IT-Team der Stadtwerke orientiert man sich im Ordnerbaum, räumt auf, liest und durchsucht Logs mit `grep`, `find`, `head`/`tail` und Pipes und behebt am Ende einen Server-Notfall ohne Anleitung.
 - **Git zum Anfassen**: Das Git-Modul ist neu aufgebaut (16 Aufgaben) – Repository anlegen, committen, im Verlauf den Verursacher eines Fehlers finden, Änderungen zurückholen, `.gitignore`, Branches, Merge, Merge-Konflikt, `pull`/`push` gegen einen simulierten Server und eine Release-Mission. Ein Commit-Graph unter dem Terminal zeigt alles live.
