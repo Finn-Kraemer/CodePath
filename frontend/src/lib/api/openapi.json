@@ -1356,6 +1356,44 @@
         "tags" : [ "learning-path-controller" ]
       }
     },
+    "/api/admin/learning-paths/{id}/gate-stats" : {
+      "get" : {
+        "operationId" : "gateStats",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/GateStudentStat"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
     "/api/admin/media" : {
       "get" : {
         "operationId" : "list",
@@ -4305,6 +4343,103 @@
         },
         "required" : [ "failedAttemptsThreshold", "hintsThreshold", "rule", "scoreThreshold", "task" ]
       },
+      "GateProgress" : {
+        "type" : "object",
+        "properties" : {
+          "earnedPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "maxPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "missingPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "openTasks" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OpenTaskView"
+            }
+          },
+          "percent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "satisfied" : {
+            "type" : "boolean"
+          },
+          "unreachable" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "earnedPoints", "maxPoints", "missingPoints", "openTasks", "percent", "satisfied", "unreachable" ]
+      },
+      "GateRequirement" : {
+        "type" : "object",
+        "properties" : {
+          "fallback" : {
+            "type" : "string",
+            "enum" : [ "TEACHER", "REMEDIAL", "OPEN" ]
+          },
+          "fallbackRemedialNode" : {
+            "type" : "string"
+          },
+          "minPercent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "mode" : {
+            "type" : "string",
+            "enum" : [ "TOTAL", "EACH" ]
+          },
+          "scope" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "fallback", "fallbackRemedialNode", "minPercent", "mode", "scope" ]
+      },
+      "GateStudentStat" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "minPercent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "missingPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "nodeLabel" : {
+            "type" : "string"
+          },
+          "open" : {
+            "type" : "boolean"
+          },
+          "percent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "unreachable" : {
+            "type" : "boolean"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "displayName", "minPercent", "missingPoints", "nodeId", "nodeLabel", "open", "percent", "unreachable", "username" ]
+      },
       "GeneratedAccount" : {
         "type" : "object",
         "properties" : {
@@ -4739,6 +4874,9 @@
       "Node" : {
         "type" : "object",
         "properties" : {
+          "boss" : {
+            "type" : "boolean"
+          },
           "id" : {
             "type" : "string"
           },
@@ -4770,6 +4908,9 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "requirement" : {
+            "$ref" : "#/components/schemas/GateRequirement"
+          },
           "task" : {
             "type" : "string"
           },
@@ -4788,7 +4929,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "id", "kind", "knowledgeArticle", "label", "max", "min", "module", "path", "points", "task", "tasks", "x", "y" ]
+        "required" : [ "boss", "id", "kind", "knowledgeArticle", "label", "max", "min", "module", "path", "points", "requirement", "task", "tasks", "x", "y" ]
       },
       "NodeUnlockRequest" : {
         "type" : "object",
@@ -4801,12 +4942,18 @@
       "NodeView" : {
         "type" : "object",
         "properties" : {
+          "boss" : {
+            "type" : "boolean"
+          },
           "chosenTo" : {
             "type" : "string"
           },
           "done" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "gateProgress" : {
+            "$ref" : "#/components/schemas/GateProgress"
           },
           "href" : {
             "type" : "string"
@@ -4850,6 +4997,9 @@
           "recommended" : {
             "type" : "boolean"
           },
+          "requirement" : {
+            "$ref" : "#/components/schemas/GateRequirement"
+          },
           "state" : {
             "type" : "string",
             "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED", "SKIPPED" ]
@@ -4870,7 +5020,26 @@
             "format" : "int32"
           }
         },
-        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "knowledgeArticle", "label", "min", "options", "path", "points", "reason", "recommended", "state", "teacherUnlocked", "total", "x", "y" ]
+        "required" : [ "boss", "chosenTo", "done", "gateProgress", "href", "icon", "id", "kind", "knowledgeArticle", "label", "min", "options", "path", "points", "reason", "recommended", "requirement", "state", "teacherUnlocked", "total", "x", "y" ]
+      },
+      "OpenTaskView" : {
+        "type" : "object",
+        "properties" : {
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "potentialPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taskSlug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "moduleSlug", "potentialPoints", "taskSlug", "title" ]
       },
       "PageDetail" : {
         "type" : "object",

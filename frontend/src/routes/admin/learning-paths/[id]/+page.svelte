@@ -11,7 +11,9 @@
 		type PathView,
 		type Schemas,
 		type StudentOverview,
-		type EdgeCondition
+		type EdgeCondition,
+		type GateRequirement,
+		type GateStudentStat
 	} from '$lib/api';
 	import {
 		canvasSize,
@@ -35,6 +37,7 @@
 
 	let saved = $state<PathAdmin | null>(null);
 	let choiceStats = $state<ChoiceNodeStats[]>([]);
+	let gateStats = $state<GateStudentStat[]>([]);
 	let resetCourseProgress = $state<Record<string, boolean>>({});
 	let form = $state({
 		title: '',
@@ -132,13 +135,16 @@
 
 	async function loadEditor(targetId: number) {
 		try {
-			const [path, pathList, modules, courseList, studentList, stats] = await Promise.all([
+			const [path, pathList, modules, courseList, studentList, stats, gStats] = await Promise.all([
 				api<PathAdmin>(`/api/admin/learning-paths/${targetId}`),
 				api<PathSummary[]>('/api/admin/learning-paths'),
 				api<ModuleRow[]>('/api/admin/content'),
 				api<CourseSummary[]>('/api/admin/courses'),
 				api<StudentOverview[]>('/api/admin/students'),
 				api<ChoiceNodeStats[]>(`/api/admin/learning-paths/${targetId}/choice-stats`).catch(
+					() => []
+				),
+				api<GateStudentStat[]>(`/api/admin/learning-paths/${targetId}/gate-stats`).catch(
 					() => []
 				)
 			]);
@@ -147,6 +153,7 @@
 			courses = courseList;
 			students = studentList;
 			choiceStats = stats;
+			gateStats = gStats;
 			selectedId = null;
 			selectedEdge = null;
 			preview = null;
@@ -161,9 +168,12 @@
 	async function refreshChoiceStats() {
 		try {
 			const courseQuery = form.courseId ? `?courseId=${form.courseId}` : '';
-			choiceStats = await api<ChoiceNodeStats[]>(
-				`/api/admin/learning-paths/${id}/choice-stats${courseQuery}`
-			);
+			const [cStats, gStats] = await Promise.all([
+				api<ChoiceNodeStats[]>(`/api/admin/learning-paths/${id}/choice-stats${courseQuery}`).catch(() => []),
+				api<GateStudentStat[]>(`/api/admin/learning-paths/${id}/gate-stats${courseQuery}`).catch(() => [])
+			]);
+			choiceStats = cStats;
+			gateStats = gStats;
 		} catch {
 			// ignorieren
 		}
@@ -1304,6 +1314,169 @@
 								{/if}
 							</fieldset>
 						{/if}
+						{#if selected.kind === 'TASK' || selected.kind === 'MODULE'}
+							<label class="flex items-center gap-2 p-2 rounded bg-amber-50 border border-amber-200 text-xs font-bold text-amber-950 cursor-pointer">
+								<input
+									type="checkbox"
+									checked={!!selected.boss}
+									onchange={(e) => updateNode(selected.id, { boss: (e.currentTarget as HTMLInputElement).checked })}
+								/>
+								<span>👑 Boss-Aufgabe (besondere Auszeichnung auf der Karte)</span>
+							</label>
+						{/if}
+						{#if selected.kind === 'TASK' || selected.kind === 'MODULE' || selected.kind === 'MILESTONE'}
+							<fieldset class="flex flex-col gap-2 rounded border border-slate-200 bg-slate-50/60 p-3">
+								<legend class="ed-label">🚪 Freischaltung ab Punkte-Schwelle (Gate)</legend>
+								<label class="flex items-center gap-2 text-xs cursor-pointer font-medium text-slate-800">
+									<input
+										type="checkbox"
+										checked={!!selected.requirement}
+										onchange={(e) => {
+											const checked = (e.currentTarget as HTMLInputElement).checked;
+											if (checked) {
+												updateNode(selected.id, {
+													requirement: {
+														minPercent: 80,
+														mode: 'TOTAL',
+														fallback: 'TEACHER',
+														fallbackRemedialNode: '',
+														scope: []
+													}
+												});
+											} else {
+												updateNode(selected.id, { requirement: undefined });
+											}
+										}}
+									/>
+									<span>Station erst ab Mindest-Punkte-Schwelle freischalten</span>
+								</label>
+
+								{#if selected.requirement}
+									{@const ancestorCandidates = nodes.filter((n) => n.id !== selected.id && (n.kind === 'TASK' || n.kind === 'MODULE'))}
+									<div class="mt-2 flex flex-col gap-2.5 border-t border-slate-200 pt-2.5">
+										<label class="ed-label">
+											Mindest-Punkte-Schwelle (1–100 %)
+											<input
+												type="number"
+												class="ed-input"
+												min="1"
+												max="100"
+												value={selected.requirement.minPercent ?? 80}
+												oninput={(e) => {
+													const val = Math.max(1, Math.min(100, Number((e.currentTarget as HTMLInputElement).value) || 80));
+													updateNode(selected.id, {
+														requirement: { ...selected.requirement!, minPercent: val }
+													});
+												}}
+											/>
+										</label>
+
+										{#if incomingCount >= 2}
+											<label class="ed-label">
+												Berechnungsmodus
+												<select
+													class="ed-input"
+													value={selected.requirement.mode ?? 'TOTAL'}
+													onchange={(e) => {
+														const m = (e.currentTarget as HTMLSelectElement).value as 'TOTAL' | 'EACH';
+														updateNode(selected.id, {
+															requirement: { ...selected.requirement!, mode: m }
+														});
+													}}
+												>
+													<option value="TOTAL">TOTAL – Aggregierte Gesamtpunkte aller Vorgänger</option>
+													<option value="EACH">EACH – Jeder eingehende Zweig muss Schwelle erreichen</option>
+												</select>
+											</label>
+										{/if}
+
+										<label class="ed-label">
+											Rückfall-Regel (wenn Schwelle unerreichbar)
+											<select
+												class="ed-input"
+												value={selected.requirement.fallback ?? 'TEACHER'}
+												onchange={(e) => {
+													const fb = (e.currentTarget as HTMLSelectElement).value as 'TEACHER' | 'OPEN' | 'REMEDIAL';
+													updateNode(selected.id, {
+														requirement: { ...selected.requirement!, fallback: fb }
+													});
+												}}
+											>
+												<option value="TEACHER">TEACHER – Bleibt gesperrt, an Lehrkraft wenden</option>
+												<option value="OPEN">OPEN – Notfall-Öffnung: wird trotzdem frei</option>
+												<option value="REMEDIAL">REMEDIAL – Freischaltung über Stützaufgabe</option>
+											</select>
+										</label>
+
+										{#if selected.requirement.fallback === 'REMEDIAL'}
+											{@const remedialNodes = nodes.filter((n) => n.kind === 'REMEDIAL')}
+											<label class="ed-label">
+												Stützaufgabe für Rückfall
+												<select
+													class="ed-input"
+													value={selected.requirement.fallbackRemedialNode ?? ''}
+													onchange={(e) => {
+														const remId = (e.currentTarget as HTMLSelectElement).value;
+														updateNode(selected.id, {
+															requirement: { ...selected.requirement!, fallbackRemedialNode: remId }
+														});
+													}}
+												>
+													<option value="">Bitte Stützaufgabe wählen …</option>
+													{#each remedialNodes as rn (rn.id)}
+														<option value={rn.id}>{label(rn)}</option>
+													{/each}
+												</select>
+											</label>
+										{/if}
+
+										<div class="flex flex-col gap-1.5">
+											<span class="ed-label">Punktebereich (Scope)</span>
+											<p class="text-[10px] text-slate-500">
+												Standard: Alle Vorgänger-Stationen zählen. Bei Bedarf hier gezielt einschränken:
+											</p>
+											{#if ancestorCandidates.length > 0}
+												<div class="max-h-36 overflow-y-auto border border-slate-200 bg-white p-2 rounded flex flex-col gap-1">
+													{#each ancestorCandidates as cand (cand.id)}
+														{@const inScope = (selected.requirement.scope ?? []).includes(cand.id)}
+														<label class="flex items-center gap-2 text-xs">
+															<input
+																type="checkbox"
+																checked={inScope}
+																onchange={(e) => {
+																	const checked = (e.currentTarget as HTMLInputElement).checked;
+																	const currentScope = selected.requirement!.scope ?? [];
+																	const nextScope = checked
+																		? [...currentScope, cand.id]
+																		: currentScope.filter((x) => x !== cand.id);
+																	updateNode(selected.id, {
+																		requirement: { ...selected.requirement!, scope: nextScope }
+																	});
+																}}
+															/>
+															<span>{label(cand)}</span>
+														</label>
+													{/each}
+												</div>
+												{#if (selected.requirement.scope ?? []).length > 0}
+													<button
+														type="button"
+														class="text-[10px] text-slate-500 hover:text-slate-700 underline text-left cursor-pointer"
+														onclick={() => {
+															updateNode(selected.id, {
+																requirement: { ...selected.requirement!, scope: [] }
+															});
+														}}
+													>
+														Auf alle Vorgänger zurücksetzen (Standard)
+													</button>
+												{/if}
+											{/if}
+										</div>
+									</div>
+								{/if}
+							</fieldset>
+						{/if}
 						<label class="ed-label"
 							>{selected.kind === 'MILESTONE' || selected.kind === 'BONUS'
 								? 'Beschriftung'
@@ -1479,6 +1652,65 @@
 									>
 										Alle Wahlen zurücksetzen
 									</button>
+								</div>
+							</div>
+						{/each}
+					</section>
+				{/if}
+
+				{#if gateStats.length > 0}
+					{@const uniqueGates = Array.from(new Set(gateStats.map((s) => s.nodeId)))}
+					<section class="flex flex-col gap-3 border border-slate-200 bg-white p-4">
+						<h2 class="ed-label">Punkte-Tore &amp; Boss-Aufgaben im Kurs</h2>
+						{#each uniqueGates as gateNodeId (gateNodeId)}
+							{@const statsForGate = gateStats.filter((s) => s.nodeId === gateNodeId)}
+							{@const gateLabel = statsForGate[0]?.nodeLabel ?? gateNodeId}
+							{@const minPct = statsForGate[0]?.minPercent ?? 80}
+							{@const passedCount = statsForGate.filter((s) => s.open).length}
+							{@const stuckCount = statsForGate.filter((s) => s.unreachable && !s.open).length}
+							<div class="space-y-2 border border-slate-200 bg-slate-50/60 p-3 text-xs">
+								<div class="flex flex-wrap items-center justify-between gap-2">
+									<span class="font-bold text-institutional-navy">🚪 {gateLabel}</span>
+									<span class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-700">
+										Gefordert: ≥ {minPct} %
+									</span>
+								</div>
+								<div class="flex items-center gap-3 font-mono text-[10px]">
+									<span class="text-emerald-700 font-bold">{passedCount}/{statsForGate.length} freigeschaltet</span>
+									{#if stuckCount > 0}
+										<span class="text-rose-700 font-bold bg-rose-100 px-1.5 py-0.5 rounded">⚠ {stuckCount} stecken fest</span>
+									{/if}
+								</div>
+								<div class="space-y-1.5 pt-1">
+									{#each statsForGate as st (st.username)}
+										<div class="flex flex-wrap items-center justify-between gap-2 border border-slate-200 bg-white px-2.5 py-1.5">
+											<div class="flex items-center gap-2">
+												<span class="font-semibold text-slate-800">{st.displayName}</span>
+												<span class="font-mono text-[10px] text-slate-500">({st.percent} %)</span>
+											</div>
+											<div class="flex items-center gap-2">
+												{#if st.open}
+													<span class="rounded bg-emerald-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-emerald-800 uppercase">
+														Offen
+													</span>
+												{:else if st.unreachable}
+													<span class="rounded bg-rose-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-rose-800 uppercase">
+														Unerreichbar (-{st.missingPoints}P)
+													</span>
+												{:else}
+													<span class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-800 uppercase">
+														Noch {st.missingPoints}P
+													</span>
+												{/if}
+												<a
+													href="/admin/students/{st.username}"
+													class="border border-slate-200 px-2 py-0.5 font-mono text-[9px] font-bold text-institutional-navy uppercase hover:border-institutional-navy"
+												>
+													Details →
+												</a>
+											</div>
+										</div>
+									{/each}
 								</div>
 							</div>
 						{/each}

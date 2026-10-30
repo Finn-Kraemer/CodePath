@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { api, type PathView } from '$lib/api';
+	import { api, type PathView, type NodeView } from '$lib/api';
 	import { canvasSize, edgePath, incomingSlot, NODE_H, NODE_W } from './geometry';
 
 	let {
@@ -18,6 +18,7 @@
 	let breadcrumbs = $state<PathView[]>([]);
 	let activeSubpath = $state<PathView | null>(null);
 	let lastRootSlug = $state('');
+	let activeGateNode = $state<NodeView | null>(null);
 
 	// Zoom, Pan & Viewport
 	let viewportEl = $state<HTMLDivElement | null>(null);
@@ -461,6 +462,11 @@
 								<h4 class="font-bold text-institutional-navy">
 									{node.label}
 								</h4>
+								{#if node.boss}
+									<span class="rounded bg-amber-200 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-900 uppercase">
+										👑 Boss
+									</span>
+								{/if}
 								{#if node.recommended}
 									<span class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-800 uppercase">
 										Empfohlen
@@ -483,6 +489,32 @@
 							{/if}
 							{#if node.reason}
 								<p class="mt-1 text-xs text-amber-700">{node.reason}</p>
+							{/if}
+							{#if node.gateProgress}
+								<div class="mt-2 rounded border border-amber-200 bg-amber-50/60 p-2 text-xs">
+									<div class="flex items-center justify-between gap-2 font-mono text-[11px]">
+										<span class="font-bold text-slate-700">
+											Punkte-Tor ({node.gateProgress.earnedPoints}/{node.gateProgress.maxPoints} P. = {node.gateProgress.percent} %)
+										</span>
+										<span class="font-bold {node.gateProgress.satisfied ? 'text-emerald-700' : 'text-amber-800'}">
+											Gefordert: ≥ {node.requirement?.minPercent}%
+										</span>
+									</div>
+									<div class="mt-1 flex items-center justify-between gap-2">
+										{#if node.gateProgress.missingPoints > 0}
+											<span class="text-amber-700 font-bold">Noch {node.gateProgress.missingPoints} Punkte nötig</span>
+										{:else}
+											<span class="text-emerald-700 font-bold">Schwelle erreicht</span>
+										{/if}
+										<button
+											type="button"
+											class="text-institutional-navy hover:underline text-[11px] font-bold"
+											onclick={() => (activeGateNode = node)}
+										>
+											Details & offene Aufgaben ({node.gateProgress.openTasks?.length ?? 0}) →
+										</button>
+									</div>
+								</div>
 							{/if}
 						</div>
 					</div>
@@ -640,23 +672,49 @@
 			{#each currentPath.nodes.filter((n) => !(n.kind === 'REMEDIAL' && n.state === 'EXCLUDED')) as node (node.id)}
 				{@const style = `left: ${node.x}px; top: ${node.y}px; width: ${NODE_W}px; height: ${NODE_H}px`}
 				{#if node.kind === 'MILESTONE'}
-					<div
-						class="absolute flex flex-col items-center justify-center gap-1 rounded-full border-2 px-4 text-center {node.state ===
-						'DONE'
-							? 'border-institutional-gold bg-amber-50'
-							: node.state === 'BLOCKED'
-								? 'border-amber-300 bg-amber-50/40 opacity-85'
-								: 'border-dashed border-slate-300 bg-white'}"
-						{style}
-						title={node.reason ?? undefined}
-					>
-						<span class="text-lg"
-							>{node.state === 'DONE' ? '🏆' : node.state === 'BLOCKED' ? '🔒' : '🏁'}</span
+					{@const isGate = !!node.requirement}
+					{#if isGate}
+						<button
+							type="button"
+							onclick={() => (activeGateNode = node)}
+							class="absolute flex flex-col items-center justify-center gap-1 rounded-full border-2 px-4 text-center transition-all border-amber-500 bg-amber-50/80 hover:shadow-md cursor-pointer ring-2 ring-amber-400/50"
+							{style}
+							title={node.reason ?? 'Punkte-Tor Details'}
 						>
-						<span class="text-xs font-black tracking-wide text-institutional-navy uppercase"
-							>{node.label}</span
+							<span class="text-lg">
+								{node.state === 'DONE' ? '🏆' : '🚪'}
+							</span>
+							<span class="text-xs font-black tracking-wide text-institutional-navy uppercase truncate max-w-full">
+								{node.label}
+							</span>
+							{#if node.gateProgress}
+								<div class="flex items-center gap-1 font-mono text-[9px] font-bold {node.gateProgress.satisfied ? 'text-emerald-700' : 'text-amber-800'}">
+									<span>{node.gateProgress.percent}% / {node.requirement?.minPercent}%</span>
+									{#if node.gateProgress.missingPoints > 0}
+										<span class="text-[8px] bg-amber-200 px-1 rounded">-{node.gateProgress.missingPoints}P</span>
+									{/if}
+								</div>
+							{/if}
+						</button>
+					{:else}
+						<div
+							class="absolute flex flex-col items-center justify-center gap-1 rounded-full border-2 px-4 text-center {node.state ===
+							'DONE'
+								? 'border-institutional-gold bg-amber-50'
+								: node.state === 'BLOCKED'
+									? 'border-amber-300 bg-amber-50/40 opacity-85'
+									: 'border-dashed border-slate-300 bg-white'}"
+							{style}
+							title={node.reason ?? undefined}
 						>
-					</div>
+							<span class="text-lg">
+								{node.state === 'DONE' ? '🏆' : node.state === 'BLOCKED' ? '🔒' : '🏁'}
+							</span>
+							<span class="text-xs font-black tracking-wide text-institutional-navy uppercase truncate max-w-full">
+								{node.label}
+							</span>
+						</div>
+					{/if}
 				{:else if node.kind === 'CHOICE'}
 					<div
 						class="absolute flex flex-col justify-between border-2 p-3 {node.state === 'DONE'
@@ -815,12 +873,14 @@
 						{/if}
 					</svelte:element>
 				{:else}
+					{@const isBoss = !!node.boss}
+					{@const hasGate = !!node.requirement && !!node.gateProgress}
 					<svelte:element
 						this={node.href ? 'a' : 'div'}
 						href={node.href ?? undefined}
-						class="absolute flex flex-col justify-between border-2 p-3 transition-all {STATE_STYLES[
-							node.state
-						]} {node.href ? 'hover:-translate-y-0.5 hover:shadow-lg' : ''} {node.recommended
+						class="absolute flex flex-col justify-between border-2 p-3 transition-all {isBoss
+							? (node.state === 'DONE' ? 'border-amber-400 bg-amber-50 shadow-sm ring-2 ring-amber-300' : 'border-purple-600 bg-purple-50/40 ring-2 ring-purple-400/40 shadow-sm')
+							: STATE_STYLES[node.state]} {node.href ? 'hover:-translate-y-0.5 hover:shadow-lg' : ''} {node.recommended
 							? 'ring-4 ring-institutional-gold/40'
 							: ''}"
 						{style}
@@ -829,6 +889,23 @@
 							? `${node.label} – nicht gewählt`
 							: (node.reason ?? STATE_LABELS[node.state])}"
 					>
+						{#if isBoss}
+							<div class="mb-1 flex items-center justify-between gap-1 w-full border-b border-purple-200/60 pb-1">
+								<span class="inline-flex items-center gap-1 rounded bg-amber-200/90 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-900 uppercase">
+									👑 Boss
+								</span>
+								{#if hasGate && node.gateProgress}
+									<button
+										type="button"
+										onclick={(e) => { e.preventDefault(); e.stopPropagation(); activeGateNode = node; }}
+										class="rounded bg-purple-100 hover:bg-purple-200 px-1.5 py-0.5 font-mono text-[9px] font-bold text-purple-900 cursor-pointer"
+										title="Punkte-Details anzeigen"
+									>
+										{node.gateProgress.percent}% / {node.requirement?.minPercent}% ℹ
+									</button>
+								{/if}
+							</div>
+						{/if}
 						<div class="flex items-start gap-2">
 							<span class="text-xl leading-none"
 								>{node.state === 'LOCKED' || node.state === 'BLOCKED' || node.state === 'EXCLUDED'
@@ -855,7 +932,16 @@
 										? node.reason
 										: STATE_LABELS[node.state]}
 							</span>
-							{#if node.kind === 'MODULE' && node.total > 0}
+							{#if hasGate && !isBoss && node.gateProgress}
+								<button
+									type="button"
+									onclick={(e) => { e.preventDefault(); e.stopPropagation(); activeGateNode = node; }}
+									class="shrink-0 rounded bg-amber-100 hover:bg-amber-200 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-900 cursor-pointer"
+									title="Punkte-Details anzeigen"
+								>
+									{node.gateProgress.percent}% / {node.requirement?.minPercent}%
+								</button>
+							{:else if node.kind === 'MODULE' && node.total > 0}
 								<span class="shrink-0 font-mono text-[9px] text-slate-400"
 									>{node.done}/{node.total}</span
 								>
@@ -872,6 +958,120 @@
 					</svelte:element>
 				{/if}
 			{/each}
+		</div>
+	</div>
+{/if}
+
+{#if activeGateNode && activeGateNode.gateProgress}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+		<div class="w-full max-w-lg rounded-lg bg-white p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+			<div class="flex items-start justify-between gap-3 border-b border-slate-200 pb-3">
+				<div>
+					<div class="flex items-center gap-2">
+						<span class="text-2xl">{activeGateNode.boss ? '👑' : '🚪'}</span>
+						<h3 class="text-lg font-bold text-institutional-navy">{activeGateNode.label}</h3>
+					</div>
+					<p class="font-mono text-xs text-slate-500 mt-0.5">
+						{activeGateNode.boss ? 'Boss-Aufgabe' : 'Meilenstein-Gate'} – Freischaltung ab Punkte-Schwelle
+					</p>
+				</div>
+				<button
+					type="button"
+					class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 text-lg leading-none cursor-pointer"
+					onclick={() => (activeGateNode = null)}
+					aria-label="Schließen"
+				>
+					✕
+				</button>
+			</div>
+
+			<div class="mt-4 space-y-4">
+				<div class="rounded-lg bg-slate-50 p-3 border border-slate-200">
+					<div class="flex items-center justify-between text-xs font-mono font-bold">
+						<span class="text-slate-700">Fortschritt</span>
+						<span class="{activeGateNode.gateProgress.satisfied ? 'text-emerald-700' : 'text-amber-800'}">
+							{activeGateNode.gateProgress.percent} % / Mind. {activeGateNode.requirement?.minPercent} %
+						</span>
+					</div>
+					<div class="mt-2 h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
+						<div
+							class="h-full {activeGateNode.gateProgress.satisfied ? 'bg-emerald-500' : 'bg-amber-500'} transition-all"
+							style="width: {Math.min(100, activeGateNode.gateProgress.percent)}%"
+						></div>
+					</div>
+					<div class="mt-2 flex items-center justify-between text-xs text-slate-600">
+						<span>Punkte im Bereich: <strong>{activeGateNode.gateProgress.earnedPoints} von {activeGateNode.gateProgress.maxPoints} P.</strong></span>
+						{#if activeGateNode.gateProgress.missingPoints > 0}
+							<span class="font-bold text-amber-700">Noch {activeGateNode.gateProgress.missingPoints} P. fehlen</span>
+						{/if}
+					</div>
+				</div>
+
+				{#if activeGateNode.gateProgress.satisfied}
+					<div class="rounded-md bg-emerald-50 border border-emerald-300 p-3 text-xs text-emerald-800">
+						<strong>✔ Freigeschaltet:</strong> Die Punkte-Schwelle wurde erreicht. Einmal freigeschaltet bleibt diese Station offen.
+					</div>
+				{:else if activeGateNode.gateProgress.unreachable}
+					<div class="rounded-md bg-rose-50 border border-rose-300 p-3 text-xs text-rose-800">
+						<strong>⚠ Schwelle unerreichbar:</strong>
+						<p class="mt-1">
+							Selbst wenn alle verbleibenden Aufgaben gelöst werden, können höchstens {activeGateNode.gateProgress.earnedPoints + (activeGateNode.gateProgress.openTasks?.reduce((acc, t) => acc + t.potentialPoints, 0) ?? 0)} Punkte erreicht werden ({activeGateNode.gateProgress.percent} % erreicht, gefordert: {activeGateNode.requirement?.minPercent} %).
+						</p>
+						{#if activeGateNode.requirement?.fallback === 'TEACHER'}
+							<p class="mt-2 font-bold">Wende dich an deine Lehrkraft, um diesen Pfad freizuschalten.</p>
+						{:else if activeGateNode.requirement?.fallback === 'OPEN'}
+							<p class="mt-2 font-bold">Rückfall-Regel: Das Tor öffnet sich automatisch als Notfall-Öffnung.</p>
+						{:else if activeGateNode.requirement?.fallback === 'REMEDIAL'}
+							<p class="mt-2 font-bold">Rückfall-Regel: Schließe die Stützaufgabe ab, um dieses Tor zu öffnen.</p>
+						{/if}
+					</div>
+				{:else}
+					<div class="rounded-md bg-amber-50 border border-amber-300 p-3 text-xs text-amber-800">
+						Noch {activeGateNode.gateProgress.missingPoints} Punkte fehlen bis zur Freischaltung.
+					</div>
+				{/if}
+
+				<div>
+					<h4 class="text-xs font-black uppercase text-institutional-navy mb-2">Hier kannst du noch Punkte holen:</h4>
+					{#if activeGateNode.gateProgress.openTasks && activeGateNode.gateProgress.openTasks.length > 0}
+						<ul class="space-y-2 max-h-56 overflow-y-auto pr-1">
+							{#each activeGateNode.gateProgress.openTasks as t}
+								<li class="flex items-center justify-between gap-3 p-2.5 rounded border border-slate-200 bg-slate-50 hover:bg-white transition-colors">
+									<div class="min-w-0">
+										<p class="font-bold text-xs text-slate-800 truncate">{t.title}</p>
+										<p class="text-[10px] text-slate-500 font-mono">Modul: {t.moduleSlug}</p>
+									</div>
+									<div class="flex items-center gap-2 shrink-0">
+										<span class="rounded bg-amber-100 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-800">
+											+{t.potentialPoints} P.
+										</span>
+										<a
+											href="/modules/{t.moduleSlug}/{t.taskSlug}"
+											class="rounded bg-institutional-navy px-2 py-1 text-[10px] font-bold text-white hover:bg-slate-800"
+										>
+											Öffnen →
+										</a>
+									</div>
+								</li>
+							{/each}
+						</ul>
+					{:else}
+						<p class="text-xs text-slate-500 italic p-2 border border-dashed border-slate-200 rounded">
+							Keine weiteren offenen Aufgaben im Punkte-Bereich verfügbar.
+						</p>
+					{/if}
+				</div>
+
+				<div class="flex justify-end pt-2 border-t border-slate-200">
+					<button
+						type="button"
+						class="bg-slate-200 hover:bg-slate-300 px-4 py-1.5 text-xs font-bold text-slate-800 rounded uppercase tracking-wider cursor-pointer"
+						onclick={() => (activeGateNode = null)}
+					>
+						Schließen
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
 {/if}

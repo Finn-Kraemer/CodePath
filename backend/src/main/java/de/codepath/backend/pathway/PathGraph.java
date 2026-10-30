@@ -19,6 +19,30 @@ public final class PathGraph {
 
     public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR, CHOICE, PATH, BONUS, REMEDIAL }
 
+    public enum GateMode { TOTAL, EACH }
+
+    public enum GateFallback { TEACHER, REMEDIAL, OPEN }
+
+    public record GateRequirement(Integer minPercent, GateMode mode, List<String> scope,
+                                  GateFallback fallback, String fallbackRemedialNode) {
+        public GateRequirement {
+            minPercent = minPercent == null ? 80 : minPercent;
+            mode = mode == null ? GateMode.TOTAL : mode;
+            fallback = fallback == null ? GateFallback.TEACHER : fallback;
+            scope = scope == null || scope.isEmpty() ? null : List.copyOf(new LinkedHashSet<>(scope));
+            fallbackRemedialNode = fallbackRemedialNode != null && !fallbackRemedialNode.isBlank()
+                    ? fallbackRemedialNode.strip() : null;
+        }
+
+        public GateRequirement(Integer minPercent) {
+            this(minPercent, GateMode.TOTAL, null, GateFallback.TEACHER, null);
+        }
+
+        public GateRequirement(Integer minPercent, GateMode mode, List<String> scope) {
+            this(minPercent, mode, scope, GateFallback.TEACHER, null);
+        }
+    }
+
     /**
      * @param module           Slug des Moduls (MODULE, TASK und REMEDIAL)
      * @param task             Slug der Aufgabe (TASK und REMEDIAL)
@@ -29,10 +53,14 @@ public final class PathGraph {
      * @param path             nur PATH: Slug des eingebundenen Lernpfad-Bausteins
      * @param points           nur BONUS: Bonuspunkte (1–1000)
      * @param knowledgeArticle optional für REMEDIAL: Slug des empfohlenen Wissensartikels
+     * @param boss             Markierung als Boss-Aufgabe
+     * @param requirement      optionale Punkte-Schwelle zur Freischaltung
      */
     public record Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
-                       Integer min, Integer max, String path, Integer points, String knowledgeArticle, int x, int y) {
+                       Integer min, Integer max, String path, Integer points, String knowledgeArticle,
+                       Boolean boss, GateRequirement requirement, int x, int y) {
         public Node {
+            boss = Boolean.TRUE.equals(boss);
             tasks = tasks == null || tasks.isEmpty() ? null : List.copyOf(new LinkedHashSet<>(tasks));
             if (kind == NodeKind.OR) {
                 min = min == null ? Integer.valueOf(1) : min;
@@ -44,6 +72,11 @@ public final class PathGraph {
             points = kind == NodeKind.BONUS ? points : null;
             knowledgeArticle = kind == NodeKind.REMEDIAL && knowledgeArticle != null && !knowledgeArticle.isBlank()
                     ? knowledgeArticle.strip() : null;
+        }
+
+        public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
+                    Integer min, Integer max, String path, Integer points, String knowledgeArticle, int x, int y) {
+            this(id, kind, module, task, tasks, label, min, max, path, points, knowledgeArticle, false, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
@@ -295,8 +328,61 @@ public final class PathGraph {
                 }
             }
         }
-        if (order(graph).size() != graph.nodes().size()) {
+        List<Node> orderedNodes = order(graph);
+        if (orderedNodes.size() != graph.nodes().size()) {
             throw ApiException.badRequest("Die Verbindungen bilden einen Kreis – ein Lernpfad muss irgendwo anfangen und enden.");
+        }
+
+        Map<String, Set<String>> allPredecessors = new HashMap<>();
+        for (Node node : orderedNodes) {
+            Set<String> preds = new HashSet<>();
+            for (Edge edge : incomingEdges.getOrDefault(node.id(), List.of())) {
+                preds.add(edge.from());
+                preds.addAll(allPredecessors.getOrDefault(edge.from(), Set.of()));
+            }
+            allPredecessors.put(node.id(), preds);
+        }
+
+        for (Node node : graph.nodes()) {
+            if (node.requirement() != null) {
+                GateRequirement req = node.requirement();
+                String name = isBlank(node.label()) ? node.id() : node.label();
+                if (req.minPercent() == null || req.minPercent() < 1 || req.minPercent() > 100) {
+                    throw ApiException.badRequest("Punkte-Schwelle an Station „" + name + "“ muss zwischen 1 und 100 % liegen.");
+                }
+                if (req.mode() == GateMode.EACH) {
+                    int inc = inCount.getOrDefault(node.id(), 0);
+                    if (inc < 2) {
+                        throw ApiException.badRequest("Modus EACH an Station „" + name + "“ erfordert mindestens 2 eingehende Verbindungen.");
+                    }
+                }
+                if (req.scope() != null) {
+                    Set<String> preds = allPredecessors.getOrDefault(node.id(), Set.of());
+                    for (String scopeId : req.scope()) {
+                        if (!ids.contains(scopeId)) {
+                            throw ApiException.badRequest("Station „" + scopeId + "“ im Scope von „" + name + "“ existiert nicht.");
+                        }
+                        if (scopeId.equals(node.id())) {
+                            throw ApiException.badRequest("Station „" + name + "“ kann nicht im eigenen Scope liegen.");
+                        }
+                        if (!preds.contains(scopeId)) {
+                            throw ApiException.badRequest("Station „" + scopeId + "“ im Scope von „" + name + "“ liegt nicht vor dieser Station.");
+                        }
+                    }
+                }
+                if (req.fallback() == GateFallback.REMEDIAL) {
+                    if (isBlank(req.fallbackRemedialNode())) {
+                        throw ApiException.badRequest("Rückfall-Regel REMEDIAL an Station „" + name + "“ benötigt einen Stütz-Knoten.");
+                    }
+                    Node remNode = graph.nodes().stream()
+                            .filter(n -> n.id().equals(req.fallbackRemedialNode()))
+                            .findFirst()
+                            .orElse(null);
+                    if (remNode == null || remNode.kind() != NodeKind.REMEDIAL) {
+                        throw ApiException.badRequest("Angegebener Stütz-Knoten „" + req.fallbackRemedialNode() + "“ an Station „" + name + "“ existiert nicht oder ist kein Stütz-Knoten.");
+                    }
+                }
+            }
         }
     }
 

@@ -65,6 +65,35 @@ class LearningPathTest extends IntegrationTestBase {
         return node;
     }
 
+    static Map<String, Object> bossNode(String id, String kind, String module, String task, String label, int y,
+                                        int minPercent, String mode, List<String> scope, String fallback, String fallbackRemedialNode) {
+        Map<String, Object> node = new java.util.HashMap<>(node(id, kind, module, task, label, y));
+        node.put("boss", true);
+        if (minPercent > 0) {
+            Map<String, Object> req = new java.util.HashMap<>();
+            req.put("minPercent", minPercent);
+            if (mode != null) req.put("mode", mode);
+            if (scope != null) req.put("scope", scope);
+            if (fallback != null) req.put("fallback", fallback);
+            if (fallbackRemedialNode != null) req.put("fallbackRemedialNode", fallbackRemedialNode);
+            node.put("requirement", req);
+        }
+        return node;
+    }
+
+    static Map<String, Object> gateNode(String id, String label, int y,
+                                        int minPercent, String mode, List<String> scope, String fallback, String fallbackRemedialNode) {
+        Map<String, Object> node = new java.util.HashMap<>(node(id, "MILESTONE", null, null, label, y));
+        Map<String, Object> req = new java.util.HashMap<>();
+        req.put("minPercent", minPercent);
+        if (mode != null) req.put("mode", mode);
+        if (scope != null) req.put("scope", scope);
+        if (fallback != null) req.put("fallback", fallback);
+        if (fallbackRemedialNode != null) req.put("fallbackRemedialNode", fallbackRemedialNode);
+        node.put("requirement", req);
+        return node;
+    }
+
     long create(String title, String slug) throws Exception {
         return body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", title, "slug", slug)).andExpect(status().isOk()))
                 .get("id").asLong();
@@ -1249,6 +1278,288 @@ class LearningPathTest extends IntegrationTestBase {
         assertEquals(0, jdbc.queryForObject(
                 "select count(*) from learning_path_branch_results where user_id = ? and path_id = ? and edge_key = 's1->s_rem'",
                 Integer.class, bob.getId(), id));
+    }
+
+    @Test
+    void gateValidationRejectsInvalidConfigurations() throws Exception {
+        long id = create("Gate Validation", "gate-val");
+
+        // 1. minPercent ungültig (< 1 oder > 100)
+        var invalidPercentGraph = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Start", 0),
+                        bossNode("boss", "TASK", "git", "g3", "Boss", 100, 105, "TOTAL", null, null, null)),
+                "edges", List.of(requiredEdge("s1", "boss")));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", invalidPercentGraph))
+                .andExpect(status().isBadRequest());
+
+        // 2. mode == EACH erfordert mindestens 2 Eingänge
+        var invalidEachGraph = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Start", 0),
+                        bossNode("boss", "TASK", "git", "g3", "Boss", 100, 80, "EACH", null, null, null)),
+                "edges", List.of(requiredEdge("s1", "boss")));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", invalidEachGraph))
+                .andExpect(status().isBadRequest());
+
+        // 3. ungültiger Scope (Station existiert nicht oder ist kein Vorgänger)
+        var invalidScopeGraph = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Start", 0),
+                        bossNode("boss", "TASK", "git", "g3", "Boss", 100, 80, "TOTAL", List.of("nonexistent"), null, null)),
+                "edges", List.of(requiredEdge("s1", "boss")));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", invalidScopeGraph))
+                .andExpect(status().isBadRequest());
+
+        // 4. fallback == REMEDIAL ohne gültigen REMEDIAL-Knoten
+        var invalidRemedialGraph = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Start", 0),
+                        bossNode("boss", "TASK", "git", "g3", "Boss", 100, 80, "TOTAL", null, "REMEDIAL", "s1")),
+                "edges", List.of(requiredEdge("s1", "boss")));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", invalidRemedialGraph))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void gateBlocksBossTaskUntilThresholdReachedAndUnlocks() throws Exception {
+        Course course = course("10c");
+        unlock(course, "git");
+        User student = student("david", course);
+        long id = create("Boss Pfad", "boss-pfad");
+
+        var graph = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Start", 0),
+                        node("s2", "TASK", "git", "g5", "Mitte", 100),
+                        bossNode("boss", "TASK", "git", "g3", "Boss", 200, 80, "TOTAL", null, "TEACHER", null)),
+                "edges", List.of(
+                        requiredEdge("s1", "s2"),
+                        requiredEdge("s2", "boss")));
+
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of(
+                "graph", graph,
+                "courseId", course.getId(),
+                "enforce", true,
+                "published", true)).andExpect(status().isOk());
+
+        // Initial: s1 AVAILABLE, s2 BLOCKED, boss BLOCKED
+        JsonNode view = body(getAs(as(student), "/api/learning-paths/boss-pfad"));
+        assertEquals("AVAILABLE", state(view, "s1"));
+        assertEquals("BLOCKED", state(view, "s2"));
+        assertEquals("BLOCKED", state(view, "boss"));
+        JsonNode bossNodeView = find(view, "boss");
+        assertTrue(bossNodeView.path("boss").asBoolean());
+        assertEquals("👑", bossNodeView.path("icon").asString());
+        assertEquals(0, bossNodeView.at("/gateProgress/percent").asInt());
+        assertEquals(20, bossNodeView.at("/gateProgress/maxPoints").asInt());
+        assertEquals(16, bossNodeView.at("/gateProgress/missingPoints").asInt());
+        assertFalse(bossNodeView.at("/gateProgress/satisfied").asBoolean());
+
+        // David löst s1 (git/g1, 10 Punkte) -> 10/20 = 50 % (< 80 %)
+        postAs(as(student), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        view = body(getAs(as(student), "/api/learning-paths/boss-pfad"));
+        assertEquals("DONE", state(view, "s1"));
+        assertEquals("AVAILABLE", state(view, "s2"));
+        assertEquals("BLOCKED", state(view, "boss"));
+        bossNodeView = find(view, "boss");
+        assertEquals(50, bossNodeView.at("/gateProgress/percent").asInt());
+        assertEquals(6, bossNodeView.at("/gateProgress/missingPoints").asInt());
+        assertFalse(bossNodeView.at("/gateProgress/satisfied").asBoolean());
+        assertEquals("Erst „Mitte“ abschließen.", bossNodeView.path("reason").asString());
+
+        // David löst s2 (git/g5, 10 Punkte) -> 20/20 = 100 % (>= 80 %)
+        postAs(as(student), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        view = body(getAs(as(student), "/api/learning-paths/boss-pfad"));
+        assertEquals("DONE", state(view, "s2"));
+        assertEquals("AVAILABLE", state(view, "boss"));
+        bossNodeView = find(view, "boss");
+        assertEquals(100, bossNodeView.at("/gateProgress/percent").asInt());
+        assertEquals(0, bossNodeView.at("/gateProgress/missingPoints").asInt());
+        assertTrue(bossNodeView.at("/gateProgress/satisfied").asBoolean());
+        assertTrue(bossNodeView.path("reason").asString().contains("Punkte-Schwelle erreicht"));
+
+        // Einmal freigeschaltet bleibt freigeschaltet (Festschreibung in DB)
+        assertEquals(1, jdbc.queryForObject(
+                "select count(*) from learning_path_branch_results where user_id = ? and path_id = ? and edge_key = 'gate:boss' and matched = true",
+                Integer.class, student.getId(), id));
+
+        // Lehrkraft Gate-Stats Endpoint
+        JsonNode gateStats = body(getAs(teacher(), "/api/admin/learning-paths/" + id + "/gate-stats?courseId=" + course.getId()));
+        assertTrue(gateStats.size() >= 1);
+        JsonNode davidStat = null;
+        for (JsonNode gs : gateStats) {
+            if ("david".equals(gs.path("username").asString())) {
+                davidStat = gs;
+                break;
+            }
+        }
+        assertNotNull(davidStat);
+        assertEquals(100, davidStat.get("percent").asInt());
+        assertEquals(80, davidStat.get("minPercent").asInt());
+        assertTrue(davidStat.get("open").asBoolean());
+    }
+
+    @Test
+    void gateCap100PercentPerTaskAndBonusJournalExclusion() throws Exception {
+        Course course = course("10d");
+        unlock(course, "git");
+        User student = student("emma", course);
+        long id = create("Cap Pfad", "cap-pfad");
+
+        var graph = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Start", 0),
+                        node("s2", "TASK", "git", "g5", "Mitte", 100),
+                        bossNode("boss", "TASK", "git", "g3", "Boss", 200, 80, "TOTAL", null, "TEACHER", null)),
+                "edges", List.of(
+                        requiredEdge("s1", "s2"),
+                        requiredEdge("s2", "boss")));
+
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of(
+                "graph", graph,
+                "courseId", course.getId(),
+                "enforce", true,
+                "published", true)).andExpect(status().isOk());
+
+        // Emma löst s1 (git/g1, Grundpunkte: 10)
+        postAs(as(student), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+
+        // Lehrkraft bucht Korrektur +30 Punkte auf s1 (taskId von g1)
+        long g1TaskId = jdbc.queryForObject("select id from tasks where slug = 'g1'", Long.class);
+        Long adminId = jdbc.queryForObject("select id from users where username = 'admin'", Long.class);
+        pointsService.correct(student.getId(), g1TaskId, 30, "Bonus für Sonderleistung", adminId);
+
+        // Trotz 40 Punkten auf g1 wird für die Gate-Berechnung auf 100 % der Grundpunkte (10 P.) gekappt!
+        // s2 ist noch ungelöst (0 P.) -> 10/20 = 50 % (< 80 %)
+        JsonNode view = body(getAs(as(student), "/api/learning-paths/cap-pfad"));
+        JsonNode bossView = find(view, "boss");
+        assertEquals("BLOCKED", state(view, "boss"));
+        assertEquals(50, bossView.at("/gateProgress/percent").asInt());
+        assertEquals(10, bossView.at("/gateProgress/earnedPoints").asInt());
+        assertEquals(20, bossView.at("/gateProgress/maxPoints").asInt());
+        assertFalse(bossView.at("/gateProgress/satisfied").asBoolean());
+    }
+
+    @Test
+    void gateFallbackTeacherOpenRemedialWhenUnreachable() throws Exception {
+        Course courseTeacher = course("10e-teacher");
+        unlock(courseTeacher, "git");
+        User felix = student("felix", courseTeacher);
+
+        Course courseOpen = course("10e-open");
+        unlock(courseOpen, "git");
+        User greta = student("greta", courseOpen);
+
+        Course courseRem = course("10e-rem");
+        unlock(courseRem, "git");
+        User hans = student("hans", courseRem);
+
+        // 1. Fallback TEACHER
+        long idTeacher = create("Fallback Teacher", "fallback-teacher");
+        var graphTeacher = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Start", 0),
+                        bossNode("boss", "TASK", "git", "g3", "Boss", 100, 80, "TOTAL", null, "TEACHER", null)),
+                "edges", List.of(requiredEdge("s1", "boss")));
+        putAs(teacher(), "/api/admin/learning-paths/" + idTeacher, Map.of(
+                "graph", graphTeacher, "courseId", courseTeacher.getId(), "enforce", true, "published", true)).andExpect(status().isOk());
+
+        // Felix deckt Lösung auf und reicht ein (0 Punkte vergeben)
+        postAs(as(felix), "/api/modules/git/g1/reveal", null).andExpect(status().isOk());
+        postAs(as(felix), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        JsonNode felixView = body(getAs(as(felix), "/api/learning-paths/fallback-teacher"));
+        JsonNode felixBoss = find(felixView, "boss");
+        assertEquals("BLOCKED", state(felixView, "boss"));
+        assertTrue(felixBoss.at("/gateProgress/unreachable").asBoolean());
+        assertTrue(felixBoss.path("reason").asString().contains("nicht mehr erreichbar"));
+        assertTrue(felixBoss.path("reason").asString().contains("Lehrkraft"));
+
+        // 2. Fallback OPEN
+        long idOpen = create("Fallback Open", "fallback-open");
+        var graphOpen = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Start", 0),
+                        bossNode("boss", "TASK", "git", "g3", "Boss", 100, 80, "TOTAL", null, "OPEN", null)),
+                "edges", List.of(requiredEdge("s1", "boss")));
+        putAs(teacher(), "/api/admin/learning-paths/" + idOpen, Map.of(
+                "graph", graphOpen, "courseId", courseOpen.getId(), "enforce", true, "published", true)).andExpect(status().isOk());
+
+        // Greta deckt Lösung auf und reicht ein (0 Punkte) -> Gate ist unerreichbar, aber Fallback OPEN schaltet frei!
+        postAs(as(greta), "/api/modules/git/g1/reveal", null).andExpect(status().isOk());
+        postAs(as(greta), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        JsonNode gretaView = body(getAs(as(greta), "/api/learning-paths/fallback-open"));
+        JsonNode gretaBoss = find(gretaView, "boss");
+        assertEquals("AVAILABLE", state(gretaView, "boss"));
+        assertTrue(gretaBoss.at("/gateProgress/satisfied").asBoolean());
+        assertTrue(gretaBoss.path("reason").asString().contains("Fallback OPEN"));
+
+        // 3. Fallback REMEDIAL
+        long idRemedial = create("Fallback Remedial", "fallback-remedial");
+        var graphRemedial = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Start", 0),
+                        remedialNode("s_rem", "git", "g5", "Stütze", "git", 50),
+                        bossNode("boss", "TASK", "git", "g3", "Boss", 100, 80, "TOTAL", null, "REMEDIAL", "s_rem")),
+                "edges", List.of(
+                        conditionalEdge("s1", "boss", true, "DEFAULT", null, null, null, null),
+                        conditionalEdge("s1", "s_rem", false, "STRUGGLED", "g1", null, 5, 5)));
+        putAs(teacher(), "/api/admin/learning-paths/" + idRemedial, Map.of(
+                "graph", graphRemedial, "courseId", courseRem.getId(), "enforce", true, "published", true)).andExpect(status().isOk());
+
+        // Hans deckt Lösung auf und reicht ein -> Stützaufgabe wird aktiviert
+        postAs(as(hans), "/api/modules/git/g1/reveal", null).andExpect(status().isOk());
+        postAs(as(hans), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        JsonNode hansView = body(getAs(as(hans), "/api/learning-paths/fallback-remedial"));
+        assertEquals("AVAILABLE", state(hansView, "s_rem"));
+        assertEquals("BLOCKED", state(hansView, "boss"));
+        assertTrue(find(hansView, "boss").path("reason").asString().contains("Erledige die Stützaufgabe"));
+
+        // Hans löst Stützaufgabe g5 -> Gate wird freigeschaltet
+        postAs(as(hans), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        hansView = body(getAs(as(hans), "/api/learning-paths/fallback-remedial"));
+        assertEquals("DONE", state(hansView, "s_rem"));
+        assertEquals("AVAILABLE", state(hansView, "boss"));
+    }
+
+    @Test
+    void gateModeEachRequiresAllBranchesToReachThreshold() throws Exception {
+        Course course = course("10f");
+        unlock(course, "git");
+        User student = student("ida", course);
+        long id = create("Each Gate Pfad", "each-gate-pfad");
+
+        var graph = Map.of(
+                "nodes", List.of(
+                        node("b1", "TASK", "git", "g1", "Zweig A", 0),
+                        node("b2", "TASK", "git", "g5", "Zweig B", 50),
+                        gateNode("gate", "Punkte-Tor", 100, 80, "EACH", null, "TEACHER", null),
+                        node("goal", "TASK", "git", "g3", "Ziel", 150)),
+                "edges", List.of(
+                        requiredEdge("b1", "gate"),
+                        requiredEdge("b2", "gate"),
+                        requiredEdge("gate", "goal")));
+
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of(
+                "graph", graph, "courseId", course.getId(), "enforce", true, "published", true)).andExpect(status().isOk());
+
+        // Ida löst nur b1 (git/g1, 10 Punkte = 100 % in Zweig A)
+        postAs(as(student), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+
+        JsonNode view = body(getAs(as(student), "/api/learning-paths/each-gate-pfad"));
+        assertEquals("DONE", state(view, "b1"));
+        assertEquals("AVAILABLE", state(view, "b2"));
+        assertEquals("BLOCKED", state(view, "gate"));
+        assertFalse(find(view, "gate").at("/gateProgress/satisfied").asBoolean());
+
+        // Ida löst b2 (git/g5, 10 Punkte = 100 % in Zweig B) -> Beide Zweige >= 80 %
+        postAs(as(student), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+
+        view = body(getAs(as(student), "/api/learning-paths/each-gate-pfad"));
+        assertEquals("DONE", state(view, "b2"));
+        assertEquals("DONE", state(view, "gate"));
+        assertEquals("AVAILABLE", state(view, "goal"));
+        assertTrue(find(view, "gate").at("/gateProgress/satisfied").asBoolean());
     }
 
     static boolean hasArticleForModule(JsonNode articles, String moduleSlug) {

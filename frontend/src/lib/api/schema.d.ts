@@ -644,6 +644,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/learning-paths/{id}/gate-stats': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['gateStats'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/media': {
 		parameters: {
 			query?: never;
@@ -2058,6 +2074,43 @@ export interface components {
 			scoreThreshold: number;
 			task: string;
 		};
+		GateProgress: {
+			/** Format: int32 */
+			earnedPoints: number;
+			/** Format: int32 */
+			maxPoints: number;
+			/** Format: int32 */
+			missingPoints: number;
+			openTasks: components['schemas']['OpenTaskView'][];
+			/** Format: int32 */
+			percent: number;
+			satisfied: boolean;
+			unreachable: boolean;
+		};
+		GateRequirement: {
+			/** @enum {string} */
+			fallback: 'TEACHER' | 'REMEDIAL' | 'OPEN';
+			fallbackRemedialNode: string;
+			/** Format: int32 */
+			minPercent: number;
+			/** @enum {string} */
+			mode: 'TOTAL' | 'EACH';
+			scope: string[];
+		};
+		GateStudentStat: {
+			displayName: string;
+			/** Format: int32 */
+			minPercent: number;
+			/** Format: int32 */
+			missingPoints: number;
+			nodeId: string;
+			nodeLabel: string;
+			open: boolean;
+			/** Format: int32 */
+			percent: number;
+			unreachable: boolean;
+			username: string;
+		};
 		GeneratedAccount: {
 			password: string;
 			username: string;
@@ -2219,6 +2272,7 @@ export interface components {
 			title: string;
 		};
 		Node: {
+			boss: boolean;
 			id: string;
 			/** @enum {string} */
 			kind:
@@ -2241,6 +2295,7 @@ export interface components {
 			path: string;
 			/** Format: int32 */
 			points: number;
+			requirement: components['schemas']['GateRequirement'];
 			task: string;
 			tasks: string[];
 			/** Format: int32 */
@@ -2252,9 +2307,11 @@ export interface components {
 			nodeId?: string;
 		};
 		NodeView: {
+			boss: boolean;
 			chosenTo: string;
 			/** Format: int32 */
 			done: number;
+			gateProgress: components['schemas']['GateProgress'];
 			href: string;
 			icon: string;
 			id: string;
@@ -2279,6 +2336,7 @@ export interface components {
 			points: number;
 			reason: string;
 			recommended: boolean;
+			requirement: components['schemas']['GateRequirement'];
 			/** @enum {string} */
 			state:
 				| 'DONE'
@@ -2296,6 +2354,13 @@ export interface components {
 			x: number;
 			/** Format: int32 */
 			y: number;
+		};
+		OpenTaskView: {
+			moduleSlug: string;
+			/** Format: int32 */
+			potentialPoints: number;
+			taskSlug: string;
+			title: string;
 		};
 		PageDetail: {
 			draft: components['schemas']['JsonNode'];
@@ -3978,6 +4043,30 @@ export interface operations {
 					'*/*': {
 						[key: string]: number;
 					};
+				};
+			};
+		};
+	};
+	gateStats: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['GateStudentStat'][];
 				};
 			};
 		};

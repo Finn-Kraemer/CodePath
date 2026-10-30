@@ -684,18 +684,26 @@
 								<div class="space-y-3">
 									<div class="flex items-center justify-between">
 										<h4 class="font-sans text-[10px] font-black tracking-widest text-slate-400 uppercase">
-											Bedingte Verzweigungen &amp; Stütz-Knoten
+											Bedingte Verzweigungen, Tore &amp; Stütz-Knoten
 										</h4>
 									</div>
 									<div class="space-y-2">
 										{#each pathAdmin.branches ?? [] as br (br.edgeKey)}
+											{@const isGate = br.edgeKey.startsWith('gate:')}
 											<div class="flex items-center justify-between gap-3 border border-slate-200 bg-white p-3 text-xs">
 												<div>
 													<div class="flex items-center gap-2">
-														<span class="font-bold text-institutional-navy">{br.fromLabel} → {br.toLabel}</span>
-														<span class="rounded px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase {br.matched ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-500'}">
-															{br.matched ? 'Ausgelöst' : 'Nicht ausgelöst'}
-														</span>
+														{#if isGate}
+															<span class="font-bold text-institutional-navy">🚪 {br.toLabel}</span>
+															<span class="rounded bg-purple-100 text-purple-900 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase">
+																Punkte-Tor
+															</span>
+														{:else}
+															<span class="font-bold text-institutional-navy">{br.fromLabel} → {br.toLabel}</span>
+															<span class="rounded px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase {br.matched ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-500'}">
+																{br.matched ? 'Ausgelöst' : 'Nicht ausgelöst'}
+															</span>
+														{/if}
 													</div>
 													{#if br.detail}
 														<p class="mt-0.5 text-xs text-slate-500">{br.detail}</p>
@@ -704,10 +712,10 @@
 												<button
 													type="button"
 													disabled={pathBusy}
-													class="shrink-0 border border-slate-300 bg-white px-2.5 py-1 font-mono text-[9px] font-bold text-institutional-navy uppercase hover:bg-slate-50"
+													class="shrink-0 border border-slate-300 bg-white px-2.5 py-1 font-mono text-[9px] font-bold text-institutional-navy uppercase hover:bg-slate-50 cursor-pointer"
 													onclick={() => resetBranchCondition(br.pathSlug, br.edgeKey)}
 												>
-													Neu bewerten
+													{isGate ? 'Tor zurücksetzen' : 'Neu bewerten'}
 												</button>
 											</div>
 										{/each}

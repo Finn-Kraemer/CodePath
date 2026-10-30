@@ -133,11 +133,30 @@ public class LearningPathService implements PathGate {
     public record PathLink(String slug, String title, String description, boolean hideOverview) {
     }
 
+    public record OpenTaskView(String moduleSlug, String taskSlug, String title, int potentialPoints) {
+    }
+
+    public record GateProgress(int earnedPoints, int maxPoints, int percent, int missingPoints,
+                               boolean satisfied, boolean unreachable, List<OpenTaskView> openTasks) {
+    }
+
+    public record GateStudentStat(String username, String displayName, String nodeId, String nodeLabel,
+                                  int percent, int minPercent, int missingPoints, boolean unreachable, boolean open) {
+    }
+
     /** href: Ziel beim Anklicken, null bei gesperrten/blockierten Stationen, Meilensteinen, Weichen, Logik-Blöcken und Bonus-Stationen */
     public record NodeView(String id, PathGraph.NodeKind kind, String label, String icon, int x, int y, NodeState state,
                            String href, int done, int total, boolean recommended, String reason, Integer min,
                            List<ChoiceOption> options, String chosenTo, String path, boolean teacherUnlocked,
-                           Integer points, String knowledgeArticle) {
+                           Integer points, String knowledgeArticle, Boolean boss, PathGraph.GateRequirement requirement,
+                           GateProgress gateProgress) {
+        public NodeView(String id, PathGraph.NodeKind kind, String label, String icon, int x, int y, NodeState state,
+                        String href, int done, int total, boolean recommended, String reason, Integer min,
+                        List<ChoiceOption> options, String chosenTo, String path, boolean teacherUnlocked,
+                        Integer points, String knowledgeArticle) {
+            this(id, kind, label, icon, x, y, state, href, done, total, recommended, reason, min, options, chosenTo, path,
+                    teacherUnlocked, points, knowledgeArticle, false, null, null);
+        }
     }
 
     public record PathView(String slug, String title, String description, boolean enforce, boolean hideOverview,
@@ -797,13 +816,25 @@ public class LearningPathService implements PathGate {
             ));
         }
         for (LearningPathBranchResult br : branchResultRepository.findByUserIdAndPathId(student.getId(), path.getId())) {
-            String[] parts = br.getEdgeKey().split("->", 2);
-            String fromId = parts[0];
-            String toId = parts.length > 1 ? parts[1] : "";
-            PathGraph.Node fn = eval.nodeById().get(fromId);
-            PathGraph.Node tn = eval.nodeById().get(toId);
-            String fromLabel = fn != null ? s.label(fn) : fromId;
-            String toLabel = tn != null ? s.label(tn) : toId;
+            String fromId;
+            String toId;
+            String fromLabel;
+            String toLabel;
+            if (br.getEdgeKey().startsWith("gate:")) {
+                toId = br.getEdgeKey().substring(5);
+                fromId = "gate";
+                PathGraph.Node tn = eval.nodeById().get(toId);
+                toLabel = tn != null ? s.label(tn) : toId;
+                fromLabel = "Punkte-Tor";
+            } else {
+                String[] parts = br.getEdgeKey().split("->", 2);
+                fromId = parts[0];
+                toId = parts.length > 1 ? parts[1] : "";
+                PathGraph.Node fn = eval.nodeById().get(fromId);
+                PathGraph.Node tn = eval.nodeById().get(toId);
+                fromLabel = fn != null ? s.label(fn) : fromId;
+                toLabel = tn != null ? s.label(tn) : toId;
+            }
             branches.add(new StudentBranchEntry(
                     path.getSlug(),
                     path.getTitle(),
@@ -1219,6 +1250,50 @@ public class LearningPathService implements PathGate {
                         matchedCount,
                         edgeResults.size()
                 ));
+            }
+        }
+        return stats;
+    }
+
+    @Transactional(readOnly = true)
+    public List<GateStudentStat> gateStats(Long pathId, Long courseId) {
+        LearningPath path = find(pathId);
+        List<LearningPath> hierarchy = new ArrayList<>();
+        Map<String, LearningPath> pathsBySlug = repository.findAll().stream()
+                .collect(Collectors.toMap(LearningPath::getSlug, Function.identity(), (a, b) -> a));
+        collectPathHierarchy(path, pathsBySlug, hierarchy, new HashSet<>(), 0);
+
+        Long effectiveCourseId = courseId != null && courseId > 0 ? courseId : path.getCourseId();
+        Set<Long> memberIds = effectiveCourseId != null ? new HashSet<>(userService.memberIds(effectiveCourseId)) : null;
+        List<User> students = userService.students().stream()
+                .filter(u -> memberIds == null || memberIds.contains(u.getId()))
+                .toList();
+
+        List<GateStudentStat> stats = new ArrayList<>();
+        for (User student : students) {
+            Situation s = new Situation(student, accessPolicy.courseReleases(student));
+            for (LearningPath p : hierarchy) {
+                PathGraph.Graph g = read(p.getGraph());
+                boolean hasGate = g.nodes().stream().anyMatch(n -> n.requirement() != null);
+                if (!hasGate) continue;
+                EvaluatedPath eval = evaluate(p, s, p.isEnforce(), 0);
+                for (NodeView nv : eval.view().nodes()) {
+                    if (nv.requirement() != null && nv.gateProgress() != null) {
+                        GateProgress gp = nv.gateProgress();
+                        boolean open = nv.state() != NodeState.LOCKED && nv.state() != NodeState.BLOCKED && nv.state() != NodeState.EXCLUDED;
+                        stats.add(new GateStudentStat(
+                                student.getUsername(),
+                                student.getDisplayName(),
+                                nv.id(),
+                                nv.label(),
+                                gp.percent(),
+                                nv.requirement().minPercent(),
+                                gp.missingPoints(),
+                                gp.unreachable(),
+                                open
+                        ));
+                    }
+                }
             }
         }
         return stats;
@@ -1674,6 +1749,26 @@ public class LearningPathService implements PathGate {
         Set<String> achieved = new HashSet<>();
         // genuinelyAchieved: ohne manuelle Lehrkraft-Freigabe (UNLOCK_NODE) auf diesem Knoten oder seinen Vorgängern erledigt
         Set<String> genuinelyAchieved = new HashSet<>();
+        Map<String, GateProgress> gateProgressByNode = new HashMap<>();
+
+        Set<String> gateActiveRemedialNodes = new HashSet<>();
+        for (PathGraph.Node gn : ordered) {
+            if (gn.requirement() != null && gn.requirement().fallback() == PathGraph.GateFallback.REMEDIAL
+                    && gn.requirement().fallbackRemedialNode() != null) {
+                String gateKey = "gate:" + gn.id();
+                boolean alreadyUnlocked = branchResults.containsKey(gateKey) && branchResults.get(gateKey).isMatched();
+                if (!alreadyUnlocked) {
+                    Set<String> scopeStationIds = gn.requirement().scope() != null && !gn.requirement().scope().isEmpty()
+                            ? new HashSet<>(gn.requirement().scope())
+                            : findAncestorStationIds(live, gn.id());
+                    TaskPointsStats gStats = computeScopePoints(scopeStationIds, nodeById, excluded, skippedNodeIds, s, new ArrayList<>());
+                    boolean unreach = gStats.max() > 0 && (gStats.earned() + gStats.remaining()) * 100 < gn.requirement().minPercent() * gStats.max();
+                    if (unreach) {
+                        gateActiveRemedialNodes.add(gn.requirement().fallbackRemedialNode());
+                    }
+                }
+            }
+        }
 
         for (PathGraph.Node node : ordered) {
             boolean teacherUnlocked = unlockedNodes.contains(node.id());
@@ -1681,10 +1776,11 @@ public class LearningPathService implements PathGate {
                     .filter(id -> activeEdgeKeys.contains(id + "->" + node.id()))
                     .toList();
 
-            // Stütz-Knoten prüfen: wenn eingehende STRUGGLED-Kante nicht aktiv, ist der Knoten ausgeschlossen
+            // Stütz-Knoten prüfen: wenn eingehende STRUGGLED-Kante nicht aktiv und nicht durch Gate-Fallback aktiviert, ist der Knoten ausgeschlossen
             if (node.remedial()) {
                 PathGraph.Edge inEdge = edges.stream().filter(e -> e.to().equals(node.id())).findFirst().orElse(null);
-                boolean remedialActive = inEdge != null && activeEdgeKeys.contains(inEdge.from() + "->" + node.id());
+                boolean remedialActive = (inEdge != null && activeEdgeKeys.contains(inEdge.from() + "->" + node.id()))
+                        || gateActiveRemedialNodes.contains(node.id());
                 if (!teacherUnlocked && !remedialActive) {
                     excluded.add(node.id());
                     states.put(node.id(), NodeState.EXCLUDED);
@@ -1953,6 +2049,148 @@ public class LearningPathService implements PathGate {
                     }
                 }
             }
+            if (node.requirement() != null) {
+                PathGraph.GateRequirement req = node.requirement();
+                String gateKey = "gate:" + node.id();
+                boolean alreadyUnlocked = branchResults.containsKey(gateKey) && branchResults.get(gateKey).isMatched();
+
+                Set<String> scopeStationIds = req.scope() != null && !req.scope().isEmpty()
+                        ? new HashSet<>(req.scope())
+                        : findAncestorStationIds(live, node.id());
+
+                List<OpenTaskView> openTasks = new ArrayList<>();
+                int totalEarned = 0;
+                int totalMax = 0;
+                int totalRemaining = 0;
+
+                boolean conditionMet;
+                boolean unreachable;
+                int percent;
+                int missingPoints;
+
+                List<String> inPreds = predecessors.getOrDefault(node.id(), List.of());
+                if (req.mode() == PathGraph.GateMode.EACH && inPreds.size() >= 2) {
+                    boolean eachMet = true;
+                    boolean eachUnreachable = false;
+                    int eachMissingSum = 0;
+                    int minBranchPercent = 100;
+
+                    for (String fromNodeId : inPreds) {
+                        Set<String> branchStationIds = findAncestorStationIds(live, fromNodeId);
+                        branchStationIds.add(fromNodeId);
+                        branchStationIds.retainAll(scopeStationIds);
+
+                        TaskPointsStats bStats = computeScopePoints(branchStationIds, nodeById, excluded, skippedNodeIds, s, openTasks);
+                        totalEarned += bStats.earned();
+                        totalMax += bStats.max();
+                        totalRemaining += bStats.remaining();
+
+                        int bPct = bStats.max() == 0 ? 100 : (int) Math.round((double) bStats.earned() * 100.0 / bStats.max());
+                        minBranchPercent = Math.min(minBranchPercent, bPct);
+                        boolean bMet = bStats.max() == 0 || (bStats.earned() * 100 >= req.minPercent() * bStats.max());
+                        boolean bUnreach = bStats.max() > 0 && (bStats.earned() + bStats.remaining()) * 100 < req.minPercent() * bStats.max();
+
+                        if (!bMet) {
+                            eachMet = false;
+                            int needed = (int) Math.ceil((double) req.minPercent() * bStats.max() / 100.0);
+                            eachMissingSum += Math.max(0, needed - bStats.earned());
+                        }
+                        if (bUnreach) {
+                            eachUnreachable = true;
+                        }
+                    }
+                    conditionMet = eachMet;
+                    unreachable = eachUnreachable;
+                    percent = totalMax == 0 ? 100 : minBranchPercent;
+                    missingPoints = eachMissingSum;
+                } else {
+                    TaskPointsStats gStats = computeScopePoints(scopeStationIds, nodeById, excluded, skippedNodeIds, s, openTasks);
+                    totalEarned = gStats.earned();
+                    totalMax = gStats.max();
+                    totalRemaining = gStats.remaining();
+                    percent = totalMax == 0 ? 100 : (int) Math.round((double) totalEarned * 100.0 / totalMax);
+                    int neededPoints = totalMax == 0 ? 0 : (int) Math.ceil((double) req.minPercent() * totalMax / 100.0);
+                    missingPoints = Math.max(0, neededPoints - totalEarned);
+                    conditionMet = totalMax == 0 || (totalEarned * 100 >= req.minPercent() * totalMax);
+                    unreachable = totalMax > 0 && (totalEarned + totalRemaining) * 100 < req.minPercent() * totalMax;
+                }
+
+                boolean gateSatisfied = alreadyUnlocked || teacherUnlocked;
+                if (!gateSatisfied) {
+                    if (conditionMet) {
+                        gateSatisfied = true;
+                        if (s.user().getId() != null && path.getId() != null) {
+                            LearningPathBranchResult br = new LearningPathBranchResult(
+                                    s.user().getId(), path.getId(), gateKey, true, "GATE",
+                                    percent + " % Punkte (" + totalEarned + "/" + totalMax + " P.)"
+                            );
+                            branchResultRepository.save(br);
+                            branchResults.put(gateKey, br);
+                        }
+                    } else if (unreachable) {
+                        if (req.fallback() == PathGraph.GateFallback.OPEN) {
+                            gateSatisfied = true;
+                            if (s.user().getId() != null && path.getId() != null) {
+                                LearningPathBranchResult br = new LearningPathBranchResult(
+                                        s.user().getId(), path.getId(), gateKey, true, "GATE",
+                                        "Freigeschaltet (Fallback OPEN, " + percent + " % erreicht)"
+                                );
+                                branchResultRepository.save(br);
+                                branchResults.put(gateKey, br);
+                            }
+                        } else if (req.fallback() == PathGraph.GateFallback.REMEDIAL && req.fallbackRemedialNode() != null) {
+                            if (clear.contains(req.fallbackRemedialNode()) || achieved.contains(req.fallbackRemedialNode())) {
+                                gateSatisfied = true;
+                                if (s.user().getId() != null && path.getId() != null) {
+                                    LearningPathBranchResult br = new LearningPathBranchResult(
+                                            s.user().getId(), path.getId(), gateKey, true, "GATE",
+                                            "Freigeschaltet (Stützaufgabe erledigt)"
+                                    );
+                                    branchResultRepository.save(br);
+                                    branchResults.put(gateKey, br);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                GateProgress gp = new GateProgress(totalEarned, totalMax, percent, missingPoints, gateSatisfied, unreachable, openTasks);
+                gateProgressByNode.put(node.id(), gp);
+
+                if (!teacherUnlocked) {
+                    if (!requiredReady) {
+                        // Vorgänger noch nicht fertig
+                    } else if (!gateSatisfied) {
+                        state = NodeState.BLOCKED;
+                        clear.remove(node.id());
+                        achieved.remove(node.id());
+                        genuinelyAchieved.remove(node.id());
+                        if (unreachable) {
+                            if (req.fallback() == PathGraph.GateFallback.REMEDIAL) {
+                                reasons.put(node.id(), "Punkte-Schwelle verfehlt (" + percent + " % / " + req.minPercent() + " %). Erledige die Stützaufgabe.");
+                            } else {
+                                reasons.put(node.id(), "Punkte-Schwelle (" + req.minPercent() + " %) nicht mehr erreichbar (" + percent + " % erreicht). Bitte wende dich an deine Lehrkraft.");
+                            }
+                        } else {
+                            reasons.put(node.id(), "Noch " + missingPoints + " Punkte bis zur Freischaltung (" + percent + " % / " + req.minPercent() + " %).");
+                        }
+                    } else {
+                        String successReason = (unreachable && req.fallback() == PathGraph.GateFallback.OPEN)
+                                ? "Freigeschaltet (Fallback OPEN, " + percent + " % / " + req.minPercent() + " %)."
+                                : "Punkte-Schwelle erreicht (" + percent + " % / " + req.minPercent() + " %).";
+                        if (node.kind() == PathGraph.NodeKind.MILESTONE) {
+                            state = NodeState.DONE;
+                            clear.add(node.id());
+                            achieved.add(node.id());
+                            genuinelyAchieved.add(node.id());
+                            reasons.put(node.id(), successReason);
+                        } else if (state == NodeState.AVAILABLE) {
+                            reasons.put(node.id(), successReason);
+                        }
+                    }
+                }
+            }
+
             if (teacherUnlocked) {
                 clear.add(node.id());
                 achieved.add(node.id());
@@ -2011,7 +2249,7 @@ public class LearningPathService implements PathGate {
             String href = station == null || state == NodeState.LOCKED || state == NodeState.BLOCKED || state == NodeState.EXCLUDED ? null : station.href();
             int nodeDone = node.gate() ? gateDone.getOrDefault(node.id(), 0) : (station == null || state == NodeState.EXCLUDED ? 0 : station.done());
             int nodeTotal = node.gate() ? gateTotal.getOrDefault(node.id(), 0) : (station == null ? 0 : station.total());
-            String nodeReason = node.gate() || node.choice() || node.bonus() || state == NodeState.BLOCKED || state == NodeState.EXCLUDED ? reasons.get(node.id()) : null;
+            String nodeReason = node.gate() || node.choice() || node.bonus() || node.requirement() != null || state == NodeState.BLOCKED || state == NodeState.EXCLUDED ? reasons.get(node.id()) : null;
             List<ChoiceOption> options = null;
             String chosenTo = null;
             if (node.choice()) {
@@ -2032,7 +2270,8 @@ public class LearningPathService implements PathGate {
             String subpathSlug = node.subpath() ? node.path() : null;
             views.add(new NodeView(node.id(), node.kind(), s.label(node), s.icon(node), node.x(), node.y(), state,
                     href, nodeDone, nodeTotal, node.id().equals(recommendedId), nodeReason, node.min(), options, chosenTo, subpathSlug,
-                    unlockedNodes.contains(node.id()), node.points(), node.knowledgeArticle()));
+                    unlockedNodes.contains(node.id()), node.points(), node.knowledgeArticle(),
+                    Boolean.TRUE.equals(node.boss()), node.requirement(), gateProgressByNode.get(node.id())));
         }
         String unlockAfter = path.getUnlockRestAfter();
         boolean hasUnlockAfter = unlockAfter != null && !unlockAfter.isBlank();
@@ -2218,6 +2457,100 @@ public class LearningPathService implements PathGate {
         return state == NodeState.DONE || state == NodeState.LOCKED || state == NodeState.CLOSED || state == NodeState.EXCLUDED;
     }
 
+    record TaskPointsStats(int earned, int max, int remaining) {}
+
+    private TaskPointsStats computeScopePoints(Set<String> scopeStationIds,
+                                                Map<String, PathGraph.Node> nodeById,
+                                                Set<String> excluded,
+                                                Set<String> skipped,
+                                                Situation s,
+                                                List<OpenTaskView> openTasks) {
+        int totalEarned = 0;
+        int totalMax = 0;
+        int totalRemaining = 0;
+        Set<Long> seenTaskIds = new HashSet<>();
+
+        for (String stationId : scopeStationIds) {
+            PathGraph.Node node = nodeById.get(stationId);
+            if (node == null) continue;
+            if (excluded.contains(node.id()) || skipped.contains(node.id())) continue;
+            if (node.remedial() || node.kind() == PathGraph.NodeKind.REMEDIAL) continue;
+            if (node.bonus() || node.kind() == PathGraph.NodeKind.BONUS) continue;
+
+            List<PublishedTask> tasksToCount = new ArrayList<>();
+            if (node.kind() == PathGraph.NodeKind.TASK) {
+                s.task(node.module(), node.task()).ifPresent(tasksToCount::add);
+            } else if (node.kind() == PathGraph.NodeKind.MODULE) {
+                Module m = s.module(node.module());
+                if (m != null) {
+                    List<PublishedTask> allModTasks = s.tasks(m);
+                    for (PublishedTask t : allModTasks) {
+                        if (node.tasks() == null || node.tasks().isEmpty() || node.tasks().contains(t.task().getSlug())) {
+                            tasksToCount.add(t);
+                        }
+                    }
+                }
+            }
+
+            for (PublishedTask pt : tasksToCount) {
+                if (!seenTaskIds.add(pt.taskId())) continue;
+
+                AccessPolicy.ModuleAccess access = s.releases().taskAccess(pt);
+                if (!access.visible()) continue;
+
+                int taskMax = pt.version().getPoints();
+                if (taskMax <= 0) continue;
+
+                long rawEarned = s.points(pt.taskId());
+                int earned = (int) Math.min(Math.max(0, rawEarned), taskMax);
+                totalEarned += earned;
+                totalMax += taskMax;
+
+                ProgressStatus status = s.status(pt.taskId());
+                ProgressService.TaskProgressView tp = s.taskProgress(pt.taskId());
+                boolean solutionRevealed = tp != null && tp.solutionRevealed();
+                boolean canStillEarn = !solutionRevealed && (status == null || status == ProgressStatus.OPEN || status == ProgressStatus.PENDING_REVIEW);
+                int remaining = canStillEarn ? Math.max(0, taskMax - earned) : 0;
+                totalRemaining += remaining;
+
+                if (remaining > 0 && openTasks != null) {
+                    openTasks.add(new OpenTaskView(
+                            pt.module().getSlug(),
+                            pt.task().getSlug(),
+                            pt.version().getTitle(),
+                            remaining
+                    ));
+                }
+            }
+        }
+        return new TaskPointsStats(totalEarned, totalMax, totalRemaining);
+    }
+
+    private static Set<String> findAncestorStationIds(PathGraph.Graph graph, String targetId) {
+        Set<String> stationIds = new LinkedHashSet<>();
+        Map<String, List<String>> preds = PathGraph.predecessors(graph);
+        Deque<String> queue = new ArrayDeque<>();
+        Set<String> visited = new HashSet<>();
+        queue.add(targetId);
+        visited.add(targetId);
+        Map<String, PathGraph.Node> byId = graph.nodes().stream()
+                .collect(Collectors.toMap(PathGraph.Node::id, Function.identity(), (a, b) -> a));
+
+        while (!queue.isEmpty()) {
+            String curr = queue.poll();
+            for (String predId : preds.getOrDefault(curr, List.of())) {
+                if (visited.add(predId)) {
+                    PathGraph.Node pn = byId.get(predId);
+                    if (pn != null && pn.station() && !pn.remedial() && pn.kind() != PathGraph.NodeKind.REMEDIAL) {
+                        stationIds.add(predId);
+                    }
+                    queue.add(predId);
+                }
+            }
+        }
+        return stationIds;
+    }
+
     private Recommendation fallback(Situation s) {
         Station started = null, first = null;
         for (Module module : s.modules()) {
@@ -2251,6 +2584,7 @@ public class LearningPathService implements PathGate {
         private final boolean allowBonusAward;
         private final Map<Long, ProgressStatus> status;
         private final Map<Long, ProgressService.TaskProgressView> taskProgress;
+        private final Map<Long, Long> points;
         private final Map<String, Module> modules = new LinkedHashMap<>();
         private final Map<String, List<PublishedTask>> tasks = new HashMap<>();
         private final Map<String, LearningPath> pathsBySlug = new LinkedHashMap<>();
@@ -2265,6 +2599,7 @@ public class LearningPathService implements PathGate {
             this.allowBonusAward = allowBonusAward;
             this.status = progressService.statusByTask(user.getId());
             this.taskProgress = progressService.taskProgressByTask(user.getId());
+            this.points = user.getId() != null ? pointsService.byTask(user.getId()) : Map.of();
             contentService.modules().forEach(m -> modules.put(m.getSlug(), m));
             repository.findAllByOrderByPositionAscIdAsc().forEach(p -> pathsBySlug.put(p.getSlug(), p));
         }
@@ -2277,8 +2612,20 @@ public class LearningPathService implements PathGate {
             return allowBonusAward;
         }
 
+        AccessPolicy.Releases releases() {
+            return releases;
+        }
+
+        long points(Long taskId) {
+            return taskId != null ? points.getOrDefault(taskId, 0L) : 0L;
+        }
+
         ProgressService.TaskProgressView taskProgress(Long taskId) {
             return taskId != null ? taskProgress.get(taskId) : null;
+        }
+
+        ProgressStatus status(Long taskId) {
+            return taskId != null ? status.get(taskId) : null;
         }
 
         Collection<Module> modules() {
@@ -2372,7 +2719,10 @@ public class LearningPathService implements PathGate {
 
         String icon(PathGraph.Node node) {
             if (node.kind() == PathGraph.NodeKind.BONUS) return "⭐";
-            if (node.kind() == PathGraph.NodeKind.MILESTONE) return "🏁";
+            if (Boolean.TRUE.equals(node.boss())) return "👑";
+            if (node.kind() == PathGraph.NodeKind.MILESTONE) {
+                return node.requirement() != null ? "🚪" : "🏁";
+            }
             if (node.kind() == PathGraph.NodeKind.CHOICE) return "🔀";
             if (node.kind() == PathGraph.NodeKind.PATH) return "🧩";
             if (node.kind() == PathGraph.NodeKind.AND) return "&";
@@ -2442,6 +2792,19 @@ public class LearningPathService implements PathGate {
                     result.add("Logik-Block „" + gateName + "“ hat im Kurs keine machbaren Eingänge und hält nachfolgende Stationen nicht auf.");
                 } else if (node.kind() == PathGraph.NodeKind.OR && node.min() != null && feasible < node.min()) {
                     result.add("ODER-Block „" + gateName + "“ hat nur " + feasible + " machbare Eingänge (gefordert: mindestens " + node.min() + ").");
+                }
+            }
+        }
+        for (PathGraph.Node node : graph.nodes()) {
+            if (node.requirement() != null) {
+                PathGraph.GateRequirement req = node.requirement();
+                String name = node.label() != null && !node.label().isBlank() ? node.label() : (Boolean.TRUE.equals(node.boss()) ? "Boss-Aufgabe" : "Meilenstein-Gate");
+                if (req.mode() == PathGraph.GateMode.EACH) {
+                    Map<String, List<String>> preds = PathGraph.predecessors(graph);
+                    List<String> inputs = preds.getOrDefault(node.id(), List.of());
+                    if (inputs.size() < 2) {
+                        result.add("Gate „" + name + "“: Modus EACH erfordert mindestens 2 eingehende Pfade.");
+                    }
                 }
             }
         }

@@ -83,6 +83,12 @@ public class LearningPathController {
         return service.branchStats(id, courseId);
     }
 
+    @GetMapping("/api/admin/learning-paths/{id}/gate-stats")
+    public List<LearningPathService.GateStudentStat> gateStats(@PathVariable("id") Long id,
+                                                              @RequestParam(name = "courseId", required = false) Long courseId) {
+        return service.gateStats(id, courseId);
+    }
+
     @PostMapping("/api/admin/learning-paths/{id}/course-actions")
     public Map<String, Integer> courseAction(@PathVariable("id") Long id,
                                              @RequestBody LearningPathService.CoursePathActionRequest request) {

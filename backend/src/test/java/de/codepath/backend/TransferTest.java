@@ -83,7 +83,7 @@ class TransferTest extends IntegrationTestBase {
                                 LearningPathTest.node("m1", "MODULE", "git", null, null, 50),
                                 LearningPathTest.pathNode("m2", "db-baustein", 50),
                                 orGate,
-                                LearningPathTest.node("m3", "MILESTONE", null, null, "Ziel", 200)),
+                                LearningPathTest.bossNode("m3", "TASK", "git", "g3", "Ziel-Boss", 200, 80, "TOTAL", null, "TEACHER", null)),
                         "edges", List.of(
                                 Map.of("from", "c1", "to", "m1", "required", true, "label", "Git-Weg", "hint", "Tipp A"),
                                 Map.of("from", "c1", "to", "m2", "required", true, "label", "DB-Weg"),
@@ -109,6 +109,9 @@ class TransferTest extends IntegrationTestBase {
         assertEquals("db-baustein", manifest.at("/sections/learningPaths/1/graph/nodes/2/path").asString());
         assertEquals("OR", manifest.at("/sections/learningPaths/1/graph/nodes/3/kind").asString());
         assertEquals(2, manifest.at("/sections/learningPaths/1/graph/nodes/3/min").asInt());
+        assertTrue(manifest.at("/sections/learningPaths/1/graph/nodes/4/boss").asBoolean());
+        assertEquals(80, manifest.at("/sections/learningPaths/1/graph/nodes/4/requirement/minPercent").asInt());
+        assertEquals("TOTAL", manifest.at("/sections/learningPaths/1/graph/nodes/4/requirement/mode").asString());
         assertTrue(manifest.at("/sections/learningPaths/1/graph/edges/0/required").asBoolean());
         assertEquals("Git-Weg", manifest.at("/sections/learningPaths/1/graph/edges/0/label").asString());
         assertEquals("Tipp A", manifest.at("/sections/learningPaths/1/graph/edges/0/hint").asString());
@@ -123,6 +126,9 @@ class TransferTest extends IntegrationTestBase {
         assertEquals(List.of("anfahrt:CREATED"), actions(report, "Seiten"));
         assertEquals(List.of("db-baustein:CREATED", "standard:CREATED"), actions(report, "Lernpfade"));
         assertTrue(jdbc.queryForObject("select hide_overview from learning_paths where slug = 'standard'", Boolean.class));
+        String importedGraph = jdbc.queryForObject("select graph from learning_paths where slug = 'standard'", String.class);
+        assertTrue(importedGraph.contains("\"boss\":true"));
+        assertTrue(importedGraph.contains("\"minPercent\":80"));
         assertTrue(actions(report, "Wissensdatenbank").contains("transfer-test:UPDATED"));
         assertTrue(actions(report, "Module").stream().allMatch(a -> a.endsWith(":UNCHANGED")));
         assertTrue(actions(report, "Aufgaben").stream().allMatch(a -> a.endsWith(":UNCHANGED")));
