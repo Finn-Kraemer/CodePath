@@ -5,6 +5,7 @@
 	import '@fontsource/inter/800.css';
 	import { onMount } from 'svelte';
 	import Logo from '$lib/components/Logo.svelte';
+	import ConnectionOverlay from '$lib/components/ConnectionOverlay.svelte';
 	import favicon from '$lib/assets/favicon.svg';
 	import { auth } from '$lib/auth.svelte';
 	import { realtime } from '$lib/realtime.svelte';
@@ -47,6 +48,8 @@
 
 	onMount(async () => {
 		await auth.refresh();
+		// Start-Intro aus app.html ausblenden, sobald die Anmeldung geklärt ist
+		window.cpSplashDone?.();
 		if (auth.isAuthenticated) {
 			realtime.connect();
 			try {
@@ -128,6 +131,8 @@
 		if (e.key === 'Escape') pagesMenuOpen = false;
 	}}
 />
+
+<ConnectionOverlay />
 
 <div class="flex min-h-screen flex-col bg-white text-slate-900">
 	<!-- Official Header / Sticky Nav -->

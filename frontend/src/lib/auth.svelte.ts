@@ -1,6 +1,7 @@
 import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
 import { realtime } from '$lib/realtime.svelte';
+import { connection } from '$lib/connection.svelte';
 
 export interface User {
 	username: string;
@@ -44,7 +45,11 @@ class AuthStore {
 	async refresh() {
 		if (!browser) return;
 		try {
-			const res = await fetch('/api/auth/me', { credentials: 'include' });
+			// Zeitlimit, damit ein hängender Server den Start nicht endlos aufhält
+			const res = await fetch('/api/auth/me', {
+				credentials: 'include',
+				signal: AbortSignal.timeout(10_000)
+			});
 			if (res.ok) {
 				this.login(await res.json());
 			} else if (res.status === 401) {
@@ -86,11 +91,17 @@ class AuthStore {
 			Object.assign(headers, options.headers);
 		}
 
-		const res = await fetch(url, {
-			...options,
-			headers,
-			credentials: 'include'
-		});
+		const done = connection.begin(url);
+		let res: Response;
+		try {
+			res = await fetch(url, {
+				...options,
+				headers,
+				credentials: 'include'
+			});
+		} finally {
+			done();
+		}
 
 		if (res.status === 401 && logoutOnUnauthorized) {
 			this.clear();
