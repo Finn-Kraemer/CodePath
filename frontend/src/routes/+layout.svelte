@@ -4,6 +4,8 @@
 	import '@fontsource/inter/600.css';
 	import '@fontsource/inter/800.css';
 	import { onMount } from 'svelte';
+	import Logo from '$lib/components/Logo.svelte';
+	import favicon from '$lib/assets/favicon.svg';
 	import { auth } from '$lib/auth.svelte';
 	import { realtime } from '$lib/realtime.svelte';
 	import { goto } from '$app/navigation';
@@ -115,6 +117,7 @@
 
 <svelte:head>
 	<title>CodePath | IT Berufsorientierung</title>
+	<link rel="icon" href={favicon} type="image/svg+xml" />
 </svelte:head>
 
 <svelte:window
@@ -140,20 +143,7 @@
 							<div
 								class="flex h-10 w-10 items-center justify-center rounded-none bg-institutional-navy text-white shadow-sm transition-transform group-hover:scale-105"
 							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-6 w-6"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2.5"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="m18 16 4-4-4-4"></path>
-									<path d="m6 8-4 4 4 4"></path>
-									<path d="m14.5 4-5 16"></path>
-								</svg>
+								<Logo class="h-full w-full" />
 							</div>
 							<div class="flex flex-col">
 								<span
