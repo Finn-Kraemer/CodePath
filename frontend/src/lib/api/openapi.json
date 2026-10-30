@@ -4253,7 +4253,7 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH" ]
           },
           "label" : {
             "type" : "string"
@@ -4267,6 +4267,9 @@
             "format" : "int32"
           },
           "module" : {
+            "type" : "string"
+          },
+          "path" : {
             "type" : "string"
           },
           "task" : {
@@ -4287,7 +4290,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "id", "kind", "label", "max", "min", "module", "task", "tasks", "x", "y" ]
+        "required" : [ "id", "kind", "label", "max", "min", "module", "path", "task", "tasks", "x", "y" ]
       },
       "NodeView" : {
         "type" : "object",
@@ -4310,7 +4313,7 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH" ]
           },
           "label" : {
             "type" : "string"
@@ -4324,6 +4327,9 @@
             "items" : {
               "$ref" : "#/components/schemas/ChoiceOption"
             }
+          },
+          "path" : {
+            "type" : "string"
           },
           "reason" : {
             "type" : "string"
@@ -4348,7 +4354,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "label", "min", "options", "reason", "recommended", "state", "total", "x", "y" ]
+        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "label", "min", "options", "path", "reason", "recommended", "state", "total", "x", "y" ]
       },
       "PageDetail" : {
         "type" : "object",
@@ -4461,6 +4467,9 @@
           "slug" : {
             "type" : "string"
           },
+          "templateOnly" : {
+            "type" : "boolean"
+          },
           "title" : {
             "type" : "string"
           },
@@ -4471,6 +4480,12 @@
             "type" : "string",
             "format" : "date-time"
           },
+          "usedIn" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "warnings" : {
             "type" : "array",
             "items" : {
@@ -4478,7 +4493,7 @@
             }
           }
         },
-        "required" : [ "applied", "courseId", "courseName", "description", "enforce", "graph", "id", "lockOthers", "published", "slug", "title", "unlockRestAfter", "updatedAt", "warnings" ]
+        "required" : [ "applied", "courseId", "courseName", "description", "enforce", "graph", "id", "lockOthers", "published", "slug", "templateOnly", "title", "unlockRestAfter", "updatedAt", "usedIn", "warnings" ]
       },
       "PathLink" : {
         "type" : "object",
@@ -4525,15 +4540,24 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "templateOnly" : {
+            "type" : "boolean"
+          },
           "title" : {
             "type" : "string"
           },
           "updatedAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "usedIn" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "courseId", "courseName", "description", "enforce", "id", "published", "slug", "stations", "title", "updatedAt" ]
+        "required" : [ "courseId", "courseName", "description", "enforce", "id", "published", "slug", "stations", "templateOnly", "title", "updatedAt", "usedIn" ]
       },
       "PathUpdate" : {
         "type" : "object",
@@ -4560,6 +4584,9 @@
           "slug" : {
             "type" : "string"
           },
+          "templateOnly" : {
+            "type" : "boolean"
+          },
           "title" : {
             "type" : "string"
           },
@@ -4567,7 +4594,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "courseId", "description", "enforce", "graph", "lockOthers", "published", "slug", "title", "unlockRestAfter" ]
+        "required" : [ "courseId", "description", "enforce", "graph", "lockOthers", "published", "slug", "templateOnly", "title", "unlockRestAfter" ]
       },
       "PathView" : {
         "type" : "object",

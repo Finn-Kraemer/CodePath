@@ -1,0 +1,1 @@
+ALTER TABLE learning_paths ADD COLUMN template_only BOOLEAN NOT NULL DEFAULT FALSE;

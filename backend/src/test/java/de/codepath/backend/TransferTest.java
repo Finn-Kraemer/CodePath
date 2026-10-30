@@ -64,6 +64,12 @@ class TransferTest extends IntegrationTestBase {
         putAs(teacher(), "/api/admin/pages/" + page + "/published", PagesTest.blocks(Map.of("id", "i", "type", "image", "media", key)))
                 .andExpect(status().isNoContent());
         long article = body(postAs(teacher(), "/api/admin/knowledge", Map.of("title", "Transfer", "slug", "transfer-test"))).get("id").asLong();
+        long blockId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Baustein DB", "slug", "db-baustein")).andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + blockId, Map.of(
+                "templateOnly", true,
+                "graph", Map.of(
+                        "nodes", List.of(LearningPathTest.node("b1", "MODULE", "datenbanken", null, null, 0)),
+                        "edges", List.of()))).andExpect(status().isOk());
         long pathId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Standard", "slug", "standard")).andExpect(status().isOk())).get("id").asLong();
         Map<String, Object> orGate = new java.util.HashMap<>(LearningPathTest.node("or1", "OR", null, null, "Wahl", 100));
         orGate.put("min", 2);
@@ -74,7 +80,7 @@ class TransferTest extends IntegrationTestBase {
                         "nodes", List.of(
                                 LearningPathTest.node("c1", "CHOICE", null, null, "Weiche", 0),
                                 LearningPathTest.node("m1", "MODULE", "git", null, null, 50),
-                                LearningPathTest.node("m2", "MODULE", "datenbanken", null, null, 50),
+                                LearningPathTest.pathNode("m2", "db-baustein", 50),
                                 orGate,
                                 LearningPathTest.node("m3", "MILESTONE", null, null, "Ziel", 200)),
                         "edges", List.of(
@@ -92,14 +98,18 @@ class TransferTest extends IntegrationTestBase {
         for (String section : List.of("settings", "modules", "homepage", "pages", "knowledge", "learningPaths")) {
             assertTrue(manifest.at("/sections").has(section), section);
         }
-        assertTrue(manifest.at("/sections/learningPaths/0/enforce").asBoolean());
-        assertEquals("m3", manifest.at("/sections/learningPaths/0/unlockRestAfter").asString());
-        assertEquals("CHOICE", manifest.at("/sections/learningPaths/0/graph/nodes/0/kind").asString());
-        assertEquals("OR", manifest.at("/sections/learningPaths/0/graph/nodes/3/kind").asString());
-        assertEquals(2, manifest.at("/sections/learningPaths/0/graph/nodes/3/min").asInt());
-        assertTrue(manifest.at("/sections/learningPaths/0/graph/edges/0/required").asBoolean());
-        assertEquals("Git-Weg", manifest.at("/sections/learningPaths/0/graph/edges/0/label").asString());
-        assertEquals("Tipp A", manifest.at("/sections/learningPaths/0/graph/edges/0/hint").asString());
+        assertEquals("db-baustein", manifest.at("/sections/learningPaths/0/slug").asString());
+        assertTrue(manifest.at("/sections/learningPaths/0/templateOnly").asBoolean());
+        assertTrue(manifest.at("/sections/learningPaths/1/enforce").asBoolean());
+        assertEquals("m3", manifest.at("/sections/learningPaths/1/unlockRestAfter").asString());
+        assertEquals("CHOICE", manifest.at("/sections/learningPaths/1/graph/nodes/0/kind").asString());
+        assertEquals("PATH", manifest.at("/sections/learningPaths/1/graph/nodes/2/kind").asString());
+        assertEquals("db-baustein", manifest.at("/sections/learningPaths/1/graph/nodes/2/path").asString());
+        assertEquals("OR", manifest.at("/sections/learningPaths/1/graph/nodes/3/kind").asString());
+        assertEquals(2, manifest.at("/sections/learningPaths/1/graph/nodes/3/min").asInt());
+        assertTrue(manifest.at("/sections/learningPaths/1/graph/edges/0/required").asBoolean());
+        assertEquals("Git-Weg", manifest.at("/sections/learningPaths/1/graph/edges/0/label").asString());
+        assertEquals("Tipp A", manifest.at("/sections/learningPaths/1/graph/edges/0/hint").asString());
 
         // Seite und Lernpfad weg, Artikel geändert → angelegt, überarbeitet, Rest unverändert
         mvc.perform(delete("/api/admin/pages/" + page).with(teacher()).with(csrf())).andExpect(status().isNoContent());
@@ -109,7 +119,7 @@ class TransferTest extends IntegrationTestBase {
         JsonNode report = importFile("export.zip", zip, 200);
         assertEquals("CodePath-Export (ZIP)", report.get("detected").asString());
         assertEquals(List.of("anfahrt:CREATED"), actions(report, "Seiten"));
-        assertEquals(List.of("standard:CREATED"), actions(report, "Lernpfade"));
+        assertEquals(List.of("db-baustein:CREATED", "standard:CREATED"), actions(report, "Lernpfade"));
         assertTrue(actions(report, "Wissensdatenbank").contains("transfer-test:UPDATED"));
         assertTrue(actions(report, "Module").stream().allMatch(a -> a.endsWith(":UNCHANGED")));
         assertTrue(actions(report, "Aufgaben").stream().allMatch(a -> a.endsWith(":UNCHANGED")));

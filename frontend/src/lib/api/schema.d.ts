@@ -2014,13 +2014,14 @@ export interface components {
 		Node: {
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE';
+			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE' | 'PATH';
 			label: string;
 			/** Format: int32 */
 			max: number;
 			/** Format: int32 */
 			min: number;
 			module: string;
+			path: string;
 			task: string;
 			tasks: string[];
 			/** Format: int32 */
@@ -2036,11 +2037,12 @@ export interface components {
 			icon: string;
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE';
+			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE' | 'PATH';
 			label: string;
 			/** Format: int32 */
 			min: number;
 			options: components['schemas']['ChoiceOption'][];
+			path: string;
 			reason: string;
 			recommended: boolean;
 			/** @enum {string} */
@@ -2092,10 +2094,12 @@ export interface components {
 			lockOthers: boolean;
 			published: boolean;
 			slug: string;
+			templateOnly: boolean;
 			title: string;
 			unlockRestAfter: string;
 			/** Format: date-time */
 			updatedAt: string;
+			usedIn: string[];
 			warnings: string[];
 		};
 		PathLink: {
@@ -2115,9 +2119,11 @@ export interface components {
 			slug: string;
 			/** Format: int32 */
 			stations: number;
+			templateOnly: boolean;
 			title: string;
 			/** Format: date-time */
 			updatedAt: string;
+			usedIn: string[];
 		};
 		PathUpdate: {
 			/** Format: int64 */
@@ -2128,6 +2134,7 @@ export interface components {
 			lockOthers: boolean;
 			published: boolean;
 			slug: string;
+			templateOnly: boolean;
 			title: string;
 			unlockRestAfter: string;
 		};

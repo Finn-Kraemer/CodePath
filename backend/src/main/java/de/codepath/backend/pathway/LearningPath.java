@@ -48,6 +48,10 @@ public class LearningPath {
     @Column(name = "unlock_rest_after")
     private String unlockRestAfter;
 
+    /** Nur als wiederverwendbarer Baustein für andere Lernpfade gedacht (erscheint nicht einzeln in der Schüler-Auswahl) */
+    @Column(name = "template_only", nullable = false)
+    private boolean templateOnly;
+
     @Column(nullable = false)
     private int position;
 

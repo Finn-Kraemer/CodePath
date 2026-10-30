@@ -578,6 +578,155 @@ class LearningPathTest extends IntegrationTestBase {
         assertEquals(0, jdbc.queryForObject("select count(*) from learning_path_choices", Integer.class));
     }
 
+    @Test
+    void subpathsWorkAsBuildingBlocksWithChoiceAndProtectAgainstCyclesDepthAndDelete() throws Exception {
+        Course course = course("11a");
+        User max = student("max_subpath", course);
+
+        long cloudId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Schwerpunkt Cloud", "slug", "cloud-block"))
+                .andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + cloudId, Map.of(
+                "published", true,
+                "templateOnly", true,
+                "enforce", false,
+                "graph", Map.of(
+                        "nodes", List.of(
+                                node("c1", "TASK", "git", "g5", null, 0),
+                                node("c2", "TASK", "git", "g3", null, 120)),
+                        "edges", List.of(
+                                requiredEdge("c1", "c2"))))).andExpect(status().isOk());
+
+        long webId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Schwerpunkt Web", "slug", "web-block"))
+                .andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + webId, Map.of(
+                "published", true,
+                "templateOnly", true,
+                "graph", Map.of(
+                        "nodes", List.of(
+                                node("w1", "MODULE", "datenbanken", null, null, 0)),
+                        "edges", List.of()))).andExpect(status().isOk());
+
+        // Selbst-Referenz wird abgelehnt (400)
+        putAs(teacher(), "/api/admin/learning-paths/" + cloudId, Map.of(
+                "graph", Map.of(
+                        "nodes", List.of(pathNode("self", "cloud-block", 0)),
+                        "edges", List.of()))).andExpect(status().isBadRequest());
+
+        // Hauptpfad: Aufgabe 1 -> Weiche -> Baustein Cloud | Baustein Web -> Meilenstein
+        long mainId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Hauptpfad", "slug", "hauptpfad"))
+                .andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + mainId, Map.of(
+                "courseId", course.getId(),
+                "published", true,
+                "enforce", true,
+                "lockOthers", true,
+                "graph", Map.of(
+                        "nodes", List.of(
+                                node("start", "TASK", "git", "g1", null, 0),
+                                node("weiche", "CHOICE", null, null, "Schwerpunkt wählen", 100),
+                                pathNode("pCloud", "cloud-block", 220),
+                                pathNode("pWeb", "web-block", 220),
+                                node("ziel", "MILESTONE", null, null, "Abschluss", 360)),
+                        "edges", List.of(
+                                requiredEdge("start", "weiche"),
+                                Map.of("from", "weiche", "to", "pCloud", "required", true, "label", "Cloud"),
+                                Map.of("from", "weiche", "to", "pWeb", "required", true, "label", "Web"),
+                                requiredEdge("pCloud", "ziel"),
+                                requiredEdge("pWeb", "ziel"))))).andExpect(status().isOk());
+
+        // Zyklische Einbindung (cloud-block -> hauptpfad) wird mit 400 abgelehnt
+        putAs(teacher(), "/api/admin/learning-paths/" + cloudId, Map.of(
+                "graph", Map.of(
+                        "nodes", List.of(pathNode("cyc", "hauptpfad", 0)),
+                        "edges", List.of()))).andExpect(status().isBadRequest());
+
+        // Bis zu 3 Verschachtelungsebenen (l0 -> l1 -> hauptpfad -> cloud-block = Tiefe 3) sind erlaubt, Tiefe 4 wird mit 400 abgelehnt
+        long l1Id = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Ebene 1", "slug", "ebene-1"))
+                .andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + l1Id, Map.of(
+                "templateOnly", true,
+                "graph", Map.of("nodes", List.of(pathNode("sub", "hauptpfad", 0)), "edges", List.of())))
+                .andExpect(status().isOk());
+        long l0Id = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Ebene 0", "slug", "ebene-0"))
+                .andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + l0Id, Map.of(
+                "templateOnly", true,
+                "graph", Map.of("nodes", List.of(pathNode("sub0", "ebene-1", 0)), "edges", List.of())))
+                .andExpect(status().isOk());
+        long tooDeepId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Zu tief", "slug", "zu-tief"))
+                .andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + tooDeepId, Map.of(
+                "templateOnly", true,
+                "graph", Map.of("nodes", List.of(pathNode("subDeep", "ebene-0", 0)), "edges", List.of())))
+                .andExpect(status().isBadRequest());
+        mvc.perform(delete("/api/admin/learning-paths/" + tooDeepId).with(teacher()).with(csrf())).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/admin/learning-paths/" + l0Id).with(teacher()).with(csrf())).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/admin/learning-paths/" + l1Id).with(teacher()).with(csrf())).andExpect(status().isNoContent());
+
+        // Löschschutz: cloud-block wird in Hauptpfad genutzt -> 409 Conflict mit Hinweis auf "Hauptpfad"
+        JsonNode delErr = body(mvc.perform(delete("/api/admin/learning-paths/" + cloudId).with(teacher()).with(csrf()))
+                .andExpect(status().isConflict()));
+        assertTrue(delErr.get("message").asString().contains("Hauptpfad"));
+
+        // templateOnly-Bausteine tauchen nicht in der Schüler-Auswahl (/api/learning-paths) auf
+        JsonNode studentPaths = body(getAs(as(max), "/api/learning-paths"));
+        assertEquals(1, studentPaths.size());
+        assertEquals("hauptpfad", studentPaths.get(0).get("slug").asString());
+
+        // Vor Abschluss von "start" und Wahl an "weiche" sind beide Bausteine und ihre Aufgaben gesperrt (403)
+        JsonNode view = body(getAs(as(max), "/api/learning-paths/hauptpfad"));
+        assertEquals("AVAILABLE", state(view, "start"));
+        assertEquals("BLOCKED", state(view, "weiche"));
+        assertEquals("BLOCKED", state(view, "pCloud"));
+        assertEquals("BLOCKED", state(view, "pWeb"));
+        getAs(as(max), "/api/learning-paths/cloud-block").andExpect(status().isForbidden());
+        getAs(as(max), "/api/modules/git/g5").andExpect(status().isForbidden());
+        getAs(as(max), "/api/modules/datenbanken").andExpect(status().isOk()); // vor Wahl BLOCKED im Pfad, Aufgaben darin gesperrt
+
+        // Max löst "start" (git/g1) und wählt "Cloud" (pCloud)
+        postAs(as(max), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        view = body(postAs(as(max), "/api/learning-paths/hauptpfad/choices", Map.of("nodeId", "weiche", "to", "pCloud"))
+                .andExpect(status().isOk()));
+        assertEquals("DONE", state(view, "weiche"));
+        assertEquals("AVAILABLE", state(view, "pCloud"));
+        assertEquals("cloud-block", find(view, "pCloud").get("path").asString());
+        assertEquals(0, find(view, "pCloud").get("done").asInt());
+        assertEquals(2, find(view, "pCloud").get("total").asInt());
+        assertEquals("EXCLUDED", state(view, "pWeb"));
+        assertEquals("BLOCKED", state(view, "ziel"));
+
+        // Nicht gewählter Baustein (web-block / Modul datenbanken) ist gesperrt (403)
+        getAs(as(max), "/api/learning-paths/web-block").andExpect(status().isForbidden());
+        getAs(as(max), "/api/modules/datenbanken").andExpect(status().isForbidden());
+
+        // Gewählter Baustein (cloud-block) ist für Max einsehbar und erbt Verbindlichkeit vom Oberpfad
+        JsonNode subView = body(getAs(as(max), "/api/learning-paths/cloud-block").andExpect(status().isOk()));
+        assertTrue(subView.get("enforce").asBoolean(), "Baustein erbt Verbindlichkeit vom verbindlichen Oberpfad");
+        assertEquals("AVAILABLE", state(subView, "c1"));
+        assertEquals("BLOCKED", state(subView, "c2"));
+        getAs(as(max), "/api/modules/git/g5").andExpect(status().isOk());
+        getAs(as(max), "/api/modules/git/g3").andExpect(status().isForbidden());
+
+        // Nächste empfohlene Aufgabe auf dem Hauptpfad zeigt auf c1 (git/g5) im Baustein
+        JsonNode next = body(getAs(as(max), "/api/learning/next"));
+        assertEquals("g5", next.get("taskSlug").asString());
+
+        // Max löst c1 (git/g5) und c2 (git/g3) -> Baustein Cloud und Meilenstein "ziel" sind DONE!
+        postAs(as(max), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        getAs(as(max), "/api/modules/git/g3").andExpect(status().isOk());
+        postAs(as(max), "/api/modules/git/g3/submit", Map.of("answers", List.of("Working Directory", "Staging Area", "Repository")))
+                .andExpect(status().isOk());
+
+        view = body(getAs(as(max), "/api/learning-paths/hauptpfad"));
+        assertEquals("DONE", state(view, "pCloud"));
+        assertEquals(2, find(view, "pCloud").get("done").asInt());
+        assertEquals("DONE", state(view, "ziel"));
+    }
+
+    public static Map<String, Object> pathNode(String id, String pathSlug, int y) {
+        return Map.of("id", id, "kind", "PATH", "path", pathSlug, "x", 80, "y", y);
+    }
+
     static boolean hasArticleForModule(JsonNode articles, String moduleSlug) {
         for (JsonNode a : articles) {
             if (moduleSlug.equals(a.path("moduleSlug").asString(null))) return true;

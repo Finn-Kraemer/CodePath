@@ -17,7 +17,7 @@ public final class PathGraph {
     private PathGraph() {
     }
 
-    public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR, CHOICE }
+    public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR, CHOICE, PATH }
 
     /**
      * @param module Slug des Moduls (MODULE und TASK)
@@ -27,9 +27,10 @@ public final class PathGraph {
      * @param label  eigene Beschriftung; Pflicht für Meilensteine, sonst gilt der Titel von Modul bzw. Aufgabe
      * @param min    nur OR / CHOICE: Mindestanzahl erfüllter Eingänge bzw. zu wählender Wege (Standard 1)
      * @param max    optional für CHOICE: Höchstanzahl zu wählender Wege (Standard 1)
+     * @param path   nur PATH: Slug des eingebundenen Lernpfad-Bausteins
      */
     public record Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
-                       Integer min, Integer max, int x, int y) {
+                       Integer min, Integer max, String path, int x, int y) {
         public Node {
             tasks = tasks == null || tasks.isEmpty() ? null : List.copyOf(new LinkedHashSet<>(tasks));
             if (kind == NodeKind.OR) {
@@ -38,15 +39,21 @@ public final class PathGraph {
                 min = null;
             }
             max = kind == NodeKind.CHOICE ? max : null;
+            path = kind == NodeKind.PATH && path != null && !path.isBlank() ? path.strip() : null;
+        }
+
+        public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
+                    Integer min, Integer max, int x, int y) {
+            this(id, kind, module, task, tasks, label, min, max, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
                     Integer min, int x, int y) {
-            this(id, kind, module, task, tasks, label, min, null, x, y);
+            this(id, kind, module, task, tasks, label, min, null, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label, int x, int y) {
-            this(id, kind, module, task, tasks, label, null, null, x, y);
+            this(id, kind, module, task, tasks, label, null, null, null, x, y);
         }
 
         /** Nutzt die Station nur einen Teil der Aufgaben ihres Moduls? */
@@ -60,6 +67,10 @@ public final class PathGraph {
 
         public boolean choice() {
             return kind == NodeKind.CHOICE;
+        }
+
+        public boolean subpath() {
+            return kind == NodeKind.PATH;
         }
 
         public boolean station() {
@@ -121,6 +132,12 @@ public final class PathGraph {
                 }
                 case TASK -> {
                     if (isBlank(node.module()) || isBlank(node.task())) throw ApiException.badRequest("Station " + node.id() + ": Aufgabe fehlt.");
+                }
+                case PATH -> {
+                    if (isBlank(node.path())) throw ApiException.badRequest("Baustein „" + node.id() + "“ braucht die Adresse eines Lernpfads.");
+                    if (!isBlank(node.module()) || !isBlank(node.task()) || node.tasks() != null) {
+                        throw ApiException.badRequest("Baustein „" + node.id() + "“ verweist auf einen Lernpfad, nicht auf ein einzelnes Modul oder eine Aufgabe.");
+                    }
                 }
                 case AND, OR, CHOICE -> {
                 }

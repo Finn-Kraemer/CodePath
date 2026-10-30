@@ -7,6 +7,7 @@
 		type CourseSummary,
 		type PathAdmin,
 		type PathNode,
+		type PathSummary,
 		type PathView,
 		type Schemas,
 		type StudentOverview
@@ -37,10 +38,12 @@
 		description: '',
 		published: false,
 		enforce: false,
+		templateOnly: false,
 		courseId: 0,
 		lockOthers: false,
 		unlockRestAfter: ''
 	});
+	let allPaths = $state<PathSummary[]>([]);
 	let courses = $state<CourseSummary[]>([]);
 	let students = $state<StudentOverview[]>([]);
 	let previewStudent = $state('');
@@ -59,10 +62,18 @@
 	let connectFrom = $state<string | null>(null);
 	let preview = $state<PathView | null>(null);
 
-	let draft = $state<{ kind: Kind; module: string; task: string; label: string; min: number }>({
+	let draft = $state<{
+		kind: Kind;
+		module: string;
+		task: string;
+		path: string;
+		label: string;
+		min: number;
+	}>({
 		kind: 'MODULE',
 		module: '',
 		task: '',
+		path: '',
 		label: '',
 		min: 1
 	});
@@ -71,6 +82,8 @@
 	const size = $derived(canvasSize(nodes, 1100, 560));
 	const byId = $derived(new Map(nodes.map((n) => [n.id, n])));
 	const modulesBySlug = $derived(new Map(catalog.map((m) => [m.module.slug, m])));
+	const pathsBySlug = $derived(new Map(allPaths.map((p) => [p.slug, p])));
+	const availableSubpaths = $derived(allPaths.filter((p) => p.id !== id));
 	const current = $derived(JSON.stringify({ ...form, graph: { nodes, edges } }));
 	const savedState = $derived(
 		saved
@@ -80,6 +93,7 @@
 					description: saved.description,
 					published: saved.published,
 					enforce: saved.enforce ?? false,
+					templateOnly: saved.templateOnly ?? false,
 					courseId: saved.courseId ?? 0,
 					lockOthers: saved.lockOthers,
 					unlockRestAfter: saved.unlockRestAfter ?? '',
@@ -96,22 +110,39 @@
 	);
 
 	onMount(async () => {
+		await loadEditor(id);
+	});
+
+	$effect(() => {
+		const targetId = id;
+		if (saved && saved.id !== targetId) {
+			loadEditor(targetId);
+		}
+	});
+
+	async function loadEditor(targetId: number) {
 		try {
-			const [path, modules, courseList, studentList] = await Promise.all([
-				api<PathAdmin>(`/api/admin/learning-paths/${id}`),
+			const [path, pathList, modules, courseList, studentList] = await Promise.all([
+				api<PathAdmin>(`/api/admin/learning-paths/${targetId}`),
+				api<PathSummary[]>('/api/admin/learning-paths'),
 				api<ModuleRow[]>('/api/admin/content'),
 				api<CourseSummary[]>('/api/admin/courses'),
 				api<StudentOverview[]>('/api/admin/students')
 			]);
+			allPaths = pathList;
 			catalog = modules;
 			courses = courseList;
 			students = studentList;
+			selectedId = null;
+			selectedEdge = null;
+			preview = null;
 			apply(path);
 			draft.module = catalog[0]?.module.slug ?? '';
+			draft.path = pathList.find((p) => p.id !== targetId)?.slug ?? '';
 		} catch (e) {
 			error = (e as Error).message;
 		}
-	});
+	}
 
 	beforeNavigate((navigation) => {
 		if (dirty && !confirm('Ungespeicherte Änderungen verwerfen?')) navigation.cancel();
@@ -130,6 +161,7 @@
 			description: path.description ?? '',
 			published: path.published,
 			enforce: path.enforce ?? false,
+			templateOnly: path.templateOnly ?? false,
 			courseId: path.courseId ?? 0,
 			lockOthers: path.lockOthers,
 			unlockRestAfter: path.unlockRestAfter ?? ''
@@ -156,6 +188,7 @@
 		if (n.module) node.module = n.module;
 		if (n.task) node.task = n.task;
 		if (n.kind === 'MODULE' && n.tasks?.length) node.tasks = n.tasks;
+		if (n.kind === 'PATH' && n.path) node.path = n.path;
 		if (n.label) node.label = n.label;
 		if (n.kind === 'OR') node.min = Math.max(1, n.min ?? 1);
 		node.x = n.x;
@@ -241,6 +274,9 @@
 			const min = n.min ?? 1;
 			return min > 1 ? `ODER-Block (mind. ${min})` : 'ODER-Block';
 		}
+		if (n.kind === 'PATH') {
+			return pathsBySlug.get(n.path ?? '')?.title ?? (n.path ? `⚠ ${n.path} fehlt` : 'Baustein');
+		}
 		const module = modulesBySlug.get(n.module);
 		if (n.kind === 'MODULE') {
 			if (!module) return `⚠ ${n.module} fehlt`;
@@ -255,6 +291,7 @@
 	function icon(n: PathNode): string {
 		if (n.kind === 'MILESTONE') return '🏁';
 		if (n.kind === 'CHOICE') return '🔀';
+		if (n.kind === 'PATH') return '🧩';
 		if (n.kind === 'AND') return '&';
 		if (n.kind === 'OR') return `≥${n.min ?? 1}`;
 		return modulesBySlug.get(n.module)?.module.icon ?? '';
@@ -266,7 +303,8 @@
 		MILESTONE: 'Meilenstein',
 		AND: 'Logik-Block: UND',
 		OR: 'Logik-Block: ODER',
-		CHOICE: 'Entweder-oder-Weiche'
+		CHOICE: 'Entweder-oder-Weiche',
+		PATH: 'Lernpfad-Baustein'
 	};
 
 	const BRANCH_PALETTE = [
@@ -315,6 +353,10 @@
 			error = 'Bitte eine Aufgabe wählen.';
 			return;
 		}
+		if (draft.kind === 'PATH' && !draft.path) {
+			error = 'Bitte einen Lernpfad-Baustein wählen.';
+			return;
+		}
 		const isStation = draft.kind === 'MODULE' || draft.kind === 'TASK';
 		const anchor = selected;
 		const node: PathNode = normalize({
@@ -323,6 +365,7 @@
 			module: isStation ? draft.module : '',
 			task: draft.kind === 'TASK' ? draft.task : '',
 			tasks: [],
+			path: draft.kind === 'PATH' ? draft.path : undefined,
 			label: draft.label.trim(),
 			min: draft.kind === 'OR' ? Math.max(1, draft.min || 1) : undefined,
 			x: anchor ? anchor.x : 60,
@@ -661,6 +704,10 @@
 						onchange={(e) => toggleEnforce((e.currentTarget as HTMLInputElement).checked)}
 					/> Verbindlich (Pflicht-Vorgänger müssen erledigt sein)</label
 				>
+				<label class="flex items-center gap-2 text-sm text-violet-900"
+					><input type="checkbox" bind:checked={form.templateOnly} /> Nur als Baustein (nicht einzeln
+					in der Schüler-Auswahl)</label
+				>
 				<span class="flex-1"></span>
 				<button class="ed-button" onclick={() => (preview ? (preview = null) : showPreview())}
 					>{preview ? 'Vorschau schließen' : 'Vorschau'}</button
@@ -675,6 +722,11 @@
 					disabled={busy || !dirty}>{dirty ? 'Speichern' : 'Gespeichert'}</button
 				>
 			</div>
+			{#if saved.usedIn?.length}
+				<p class="text-xs text-slate-500 md:col-span-4">
+					🧩 Wird als Baustein eingebunden in: <strong>{saved.usedIn.join(', ')}</strong>
+				</p>
+			{/if}
 		</section>
 
 		{#if saved.warnings?.length}
@@ -728,7 +780,7 @@
 						</select>
 					</label>
 				</div>
-				<PathMap path={preview} />
+				<PathMap path={preview} student={previewStudent || undefined} />
 			</section>
 		{/if}
 
@@ -818,15 +870,18 @@
 						{#each nodes as node (node.id)}
 							{@const isGate = node.kind === 'AND' || node.kind === 'OR'}
 							{@const branchStyle = branchStyles.get(node.id)}
+							{@const subpathInfo = node.kind === 'PATH' ? pathsBySlug.get(node.path ?? '') : undefined}
 							<div
 								class="absolute flex cursor-grab touch-none flex-col justify-between border-2 p-3 select-none active:cursor-grabbing {node.kind ===
 								'MILESTONE'
 									? 'rounded-full border-dashed border-institutional-gold bg-white text-center'
 									: node.kind === 'CHOICE'
 										? 'border-institutional-navy bg-amber-50/70'
-										: isGate
-											? 'border-institutional-navy bg-slate-50'
-											: (branchStyle ?? 'border-slate-300 bg-white')} {selectedId === node.id
+										: node.kind === 'PATH'
+											? (branchStyle ?? 'border-violet-400 bg-violet-50/50')
+											: isGate
+												? 'border-institutional-navy bg-slate-50'
+												: (branchStyle ?? 'border-slate-300 bg-white')} {selectedId === node.id
 									? 'ring-4 ring-institutional-navy/30'
 									: ''} {connectFrom === node.id ? 'ring-4 ring-institutional-gold/60' : ''}"
 								style="left: {node.x}px; top: {node.y}px; width: {NODE_W}px; height: {NODE_H}px"
@@ -856,7 +911,9 @@
 								</div>
 								<span
 									class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
-									>{KIND_LABELS[node.kind]}</span
+									>{node.kind === 'PATH' && subpathInfo
+										? `${KIND_LABELS[node.kind]} · ${subpathInfo.stations} Stationen`
+										: KIND_LABELS[node.kind]}</span
 								>
 							</div>
 						{/each}
@@ -931,6 +988,7 @@
 
 				{#if selected}
 					{@const incomingCount = edges.filter((e) => e.to === selected.id).length}
+					{@const targetSubpath = selected.kind === 'PATH' ? pathsBySlug.get(selected.path ?? '') : undefined}
 					<section
 						class="flex flex-col gap-3 border border-slate-200 bg-white p-4"
 						aria-label="Station bearbeiten"
@@ -940,6 +998,19 @@
 							<p class="font-mono text-xs text-slate-500">
 								{selected.module}{selected.task ? `/${selected.task}` : ''}
 							</p>
+						{/if}
+						{#if selected.kind === 'PATH'}
+							<p class="font-mono text-xs text-slate-500">
+								/{selected.path}
+								{#if targetSubpath}· {targetSubpath.stations} Stationen{/if}
+							</p>
+							{#if targetSubpath}
+								<a
+									class="ed-button text-center"
+									href="/admin/learning-paths/{targetSubpath.id}"
+									>Baustein bearbeiten →</a
+								>
+							{/if}
 						{/if}
 						{#if selected.kind === 'AND' || selected.kind === 'OR'}
 							<p class="text-xs text-slate-600">
@@ -1095,6 +1166,7 @@
 					<select class="ed-input" bind:value={draft.kind} aria-label="Art der Station">
 						<option value="MODULE">Modul</option>
 						<option value="TASK">Einzelne Aufgabe</option>
+						<option value="PATH">Lernpfad-Baustein (🧩)</option>
 						<option value="MILESTONE">Meilenstein</option>
 						<option value="CHOICE">Entweder-oder-Weiche (🔀)</option>
 						<option value="AND">Logik-Block · UND (&amp;)</option>
@@ -1118,6 +1190,14 @@
 							{#each draftTasks as t (t.slug)}<option value={t.slug}>{t.title}</option>{/each}
 						</select>
 					{/if}
+					{#if draft.kind === 'PATH'}
+						<select class="ed-input" bind:value={draft.path} aria-label="Lernpfad-Baustein">
+							<option value="">Baustein wählen …</option>
+							{#each availableSubpaths as p (p.slug)}
+								<option value={p.slug}>🧩 {p.title} ({p.stations} Stationen)</option>
+							{/each}
+						</select>
+					{/if}
 					{#if draft.kind === 'OR'}
 						<label class="ed-label">
 							Mindestens erfüllte Eingänge
@@ -1131,7 +1211,7 @@
 							/>
 						</label>
 					{/if}
-					{#if draft.kind === 'MILESTONE' || draft.kind === 'CHOICE' || draft.kind === 'AND' || draft.kind === 'OR'}
+					{#if draft.kind === 'MILESTONE' || draft.kind === 'CHOICE' || draft.kind === 'AND' || draft.kind === 'OR' || draft.kind === 'PATH'}
 						<input
 							class="ed-input"
 							placeholder={draft.kind === 'MILESTONE'
