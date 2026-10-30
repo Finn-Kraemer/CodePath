@@ -596,6 +596,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/learning-paths/{id}/choice-stats': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['choiceStats'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/learning-paths/{id}/course-actions': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['courseAction'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/media': {
 		parameters: {
 			query?: never;
@@ -862,6 +894,86 @@ export interface paths {
 		get: operations['students'];
 		put?: never;
 		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/students/{username}/learning-path': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['studentPath'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/students/{username}/learning-paths/{slug}/branches/unlock': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['unlockBranch'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/students/{username}/learning-paths/{slug}/choices/reset': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['resetChoice'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/students/{username}/learning-paths/{slug}/choices/set': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['setChoice'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/students/{username}/learning-paths/{slug}/nodes/unlock': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['unlockNode'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -1749,15 +1861,40 @@ export interface components {
 			problems: string[];
 			valid: boolean;
 		};
+		ChoiceBranchStat: {
+			/** Format: int32 */
+			count: number;
+			label: string;
+			to: string;
+			/** Format: int32 */
+			unlockedCount: number;
+		};
+		ChoiceNodeStats: {
+			branches: components['schemas']['ChoiceBranchStat'][];
+			nodeId: string;
+			nodeLabel: string;
+			/** Format: int32 */
+			openCount: number;
+			pathSlug: string;
+			pathTitle: string;
+			subpath: boolean;
+			/** Format: int32 */
+			totalStudents: number;
+		};
 		ChoiceOption: {
 			chosen: boolean;
 			hint: string;
 			label: string;
 			to: string;
+			unlocked: boolean;
 		};
 		ChoiceRequest: {
 			nodeId?: string;
 			to?: string;
+		};
+		ChoiceResetRequest: {
+			nodeId?: string;
+			resetProgress?: boolean;
 		};
 		Compass: {
 			entries: components['schemas']['CompassEntry'][];
@@ -1774,6 +1911,16 @@ export interface components {
 			moduleTitle: string;
 			/** Format: int32 */
 			percent: number;
+		};
+		CoursePathActionRequest: {
+			/** @enum {string} */
+			action?: 'RESET_CHOICE' | 'SET_CHOICE' | 'UNLOCK_BRANCH' | 'UNLOCK_NODE';
+			/** Format: int64 */
+			courseId?: number;
+			nodeId?: string;
+			pathSlug?: string;
+			resetProgress?: boolean;
+			to?: string;
 		};
 		CourseSummary: {
 			/** Format: date */
@@ -2029,6 +2176,9 @@ export interface components {
 			/** Format: int32 */
 			y: number;
 		};
+		NodeUnlockRequest: {
+			nodeId?: string;
+		};
 		NodeView: {
 			chosenTo: string;
 			/** Format: int32 */
@@ -2047,6 +2197,7 @@ export interface components {
 			recommended: boolean;
 			/** @enum {string} */
 			state: 'DONE' | 'AVAILABLE' | 'BLOCKED' | 'UPCOMING' | 'CLOSED' | 'LOCKED' | 'EXCLUDED';
+			teacherUnlocked: boolean;
 			/** Format: int32 */
 			total: number;
 			/** Format: int32 */
@@ -2209,6 +2360,34 @@ export interface components {
 			/** Format: int64 */
 			timeout: number;
 		};
+		StudentChoiceEntry: {
+			/** Format: date-time */
+			chosenAt: string;
+			chosenBy: string;
+			chosenLabel: string;
+			chosenTo: string;
+			nodeId: string;
+			nodeLabel: string;
+			options: components['schemas']['ChoiceOption'][];
+			pathSlug: string;
+			pathTitle: string;
+			/** @enum {string} */
+			state: 'DONE' | 'AVAILABLE' | 'BLOCKED' | 'UPCOMING' | 'CLOSED' | 'LOCKED' | 'EXCLUDED';
+			subpath: boolean;
+		};
+		StudentOverrideEntry: {
+			/** Format: date-time */
+			createdAt: string;
+			/** Format: int64 */
+			id: number;
+			kind: string;
+			nodeId: string;
+			nodeLabel: string;
+			pathSlug: string;
+			pathTitle: string;
+			target: string;
+			targetLabel: string;
+		};
 		StudentOverview: {
 			/** Format: int64 */
 			completedTasks: number;
@@ -2219,6 +2398,13 @@ export interface components {
 			/** Format: int64 */
 			totalPoints: number;
 			username: string;
+		};
+		StudentPathAdminView: {
+			choices: components['schemas']['StudentChoiceEntry'][];
+			overrides: components['schemas']['StudentOverrideEntry'][];
+			paths: components['schemas']['PathLink'][];
+			selectedSlug: string;
+			view: components['schemas']['PathView'];
 		};
 		StudentTask: {
 			/** Format: int32 */
@@ -3598,6 +3784,58 @@ export interface operations {
 			};
 		};
 	};
+	choiceStats: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ChoiceNodeStats'][];
+				};
+			};
+		};
+	};
+	courseAction: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['CoursePathActionRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': {
+						[key: string]: number;
+					};
+				};
+			};
+		};
+	};
 	list: {
 		parameters: {
 			query?: never;
@@ -4100,6 +4338,130 @@ export interface operations {
 				content: {
 					'*/*': components['schemas']['StudentOverview'][];
 				};
+			};
+		};
+	};
+	studentPath: {
+		parameters: {
+			query?: {
+				slug?: string;
+			};
+			header?: never;
+			path: {
+				username: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['StudentPathAdminView'];
+				};
+			};
+		};
+	};
+	unlockBranch: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				username: string;
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ChoiceRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	resetChoice: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				username: string;
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ChoiceResetRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	setChoice: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				username: string;
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ChoiceRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	unlockNode: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				username: string;
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['NodeUnlockRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
 			};
 		};
 	};

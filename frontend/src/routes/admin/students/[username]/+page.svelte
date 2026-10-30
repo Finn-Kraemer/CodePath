@@ -1,12 +1,22 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { api, type Schemas } from '$lib/api';
 	import { auth } from '$lib/auth.svelte';
+	import PathMap from '$lib/pathway/PathMap.svelte';
+
+	type StudentPathAdminView = Schemas['StudentPathAdminView'];
 
 	const username = page.params.username;
 	let loading = $state(true);
+	let activeTab = $state<'tasks' | 'path'>('tasks');
 	let student = $state<any>(null);
 	let tasks = $state<any[]>([]);
+	let pathAdmin = $state<StudentPathAdminView | null>(null);
+	let pathBusy = $state(false);
+	let pathMessage = $state('');
+	let pathError = $state('');
+	let resetProgressByChoice = $state<Record<string, boolean>>({});
 	let groupedTasks = $derived.by(() => {
 		const groups: Record<string, any[]> = {};
 		tasks.forEach((t) => {
@@ -26,21 +36,107 @@
 		expandedModules[title] = !expandedModules[title];
 	}
 
-	async function fetchData() {
+	async function fetchData(requestedSlug?: string) {
 		try {
-			const [studentRes, tasksRes] = await Promise.all([
+			const query = requestedSlug ? `?slug=${encodeURIComponent(requestedSlug)}` : '';
+			const [studentRes, tasksRes, pathData] = await Promise.all([
 				auth.apiFetch(`/api/users/profile?username=${username}`),
-				auth.apiFetch(`/api/admin/students/${username}/tasks`)
+				auth.apiFetch(`/api/admin/students/${username}/tasks`),
+				api<StudentPathAdminView>(`/api/admin/students/${username}/learning-path${query}`).catch(
+					() => null
+				)
 			]);
 
 			if (studentRes.ok && tasksRes.ok) {
 				student = await studentRes.json();
 				tasks = await tasksRes.json();
 			}
+			if (pathData) {
+				pathAdmin = pathData;
+			}
 		} catch (e) {
 			console.error(e);
 		} finally {
 			loading = false;
+		}
+	}
+
+	function flashPath(text: string) {
+		pathMessage = text;
+		setTimeout(() => (pathMessage = ''), 3000);
+	}
+
+	async function resetChoice(pathSlug: string, nodeId: string) {
+		const key = `${pathSlug}:${nodeId}`;
+		const resetProgress = !!resetProgressByChoice[key];
+		pathBusy = true;
+		pathError = '';
+		try {
+			await api(`/api/admin/students/${username}/learning-paths/${pathSlug}/choices/reset`, {
+				method: 'POST',
+				body: { nodeId, resetProgress }
+			});
+			await fetchData(pathAdmin?.selectedSlug ?? undefined);
+			flashPath(
+				resetProgress
+					? 'Wahl und Fortschritt im verlassenen Weg zurückgesetzt.'
+					: 'Wahl zurückgesetzt.'
+			);
+		} catch (e) {
+			pathError = (e as Error).message;
+		} finally {
+			pathBusy = false;
+		}
+	}
+
+	async function setChoiceForStudent(pathSlug: string, nodeId: string, to: string) {
+		pathBusy = true;
+		pathError = '';
+		try {
+			await api(`/api/admin/students/${username}/learning-paths/${pathSlug}/choices/set`, {
+				method: 'POST',
+				body: { nodeId, to }
+			});
+			await fetchData(pathAdmin?.selectedSlug ?? undefined);
+			flashPath('Weg für Schüler/in gesetzt.');
+		} catch (e) {
+			pathError = (e as Error).message;
+		} finally {
+			pathBusy = false;
+		}
+	}
+
+	async function toggleUnlockBranch(pathSlug: string, nodeId: string, to: string) {
+		pathBusy = true;
+		pathError = '';
+		try {
+			await api(`/api/admin/students/${username}/learning-paths/${pathSlug}/branches/unlock`, {
+				method: 'POST',
+				body: { nodeId, to }
+			});
+			await fetchData(pathAdmin?.selectedSlug ?? undefined);
+			flashPath('Zweig-Freigabe aktualisiert.');
+		} catch (e) {
+			pathError = (e as Error).message;
+		} finally {
+			pathBusy = false;
+		}
+	}
+
+	async function toggleUnlockNode(pathSlug: string, nodeId: string) {
+		pathBusy = true;
+		pathError = '';
+		try {
+			await api(`/api/admin/students/${username}/learning-paths/${pathSlug}/nodes/unlock`, {
+				method: 'POST',
+				body: { nodeId }
+			});
+			await fetchData(pathAdmin?.selectedSlug ?? undefined);
+			flashPath('Stations-Freigabe aktualisiert.');
+		} catch (e) {
+			pathError = (e as Error).message;
+		} finally {
+			pathBusy = false;
 		}
 	}
 
@@ -111,7 +207,7 @@
 		}
 	}
 
-	onMount(fetchData);
+	onMount(() => fetchData());
 </script>
 
 <div class="flex flex-col gap-12">
@@ -121,9 +217,35 @@
 			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
 			>← Zurück zur Administration</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			Teilnehmer-Akte: {username}
-		</h1>
+		<div class="flex flex-wrap items-end justify-between gap-4">
+			<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+				Teilnehmer-Akte: {username}
+			</h1>
+			<div class="flex border border-slate-200 bg-white" role="tablist" aria-label="Ansicht">
+				<button
+					type="button"
+					role="tab"
+					aria-selected={activeTab === 'tasks'}
+					class="px-5 py-2.5 text-[10px] font-black tracking-[2px] uppercase {activeTab === 'tasks'
+						? 'bg-institutional-navy text-white'
+						: 'text-slate-500 hover:text-institutional-navy'}"
+					onclick={() => (activeTab = 'tasks')}
+				>
+					Aufgaben
+				</button>
+				<button
+					type="button"
+					role="tab"
+					aria-selected={activeTab === 'path'}
+					class="px-5 py-2.5 text-[10px] font-black tracking-[2px] uppercase {activeTab === 'path'
+						? 'bg-institutional-navy text-white'
+						: 'text-slate-500 hover:text-institutional-navy'}"
+					onclick={() => (activeTab = 'path')}
+				>
+					Lernpfad
+				</button>
+			</div>
+		</div>
 	</header>
 
 	{#if loading}
@@ -135,6 +257,7 @@
 	{:else if student}
 		<div class="grid grid-cols-1 gap-12 lg:grid-cols-3">
 			<div class="space-y-12 lg:col-span-2">
+				{#if activeTab === 'tasks'}
 				<!-- Task Checklist -->
 				<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
 					<h3 class="mb-10 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
@@ -346,6 +469,202 @@
 						{/each}
 					</div>
 				</div>
+				{:else}
+					<div class="space-y-8 border border-slate-200 bg-white p-10 shadow-sm">
+						<div class="flex flex-wrap items-center justify-between gap-4">
+							<div>
+								<h3 class="font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+									Lernpfad-Stand &amp; Eingriffe
+								</h3>
+								{#if pathAdmin?.view}
+									<p class="mt-1 text-lg font-bold text-institutional-navy">
+										{pathAdmin.view.title}
+										<span class="ml-2 font-mono text-xs text-slate-400">
+											({pathAdmin.view.stationsDone}/{pathAdmin.view.stations} Stationen)
+										</span>
+									</p>
+								{/if}
+							</div>
+							{#if (pathAdmin?.paths?.length ?? 0) > 1}
+								<select
+									aria-label="Lernpfad auswählen"
+									class="border border-slate-200 bg-white px-3 py-2 text-sm"
+									value={pathAdmin?.selectedSlug ?? ''}
+									onchange={(e) => fetchData((e.currentTarget as HTMLSelectElement).value)}
+								>
+									{#each pathAdmin?.paths ?? [] as p (p.slug)}
+										<option value={p.slug}>{p.title}</option>
+									{/each}
+								</select>
+							{/if}
+						</div>
+
+						{#if pathMessage}
+							<div
+								class="border border-emerald-200 bg-emerald-50 p-3 font-mono text-[10px] tracking-widest text-emerald-800 uppercase"
+								role="status"
+							>
+								{pathMessage}
+							</div>
+						{/if}
+						{#if pathError}
+							<div
+								class="border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700"
+								role="alert"
+							>
+								{pathError}
+							</div>
+						{/if}
+
+						{#if !pathAdmin?.view}
+							<p class="py-12 text-center text-sm text-slate-400 italic">
+								Für diese Person ist aktuell kein veröffentlichter Lernpfad aktiv.
+							</p>
+						{:else}
+							<PathMap
+								path={pathAdmin.view}
+								student={username}
+								onupdate={() => fetchData(pathAdmin?.selectedSlug ?? undefined)}
+							/>
+
+							{#if (pathAdmin.choices?.length ?? 0) > 0}
+								<div class="space-y-4 border-t border-slate-100 pt-6">
+									<h4
+										class="font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
+									>
+										Entscheidungen an Weichen
+									</h4>
+									{#each pathAdmin.choices as ch (`${ch.pathSlug}:${ch.nodeId}`)}
+										{@const choiceKey = `${ch.pathSlug}:${ch.nodeId}`}
+										<div class="space-y-3 border border-slate-200 bg-slate-50/60 p-4">
+											<div class="flex flex-wrap items-start justify-between gap-3">
+												<div>
+													<div class="flex flex-wrap items-center gap-2">
+														<span class="text-sm font-bold text-institutional-navy">
+															🔀 {ch.nodeLabel}
+														</span>
+														{#if ch.subpath}
+															<span
+																class="border border-violet-200 bg-violet-50 px-2 py-0.5 font-mono text-[9px] font-bold text-violet-800 uppercase"
+															>
+																🧩 Baustein: {ch.pathTitle}
+															</span>
+														{/if}
+													</div>
+													{#if ch.chosenTo}
+														<p class="mt-1 text-xs text-slate-600">
+															Gewählter Weg: <strong class="text-institutional-navy"
+																>„{ch.chosenLabel}“</strong
+															>
+															· {ch.chosenBy === 'TEACHER'
+																? 'gesetzt durch Lehrkraft'
+																: 'gewählt durch Schüler/in'}
+														</p>
+													{:else}
+														<p class="mt-1 text-xs text-slate-500">Noch keine Wahl getroffen.</p>
+													{/if}
+												</div>
+
+												{#if ch.chosenTo}
+													<div class="flex flex-wrap items-center gap-3">
+														<label class="flex items-center gap-1.5 text-xs text-slate-600">
+															<input
+																type="checkbox"
+																checked={!!resetProgressByChoice[choiceKey]}
+																onchange={(e) =>
+																	(resetProgressByChoice[choiceKey] = (
+																		e.currentTarget as HTMLInputElement
+																	).checked)}
+															/>
+															<span>Fortschritt im verlassenen Weg zurücksetzen</span>
+														</label>
+														<button
+															type="button"
+															disabled={pathBusy}
+															class="border border-rose-300 bg-white px-3 py-1.5 font-mono text-[10px] font-bold tracking-widest text-rose-700 uppercase hover:bg-rose-50 disabled:opacity-50"
+															onclick={() => resetChoice(ch.pathSlug, ch.nodeId)}
+														>
+															Wahl zurücksetzen
+														</button>
+													</div>
+												{/if}
+											</div>
+
+											<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+												{#each ch.options ?? [] as opt (opt.to)}
+													<div
+														class="flex items-center justify-between gap-2 border border-slate-200 bg-white px-3 py-2 text-xs"
+													>
+														<span class="font-bold text-slate-800">{opt.label}</span>
+														<div class="flex flex-wrap items-center gap-1.5">
+															<button
+																type="button"
+																disabled={pathBusy || opt.chosen}
+																class="border px-2.5 py-1 font-mono text-[9px] font-bold uppercase {opt.chosen
+																	? 'border-emerald-600 bg-emerald-600 text-white'
+																	: 'border-slate-200 text-institutional-navy hover:border-institutional-navy'}"
+																onclick={() => setChoiceForStudent(ch.pathSlug, ch.nodeId, opt.to)}
+															>
+																{opt.chosen ? 'Gewählt ✓' : 'Wahl setzen'}
+															</button>
+															{#if !opt.chosen}
+																<button
+																	type="button"
+																	disabled={pathBusy}
+																	class="border px-2.5 py-1 font-mono text-[9px] font-bold uppercase {opt.unlocked
+																		? 'border-sky-600 bg-sky-600 text-white'
+																		: 'border-slate-200 text-slate-600 hover:border-sky-500 hover:text-sky-700'}"
+																	onclick={() =>
+																		toggleUnlockBranch(ch.pathSlug, ch.nodeId, opt.to)}
+																>
+																	{opt.unlocked ? 'Zusätzlich frei ✓' : '+ Weg freischalten'}
+																</button>
+															{/if}
+														</div>
+													</div>
+												{/each}
+											</div>
+										</div>
+									{/each}
+								</div>
+							{/if}
+
+							<div class="space-y-3 border-t border-slate-100 pt-6">
+								<h4
+									class="font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
+								>
+									Stationen einzeln freischalten ({pathAdmin.view.title})
+								</h4>
+								<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+									{#each pathAdmin.view.nodes.filter((n) => n.kind !== 'CHOICE') as node (node.id)}
+										<div
+											class="flex items-center justify-between gap-2 border border-slate-200 bg-slate-50/40 px-3 py-2 text-xs"
+										>
+											<div class="min-w-0">
+												<span class="block truncate font-bold text-institutional-navy">
+													{node.icon} {node.label}
+												</span>
+												<span class="font-mono text-[9px] text-slate-400 uppercase">
+													{node.state}
+												</span>
+											</div>
+											<button
+												type="button"
+												disabled={pathBusy}
+												class="shrink-0 border px-2.5 py-1 font-mono text-[9px] font-bold uppercase {node.teacherUnlocked
+													? 'border-emerald-600 bg-emerald-600 text-white'
+													: 'border-slate-200 bg-white text-institutional-navy hover:border-institutional-navy'}"
+												onclick={() => toggleUnlockNode(pathAdmin!.selectedSlug!, node.id)}
+											>
+												{node.teacherUnlocked ? 'Freigeschaltet ✓' : 'Station freischalten'}
+											</button>
+										</div>
+									{/each}
+								</div>
+							</div>
+						{/if}
+					</div>
+				{/if}
 			</div>
 
 			<div class="space-y-8">

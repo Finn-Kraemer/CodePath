@@ -1239,6 +1239,85 @@
         "tags" : [ "learning-path-controller" ]
       }
     },
+    "/api/admin/learning-paths/{id}/choice-stats" : {
+      "get" : {
+        "operationId" : "choiceStats",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ChoiceNodeStats"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/admin/learning-paths/{id}/course-actions" : {
+      "post" : {
+        "operationId" : "courseAction",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CoursePathActionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int32"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
     "/api/admin/media" : {
       "get" : {
         "operationId" : "list",
@@ -1854,6 +1933,183 @@
           }
         },
         "tags" : [ "student-record-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/learning-path" : {
+      "get" : {
+        "operationId" : "studentPath",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "slug",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StudentPathAdminView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/learning-paths/{slug}/branches/unlock" : {
+      "post" : {
+        "operationId" : "unlockBranch",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChoiceRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/learning-paths/{slug}/choices/reset" : {
+      "post" : {
+        "operationId" : "resetChoice",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChoiceResetRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/learning-paths/{slug}/choices/set" : {
+      "post" : {
+        "operationId" : "setChoice",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChoiceRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/learning-paths/{slug}/nodes/unlock" : {
+      "post" : {
+        "operationId" : "unlockNode",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NodeUnlockRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
       }
     },
     "/api/admin/students/{username}/report" : {
@@ -3579,6 +3835,61 @@
         },
         "required" : [ "dryRun", "problems", "valid" ]
       },
+      "ChoiceBranchStat" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "to" : {
+            "type" : "string"
+          },
+          "unlockedCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "count", "label", "to", "unlockedCount" ]
+      },
+      "ChoiceNodeStats" : {
+        "type" : "object",
+        "properties" : {
+          "branches" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChoiceBranchStat"
+            }
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "nodeLabel" : {
+            "type" : "string"
+          },
+          "openCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "subpath" : {
+            "type" : "boolean"
+          },
+          "totalStudents" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "branches", "nodeId", "nodeLabel", "openCount", "pathSlug", "pathTitle", "subpath", "totalStudents" ]
+      },
       "ChoiceOption" : {
         "type" : "object",
         "properties" : {
@@ -3593,9 +3904,12 @@
           },
           "to" : {
             "type" : "string"
+          },
+          "unlocked" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "chosen", "hint", "label", "to" ]
+        "required" : [ "chosen", "hint", "label", "to", "unlocked" ]
       },
       "ChoiceRequest" : {
         "type" : "object",
@@ -3605,6 +3919,17 @@
           },
           "to" : {
             "type" : "string"
+          }
+        }
+      },
+      "ChoiceResetRequest" : {
+        "type" : "object",
+        "properties" : {
+          "nodeId" : {
+            "type" : "string"
+          },
+          "resetProgress" : {
+            "type" : "boolean"
           }
         }
       },
@@ -3655,6 +3980,31 @@
           }
         },
         "required" : [ "achieved", "career", "icon", "max", "moduleSlug", "moduleTitle", "percent" ]
+      },
+      "CoursePathActionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "type" : "string",
+            "enum" : [ "RESET_CHOICE", "SET_CHOICE", "UNLOCK_BRANCH", "UNLOCK_NODE" ]
+          },
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "resetProgress" : {
+            "type" : "boolean"
+          },
+          "to" : {
+            "type" : "string"
+          }
+        }
       },
       "CourseSummary" : {
         "type" : "object",
@@ -4292,6 +4642,14 @@
         },
         "required" : [ "id", "kind", "label", "max", "min", "module", "path", "task", "tasks", "x", "y" ]
       },
+      "NodeUnlockRequest" : {
+        "type" : "object",
+        "properties" : {
+          "nodeId" : {
+            "type" : "string"
+          }
+        }
+      },
       "NodeView" : {
         "type" : "object",
         "properties" : {
@@ -4341,6 +4699,9 @@
             "type" : "string",
             "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED" ]
           },
+          "teacherUnlocked" : {
+            "type" : "boolean"
+          },
           "total" : {
             "type" : "integer",
             "format" : "int32"
@@ -4354,7 +4715,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "label", "min", "options", "path", "reason", "recommended", "state", "total", "x", "y" ]
+        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "label", "min", "options", "path", "reason", "recommended", "state", "teacherUnlocked", "total", "x", "y" ]
       },
       "PageDetail" : {
         "type" : "object",
@@ -4805,6 +5166,85 @@
         },
         "required" : [ "timeout" ]
       },
+      "StudentChoiceEntry" : {
+        "type" : "object",
+        "properties" : {
+          "chosenAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "chosenBy" : {
+            "type" : "string"
+          },
+          "chosenLabel" : {
+            "type" : "string"
+          },
+          "chosenTo" : {
+            "type" : "string"
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "nodeLabel" : {
+            "type" : "string"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChoiceOption"
+            }
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "state" : {
+            "type" : "string",
+            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED" ]
+          },
+          "subpath" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "chosenAt", "chosenBy", "chosenLabel", "chosenTo", "nodeId", "nodeLabel", "options", "pathSlug", "pathTitle", "state", "subpath" ]
+      },
+      "StudentOverrideEntry" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "nodeLabel" : {
+            "type" : "string"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "targetLabel" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "createdAt", "id", "kind", "nodeId", "nodeLabel", "pathSlug", "pathTitle", "target", "targetLabel" ]
+      },
       "StudentOverview" : {
         "type" : "object",
         "properties" : {
@@ -4831,6 +5271,36 @@
           }
         },
         "required" : [ "completedTasks", "courseId", "courseName", "displayName", "totalPoints", "username" ]
+      },
+      "StudentPathAdminView" : {
+        "type" : "object",
+        "properties" : {
+          "choices" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StudentChoiceEntry"
+            }
+          },
+          "overrides" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StudentOverrideEntry"
+            }
+          },
+          "paths" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PathLink"
+            }
+          },
+          "selectedSlug" : {
+            "type" : "string"
+          },
+          "view" : {
+            "$ref" : "#/components/schemas/PathView"
+          }
+        },
+        "required" : [ "choices", "overrides", "paths", "selectedSlug", "view" ]
       },
       "StudentTask" : {
         "type" : "object",

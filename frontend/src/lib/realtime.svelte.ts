@@ -22,7 +22,12 @@ class RealtimeStore {
 	/** Bestand schon eine Verbindung und ist seit einigen Sekunden weg? */
 	isLost = $state(false);
 	lastAnnouncement = $state<Announcement | null>(null);
+	lastPathNotice = $state<{ username: string; message: string; at: number } | null>(null);
 	leaderboardUpdateTrigger = $state(0);
+
+	clearPathNotice() {
+		this.lastPathNotice = null;
+	}
 
 	connect() {
 		if (!browser || this.source) return;
@@ -38,6 +43,21 @@ class RealtimeStore {
 			this.lastAnnouncement = JSON.parse((event as MessageEvent).data);
 		});
 		this.source.addEventListener('leaderboard', () => {
+			this.leaderboardUpdateTrigger++;
+		});
+		this.source.addEventListener('learning_path', (event) => {
+			try {
+				const data = JSON.parse((event as MessageEvent).data);
+				if (data?.username && data?.message) {
+					this.lastPathNotice = {
+						username: data.username,
+						message: data.message,
+						at: Date.now()
+					};
+				}
+			} catch {
+				// ignorieren
+			}
 			this.leaderboardUpdateTrigger++;
 		});
 		this.source.onerror = () => {

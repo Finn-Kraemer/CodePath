@@ -723,6 +723,123 @@ class LearningPathTest extends IntegrationTestBase {
         assertEquals("DONE", state(view, "ziel"));
     }
 
+    @Test
+    void teacherCanResetChoicesUnlockBranchesUnlockStationsAndRunCourseActions() throws Exception {
+        Course course = course("10a");
+        User max = student("max", course);
+        User lena = student("lena", course);
+
+        long id = body(postAs(teacher(), "/api/admin/learning-paths",
+                Map.of("title", "Weichen-Kurs", "slug", "weichen-kurs"))).get("id").asLong();
+
+        // Intro (g1) -> Weiche (ch) -> Zweig A (g5) | Zweig B (g3) -> Finale (g6)
+        Map<String, Object> graph = Map.of(
+                "nodes", List.of(
+                        node("intro", "TASK", "git", "g1", null, 80),
+                        node("ch", "CHOICE", null, null, "Pfadwahl", 220),
+                        node("branchA", "TASK", "git", "g5", null, 360),
+                        node("branchB", "TASK", "git", "g3", null, 360),
+                        node("finale", "TASK", "git", "g6", null, 520)
+                ),
+                "edges", List.of(
+                        requiredEdge("intro", "ch"),
+                        Map.of("from", "ch", "to", "branchA", "required", true, "label", "Weg A"),
+                        Map.of("from", "ch", "to", "branchB", "required", true, "label", "Weg B"),
+                        requiredEdge("branchA", "finale"),
+                        requiredEdge("branchB", "finale")
+                )
+        );
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of(
+                "published", true,
+                "enforce", true,
+                "courseId", course.getId(),
+                "lockOthers", true,
+                "graph", graph
+        )).andExpect(status().isOk());
+
+        // Schüler dürfen keine Lehrkraft-Endpunkte aufrufen
+        getAs(as(max), "/api/admin/students/max/learning-path").andExpect(status().isForbidden());
+        postAs(as(max), "/api/admin/students/max/learning-paths/weichen-kurs/nodes/unlock",
+                Map.of("nodeId", "intro")).andExpect(status().isForbidden());
+
+        // 1. Station freischalten (UNLOCK_NODE): Lehrkraft schaltet "intro" für Max frei -> Weiche "ch" ist direkt AVAILABLE
+        postAs(teacher(), "/api/admin/students/max/learning-paths/weichen-kurs/nodes/unlock",
+                Map.of("nodeId", "intro")).andExpect(status().isNoContent());
+
+        JsonNode maxView = body(getAs(as(max), "/api/learning-paths/weichen-kurs"));
+        assertTrue(find(maxView, "intro").get("teacherUnlocked").asBoolean());
+        assertEquals("AVAILABLE", state(maxView, "ch"), "Freigeschaltete Vorgänger-Station gilt als clear für Nachfolger");
+        // Lena hat kein Override -> bei ihr ist ch weiter BLOCKED
+        JsonNode lenaView = body(getAs(as(lena), "/api/learning-paths/weichen-kurs"));
+        assertEquals("BLOCKED", state(lenaView, "ch"));
+
+        // 2. Max wählt Weg A (branchA) und löst dort g5
+        postAs(as(max), "/api/learning-paths/weichen-kurs/choices", Map.of("nodeId", "ch", "to", "branchA"))
+                .andExpect(status().isOk());
+        getAs(as(max), "/api/modules/git/g3").andExpect(status().isForbidden());
+        postAs(as(max), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        long pointsAfterG5 = points(max);
+        assertTrue(pointsAfterG5 > 0);
+
+        // 3. Weg zusätzlich freischalten (UNLOCK_BRANCH): Lehrkraft schaltet branchB zusätzlich für Max frei
+        postAs(teacher(), "/api/admin/students/max/learning-paths/weichen-kurs/branches/unlock",
+                Map.of("nodeId", "ch", "to", "branchB")).andExpect(status().isNoContent());
+        maxView = body(getAs(as(max), "/api/learning-paths/weichen-kurs"));
+        assertEquals("DONE", state(maxView, "branchA"), "Gewählter Weg A bleibt erhalten");
+        assertEquals("AVAILABLE", state(maxView, "branchB"), "Zusätzlich freigeschalteter Weg B ist ebenfalls offen");
+        getAs(as(max), "/api/modules/git/g3").andExpect(status().isOk());
+
+        // 4. Kursweite Weichen-Statistik prüfen
+        JsonNode stats = body(getAs(teacher(), "/api/admin/learning-paths/" + id + "/choice-stats"));
+        assertEquals(1, stats.size());
+        assertEquals(2, stats.get(0).get("totalStudents").asInt());
+        assertEquals(1, stats.get(0).get("openCount").asInt());
+        assertEquals(1, stats.get(0).get("branches").get(0).get("count").asInt());
+        assertEquals(1, stats.get(0).get("branches").get(1).get("unlockedCount").asInt());
+
+        // 5. Wahl zurücksetzen MIT Fortschritt-Reset: löscht Wahl, entfernt UNLOCK_BRANCH und bucht Punkte für g5 per Korrektur zurück
+        postAs(teacher(), "/api/admin/students/max/learning-paths/weichen-kurs/choices/reset",
+                Map.of("nodeId", "ch", "resetProgress", true)).andExpect(status().isNoContent());
+        assertEquals(0, points(max), "Punkte aus dem verlassenen Weg wurden über Korrekturbuchung zurückgenommen");
+        maxView = body(getAs(as(max), "/api/learning-paths/weichen-kurs"));
+        assertEquals("AVAILABLE", state(maxView, "ch"), "Max steht wieder vor der Weiche");
+        assertEquals("BLOCKED", state(maxView, "branchA"));
+        assertEquals("BLOCKED", state(maxView, "branchB"));
+
+        // 6. Lehrkraft setzt Wahl für Max auf branchB (chosenBy = TEACHER)
+        postAs(teacher(), "/api/admin/students/max/learning-paths/weichen-kurs/choices/set",
+                Map.of("nodeId", "ch", "to", "branchB")).andExpect(status().isNoContent());
+        JsonNode adminStudentView = body(getAs(teacher(), "/api/admin/students/max/learning-path"));
+        assertEquals("branchB", adminStudentView.get("choices").get(0).get("chosenTo").asString());
+        assertEquals("TEACHER", adminStudentView.get("choices").get(0).get("chosenBy").asString());
+        getAs(as(max), "/api/modules/git/g3").andExpect(status().isOk());
+        getAs(as(max), "/api/modules/git/g5").andExpect(status().isForbidden());
+
+        // 7. Sammelaktion für den ganzen Kurs: für alle Schüler im Kurs Weg A setzen, danach für alle zurücksetzen
+        postAs(teacher(), "/api/admin/learning-paths/" + id + "/course-actions",
+                Map.of("action", "UNLOCK_NODE", "nodeId", "intro")).andExpect(status().isOk());
+        postAs(teacher(), "/api/admin/learning-paths/" + id + "/course-actions",
+                Map.of("action", "SET_CHOICE", "nodeId", "ch", "to", "branchA")).andExpect(status().isOk());
+        lenaView = body(getAs(as(lena), "/api/learning-paths/weichen-kurs"));
+        assertEquals("AVAILABLE", state(lenaView, "branchA"));
+        assertEquals("EXCLUDED", state(lenaView, "branchB"));
+
+        postAs(teacher(), "/api/admin/learning-paths/" + id + "/course-actions",
+                Map.of("action", "RESET_CHOICE", "nodeId", "ch", "resetProgress", false)).andExpect(status().isOk());
+        lenaView = body(getAs(as(lena), "/api/learning-paths/weichen-kurs"));
+        assertEquals("AVAILABLE", state(lenaView, "ch"));
+
+        // Audit-Log-Einträge vorhanden
+        Integer auditCount = jdbc.queryForObject(
+                "select count(*) from audit_events where action like 'LEARNING_PATH_%'", Integer.class);
+        assertTrue(auditCount != null && auditCount >= 5);
+
+        // Kurs beenden räumt auch learning_path_overrides auf
+        postAs(teacher(), "/api/admin/courses/" + course.getId() + "/end", Map.of("confirmName", "10a"))
+                .andExpect(status().isOk());
+        assertEquals(0, jdbc.queryForObject("select count(*) from learning_path_overrides", Integer.class));
+    }
+
     public static Map<String, Object> pathNode(String id, String pathSlug, int y) {
         return Map.of("id", id, "kind", "PATH", "path", pathSlug, "x", 80, "y", y);
     }

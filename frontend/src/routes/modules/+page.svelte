@@ -9,6 +9,7 @@
 	} from '$lib/api';
 	import NextTask from '$lib/pathway/NextTask.svelte';
 	import PathMap from '$lib/pathway/PathMap.svelte';
+	import { auth } from '$lib/auth.svelte';
 	import { realtime } from '$lib/realtime.svelte';
 
 	const VIEW_KEY = 'codepath.modules.view';
@@ -122,6 +123,22 @@
 			{/if}
 		</div>
 	</header>
+
+	{#if realtime.lastPathNotice && realtime.lastPathNotice.username === auth.user?.username}
+		<div
+			class="flex items-center justify-between gap-4 border-l-4 border-institutional-navy bg-slate-50 px-5 py-4 text-sm text-institutional-navy"
+			role="status"
+		>
+			<span>{realtime.lastPathNotice.message}</span>
+			<button
+				type="button"
+				class="text-xs font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+				onclick={() => realtime.clearPathNotice()}
+			>
+				Ausblenden
+			</button>
+		</div>
+	{/if}
 
 	{#if next}
 		<NextTask {next} />

@@ -12,6 +12,7 @@ import de.codepath.backend.identity.User;
 import de.codepath.backend.identity.UserService;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.events.RealtimeUpdateService;
 import de.codepath.backend.progress.ProgressService;
 import de.codepath.backend.progress.ProgressStatus;
 import lombok.RequiredArgsConstructor;
@@ -52,10 +53,43 @@ public class LearningPathService implements PathGate {
      */
     public enum NodeState { DONE, AVAILABLE, BLOCKED, UPCOMING, CLOSED, LOCKED, EXCLUDED }
 
-    public record ChoiceOption(String to, String label, String hint, boolean chosen) {
+    public record ChoiceOption(String to, String label, String hint, boolean chosen, boolean unlocked) {
     }
 
     public record ChoiceRequest(String nodeId, String to) {
+    }
+
+    public record ChoiceResetRequest(String nodeId, Boolean resetProgress) {
+    }
+
+    public record NodeUnlockRequest(String nodeId) {
+    }
+
+    public record StudentChoiceEntry(String pathSlug, String pathTitle, boolean subpath, String nodeId,
+                                     String nodeLabel, NodeState state, String chosenTo, String chosenLabel,
+                                     String chosenBy, LocalDateTime chosenAt, List<ChoiceOption> options) {
+    }
+
+    public record StudentOverrideEntry(Long id, String pathSlug, String pathTitle, String nodeId, String nodeLabel,
+                                       String kind, String target, String targetLabel,
+                                       LocalDateTime createdAt) {
+    }
+
+    public record StudentPathAdminView(String selectedSlug, List<PathLink> paths, PathView view,
+                                       List<StudentChoiceEntry> choices, List<StudentOverrideEntry> overrides) {
+    }
+
+    public record ChoiceBranchStat(String to, String label, int count, int unlockedCount) {
+    }
+
+    public record ChoiceNodeStats(String pathSlug, String pathTitle, boolean subpath, String nodeId, String nodeLabel,
+                                  int totalStudents, int openCount, List<ChoiceBranchStat> branches) {
+    }
+
+    public enum CourseActionKind { RESET_CHOICE, SET_CHOICE, UNLOCK_BRANCH, UNLOCK_NODE }
+
+    public record CoursePathActionRequest(CourseActionKind action, Long courseId, String pathSlug,
+                                          String nodeId, String to, Boolean resetProgress) {
     }
 
     /** courseId/courseName: Kurs, für den der Lernpfad gilt; null für alle Kurse */
@@ -88,7 +122,7 @@ public class LearningPathService implements PathGate {
     /** href: Ziel beim Anklicken, null bei gesperrten/blockierten Stationen, Meilensteinen, Weichen und Logik-Blöcken */
     public record NodeView(String id, PathGraph.NodeKind kind, String label, String icon, int x, int y, NodeState state,
                            String href, int done, int total, boolean recommended, String reason, Integer min,
-                           List<ChoiceOption> options, String chosenTo, String path) {
+                           List<ChoiceOption> options, String chosenTo, String path, boolean teacherUnlocked) {
     }
 
     public record PathView(String slug, String title, String description, boolean enforce,
@@ -103,6 +137,7 @@ public class LearningPathService implements PathGate {
 
     private final LearningPathRepository repository;
     private final LearningPathChoiceRepository choiceRepository;
+    private final LearningPathOverrideRepository overrideRepository;
     private final ContentService contentService;
     private final AccessPolicy accessPolicy;
     private final ReleaseService releaseService;
@@ -110,6 +145,7 @@ public class LearningPathService implements PathGate {
     private final UserService userService;
     private final ProgressService progressService;
     private final AuditService auditService;
+    private final RealtimeUpdateService realtime;
     private final ObjectMapper objectMapper;
 
     // ---------------------------------------------------------------- Lehrkraft
@@ -570,11 +606,481 @@ public class LearningPathService implements PathGate {
         return evaluate(path, situation, resolved.enforce(), 0).view();
     }
 
+    // ---------------------------------------------------------------- Lehrkraft-Eingriffe (#25)
+
+    @Transactional(readOnly = true)
+    public StudentPathAdminView studentPathView(User actor, String username, String requestedSlug) {
+        if (!actor.isTeacher()) throw ApiException.forbidden("Nur für Lehrkräfte.");
+        User student = userService.byUsername(username.strip());
+        Situation situation = new Situation(student, accessPolicy.courseReleases(student));
+        List<LearningPath> published = publishedFor(student);
+        List<PathLink> links = new ArrayList<>(published.stream()
+                .map(p -> new PathLink(p.getSlug(), p.getTitle(), p.getDescription()))
+                .toList());
+        LearningPath selected = null;
+        if (requestedSlug != null && !requestedSlug.isBlank()) {
+            LearningPath reqPath = repository.findBySlug(requestedSlug.strip())
+                    .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+            selected = reqPath;
+            if (links.stream().noneMatch(l -> l.slug().equals(reqPath.getSlug()))) {
+                links.add(new PathLink(reqPath.getSlug(), reqPath.getTitle(), reqPath.getDescription()));
+            }
+        } else if (!published.isEmpty()) {
+            selected = published.getFirst();
+        }
+        if (selected == null) {
+            return new StudentPathAdminView(null, links, null, List.of(), List.of());
+        }
+        ResolvedPath resolved = resolveAccessiblePath(actor, student, selected.getSlug(), situation);
+        EvaluatedPath eval = evaluate(selected, situation, resolved.enforce(), 0);
+        List<StudentChoiceEntry> choices = new ArrayList<>();
+        List<StudentOverrideEntry> overrides = new ArrayList<>();
+        collectStudentAdminEntries(student, selected, eval, false, situation, choices, overrides, new HashSet<>());
+        return new StudentPathAdminView(selected.getSlug(), links, eval.view(), choices, overrides);
+    }
+
+    private void collectStudentAdminEntries(User student, LearningPath path, EvaluatedPath eval, boolean isSubpath,
+                                            Situation s, List<StudentChoiceEntry> choices,
+                                            List<StudentOverrideEntry> overrides, Set<Long> visitedPaths) {
+        if (path.getId() == null || !visitedPaths.add(path.getId())) return;
+        Map<String, LearningPathChoice> choiceMap = choiceRepository.findByUserIdAndPathId(student.getId(), path.getId()).stream()
+                .collect(Collectors.toMap(LearningPathChoice::getNodeId, Function.identity(), (a, b) -> a));
+        Map<String, NodeView> viewById = eval.view().nodes().stream()
+                .collect(Collectors.toMap(NodeView::id, Function.identity(), (a, b) -> a));
+        for (PathGraph.Node node : eval.live().nodes()) {
+            if (node.choice()) {
+                NodeView nv = viewById.get(node.id());
+                LearningPathChoice ch = choiceMap.get(node.id());
+                List<ChoiceOption> opts = nv != null && nv.options() != null ? nv.options() : List.of();
+                String chosenTo = ch != null ? ch.getChosenEdgeTo() : null;
+                String chosenLabel = chosenTo == null ? null : opts.stream()
+                        .filter(o -> o.to().equals(chosenTo))
+                        .map(ChoiceOption::label)
+                        .findFirst()
+                        .orElseGet(() -> s.label(eval.nodeById().get(chosenTo)));
+                choices.add(new StudentChoiceEntry(
+                        path.getSlug(),
+                        path.getTitle(),
+                        isSubpath,
+                        node.id(),
+                        s.label(node),
+                        nv != null ? nv.state() : NodeState.LOCKED,
+                        chosenTo,
+                        chosenLabel,
+                        ch != null ? ch.getChosenBy() : null,
+                        ch != null ? ch.getChosenAt() : null,
+                        opts
+                ));
+            }
+        }
+        for (LearningPathOverride ov : overrideRepository.findByUserIdAndPathId(student.getId(), path.getId())) {
+            PathGraph.Node n = eval.nodeById().get(ov.getNodeId());
+            String nodeLabel = n != null ? s.label(n) : ov.getNodeId();
+            String targetLabel = null;
+            if (ov.getTarget() != null && !ov.getTarget().isBlank()) {
+                targetLabel = eval.live().edges().stream()
+                        .filter(e -> e.from().equals(ov.getNodeId()) && e.to().equals(ov.getTarget()))
+                        .map(PathGraph.Edge::label)
+                        .filter(l -> l != null && !l.isBlank())
+                        .findFirst()
+                        .orElseGet(() -> s.label(eval.nodeById().get(ov.getTarget())));
+            }
+            overrides.add(new StudentOverrideEntry(
+                    ov.getId(),
+                    path.getSlug(),
+                    path.getTitle(),
+                    ov.getNodeId(),
+                    nodeLabel,
+                    ov.getKind(),
+                    ov.getTarget(),
+                    targetLabel,
+                    ov.getCreatedAt()
+            ));
+        }
+        for (PathGraph.Node node : eval.live().nodes()) {
+            if (node.subpath() && node.path() != null) {
+                LearningPath sub = s.path(node.path());
+                EvaluatedPath subEval = eval.subpaths().get(node.id());
+                if (sub != null && subEval != null) {
+                    collectStudentAdminEntries(student, sub, subEval, true, s, choices, overrides, visitedPaths);
+                }
+            }
+        }
+    }
+
+    @Transactional
+    public void resetChoice(User actor, String username, String pathSlug, String nodeId, boolean resetProgress) {
+        if (!actor.isTeacher()) throw ApiException.forbidden("Nur für Lehrkräfte.");
+        User student = userService.byUsername(username.strip());
+        LearningPath path = repository.findBySlug(pathSlug.strip())
+                .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+        String trimmedNode = requireChoiceNode(path, nodeId);
+        doResetChoice(actor, student, path, trimmedNode, resetProgress);
+        auditService.log("LEARNING_PATH_CHOICE_RESET", path.getSlug(),
+                Map.of("student", student.getUsername(), "nodeId", trimmedNode, "resetProgress", resetProgress));
+        realtime.publishLearningPathUpdate(student.getUsername(), "Deine Lehrkraft hat deinen Weg zurückgesetzt.");
+    }
+
+    private void doResetChoice(User actor, User student, LearningPath path, String nodeId, boolean resetProgress) {
+        Optional<LearningPathChoice> existing = choiceRepository.findByUserIdAndPathIdAndNodeId(student.getId(), path.getId(), nodeId);
+        String abandonedTo = existing.map(LearningPathChoice::getChosenEdgeTo).orElse(null);
+        existing.ifPresent(choiceRepository::delete);
+        for (LearningPathOverride ov : overrideRepository.findByUserIdAndPathId(student.getId(), path.getId())) {
+            if (LearningPathOverride.UNLOCK_BRANCH.equals(ov.getKind()) && ov.getNodeId().equals(nodeId)) {
+                overrideRepository.delete(ov);
+            }
+        }
+        if (resetProgress && abandonedTo != null) {
+            Set<Long> exclusiveTaskIds = exclusiveBranchTaskIds(student, path, nodeId, abandonedTo);
+            if (!exclusiveTaskIds.isEmpty()) {
+                progressService.resetTasks(student.getId(), exclusiveTaskIds,
+                        "Lernpfad-Weiche zurückgesetzt (" + path.getTitle() + ")", actor.getId());
+            }
+        }
+    }
+
+    private Set<Long> exclusiveBranchTaskIds(User student, LearningPath targetPath, String choiceNodeId, String abandonedTo) {
+        Map<String, PathGraph.Graph> graphsBySlug = repository.findAllByOrderByPositionAscIdAsc().stream()
+                .collect(Collectors.toMap(LearningPath::getSlug, p -> read(p.getGraph()), (a, b) -> a, LinkedHashMap::new));
+        PathGraph.Graph graph = graphsBySlug.getOrDefault(targetPath.getSlug(), read(targetPath.getGraph()));
+        Set<String> otherTargets = graph.edges().stream()
+                .filter(e -> e.from().equals(choiceNodeId) && !e.to().equals(abandonedTo))
+                .map(PathGraph.Edge::to)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<String> branchNodeIds = otherTargets.isEmpty()
+                ? Set.of(abandonedTo)
+                : PathGraph.excludedByChoice(graph, choiceNodeId, otherTargets);
+
+        Map<String, Module> modulesBySlug = contentService.modules().stream()
+                .collect(Collectors.toMap(Module::getSlug, Function.identity()));
+        Map<String, List<PublishedTask>> tasksCache = new HashMap<>();
+
+        Set<Long> branchTasks = new LinkedHashSet<>();
+        Set<Long> outsideTasks = new LinkedHashSet<>();
+        for (PathGraph.Node node : graph.nodes()) {
+            if (branchNodeIds.contains(node.id())) {
+                collectNodeTaskIds(node, graphsBySlug, modulesBySlug, tasksCache, branchTasks, new HashSet<>(), 0);
+            } else {
+                collectNodeTaskIds(node, graphsBySlug, modulesBySlug, tasksCache, outsideTasks, new HashSet<>(), 0);
+            }
+        }
+        // Aufgaben in übergeordneten Pfaden außerhalb dieses Bausteins ebenfalls schützen
+        for (LearningPath outer : publishedFor(student)) {
+            if (outer.getId().equals(targetPath.getId())) continue;
+            PathGraph.Graph outerGraph = graphsBySlug.getOrDefault(outer.getSlug(), read(outer.getGraph()));
+            if (embedsSlug(outer.getSlug(), targetPath.getSlug(), graphsBySlug, new HashSet<>())) {
+                for (PathGraph.Node node : outerGraph.nodes()) {
+                    if (node.subpath() && targetPath.getSlug().equals(node.path())) continue;
+                    collectNodeTaskIds(node, graphsBySlug, modulesBySlug, tasksCache, outsideTasks, new HashSet<>(), 0);
+                }
+            }
+        }
+        branchTasks.removeAll(outsideTasks);
+        return branchTasks;
+    }
+
+    private void collectNodeTaskIds(PathGraph.Node node, Map<String, PathGraph.Graph> graphsBySlug,
+                                    Map<String, Module> modulesBySlug, Map<String, List<PublishedTask>> tasksCache,
+                                    Set<Long> target, Set<String> visitedPaths, int depth) {
+        if (node == null || depth > MAX_PATH_DEPTH) return;
+        if (node.subpath()) {
+            if (node.path() != null && visitedPaths.add(node.path())) {
+                PathGraph.Graph subGraph = graphsBySlug.get(node.path());
+                if (subGraph != null) {
+                    for (PathGraph.Node subNode : subGraph.nodes()) {
+                        collectNodeTaskIds(subNode, graphsBySlug, modulesBySlug, tasksCache, target, visitedPaths, depth + 1);
+                    }
+                }
+                visitedPaths.remove(node.path());
+            }
+            return;
+        }
+        if (!node.station()) return;
+        Module module = modulesBySlug.get(node.module());
+        if (module == null) return;
+        List<PublishedTask> all = tasksCache.computeIfAbsent(module.getSlug(), s -> contentService.publishedTasks(module));
+        if (node.kind() == PathGraph.NodeKind.TASK) {
+            all.stream().filter(t -> t.task().getSlug().equals(node.task())).forEach(t -> target.add(t.taskId()));
+        } else if (node.partial()) {
+            all.stream().filter(t -> node.tasks().contains(t.task().getSlug())).forEach(t -> target.add(t.taskId()));
+        } else {
+            all.forEach(t -> target.add(t.taskId()));
+        }
+    }
+
+    @Transactional
+    public void setChoiceForStudent(User actor, String username, String pathSlug, String nodeId, String to) {
+        if (!actor.isTeacher()) throw ApiException.forbidden("Nur für Lehrkräfte.");
+        User student = userService.byUsername(username.strip());
+        LearningPath path = repository.findBySlug(pathSlug.strip())
+                .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+        String trimmedNode = requireChoiceNode(path, nodeId);
+        String trimmedTo = requireChoiceEdge(path, trimmedNode, to);
+        doSetChoice(student, path, trimmedNode, trimmedTo);
+        auditService.log("LEARNING_PATH_CHOICE_SET", path.getSlug(),
+                Map.of("student", student.getUsername(), "nodeId", trimmedNode, "to", trimmedTo));
+        realtime.publishLearningPathUpdate(student.getUsername(), "Deine Lehrkraft hat deinen Weg im Lernpfad festgelegt.");
+    }
+
+    private void doSetChoice(User student, LearningPath path, String nodeId, String to) {
+        LearningPathChoice choice = choiceRepository.findByUserIdAndPathIdAndNodeId(student.getId(), path.getId(), nodeId)
+                .orElseGet(LearningPathChoice::new);
+        choice.setUserId(student.getId());
+        choice.setPathId(path.getId());
+        choice.setNodeId(nodeId);
+        choice.setChosenEdgeTo(to);
+        choice.setChosenBy("TEACHER");
+        choice.setChosenAt(LocalDateTime.now());
+        choiceRepository.save(choice);
+    }
+
+    @Transactional
+    public void unlockBranchForStudent(User actor, String username, String pathSlug, String nodeId, String to) {
+        if (!actor.isTeacher()) throw ApiException.forbidden("Nur für Lehrkräfte.");
+        User student = userService.byUsername(username.strip());
+        LearningPath path = repository.findBySlug(pathSlug.strip())
+                .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+        String trimmedNode = requireChoiceNode(path, nodeId);
+        String trimmedTo = requireChoiceEdge(path, trimmedNode, to);
+        Optional<LearningPathOverride> existing = overrideRepository.findByUserIdAndPathIdAndNodeIdAndKindAndTarget(
+                student.getId(), path.getId(), trimmedNode, LearningPathOverride.UNLOCK_BRANCH, trimmedTo);
+        boolean unlocked;
+        if (existing.isPresent()) {
+            overrideRepository.delete(existing.get());
+            unlocked = false;
+        } else {
+            saveOverride(student.getId(), path.getId(), trimmedNode, LearningPathOverride.UNLOCK_BRANCH, trimmedTo, actor.getId());
+            unlocked = true;
+        }
+        auditService.log("LEARNING_PATH_BRANCH_UNLOCK", path.getSlug(),
+                Map.of("student", student.getUsername(), "nodeId", trimmedNode, "to", trimmedTo, "unlocked", unlocked));
+        realtime.publishLearningPathUpdate(student.getUsername(),
+                unlocked ? "Deine Lehrkraft hat dir einen weiteren Weg freigeschaltet." : "Deine Lehrkraft hat deinen Lernpfad angepasst.");
+    }
+
+    @Transactional
+    public void unlockNodeForStudent(User actor, String username, String pathSlug, String nodeId) {
+        if (!actor.isTeacher()) throw ApiException.forbidden("Nur für Lehrkräfte.");
+        User student = userService.byUsername(username.strip());
+        LearningPath path = repository.findBySlug(pathSlug.strip())
+                .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+        String trimmedNode = requireNode(path, nodeId);
+        Optional<LearningPathOverride> existing = overrideRepository.findByUserIdAndPathIdAndNodeIdAndKindAndTarget(
+                student.getId(), path.getId(), trimmedNode, LearningPathOverride.UNLOCK_NODE, "");
+        boolean unlocked;
+        if (existing.isPresent()) {
+            overrideRepository.delete(existing.get());
+            unlocked = false;
+        } else {
+            saveOverride(student.getId(), path.getId(), trimmedNode, LearningPathOverride.UNLOCK_NODE, "", actor.getId());
+            unlocked = true;
+        }
+        auditService.log("LEARNING_PATH_NODE_UNLOCK", path.getSlug(),
+                Map.of("student", student.getUsername(), "nodeId", trimmedNode, "unlocked", unlocked));
+        realtime.publishLearningPathUpdate(student.getUsername(),
+                unlocked ? "Deine Lehrkraft hat eine Station für dich freigeschaltet." : "Deine Lehrkraft hat deinen Lernpfad angepasst.");
+    }
+
+    private void saveOverride(Long userId, Long pathId, String nodeId, String kind, String target, Long actorId) {
+        LearningPathOverride ov = new LearningPathOverride();
+        ov.setUserId(userId);
+        ov.setPathId(pathId);
+        ov.setNodeId(nodeId);
+        ov.setKind(kind);
+        ov.setTarget(target != null ? target : "");
+        ov.setCreatedBy(actorId);
+        overrideRepository.save(ov);
+    }
+
+    private String requireNode(LearningPath path, String nodeId) {
+        if (nodeId == null || nodeId.isBlank()) throw ApiException.badRequest("Bitte eine Station angeben.");
+        String trimmed = nodeId.strip();
+        boolean exists = read(path.getGraph()).nodes().stream().anyMatch(n -> n.id().equals(trimmed));
+        if (!exists) throw ApiException.badRequest("Die Station „" + trimmed + "“ gibt es im Lernpfad nicht.");
+        return trimmed;
+    }
+
+    private String requireChoiceNode(LearningPath path, String nodeId) {
+        if (nodeId == null || nodeId.isBlank()) throw ApiException.badRequest("Bitte eine Weiche angeben.");
+        String trimmed = nodeId.strip();
+        PathGraph.Node node = read(path.getGraph()).nodes().stream()
+                .filter(n -> n.id().equals(trimmed))
+                .findFirst()
+                .orElse(null);
+        if (node == null || !node.choice()) {
+            throw ApiException.badRequest("Die Weiche „" + trimmed + "“ gibt es im Lernpfad nicht.");
+        }
+        return trimmed;
+    }
+
+    private String requireChoiceEdge(LearningPath path, String choiceNodeId, String to) {
+        if (to == null || to.isBlank()) throw ApiException.badRequest("Bitte einen Ziel-Weg angeben.");
+        String trimmed = to.strip();
+        boolean exists = read(path.getGraph()).edges().stream()
+                .anyMatch(e -> e.from().equals(choiceNodeId) && e.to().equals(trimmed));
+        if (!exists) {
+            throw ApiException.badRequest("Der gewählte Weg gehört nicht zu dieser Weiche.");
+        }
+        return trimmed;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChoiceNodeStats> choiceStats(Long pathId, Long courseId) {
+        LearningPath root = find(pathId);
+        Long effectiveCourseId = courseId != null && courseId > 0 ? courseId : root.getCourseId();
+        Set<Long> studentIds = effectiveCourseId != null
+                ? new LinkedHashSet<>(userService.memberIds(effectiveCourseId))
+                : userService.students().stream().map(User::getId).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        Map<String, LearningPath> pathsBySlug = repository.findAllByOrderByPositionAscIdAsc().stream()
+                .collect(Collectors.toMap(LearningPath::getSlug, Function.identity(), (a, b) -> a, LinkedHashMap::new));
+        List<LearningPath> hierarchy = new ArrayList<>();
+        collectPathHierarchy(root, pathsBySlug, hierarchy, new HashSet<>(), 0);
+
+        List<Long> pathIds = hierarchy.stream().map(LearningPath::getId).filter(Objects::nonNull).toList();
+        List<LearningPathChoice> allChoices = pathIds.isEmpty() ? List.of() : choiceRepository.findByPathIdIn(pathIds);
+        List<LearningPathOverride> allOverrides = pathIds.isEmpty() ? List.of() : overrideRepository.findByPathIdIn(pathIds);
+
+        Map<String, Module> modulesBySlug = contentService.modules().stream()
+                .collect(Collectors.toMap(Module::getSlug, Function.identity()));
+        List<ChoiceNodeStats> stats = new ArrayList<>();
+        for (int i = 0; i < hierarchy.size(); i++) {
+            LearningPath p = hierarchy.get(i);
+            boolean isSubpath = i > 0;
+            PathGraph.Graph g = read(p.getGraph());
+            Map<String, PathGraph.Node> nodeById = g.nodes().stream()
+                    .collect(Collectors.toMap(PathGraph.Node::id, Function.identity(), (a, b) -> a));
+            for (PathGraph.Node node : g.nodes()) {
+                if (!node.choice()) continue;
+                String nodeLabel = nodeLabel(node, modulesBySlug, pathsBySlug);
+                List<LearningPathChoice> nodeChoices = allChoices.stream()
+                        .filter(c -> c.getPathId().equals(p.getId()) && c.getNodeId().equals(node.id()) && studentIds.contains(c.getUserId()))
+                        .toList();
+                List<LearningPathOverride> nodeOverrides = allOverrides.stream()
+                        .filter(o -> o.getPathId().equals(p.getId()) && o.getNodeId().equals(node.id())
+                                && LearningPathOverride.UNLOCK_BRANCH.equals(o.getKind()) && studentIds.contains(o.getUserId()))
+                        .toList();
+                Set<Long> decidedUsers = nodeChoices.stream().map(LearningPathChoice::getUserId).collect(Collectors.toSet());
+                List<ChoiceBranchStat> branches = g.edges().stream()
+                        .filter(e -> e.from().equals(node.id()))
+                        .map(e -> {
+                            String bLabel = e.label() != null && !e.label().isBlank()
+                                    ? e.label()
+                                    : nodeLabel(nodeById.get(e.to()), modulesBySlug, pathsBySlug);
+                            int count = (int) nodeChoices.stream().filter(c -> e.to().equals(c.getChosenEdgeTo())).count();
+                            int unlockedCount = (int) nodeOverrides.stream().filter(o -> e.to().equals(o.getTarget())).count();
+                            return new ChoiceBranchStat(e.to(), bLabel, count, unlockedCount);
+                        })
+                        .toList();
+                int openCount = Math.max(0, studentIds.size() - decidedUsers.size());
+                stats.add(new ChoiceNodeStats(p.getSlug(), p.getTitle(), isSubpath, node.id(), nodeLabel,
+                        studentIds.size(), openCount, branches));
+            }
+        }
+        return stats;
+    }
+
+    private void collectPathHierarchy(LearningPath current, Map<String, LearningPath> pathsBySlug,
+                                      List<LearningPath> result, Set<String> seen, int depth) {
+        if (current == null || depth > MAX_PATH_DEPTH || !seen.add(current.getSlug())) return;
+        result.add(current);
+        PathGraph.Graph g = read(current.getGraph());
+        for (PathGraph.Node node : g.nodes()) {
+            if (node.subpath() && node.path() != null) {
+                collectPathHierarchy(pathsBySlug.get(node.path()), pathsBySlug, result, seen, depth + 1);
+            }
+        }
+    }
+
+    private String nodeLabel(PathGraph.Node node, Map<String, Module> modules, Map<String, LearningPath> paths) {
+        if (node == null) return "";
+        if (node.label() != null && !node.label().isBlank()) return node.label();
+        if (node.choice()) return "Weiche";
+        if (node.kind() == PathGraph.NodeKind.AND) return "UND-Block";
+        if (node.kind() == PathGraph.NodeKind.OR) return "ODER-Block";
+        if (node.subpath()) {
+            LearningPath sub = paths.get(node.path());
+            return sub != null ? sub.getTitle() : node.path();
+        }
+        if (node.kind() == PathGraph.NodeKind.MODULE) {
+            Module m = modules.get(node.module());
+            return m != null ? m.getTitle() : node.module();
+        }
+        Module m = modules.get(node.module());
+        if (m != null) {
+            return contentService.publishedTasks(m).stream()
+                    .filter(t -> t.task().getSlug().equals(node.task()))
+                    .map(t -> t.version().getTitle())
+                    .findFirst()
+                    .orElse(node.task());
+        }
+        return node.task() != null ? node.task() : node.id();
+    }
+
+    @Transactional
+    public int courseAction(User actor, Long pathId, CoursePathActionRequest req) {
+        if (!actor.isTeacher()) throw ApiException.forbidden("Nur für Lehrkräfte.");
+        if (req == null || req.action() == null) throw ApiException.badRequest("Bitte eine Aktion angeben.");
+        LearningPath root = find(pathId);
+        LearningPath targetPath = req.pathSlug() != null && !req.pathSlug().isBlank()
+                ? repository.findBySlug(req.pathSlug().strip()).orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."))
+                : root;
+        Long effectiveCourseId = req.courseId() != null && req.courseId() > 0 ? req.courseId() : root.getCourseId();
+        Set<Long> memberIds = effectiveCourseId != null ? new HashSet<>(userService.memberIds(effectiveCourseId)) : null;
+        List<User> students = userService.students().stream()
+                .filter(u -> memberIds == null || memberIds.contains(u.getId()))
+                .toList();
+
+        switch (req.action()) {
+            case RESET_CHOICE -> {
+                String trimmedNode = requireChoiceNode(targetPath, req.nodeId());
+                for (User student : students) {
+                    doResetChoice(actor, student, targetPath, trimmedNode, Boolean.TRUE.equals(req.resetProgress()));
+                    realtime.publishLearningPathUpdate(student.getUsername(), "Deine Lehrkraft hat deinen Weg zurückgesetzt.");
+                }
+            }
+            case SET_CHOICE -> {
+                String trimmedNode = requireChoiceNode(targetPath, req.nodeId());
+                String trimmedTo = requireChoiceEdge(targetPath, trimmedNode, req.to());
+                for (User student : students) {
+                    doSetChoice(student, targetPath, trimmedNode, trimmedTo);
+                    realtime.publishLearningPathUpdate(student.getUsername(), "Deine Lehrkraft hat deinen Weg im Lernpfad festgelegt.");
+                }
+            }
+            case UNLOCK_BRANCH -> {
+                String trimmedNode = requireChoiceNode(targetPath, req.nodeId());
+                String trimmedTo = requireChoiceEdge(targetPath, trimmedNode, req.to());
+                for (User student : students) {
+                    if (overrideRepository.findByUserIdAndPathIdAndNodeIdAndKindAndTarget(
+                            student.getId(), targetPath.getId(), trimmedNode, LearningPathOverride.UNLOCK_BRANCH, trimmedTo).isEmpty()) {
+                        saveOverride(student.getId(), targetPath.getId(), trimmedNode, LearningPathOverride.UNLOCK_BRANCH, trimmedTo, actor.getId());
+                    }
+                    realtime.publishLearningPathUpdate(student.getUsername(), "Deine Lehrkraft hat dir einen weiteren Weg freigeschaltet.");
+                }
+            }
+            case UNLOCK_NODE -> {
+                String trimmedNode = requireNode(targetPath, req.nodeId());
+                for (User student : students) {
+                    if (overrideRepository.findByUserIdAndPathIdAndNodeIdAndKindAndTarget(
+                            student.getId(), targetPath.getId(), trimmedNode, LearningPathOverride.UNLOCK_NODE, "").isEmpty()) {
+                        saveOverride(student.getId(), targetPath.getId(), trimmedNode, LearningPathOverride.UNLOCK_NODE, "", actor.getId());
+                    }
+                    realtime.publishLearningPathUpdate(student.getUsername(), "Deine Lehrkraft hat eine Station für dich freigeschaltet.");
+                }
+            }
+        }
+        auditService.log("LEARNING_PATH_COURSE_ACTION", targetPath.getSlug(),
+                Map.of("action", req.action().name(), "nodeId", req.nodeId() != null ? req.nodeId() : "",
+                        "affected", students.size()));
+        return students.size();
+    }
+
     @EventListener
     @Transactional
     public void onCourseEnding(CourseService.CourseEndingEvent event) {
         if (!event.userIds().isEmpty()) {
             choiceRepository.deleteByUserIdIn(event.userIds());
+            overrideRepository.deleteByUserIdIn(event.userIds());
         }
     }
 
@@ -717,6 +1223,8 @@ public class LearningPathService implements PathGate {
         List<PathGraph.Node> ordered = PathGraph.order(live);
 
         Map<String, String> chosenByNode = new HashMap<>();
+        Set<String> unlockedNodes = new HashSet<>();
+        Map<String, Set<String>> unlockedBranches = new HashMap<>();
         if (path.getId() != null && s.user().getId() != null) {
             for (LearningPathChoice c : choiceRepository.findByUserIdAndPathId(s.user().getId(), path.getId())) {
                 PathGraph.Node cn = nodeById.get(c.getNodeId());
@@ -725,10 +1233,23 @@ public class LearningPathService implements PathGate {
                     chosenByNode.put(c.getNodeId(), c.getChosenEdgeTo());
                 }
             }
+            for (LearningPathOverride ov : overrideRepository.findByUserIdAndPathId(s.user().getId(), path.getId())) {
+                if (LearningPathOverride.UNLOCK_NODE.equals(ov.getKind())) {
+                    unlockedNodes.add(ov.getNodeId());
+                } else if (LearningPathOverride.UNLOCK_BRANCH.equals(ov.getKind()) && ov.getTarget() != null && !ov.getTarget().isBlank()) {
+                    boolean edgeExists = edges.stream().anyMatch(e -> e.from().equals(ov.getNodeId()) && e.to().equals(ov.getTarget()));
+                    if (edgeExists) {
+                        unlockedBranches.computeIfAbsent(ov.getNodeId(), k -> new LinkedHashSet<>()).add(ov.getTarget());
+                    }
+                }
+            }
         }
         Set<String> excluded = new HashSet<>();
         for (Map.Entry<String, String> entry : chosenByNode.entrySet()) {
-            excluded.addAll(PathGraph.excludedByChoice(live, entry.getKey(), Set.of(entry.getValue())));
+            Set<String> allowed = new LinkedHashSet<>();
+            allowed.add(entry.getValue());
+            allowed.addAll(unlockedBranches.getOrDefault(entry.getKey(), Set.of()));
+            excluded.addAll(PathGraph.excludedByChoice(live, entry.getKey(), allowed));
         }
 
         Map<String, NodeState> states = new HashMap<>();
@@ -743,8 +1264,9 @@ public class LearningPathService implements PathGate {
         Set<String> achieved = new HashSet<>();
 
         for (PathGraph.Node node : ordered) {
+            boolean teacherUnlocked = unlockedNodes.contains(node.id());
             List<String> allPreds = predecessors.getOrDefault(node.id(), List.of());
-            if (excluded.contains(node.id()) || (!allPreds.isEmpty() && allPreds.stream().allMatch(excluded::contains))) {
+            if (!teacherUnlocked && (excluded.contains(node.id()) || (!allPreds.isEmpty() && allPreds.stream().allMatch(excluded::contains)))) {
                 excluded.add(node.id());
                 states.put(node.id(), NodeState.EXCLUDED);
                 reasons.put(node.id(), "Du hast dich für einen anderen Weg entschieden.");
@@ -757,9 +1279,15 @@ public class LearningPathService implements PathGate {
                 }
                 continue;
             }
-            List<String> baseReq = effectiveEnforce ? requiredPredecessors.getOrDefault(node.id(), List.of()) : List.of();
+            excluded.remove(node.id());
+            List<String> baseReq = effectiveEnforce
+                    ? requiredPredecessors.getOrDefault(node.id(), List.of()).stream()
+                            .filter(id -> !unlockedBranches.getOrDefault(id, Set.of()).contains(node.id()))
+                            .toList()
+                    : List.of();
             List<String> choicePreds = allPreds.stream()
                     .filter(id -> nodeById.get(id) != null && nodeById.get(id).choice())
+                    .filter(id -> !unlockedBranches.getOrDefault(id, Set.of()).contains(node.id()))
                     .toList();
             List<String> reqPreds = choicePreds.isEmpty() ? baseReq
                     : Stream.concat(baseReq.stream(), choicePreds.stream()).distinct().toList();
@@ -771,6 +1299,13 @@ public class LearningPathService implements PathGate {
                 int pendingCount = m - achievedCount - unfeasibleCount;
                 gateDone.put(node.id(), achievedCount);
                 gateTotal.put(node.id(), m);
+                if (teacherUnlocked) {
+                    states.put(node.id(), NodeState.DONE);
+                    clear.add(node.id());
+                    achieved.add(node.id());
+                    reasons.put(node.id(), "Von deiner Lehrkraft freigeschaltet.");
+                    continue;
+                }
                 List<String> openNames = inputs.stream()
                         .filter(id -> !clear.contains(id))
                         .map(id -> s.label(nodeById.get(id)))
@@ -812,8 +1347,8 @@ public class LearningPathService implements PathGate {
                 continue;
             }
 
-            boolean allReady = clear.containsAll(allPreds);
-            boolean requiredReady = clear.containsAll(reqPreds);
+            boolean allReady = teacherUnlocked || clear.containsAll(allPreds);
+            boolean requiredReady = teacherUnlocked || clear.containsAll(reqPreds);
             if (!requiredReady) {
                 List<String> openPreds = reqPreds.stream().filter(id -> !clear.contains(id)).toList();
                 Optional<PathGraph.Node> openChoice = openPreds.stream()
@@ -918,6 +1453,10 @@ public class LearningPathService implements PathGate {
                     if (state == NodeState.DONE) achieved.add(node.id());
                 }
             }
+            if (teacherUnlocked) {
+                clear.add(node.id());
+                achieved.add(node.id());
+            }
             states.put(node.id(), state);
         }
 
@@ -963,18 +1502,21 @@ public class LearningPathService implements PathGate {
             if (node.choice()) {
                 chosenTo = chosenByNode.get(node.id());
                 String finalChosenTo = chosenTo;
+                Set<String> unlockedTargets = unlockedBranches.getOrDefault(node.id(), Set.of());
                 options = edges.stream()
                         .filter(e -> e.from().equals(node.id()))
                         .map(e -> new ChoiceOption(
                                 e.to(),
                                 e.label() != null && !e.label().isBlank() ? e.label() : s.label(nodeById.get(e.to())),
                                 e.hint(),
-                                e.to().equals(finalChosenTo)))
+                                e.to().equals(finalChosenTo),
+                                unlockedTargets.contains(e.to())))
                         .toList();
             }
             String subpathSlug = node.subpath() ? node.path() : null;
             views.add(new NodeView(node.id(), node.kind(), s.label(node), s.icon(node), node.x(), node.y(), state,
-                    href, nodeDone, nodeTotal, node.id().equals(recommendedId), nodeReason, node.min(), options, chosenTo, subpathSlug));
+                    href, nodeDone, nodeTotal, node.id().equals(recommendedId), nodeReason, node.min(), options, chosenTo, subpathSlug,
+                    unlockedNodes.contains(node.id())));
         }
         PathView pathView = new PathView(path.getSlug(), path.getTitle(), path.getDescription(), effectiveEnforce,
                 views, edges, done, total, recommendation);

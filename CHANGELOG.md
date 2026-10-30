@@ -7,6 +7,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ## Unveröffentlicht
 
 ### Neu
+- **Lehrkraft-Eingriffe im Lernpfad** (#25): Im Leitstand unter *Teilnehmer-Akte → Lernpfad* sowie kursweit im Lernpfad-Editor kann die Lehrkraft getroffene Entscheidungen an Weichen einsehen (inkl. eingebundener Bausteine), Wahlen zurücksetzen (wahlweise mit Zurücksetzen des Fortschritts und Korrekturbuchung im Punktejournal), stellvertretend einen Weg setzen, einen weiteren Zweig zusätzlich freischalten (`UNLOCK_BRANCH`) oder blockierte Stationen einzeln freischalten (`UNLOCK_NODE`), begleitet von Live-Hinweisen für die Schülerinnen und Schüler.
 - **Lernpfad-Bausteine** (#24): Lernpfade lassen sich über den Knotentyp `PATH` (`🧩`) als wiederverwendbare Bausteine in andere Lernpfade einbinden (inkl. Option „Nur als Baustein“, Fortschrittsanzeige, aufklappbarer Karte mit Rücksprung-Leiste, Zyklus- und Tiefenprüfung, Löschschutz sowie Abhängigkeits-Reihenfolge beim Export/Import).
 - **Entweder-oder-Weichen in Lernpfaden** (#23): An einer Weiche (`🔀`) entscheiden sich Schülerinnen und Schüler explizit für einen Weg; die nicht gewählten Zweige werden für sie gesperrt (`EXCLUDED` – auf der Karte, in der Modulübersicht, per Direktlink und bei gekoppelten Wissensartikeln). Der Editor färbt exklusive Zweige ein und warnt beim Bearbeiten, wenn bereits Wahlen vorliegen.
 - **UND- und ODER-Blöcke in Lernpfaden** (#22): Logik-Blöcke (`&` und `≥1` bzw. `≥n` für „mindestens n von m Eingängen“) verknüpfen mehrere Zweige sichtbar auf der Karte, zeigen ihren Erfüllungsstand („1 von 2 erfüllt“) und bevorzugen bei der Aufgabenempfehlung an ODER-Blöcken den bereits begonnenen Zweig.
@@ -38,6 +39,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update
+- Migration V27 legt die Tabelle `learning_path_overrides` für individuelle Zweig- und Stations-Freigaben durch die Lehrkraft an (wird beim Beenden eines Kurses bereinigt).
 - Migration V26 ergänzt Lernpfade um `template_only` („Nur als Baustein“).
 - Migration V25 legt die Tabelle `learning_path_choices` für Entscheidungen an Entweder-oder-Weichen an (wird beim Beenden eines Kurses bereinigt).
 - Migration V24 ergänzt Lernpfade um `enforce` (verbindlich) und `unlock_rest_after` (Freigabe übriger Module ab einer Station). Bestehende Lernpfade bleiben unverändert.

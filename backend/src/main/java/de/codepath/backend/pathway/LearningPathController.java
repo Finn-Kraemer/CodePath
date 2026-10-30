@@ -70,4 +70,55 @@ public class LearningPathController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/api/admin/learning-paths/{id}/choice-stats")
+    public List<LearningPathService.ChoiceNodeStats> choiceStats(@PathVariable("id") Long id,
+                                                                 @RequestParam(name = "courseId", required = false) Long courseId) {
+        return service.choiceStats(id, courseId);
+    }
+
+    @PostMapping("/api/admin/learning-paths/{id}/course-actions")
+    public Map<String, Integer> courseAction(@PathVariable("id") Long id,
+                                             @RequestBody LearningPathService.CoursePathActionRequest request) {
+        int affected = service.courseAction(userService.currentUser(), id, request);
+        return Map.of("affected", affected);
+    }
+
+    @GetMapping("/api/admin/students/{username}/learning-path")
+    public LearningPathService.StudentPathAdminView studentPath(@PathVariable("username") String username,
+                                                                @RequestParam(name = "slug", required = false) String slug) {
+        return service.studentPathView(userService.currentUser(), username, slug);
+    }
+
+    @PostMapping("/api/admin/students/{username}/learning-paths/{slug}/choices/reset")
+    public ResponseEntity<Void> resetChoice(@PathVariable("username") String username,
+                                            @PathVariable("slug") String slug,
+                                            @RequestBody LearningPathService.ChoiceResetRequest request) {
+        service.resetChoice(userService.currentUser(), username, slug, request.nodeId(), Boolean.TRUE.equals(request.resetProgress()));
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/api/admin/students/{username}/learning-paths/{slug}/choices/set")
+    public ResponseEntity<Void> setChoice(@PathVariable("username") String username,
+                                          @PathVariable("slug") String slug,
+                                          @RequestBody LearningPathService.ChoiceRequest request) {
+        service.setChoiceForStudent(userService.currentUser(), username, slug, request.nodeId(), request.to());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/api/admin/students/{username}/learning-paths/{slug}/branches/unlock")
+    public ResponseEntity<Void> unlockBranch(@PathVariable("username") String username,
+                                             @PathVariable("slug") String slug,
+                                             @RequestBody LearningPathService.ChoiceRequest request) {
+        service.unlockBranchForStudent(userService.currentUser(), username, slug, request.nodeId(), request.to());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/api/admin/students/{username}/learning-paths/{slug}/nodes/unlock")
+    public ResponseEntity<Void> unlockNode(@PathVariable("username") String username,
+                                           @PathVariable("slug") String slug,
+                                           @RequestBody LearningPathService.NodeUnlockRequest request) {
+        service.unlockNodeForStudent(userService.currentUser(), username, slug, request.nodeId());
+        return ResponseEntity.noContent().build();
+    }
 }

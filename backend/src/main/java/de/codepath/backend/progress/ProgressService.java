@@ -100,4 +100,25 @@ public class ProgressService {
     public Map<Long, Long> totals(Collection<Long> userIds) {
         return pointsService.totals(userIds);
     }
+
+    /**
+     * Setzt den Fortschritt der angegebenen Aufgaben für einen Schüler zurück und bucht bereits
+     * erhaltene Punkte per Korrekturbuchung ({@link PointsService#correct}) gegen, damit das
+     * Punkte-Journal lückenlos nachvollziehbar bleibt.
+     */
+    @Transactional
+    public void resetTasks(Long userId, Collection<Long> taskIds, String note, Long actorId) {
+        if (taskIds == null || taskIds.isEmpty()) return;
+        userService.lockForUpdate(userId);
+        List<Progress> existing = progressRepository.findByUserIdAndTaskIdIn(userId, taskIds);
+        if (!existing.isEmpty()) {
+            progressRepository.deleteAll(existing);
+        }
+        for (Long taskId : taskIds) {
+            long current = pointsService.forTask(userId, taskId);
+            if (current != 0) {
+                pointsService.correct(userId, taskId, (int) -current, note, actorId);
+            }
+        }
+    }
 }

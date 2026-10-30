@@ -103,7 +103,7 @@ Auf der Karte ist jede Station *erledigt*, *jetzt dran*, *noch gesperrt* („Ers
 | Ansicht | Zeigt |
 |---|---|
 | **Teilnehmerliste** | Alle Schülerinnen und Schüler mit Punkten und Fortschritt; Klick öffnet die Akte |
-| **Schülerakte** | Jede Aufgabe mit Status und Versuchen. Die Lehrkraft kann eine Aufgabe als gelöst werten (volle oder halbe Punkte), sperren oder entsperren und ein **neues Passwort** vergeben, wenn jemand seines vergessen hat |
+| **Schülerakte** | Reiter **Aufgaben**: Jede Aufgabe mit Status und Versuchen (als gelöst werten, sperren/entsperren, neues Passwort vergeben). Reiter **Lernpfad**: Karte aus Sicht der Schülerin oder des Schülers, getroffene Entscheidungen an Weichen (auch in eingebundenen Bausteinen) mit Aktionen zum **Wahl zurücksetzen** (wahlweise Fortschritt behalten oder Fortschritt und Punkte im verlassenen Weg über eine Korrekturbuchung zurücknehmen), **Wahl für Schüler setzen**, **weiteren Weg zusätzlich freischalten** und **einzelne Stationen freischalten** (hebt die Blockierung durch Pflicht-Vorgänger auf; die Station gilt als erledigt für Nachfolger). Auch kursweit als Sammelaktion im Lernpfad-Editor unter *Weichen-Übersicht im Kurs* verfügbar |
 | **Lernanalyse** | Je Aufgabe: wie viele es versucht haben, Fehlversuche, Lösungsquote – zeigt, wo die Klasse hängt |
 
 Mit **Alle Schüler abmelden** im Control Center endet jede laufende Sitzung, z. B. am Ende des Tages an geteilten Geräten.

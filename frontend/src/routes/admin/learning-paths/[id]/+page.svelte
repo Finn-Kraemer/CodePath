@@ -28,10 +28,13 @@
 	type ModuleRow = Schemas['ModuleRow'];
 	type Edge = Schemas['Edge'];
 	type Kind = PathNode['kind'];
+	type ChoiceNodeStats = Schemas['ChoiceNodeStats'];
 
 	const id = $derived(Number(page.params.id));
 
 	let saved = $state<PathAdmin | null>(null);
+	let choiceStats = $state<ChoiceNodeStats[]>([]);
+	let resetCourseProgress = $state<Record<string, boolean>>({});
 	let form = $state({
 		title: '',
 		slug: '',
@@ -122,17 +125,21 @@
 
 	async function loadEditor(targetId: number) {
 		try {
-			const [path, pathList, modules, courseList, studentList] = await Promise.all([
+			const [path, pathList, modules, courseList, studentList, stats] = await Promise.all([
 				api<PathAdmin>(`/api/admin/learning-paths/${targetId}`),
 				api<PathSummary[]>('/api/admin/learning-paths'),
 				api<ModuleRow[]>('/api/admin/content'),
 				api<CourseSummary[]>('/api/admin/courses'),
-				api<StudentOverview[]>('/api/admin/students')
+				api<StudentOverview[]>('/api/admin/students'),
+				api<ChoiceNodeStats[]>(`/api/admin/learning-paths/${targetId}/choice-stats`).catch(
+					() => []
+				)
 			]);
 			allPaths = pathList;
 			catalog = modules;
 			courses = courseList;
 			students = studentList;
+			choiceStats = stats;
 			selectedId = null;
 			selectedEdge = null;
 			preview = null;
@@ -141,6 +148,44 @@
 			draft.path = pathList.find((p) => p.id !== targetId)?.slug ?? '';
 		} catch (e) {
 			error = (e as Error).message;
+		}
+	}
+
+	async function refreshChoiceStats() {
+		try {
+			const courseQuery = form.courseId ? `?courseId=${form.courseId}` : '';
+			choiceStats = await api<ChoiceNodeStats[]>(
+				`/api/admin/learning-paths/${id}/choice-stats${courseQuery}`
+			);
+		} catch {
+			// ignorieren
+		}
+	}
+
+	async function runCourseAction(body: {
+		action: 'RESET_CHOICE' | 'SET_CHOICE' | 'UNLOCK_BRANCH' | 'UNLOCK_NODE';
+		pathSlug?: string;
+		nodeId: string;
+		to?: string;
+		resetProgress?: boolean;
+	}) {
+		error = '';
+		busy = true;
+		try {
+			const res = await api<{ affected: number }>(`/api/admin/learning-paths/${id}/course-actions`, {
+				method: 'POST',
+				body: {
+					...body,
+					courseId: form.courseId || undefined
+				}
+			});
+			await refreshChoiceStats();
+			if (preview) await showPreview();
+			flash(`Kurs-Aktion für ${res.affected} Schüler/innen ausgeführt.`);
+		} catch (e) {
+			error = (e as Error).message;
+		} finally {
+			busy = false;
 		}
 	}
 
@@ -215,6 +260,7 @@
 			apply(updated);
 			applied = form.courseId && form.published ? updated.applied : null;
 			flash('Gespeichert.');
+			await refreshChoiceStats();
 			if (preview) await showPreview();
 		} catch (e) {
 			error = (e as Error).message;
@@ -1155,9 +1201,119 @@
 								{/each}
 							</select>
 						</div>
+						{#if selected.kind !== 'CHOICE'}
+							<button
+								type="button"
+								class="ed-button bg-white"
+								disabled={busy}
+								onclick={() =>
+									runCourseAction({
+										action: 'UNLOCK_NODE',
+										pathSlug: saved?.slug,
+										nodeId: selected.id
+									})}
+							>
+								Station für ganzen Kurs freischalten
+							</button>
+						{/if}
 						<button class="ed-button text-rose-700" onclick={() => removeNode(selected.id)}
 							>Station entfernen</button
 						>
+					</section>
+				{/if}
+
+				{#if choiceStats.length > 0}
+					<section class="flex flex-col gap-3 border border-slate-200 bg-white p-4">
+						<h2 class="ed-label">Weichen-Übersicht im Kurs</h2>
+						{#each choiceStats as stat (`${stat.pathSlug}:${stat.nodeId}`)}
+							{@const statKey = `${stat.pathSlug}:${stat.nodeId}`}
+							<div class="space-y-2 border border-slate-200 bg-slate-50/60 p-3 text-xs">
+								<div class="flex flex-wrap items-center justify-between gap-2">
+									<span class="font-bold text-institutional-navy">🔀 {stat.nodeLabel}</span>
+									{#if stat.subpath}
+										<span
+											class="border border-violet-200 bg-violet-50 px-1.5 py-0.5 font-mono text-[9px] font-bold text-violet-800 uppercase"
+										>
+											🧩 {stat.pathTitle}
+										</span>
+									{/if}
+								</div>
+								<p class="font-mono text-[10px] text-slate-600">
+									{#each stat.branches ?? [] as b, idx (b.to)}
+										{idx > 0 ? ', ' : ''}{b.count}× {b.label}
+									{/each}
+									· {stat.openCount}× noch offen
+								</p>
+								<div class="space-y-1.5 pt-1">
+									{#each stat.branches ?? [] as b (b.to)}
+										<div
+											class="flex flex-wrap items-center justify-between gap-2 border border-slate-200 bg-white px-2.5 py-1.5"
+										>
+											<span class="font-semibold text-slate-700"
+												>{b.label} ({b.count}/{stat.totalStudents})</span
+											>
+											<div class="flex gap-1">
+												<button
+													type="button"
+													disabled={busy}
+													class="border border-slate-200 px-2 py-0.5 font-mono text-[9px] font-bold text-institutional-navy uppercase hover:border-institutional-navy"
+													onclick={() =>
+														runCourseAction({
+															action: 'SET_CHOICE',
+															pathSlug: stat.pathSlug,
+															nodeId: stat.nodeId,
+															to: b.to
+														})}
+												>
+													Für Kurs wählen
+												</button>
+												<button
+													type="button"
+													disabled={busy}
+													class="border border-slate-200 px-2 py-0.5 font-mono text-[9px] font-bold text-sky-700 uppercase hover:border-sky-500"
+													onclick={() =>
+														runCourseAction({
+															action: 'UNLOCK_BRANCH',
+															pathSlug: stat.pathSlug,
+															nodeId: stat.nodeId,
+															to: b.to
+														})}
+												>
+													+ Für Kurs frei
+												</button>
+											</div>
+										</div>
+									{/each}
+								</div>
+								<div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+									<label class="flex items-center gap-1.5 text-[11px] text-slate-600">
+										<input
+											type="checkbox"
+											checked={!!resetCourseProgress[statKey]}
+											onchange={(e) =>
+												(resetCourseProgress[statKey] = (
+													e.currentTarget as HTMLInputElement
+												).checked)}
+										/>
+										<span>Fortschritt zurücksetzen</span>
+									</label>
+									<button
+										type="button"
+										disabled={busy}
+										class="border border-rose-200 bg-white px-2.5 py-1 font-mono text-[9px] font-bold text-rose-700 uppercase hover:bg-rose-50"
+										onclick={() =>
+											runCourseAction({
+												action: 'RESET_CHOICE',
+												pathSlug: stat.pathSlug,
+												nodeId: stat.nodeId,
+												resetProgress: !!resetCourseProgress[statKey]
+											})}
+									>
+										Alle Wahlen zurücksetzen
+									</button>
+								</div>
+							</div>
+						{/each}
 					</section>
 				{/if}
 
