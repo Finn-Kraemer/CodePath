@@ -9,6 +9,7 @@
 	} from '$lib/api';
 	import NextTask from '$lib/pathway/NextTask.svelte';
 	import PathMap from '$lib/pathway/PathMap.svelte';
+	import { realtime } from '$lib/realtime.svelte';
 
 	const VIEW_KEY = 'codepath.modules.view';
 
@@ -21,6 +22,15 @@
 	let path = $state<PathView | null>(null);
 	/** Lernpfad-Karte oder Liste; die Wahl merkt sich der Browser */
 	let view = $state<'map' | 'list'>('map');
+	let lastTrigger = 0;
+
+	$effect(() => {
+		const trigger = realtime.leaderboardUpdateTrigger;
+		if (trigger > lastTrigger) {
+			lastTrigger = trigger;
+			fetchModules();
+		}
+	});
 
 	// Update now every second for countdowns
 	onMount(() => {

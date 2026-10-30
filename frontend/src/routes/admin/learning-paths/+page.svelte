@@ -107,6 +107,12 @@
 								>bestimmt die Empfehlung</span
 							>
 						{/if}
+						{#if path.enforce}
+							<span
+								class="bg-institutional-navy/10 px-2 py-1 font-mono text-[9px] font-bold text-institutional-navy uppercase"
+								>Verbindlich</span
+							>
+						{/if}
 						<span
 							class="px-2 py-1 font-mono text-[9px] font-bold uppercase {path.published
 								? 'bg-emerald-100 text-emerald-800'

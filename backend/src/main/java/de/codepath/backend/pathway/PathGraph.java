@@ -37,7 +37,14 @@ public final class PathGraph {
         }
     }
 
-    public record Edge(String from, String to) {
+    public record Edge(String from, String to, Boolean required) {
+        public Edge {
+            required = Boolean.TRUE.equals(required);
+        }
+
+        public Edge(String from, String to) {
+            this(from, to, false);
+        }
     }
 
     public record Graph(List<Node> nodes, List<Edge> edges) {
@@ -128,6 +135,15 @@ public final class PathGraph {
     static Map<String, List<String>> predecessors(Graph graph) {
         Map<String, List<String>> result = new HashMap<>();
         for (Edge e : graph.edges()) result.computeIfAbsent(e.to(), k -> new ArrayList<>()).add(e.from());
+        return result;
+    }
+
+    /** Pflicht-Vorgänger je Station (nur Verbindungen mit required = true) */
+    static Map<String, List<String>> requiredPredecessors(Graph graph) {
+        Map<String, List<String>> result = new HashMap<>();
+        for (Edge e : graph.edges()) {
+            if (e.required()) result.computeIfAbsent(e.to(), k -> new ArrayList<>()).add(e.from());
+        }
         return result;
     }
 

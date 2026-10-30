@@ -8,7 +8,8 @@
 		type PathAdmin,
 		type PathNode,
 		type PathView,
-		type Schemas
+		type Schemas,
+		type StudentOverview
 	} from '$lib/api';
 	import { canvasSize, edgePath, layered, NODE_H, NODE_W, snap } from '$lib/pathway/geometry';
 	import PathMap from '$lib/pathway/PathMap.svelte';
@@ -26,10 +27,14 @@
 		slug: '',
 		description: '',
 		published: false,
+		enforce: false,
 		courseId: 0,
-		lockOthers: false
+		lockOthers: false,
+		unlockRestAfter: ''
 	});
 	let courses = $state<CourseSummary[]>([]);
+	let students = $state<StudentOverview[]>([]);
+	let previewStudent = $state('');
 	/** Was das letzte Speichern in die Modul-Steuerung übernommen hat */
 	let applied = $state<string[] | null>(null);
 	let nodes = $state<PathNode[]>([]);
@@ -64,23 +69,33 @@
 					slug: saved.slug,
 					description: saved.description,
 					published: saved.published,
+					enforce: saved.enforce ?? false,
 					courseId: saved.courseId ?? 0,
 					lockOthers: saved.lockOthers,
+					unlockRestAfter: saved.unlockRestAfter ?? '',
 					graph: saved.graph
 				})
 			: ''
 	);
 	const dirty = $derived(!!saved && current !== savedState);
+	const filteredStudents = $derived(
+		form.courseId ? students.filter((s) => s.courseId === form.courseId) : students
+	);
+	const outsideMode = $derived(
+		form.unlockRestAfter ? 'AFTER' : form.lockOthers ? 'LOCKED' : 'FREE'
+	);
 
 	onMount(async () => {
 		try {
-			const [path, modules, courseList] = await Promise.all([
+			const [path, modules, courseList, studentList] = await Promise.all([
 				api<PathAdmin>(`/api/admin/learning-paths/${id}`),
 				api<ModuleRow[]>('/api/admin/content'),
-				api<CourseSummary[]>('/api/admin/courses')
+				api<CourseSummary[]>('/api/admin/courses'),
+				api<StudentOverview[]>('/api/admin/students')
 			]);
 			catalog = modules;
 			courses = courseList;
+			students = studentList;
 			apply(path);
 			draft.module = catalog[0]?.module.slug ?? '';
 		} catch (e) {
@@ -96,7 +111,7 @@
 		// Gleiche Schlüsselreihenfolge wie beim Vergleich, damit "ungespeichert" stimmt
 		const graph = {
 			nodes: path.graph.nodes.map(normalize),
-			edges: path.graph.edges.map((e) => ({ from: e.from, to: e.to }))
+			edges: path.graph.edges.map((e) => ({ from: e.from, to: e.to, required: !!e.required }))
 		};
 		saved = { ...path, graph };
 		form = {
@@ -104,8 +119,10 @@
 			slug: path.slug,
 			description: path.description ?? '',
 			published: path.published,
+			enforce: path.enforce ?? false,
 			courseId: path.courseId ?? 0,
-			lockOthers: path.lockOthers
+			lockOthers: path.lockOthers,
+			unlockRestAfter: path.unlockRestAfter ?? ''
 		};
 		nodes = structuredClone(graph.nodes);
 		edges = structuredClone(graph.edges);
@@ -160,9 +177,30 @@
 	async function showPreview() {
 		if (!saved) return;
 		try {
-			preview = await api<PathView>(`/api/learning-paths/${saved.slug}`);
+			const query = previewStudent ? `?student=${encodeURIComponent(previewStudent)}` : '';
+			preview = await api<PathView>(`/api/learning-paths/${saved.slug}${query}`);
 		} catch (e) {
 			error = (e as Error).message;
+		}
+	}
+
+	function toggleEnforce(checked: boolean) {
+		form.enforce = checked;
+		if (checked && edges.length > 0 && edges.every((e) => !e.required)) {
+			edges = edges.map((e) => ({ ...e, required: true }));
+		}
+	}
+
+	function setOutsideMode(mode: string) {
+		if (mode === 'FREE') {
+			form.lockOthers = false;
+			form.unlockRestAfter = '';
+		} else if (mode === 'LOCKED') {
+			form.lockOthers = true;
+			form.unlockRestAfter = '';
+		} else if (mode === 'AFTER') {
+			form.lockOthers = true;
+			form.unlockRestAfter = nodes[nodes.length - 1]?.id ?? '';
 		}
 	}
 
@@ -228,7 +266,7 @@
 		} as PathNode);
 		nodes = [...nodes, node];
 		// An die gewählte Station anhängen – so entsteht ein Pfad Schritt für Schritt
-		if (anchor) edges = [...edges, { from: anchor.id, to: node.id }];
+		if (anchor) edges = [...edges, { from: anchor.id, to: node.id, required: form.enforce }];
 		selectedId = node.id;
 		draft.label = '';
 	}
@@ -311,6 +349,7 @@
 		nodes = nodes.filter((n) => n.id !== nodeId);
 		edges = edges.filter((e) => e.from !== nodeId && e.to !== nodeId);
 		if (selectedId === nodeId) selectedId = null;
+		if (form.unlockRestAfter === nodeId) form.unlockRestAfter = '';
 	}
 
 	function setLabel(value: string) {
@@ -345,7 +384,11 @@
 			error = 'Diese Verbindung würde einen Kreis bilden.';
 			return;
 		}
-		edges = [...edges, { from, to }];
+		edges = [...edges, { from, to, required: form.enforce }];
+	}
+
+	function setEdgeRequired(key: string, required: boolean) {
+		edges = edges.map((e) => (edgeKey(e) === key ? { ...e, required } : e));
 	}
 
 	function removeEdge(key: string) {
@@ -484,21 +527,48 @@
 					{/each}
 				</select>
 			</label>
-			<div class="flex flex-col justify-end gap-1 text-xs text-slate-500 md:col-span-2">
-				{#if form.courseId}
-					<label class="flex items-center gap-2 text-sm text-institutional-navy"
-						><input type="checkbox" bind:checked={form.lockOthers} /> Module, die nicht im Lernpfad vorkommen,
-						für den Kurs sperren</label
+			<div class="flex flex-col gap-2 md:col-span-2">
+				<span class="ed-label">Alles außerhalb des Lernpfads</span>
+				<div class="flex flex-wrap gap-2">
+					<select
+						class="ed-input mt-0 flex-1"
+						aria-label="Alles außerhalb des Lernpfads"
+						value={outsideMode}
+						onchange={(e) => setOutsideMode((e.currentTarget as HTMLSelectElement).value)}
 					>
-					<span
+						<option value="FREE">Frei (folgt der Modul-Steuerung)</option>
+						<option value="LOCKED">Gesperrt (nur Lernpfad sichtbar)</option>
+						<option value="AFTER">Frei ab Station …</option>
+					</select>
+					{#if outsideMode === 'AFTER'}
+						<select
+							class="ed-input mt-0 flex-1"
+							aria-label="Frei ab Station"
+							bind:value={form.unlockRestAfter}
+						>
+							{#each nodes as n (n.id)}
+								<option value={n.id}>ab „{label(n)}“</option>
+							{/each}
+						</select>
+					{/if}
+				</div>
+				{#if form.courseId}
+					<span class="text-xs text-slate-500"
 						>Veröffentlicht übernimmt jedes Speichern die Module und Aufgaben dieses Lernpfads in
 						die <a href="/admin/modules" class="underline">Modul-Steuerung</a> des Kurses.</span
 					>
 				{/if}
 			</div>
-			<div class="flex flex-wrap items-center gap-3 md:col-span-4">
+			<div class="flex flex-wrap items-center gap-4 md:col-span-4">
 				<label class="flex items-center gap-2 text-sm"
 					><input type="checkbox" bind:checked={form.published} /> Veröffentlicht (für Schüler sichtbar)</label
+				>
+				<label class="flex items-center gap-2 text-sm font-bold text-institutional-navy"
+					><input
+						type="checkbox"
+						checked={form.enforce}
+						onchange={(e) => toggleEnforce((e.currentTarget as HTMLInputElement).checked)}
+					/> Verbindlich (Pflicht-Vorgänger müssen erledigt sein)</label
 				>
 				<span class="flex-1"></span>
 				<button class="ed-button" onclick={() => (preview ? (preview = null) : showPreview())}
@@ -515,6 +585,18 @@
 				>
 			</div>
 		</section>
+
+		{#if saved.warnings?.length}
+			<section
+				class="border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
+				role="status"
+			>
+				<p class="font-bold">Hinweise zum Lernpfad:</p>
+				<ul class="mt-1 list-disc pl-5">
+					{#each saved.warnings as w, i (i)}<li>{w}</li>{/each}
+				</ul>
+			</section>
+		{/if}
 
 		{#if applied}
 			<section
@@ -533,11 +615,28 @@
 		{/if}
 
 		{#if preview}
-			<section class="flex flex-col gap-2">
-				<p class="text-xs text-slate-500">
-					Vorschau mit deinem eigenen Stand (gespeicherte Fassung). Schüler sehen gesperrte Module
-					als gesperrt.
-				</p>
+			<section class="flex flex-col gap-3 border border-slate-200 bg-white p-4">
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<p class="text-xs text-slate-500">
+						Vorschau der gespeicherten Fassung. Wähle optional ein Schülerkonto, um dessen Stand und
+						Sperren zu prüfen.
+					</p>
+					<label class="flex items-center gap-2 text-xs font-bold text-institutional-navy">
+						Als Schüler ansehen:
+						<select
+							class="border border-slate-200 bg-white px-2 py-1 text-xs font-normal"
+							bind:value={previewStudent}
+							onchange={showPreview}
+						>
+							<option value="">Eigener Stand (Lehrkraft)</option>
+							{#each filteredStudents as s (s.username)}
+								<option value={s.username}
+									>{s.displayName} ({s.username}){s.courseName ? ` · ${s.courseName}` : ''}</option
+								>
+							{/each}
+						</select>
+					</label>
+				</div>
 				<PathMap path={preview} />
 			</section>
 		{/if}
@@ -601,6 +700,7 @@
 										fill="none"
 										stroke-width="2.5"
 										class={selectedEdge === edgeKey(edge) ? 'stroke-rose-500' : 'stroke-slate-400'}
+										stroke-dasharray={edge.required ? undefined : '6 5'}
 										marker-end="url(#edit-arrow)"
 									/>
 									<!-- Breite, unsichtbare Linie zum Anklicken -->
@@ -666,6 +766,27 @@
 							<p class="text-sm">
 								{label(byId.get(edge.from)!)} → {label(byId.get(edge.to)!)}
 							</p>
+							<fieldset class="flex flex-col gap-1 text-sm">
+								<legend class="ed-label">Art der Verbindung</legend>
+								<label class="flex items-center gap-2">
+									<input
+										type="radio"
+										name="edge-required"
+										checked={!!edge.required}
+										onchange={() => setEdgeRequired(selectedEdge!, true)}
+									/>
+									Pflicht (durchgezogen)
+								</label>
+								<label class="flex items-center gap-2">
+									<input
+										type="radio"
+										name="edge-required"
+										checked={!edge.required}
+										onchange={() => setEdgeRequired(selectedEdge!, false)}
+									/>
+									Empfehlung (gestrichelt)
+								</label>
+							</fieldset>
 							<button class="ed-button text-rose-700" onclick={() => removeEdge(selectedEdge!)}
 								>Verbindung löschen</button
 							>

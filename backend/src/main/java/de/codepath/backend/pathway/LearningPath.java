@@ -32,6 +32,10 @@ public class LearningPath {
     @Column(nullable = false)
     private boolean published;
 
+    /** Verbindlicher Lernpfad: Pflicht-Vorgänger müssen erledigt sein, bevor eine Station frei wird */
+    @Column(nullable = false)
+    private boolean enforce;
+
     /** Kurs, für den der Lernpfad gilt; null für alle Kurse (ändert dann keine Freigaben) */
     @Column(name = "course_id")
     private Long courseId;
@@ -39,6 +43,10 @@ public class LearningPath {
     /** Beim Übernehmen in die Modul-Steuerung Module sperren, die im Lernpfad nicht vorkommen */
     @Column(name = "lock_others", nullable = false)
     private boolean lockOthers;
+
+    /** Station-ID, ab deren Erreichen alle Module und Aufgaben außerhalb des Lernpfads frei werden */
+    @Column(name = "unlock_rest_after")
+    private String unlockRestAfter;
 
     @Column(nullable = false)
     private int position;

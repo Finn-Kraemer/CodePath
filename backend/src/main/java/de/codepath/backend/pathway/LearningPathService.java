@@ -1,6 +1,7 @@
 package de.codepath.backend.pathway;
 
 import de.codepath.backend.classroom.AccessPolicy;
+import de.codepath.backend.classroom.PathGate;
 import de.codepath.backend.classroom.ReleaseService;
 import de.codepath.backend.content.ContentService;
 import de.codepath.backend.content.Module;
@@ -31,48 +32,53 @@ import java.util.stream.Collectors;
  *
  * <p>Ein Lernpfad gilt für alle Kurse oder für einen Kurs. Ein veröffentlichter Kurs-Lernpfad wird beim Speichern
  * in die Modul-Steuerung des Kurses übernommen: Seine Module werden freigegeben, nicht genutzte Aufgaben darin
- * einzeln gesperrt.
+ * einzeln gesperrt. Ist der Lernpfad verbindlich ({@link LearningPath#isEnforce()}), setzt {@link PathGate}
+ * Pflicht-Verbindungen und die Einstellung für Module außerhalb des Pfads serverseitig über {@link AccessPolicy} durch.
  */
 @Service
 @RequiredArgsConstructor
-public class LearningPathService {
+public class LearningPathService implements PathGate {
 
     /**
      * Stand einer Station aus Sicht der Person: DONE erledigt, AVAILABLE als Nächstes dran (alle Vorgänger
-     * erledigt), UPCOMING später (Vorgänger offen, trotzdem schon bearbeitbar), CLOSED Frist abgelaufen,
-     * LOCKED (noch) nicht freigegeben.
+     * erledigt), BLOCKED durch offene Pflicht-Vorgänger im verbindlichen Pfad gesperrt, UPCOMING später
+     * (Empfehlungs-Vorgänger offen, trotzdem schon bearbeitbar), CLOSED Frist abgelaufen,
+     * LOCKED (noch) nicht von der Lehrkraft freigegeben.
      */
-    public enum NodeState { DONE, AVAILABLE, UPCOMING, CLOSED, LOCKED }
+    public enum NodeState { DONE, AVAILABLE, BLOCKED, UPCOMING, CLOSED, LOCKED }
 
     /** courseId/courseName: Kurs, für den der Lernpfad gilt; null für alle Kurse */
-    public record PathSummary(Long id, String slug, String title, String description, boolean published, int stations,
-                              Long courseId, String courseName, LocalDateTime updatedAt) {
+    public record PathSummary(Long id, String slug, String title, String description, boolean published,
+                              boolean enforce, int stations, Long courseId, String courseName, LocalDateTime updatedAt) {
     }
 
     /** applied: was beim Speichern in die Modul-Steuerung des Kurses übernommen wurde */
     public record PathAdmin(Long id, String slug, String title, String description, boolean published,
-                            PathGraph.Graph graph, Long courseId, String courseName, boolean lockOthers,
-                            List<String> applied, LocalDateTime updatedAt) {
+                            boolean enforce, PathGraph.Graph graph, Long courseId, String courseName,
+                            boolean lockOthers, String unlockRestAfter, List<String> applied,
+                            List<String> warnings, LocalDateTime updatedAt) {
     }
 
     /**
      * Fehlende Felder bleiben unverändert.
      *
-     * @param courseId Kurs; 0 für alle Kurse
+     * @param courseId        Kurs; 0 für alle Kurse
+     * @param unlockRestAfter Station-ID oder leerer String zum Aufheben
      */
-    public record PathUpdate(String title, String slug, String description, Boolean published, PathGraph.Graph graph,
-                             Long courseId, Boolean lockOthers) {
+    public record PathUpdate(String title, String slug, String description, Boolean published, Boolean enforce,
+                             PathGraph.Graph graph, Long courseId, Boolean lockOthers, String unlockRestAfter) {
     }
 
     public record PathLink(String slug, String title, String description) {
     }
 
-    /** href: Ziel beim Anklicken, null bei gesperrten Stationen und Meilensteinen */
+    /** href: Ziel beim Anklicken, null bei gesperrten/blockierten Stationen und Meilensteinen */
     public record NodeView(String id, PathGraph.NodeKind kind, String label, String icon, int x, int y, NodeState state,
-                           String href, int done, int total, boolean recommended) {
+                           String href, int done, int total, boolean recommended, String reason) {
     }
 
-    public record PathView(String slug, String title, String description, List<NodeView> nodes, List<PathGraph.Edge> edges,
+    public record PathView(String slug, String title, String description, boolean enforce,
+                           List<NodeView> nodes, List<PathGraph.Edge> edges,
                            int stationsDone, int stations, Recommendation recommendation) {
     }
 
@@ -124,17 +130,51 @@ public class LearningPathService {
         if (update.description() != null) path.setDescription(description(update.description()));
         if (update.graph() != null) path.setGraph(write(checked(update.graph())));
         if (update.published() != null) path.setPublished(update.published());
+        if (update.enforce() != null) path.setEnforce(update.enforce());
         if (update.courseId() != null) path.setCourseId(update.courseId() <= 0 ? null : courseService.get(update.courseId()).getId());
         if (update.lockOthers() != null) path.setLockOthers(update.lockOthers());
+        if (update.unlockRestAfter() != null) {
+            path.setUnlockRestAfter(update.unlockRestAfter().isBlank() ? null : update.unlockRestAfter().strip());
+        }
+        validateUnlockRestAfter(read(path.getGraph()), path.getUnlockRestAfter());
+        validateSingleEnforced(path);
         path.setUpdatedAt(LocalDateTime.now());
         auditService.log("LEARNING_PATH_UPDATED", path.getSlug(), Map.of());
         return admin(path, applyToCourse(path));
     }
 
+    void validateUnlockRestAfter(PathGraph.Graph graph, String unlockRestAfter) {
+        if (unlockRestAfter == null || unlockRestAfter.isBlank()) return;
+        boolean exists = graph.nodes().stream().anyMatch(n -> n.id().equals(unlockRestAfter));
+        if (!exists) {
+            throw ApiException.badRequest("Die Station „" + unlockRestAfter + "“ für die Freigabe der übrigen Module gibt es im Lernpfad nicht.");
+        }
+    }
+
+    void validateSingleEnforced(LearningPath path) {
+        if (!path.isEnforce()) return;
+        for (LearningPath other : repository.findAll()) {
+            if (other.getId().equals(path.getId()) || !other.isEnforce()) continue;
+            if (Objects.equals(other.getCourseId(), path.getCourseId())
+                    || other.getCourseId() == null || path.getCourseId() == null) {
+                throw ApiException.conflict("Pro Kurs ist höchstens ein verbindlicher Lernpfad möglich (bereits aktiv: „" + other.getTitle() + "“).");
+            }
+        }
+    }
+
     /** Veröffentlichter Kurs-Lernpfad → Modul-Steuerung des Kurses; sonst ändert sich an den Freigaben nichts. */
     private List<String> applyToCourse(LearningPath path) {
         if (!path.isPublished() || path.getCourseId() == null) return List.of();
-        return releaseService.applyPlan(path.getCourseId(), plan(read(path.getGraph())), path.isLockOthers());
+        PathGraph.Graph graph = read(path.getGraph());
+        boolean unlockLater = path.isEnforce() && path.getUnlockRestAfter() != null && !path.getUnlockRestAfter().isBlank();
+        Map<String, Set<String>> modulePlan = plan(graph);
+        if (unlockLater) {
+            // Bei „Frei ab Station X“ regelt PathGate die Aufgaben-Sichtbarkeit vor und nach X ohne task_releases
+            Map<String, Set<String>> openModules = new LinkedHashMap<>();
+            modulePlan.keySet().forEach(m -> openModules.put(m, null));
+            return releaseService.applyPlan(path.getCourseId(), openModules, false);
+        }
+        return releaseService.applyPlan(path.getCourseId(), modulePlan, path.isLockOthers());
     }
 
     /** Welche Aufgaben je Modul der Lernpfad nutzt: null für alle, sonst die Slugs aus allen Stationen des Moduls. */
@@ -210,7 +250,7 @@ public class LearningPathService {
         return new PathGraph.Graph(nodes, edges);
     }
 
-    // ---------------------------------------------------------------- Schüler
+    // ---------------------------------------------------------------- Schüler & PathGate
 
     /** Veröffentlichte Lernpfade dieser Person: zuerst die ihres Kurses, dann die für alle Kurse. */
     @Transactional(readOnly = true)
@@ -223,54 +263,200 @@ public class LearningPathService {
         return repository.findAllByOrderByPositionAscIdAsc().stream()
                 .filter(LearningPath::isPublished)
                 .filter(p -> user.isTeacher() || p.getCourseId() == null || p.getCourseId().equals(courseId))
-                .sorted(Comparator.comparing((LearningPath p) -> p.getCourseId() == null))
+                .sorted(Comparator.comparing((LearningPath p) -> p.getCourseId() == null)
+                        .thenComparing(p -> !p.isEnforce()))
                 .toList();
+    }
+
+    private Optional<LearningPath> enforcedFor(User user) {
+        if (user.isTeacher()) return Optional.empty();
+        Long courseId = userService.courseOf(user.getId()).filter(Course::isActive).map(Course::getId).orElse(null);
+        if (courseId == null) return Optional.empty();
+        return repository.findAllByOrderByPositionAscIdAsc().stream()
+                .filter(LearningPath::isPublished)
+                .filter(LearningPath::isEnforce)
+                .filter(p -> p.getCourseId() == null || p.getCourseId().equals(courseId))
+                .sorted(Comparator.comparing((LearningPath p) -> p.getCourseId() == null))
+                .findFirst();
     }
 
     /** Karte mit Stand; nicht veröffentlichte Lernpfade und die anderer Kurse sieht nur die Lehrkraft (Vorschau). */
     @Transactional(readOnly = true)
     public PathView view(User user, String slug) {
+        return view(user, slug, null);
+    }
+
+    /**
+     * Karte mit Stand; die Lehrkraft kann optional den Benutzernamen einer Schülerin oder eines Schülers
+     * übergeben, um den Lernpfad aus deren Sicht zu prüfen.
+     */
+    @Transactional(readOnly = true)
+    public PathView view(User actor, String slug, String studentUsername) {
         LearningPath path = repository.findBySlug(slug)
-                .filter(p -> user.isTeacher() || publishedFor(user).stream().anyMatch(q -> q.getId().equals(p.getId())))
+                .filter(p -> actor.isTeacher() || publishedFor(actor).stream().anyMatch(q -> q.getId().equals(p.getId())))
                 .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
-        return evaluate(path, new Situation(user));
+        User target = actor;
+        if (studentUsername != null && !studentUsername.isBlank()) {
+            if (!actor.isTeacher()) throw ApiException.forbidden("Nur für Lehrkräfte.");
+            target = userService.byUsername(studentUsername.strip());
+        }
+        return evaluate(path, new Situation(target, accessPolicy.courseReleases(target))).view();
     }
 
     /** Die eine empfohlene nächste Aufgabe – aus dem ersten passenden Lernpfad, sonst aus der Modulreihenfolge. */
     @Transactional(readOnly = true)
     public Recommendation next(User user) {
-        Situation situation = new Situation(user);
-        // Ist der Lernpfad geschafft, geht es mit den übrigen offenen Aufgaben weiter
-        return publishedFor(user).stream().findFirst()
-                .map(path -> evaluate(path, situation).recommendation())
-                .orElseGet(() -> fallback(situation));
+        List<LearningPath> paths = publishedFor(user);
+        if (!paths.isEmpty()) {
+            Situation baseSituation = new Situation(user, accessPolicy.courseReleases(user));
+            Recommendation fromPath = evaluate(paths.getFirst(), baseSituation).view().recommendation();
+            if (fromPath != null) return fromPath;
+        }
+        // Ist der Lernpfad geschafft (oder gibt es keinen), geht es mit den übrigen zugänglichen Aufgaben weiter
+        return fallback(new Situation(user, accessPolicy.releases(user)));
     }
 
-    private PathView evaluate(LearningPath path, Situation s) {
+    @Override
+    @Transactional(readOnly = true)
+    public PathGate.Evaluation evaluate(User user, AccessPolicy.Releases baseReleases) {
+        Optional<LearningPath> enforced = enforcedFor(user);
+        if (enforced.isEmpty()) return PathGate.NO_OP;
+        LearningPath path = enforced.get();
+        Situation situation = new Situation(user, baseReleases);
+        EvaluatedPath evaluated = evaluate(path, situation);
+
+        Map<String, List<PathGraph.Node>> taskNodes = new HashMap<>();
+        Set<String> modulesInPath = new HashSet<>();
+        for (PathGraph.Node node : evaluated.live().nodes()) {
+            if (node.kind() == PathGraph.NodeKind.MILESTONE) continue;
+            modulesInPath.add(node.module());
+            if (node.kind() == PathGraph.NodeKind.TASK) {
+                taskNodes.computeIfAbsent(node.module() + "/" + node.task(), k -> new ArrayList<>()).add(node);
+            } else if (node.partial()) {
+                for (String t : node.tasks()) {
+                    taskNodes.computeIfAbsent(node.module() + "/" + t, k -> new ArrayList<>()).add(node);
+                }
+            } else {
+                Module module = situation.module(node.module());
+                if (module != null) {
+                    for (PublishedTask t : situation.tasks(module)) {
+                        taskNodes.computeIfAbsent(node.module() + "/" + t.task().getSlug(), k -> new ArrayList<>()).add(node);
+                    }
+                }
+            }
+        }
+
+        String unlockAfter = path.getUnlockRestAfter();
+        boolean hasUnlockAfter = unlockAfter != null && !unlockAfter.isBlank();
+        boolean restUnlocked = hasUnlockAfter && evaluated.clear().contains(unlockAfter);
+        String outsideReason;
+        if (hasUnlockAfter && !restUnlocked) {
+            PathGraph.Node unlockNode = evaluated.nodeById().get(unlockAfter);
+            outsideReason = unlockNode != null
+                    ? "Erst „" + situation.label(unlockNode) + "“ abschließen."
+                    : "Diese Station wird erst später im Lernpfad freigeschaltet.";
+        } else {
+            outsideReason = "Nicht Teil des aktuellen Lernpfads.";
+        }
+        boolean lockOutside = (hasUnlockAfter && !restUnlocked) || (!hasUnlockAfter && path.isLockOthers());
+
+        return new PathGate.Evaluation() {
+            @Override
+            public Decision task(PublishedTask task) {
+                String key = task.module().getSlug() + "/" + task.task().getSlug();
+                List<PathGraph.Node> nodes = taskNodes.get(key);
+                if (nodes != null && !nodes.isEmpty()) {
+                    // Bereits vor dem Einschalten von „Verbindlich“ erledigte Aufgaben bleiben gültig
+                    if (situation.finished(task)) return Decision.OPEN;
+                    for (PathGraph.Node n : nodes) {
+                        NodeState state = evaluated.states().get(n.id());
+                        if (state == NodeState.AVAILABLE || state == NodeState.DONE || state == NodeState.UPCOMING) {
+                            return Decision.OPEN;
+                        }
+                    }
+                    for (PathGraph.Node n : nodes) {
+                        if (evaluated.states().get(n.id()) == NodeState.BLOCKED) {
+                            return new Decision(State.BLOCKED, evaluated.reasons().get(n.id()));
+                        }
+                    }
+                    return Decision.OPEN;
+                }
+                if (restUnlocked) return Decision.UNLOCKED;
+                if (lockOutside) return new Decision(State.HIDDEN, outsideReason);
+                return Decision.OPEN;
+            }
+
+            @Override
+            public Decision module(Module module) {
+                if (modulesInPath.contains(module.getSlug())) {
+                    return Decision.OPEN;
+                }
+                if (restUnlocked) return Decision.UNLOCKED;
+                if (lockOutside) return new Decision(State.HIDDEN, outsideReason);
+                return Decision.OPEN;
+            }
+        };
+    }
+
+    private record EvaluatedPath(PathView view, PathGraph.Graph live, Map<String, PathGraph.Node> nodeById,
+                                 Map<String, NodeState> states, Map<String, String> reasons, Set<String> clear) {
+    }
+
+    private EvaluatedPath evaluate(LearningPath path, Situation s) {
         PathGraph.Graph graph = read(path.getGraph());
         // Stationen, deren Modul oder Aufgabe es nicht mehr gibt, fallen weg
         List<PathGraph.Node> nodes = graph.nodes().stream().filter(s::exists).toList();
-        Set<String> ids = nodes.stream().map(PathGraph.Node::id).collect(Collectors.toSet());
+        Map<String, PathGraph.Node> nodeById = nodes.stream().collect(Collectors.toMap(PathGraph.Node::id, Function.identity(), (a, b) -> a, LinkedHashMap::new));
+        Set<String> ids = nodeById.keySet();
         List<PathGraph.Edge> edges = graph.edges().stream().filter(e -> ids.contains(e.from()) && ids.contains(e.to())).toList();
         PathGraph.Graph live = new PathGraph.Graph(nodes, edges);
         Map<String, List<String>> predecessors = PathGraph.predecessors(live);
+        Map<String, List<String>> requiredPredecessors = PathGraph.requiredPredecessors(live);
 
         Map<String, NodeState> states = new HashMap<>();
+        Map<String, String> reasons = new HashMap<>();
         Map<String, Station> stations = new HashMap<>();
         // clear: Station und alles davor ist erledigt oder gar nicht machbar – erst dann geht es dahinter weiter
         Set<String> clear = new HashSet<>();
         for (PathGraph.Node node : PathGraph.order(live)) {
-            boolean ready = clear.containsAll(predecessors.getOrDefault(node.id(), List.of()));
+            List<String> allPreds = predecessors.getOrDefault(node.id(), List.of());
+            List<String> reqPreds = path.isEnforce() ? requiredPredecessors.getOrDefault(node.id(), List.of()) : List.of();
+            boolean allReady = clear.containsAll(allPreds);
+            boolean requiredReady = clear.containsAll(reqPreds);
+            if (!requiredReady) {
+                List<String> openNames = reqPreds.stream()
+                        .filter(id -> !clear.contains(id))
+                        .map(id -> s.label(nodeById.get(id)))
+                        .toList();
+                reasons.put(node.id(), "Erst „" + String.join("“, „", openNames) + "“ abschließen.");
+            }
             NodeState state;
             if (node.kind() == PathGraph.NodeKind.MILESTONE) {
-                state = ready ? NodeState.DONE : NodeState.UPCOMING;
+                if (!requiredReady) {
+                    state = NodeState.BLOCKED;
+                } else if (path.isEnforce() && !reqPreds.isEmpty()) {
+                    state = NodeState.DONE;
+                } else {
+                    state = allReady ? NodeState.DONE : NodeState.UPCOMING;
+                }
             } else {
                 Station station = s.station(node);
                 stations.put(node.id(), station);
-                state = station.state() == NodeState.AVAILABLE && !ready ? NodeState.UPCOMING : station.state();
+                if (station.state() == NodeState.LOCKED || station.state() == NodeState.DONE) {
+                    state = station.state();
+                } else if (!requiredReady) {
+                    state = NodeState.BLOCKED;
+                } else if (station.state() == NodeState.AVAILABLE && !allReady) {
+                    state = NodeState.UPCOMING;
+                } else {
+                    state = station.state();
+                }
             }
             states.put(node.id(), state);
-            if (ready && settled(state)) clear.add(node.id());
+            boolean canClear = state == NodeState.DONE
+                    ? requiredReady
+                    : (path.isEnforce() && !reqPreds.isEmpty() ? requiredReady : allReady) && settled(state);
+            if (canClear) clear.add(node.id());
         }
 
         String recommendedId = null;
@@ -296,11 +482,14 @@ public class LearningPathService {
                 total++;
                 if (state == NodeState.DONE) done++;
             }
+            String href = station == null || state == NodeState.LOCKED || state == NodeState.BLOCKED ? null : station.href();
             views.add(new NodeView(node.id(), node.kind(), s.label(node), s.icon(node), node.x(), node.y(), state,
-                    station == null || state == NodeState.LOCKED ? null : station.href(),
-                    station == null ? 0 : station.done(), station == null ? 0 : station.total(), node.id().equals(recommendedId)));
+                    href, station == null ? 0 : station.done(), station == null ? 0 : station.total(),
+                    node.id().equals(recommendedId), state == NodeState.BLOCKED ? reasons.get(node.id()) : null));
         }
-        return new PathView(path.getSlug(), path.getTitle(), path.getDescription(), views, edges, done, total, recommendation);
+        PathView pathView = new PathView(path.getSlug(), path.getTitle(), path.getDescription(), path.isEnforce(),
+                views, edges, done, total, recommendation);
+        return new EvaluatedPath(pathView, live, nodeById, states, reasons, clear);
     }
 
     /** Ein Vorgänger, der erledigt ist oder gar nicht erledigt werden kann, hält niemanden auf. */
@@ -341,14 +530,18 @@ public class LearningPathService {
         private final Map<String, Module> modules = new LinkedHashMap<>();
         private final Map<String, List<PublishedTask>> tasks = new HashMap<>();
 
-        Situation(User user) {
-            this.releases = accessPolicy.releases(user);
+        Situation(User user, AccessPolicy.Releases releases) {
+            this.releases = releases;
             this.status = progressService.statusByTask(user.getId());
             contentService.modules().forEach(m -> modules.put(m.getSlug(), m));
         }
 
         Collection<Module> modules() {
             return modules.values();
+        }
+
+        Module module(String slug) {
+            return modules.get(slug);
         }
 
         List<PublishedTask> tasks(Module module) {
@@ -403,9 +596,11 @@ public class LearningPathService {
         }
 
         String label(PathGraph.Node node) {
+            if (node == null) return "";
             if (node.label() != null && !node.label().isBlank()) return node.label();
             if (node.kind() == PathGraph.NodeKind.MODULE) {
-                String title = modules.get(node.module()).getTitle();
+                Module m = modules.get(node.module());
+                String title = m != null ? m.getTitle() : node.module();
                 return node.partial() ? title + " (" + node.tasks().size() + " Aufgaben)" : title;
             }
             return task(node.module(), node.task()).map(t -> t.version().getTitle()).orElse(node.task());
@@ -419,6 +614,32 @@ public class LearningPathService {
     }
 
     // ---------------------------------------------------------------- Hilfen
+
+    private List<String> warnings(LearningPath p, PathGraph.Graph graph) {
+        List<String> result = new ArrayList<>();
+        if (p.isEnforce() && !graph.edges().isEmpty() && graph.edges().stream().noneMatch(PathGraph.Edge::required)) {
+            result.add("Der Lernpfad ist verbindlich, enthält aber nur Empfehlungs-Verbindungen (gestrichelt).");
+        }
+        if (p.getCourseId() != null && p.isPublished()) {
+            AccessPolicy.Releases courseRel = accessPolicy.forCourse(p.getCourseId());
+            Set<String> hasSuccessors = graph.edges().stream().map(PathGraph.Edge::from).collect(Collectors.toSet());
+            Map<String, Module> modules = contentService.modules().stream().collect(Collectors.toMap(Module::getSlug, Function.identity()));
+            for (PathGraph.Node node : graph.nodes()) {
+                if (node.kind() == PathGraph.NodeKind.MILESTONE || !hasSuccessors.contains(node.id())) continue;
+                Module m = modules.get(node.module());
+                if (m == null) continue;
+                List<PublishedTask> all = contentService.publishedTasks(m);
+                AccessPolicy.ModuleAccess ma = courseRel.moduleAccess(m, all);
+                String name = node.label() != null && !node.label().isBlank() ? node.label() : m.getTitle();
+                if (!ma.visible()) {
+                    result.add("Station „" + name + "“ ist im Kurs gesperrt und hält nachfolgende Stationen nicht auf.");
+                } else if (!ma.open()) {
+                    result.add("Station „" + name + "“: Die Bearbeitungszeit ist abgelaufen – sie hält nachfolgende Stationen nicht auf.");
+                }
+            }
+        }
+        return result;
+    }
 
     LearningPath find(Long id) {
         return repository.findById(id).orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
@@ -463,13 +684,15 @@ public class LearningPathService {
     }
 
     private PathSummary summary(LearningPath p) {
-        return new PathSummary(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(), read(p.getGraph()).nodes().size(),
-                p.getCourseId(), courseName(p), p.getUpdatedAt());
+        return new PathSummary(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(),
+                p.isEnforce(), read(p.getGraph()).nodes().size(), p.getCourseId(), courseName(p), p.getUpdatedAt());
     }
 
     private PathAdmin admin(LearningPath p, List<String> applied) {
-        return new PathAdmin(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(), read(p.getGraph()),
-                p.getCourseId(), courseName(p), p.isLockOthers(), applied, p.getUpdatedAt());
+        PathGraph.Graph graph = read(p.getGraph());
+        return new PathAdmin(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(),
+                p.isEnforce(), graph, p.getCourseId(), courseName(p), p.isLockOthers(), p.getUnlockRestAfter(),
+                applied, warnings(p, graph), p.getUpdatedAt());
     }
 
     private String courseName(LearningPath p) {

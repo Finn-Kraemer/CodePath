@@ -10,6 +10,7 @@
 	const STATE_LABELS: Record<string, string> = {
 		DONE: 'Erledigt',
 		AVAILABLE: 'Jetzt dran',
+		BLOCKED: 'Noch gesperrt',
 		UPCOMING: 'Später',
 		CLOSED: 'Zeit abgelaufen',
 		LOCKED: 'Gesperrt'
@@ -18,6 +19,7 @@
 	const STATE_STYLES: Record<string, string> = {
 		DONE: 'border-emerald-300 bg-emerald-50',
 		AVAILABLE: 'border-institutional-navy bg-white shadow-md',
+		BLOCKED: 'border-amber-300 bg-amber-50/40 opacity-85',
 		UPCOMING: 'border-slate-200 bg-white',
 		CLOSED: 'border-slate-200 bg-slate-50 opacity-70',
 		LOCKED: 'border-dashed border-slate-300 bg-slate-50 opacity-60'
@@ -61,12 +63,17 @@
 				{@const to = byId.get(edge.to)}
 				{#if from && to}
 					{@const done = from.state === 'DONE'}
+					{@const required = !!path.enforce && !!edge.required}
 					<path
 						d={edgePath(from, to)}
 						fill="none"
 						stroke-width="2.5"
-						class={done ? 'stroke-emerald-500' : 'stroke-slate-300'}
-						stroke-dasharray={done ? undefined : '6 5'}
+						class={done
+							? 'stroke-emerald-500'
+							: required
+								? 'stroke-slate-400'
+								: 'stroke-slate-300'}
+						stroke-dasharray={done || required ? undefined : '6 5'}
 						marker-end="url(#{done ? 'arrow-done' : 'arrow-open'})"
 					/>
 				{/if}
@@ -80,10 +87,15 @@
 					class="absolute flex flex-col items-center justify-center gap-1 rounded-full border-2 px-4 text-center {node.state ===
 					'DONE'
 						? 'border-institutional-gold bg-amber-50'
-						: 'border-dashed border-slate-300 bg-white'}"
+						: node.state === 'BLOCKED'
+							? 'border-amber-300 bg-amber-50/40 opacity-85'
+							: 'border-dashed border-slate-300 bg-white'}"
 					{style}
+					title={node.reason ?? undefined}
 				>
-					<span class="text-lg">{node.state === 'DONE' ? '🏆' : '🏁'}</span>
+					<span class="text-lg"
+						>{node.state === 'DONE' ? '🏆' : node.state === 'BLOCKED' ? '🔒' : '🏁'}</span
+					>
 					<span class="text-xs font-black tracking-wide text-institutional-navy uppercase"
 						>{node.label}</span
 					>
@@ -98,26 +110,37 @@
 						? 'ring-4 ring-institutional-gold/40'
 						: ''}"
 					{style}
-					aria-label="{node.label}: {STATE_LABELS[node.state]}"
+					title={node.reason ?? undefined}
+					aria-label="{node.label}: {node.reason ?? STATE_LABELS[node.state]}"
 				>
 					<div class="flex items-start gap-2">
-						<span class="text-xl leading-none">{node.state === 'LOCKED' ? '🔒' : node.icon}</span>
+						<span class="text-xl leading-none"
+							>{node.state === 'LOCKED' || node.state === 'BLOCKED' ? '🔒' : node.icon}</span
+						>
 						<span class="line-clamp-2 text-sm leading-tight font-bold text-institutional-navy"
 							>{node.label}</span
 						>
 					</div>
 					<div class="flex items-center justify-between gap-2">
 						<span
-							class="font-mono text-[9px] font-bold tracking-widest uppercase {node.recommended
+							class="line-clamp-1 font-mono text-[9px] font-bold tracking-widest uppercase {node.recommended
 								? 'text-institutional-gold'
 								: node.state === 'DONE'
 									? 'text-emerald-700'
-									: 'text-slate-400'}"
+									: node.state === 'BLOCKED'
+										? 'text-amber-700'
+										: 'text-slate-400'}"
 						>
-							{node.recommended ? '★ Empfohlen' : STATE_LABELS[node.state]}
+							{node.recommended
+								? '★ Empfohlen'
+								: node.state === 'BLOCKED' && node.reason
+									? node.reason
+									: STATE_LABELS[node.state]}
 						</span>
 						{#if node.kind === 'MODULE' && node.total > 0}
-							<span class="font-mono text-[9px] text-slate-400">{node.done}/{node.total}</span>
+							<span class="shrink-0 font-mono text-[9px] text-slate-400"
+								>{node.done}/{node.total}</span
+							>
 						{/if}
 					</div>
 					{#if node.kind === 'MODULE' && node.total > 0}

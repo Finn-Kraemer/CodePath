@@ -64,7 +64,14 @@ class TransferTest extends IntegrationTestBase {
         putAs(teacher(), "/api/admin/pages/" + page + "/published", PagesTest.blocks(Map.of("id", "i", "type", "image", "media", key)))
                 .andExpect(status().isNoContent());
         long article = body(postAs(teacher(), "/api/admin/knowledge", Map.of("title", "Transfer", "slug", "transfer-test"))).get("id").asLong();
-        postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Standard", "slug", "standard")).andExpect(status().isOk());
+        long pathId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Standard", "slug", "standard")).andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + pathId, Map.of(
+                "enforce", true,
+                "unlockRestAfter", "m1",
+                "graph", Map.of(
+                        "nodes", List.of(LearningPathTest.node("m1", "MODULE", "git", null, null, 0),
+                                LearningPathTest.node("m2", "MODULE", "datenbanken", null, null, 100)),
+                        "edges", List.of(LearningPathTest.requiredEdge("m1", "m2"))))).andExpect(status().isOk());
 
         byte[] zip = export("");
         Map<String, byte[]> files = unzip(zip);
@@ -74,6 +81,9 @@ class TransferTest extends IntegrationTestBase {
         for (String section : List.of("settings", "modules", "homepage", "pages", "knowledge", "learningPaths")) {
             assertTrue(manifest.at("/sections").has(section), section);
         }
+        assertTrue(manifest.at("/sections/learningPaths/0/enforce").asBoolean());
+        assertEquals("m1", manifest.at("/sections/learningPaths/0/unlockRestAfter").asString());
+        assertTrue(manifest.at("/sections/learningPaths/0/graph/edges/0/required").asBoolean());
 
         // Seite und Lernpfad weg, Artikel geändert → angelegt, überarbeitet, Rest unverändert
         mvc.perform(delete("/api/admin/pages/" + page).with(teacher()).with(csrf())).andExpect(status().isNoContent());

@@ -2904,6 +2904,13 @@
           "schema" : {
             "type" : "string"
           }
+        }, {
+          "in" : "query",
+          "name" : "student",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -3727,11 +3734,14 @@
           "from" : {
             "type" : "string"
           },
+          "required" : {
+            "type" : "boolean"
+          },
           "to" : {
             "type" : "string"
           }
         },
-        "required" : [ "from", "to" ]
+        "required" : [ "from", "required", "to" ]
       },
       "GeneratedAccount" : {
         "type" : "object",
@@ -4223,12 +4233,15 @@
           "label" : {
             "type" : "string"
           },
+          "reason" : {
+            "type" : "string"
+          },
           "recommended" : {
             "type" : "boolean"
           },
           "state" : {
             "type" : "string",
-            "enum" : [ "DONE", "AVAILABLE", "UPCOMING", "CLOSED", "LOCKED" ]
+            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED" ]
           },
           "total" : {
             "type" : "integer",
@@ -4243,7 +4256,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "done", "href", "icon", "id", "kind", "label", "recommended", "state", "total", "x", "y" ]
+        "required" : [ "done", "href", "icon", "id", "kind", "label", "reason", "recommended", "state", "total", "x", "y" ]
       },
       "PageDetail" : {
         "type" : "object",
@@ -4337,6 +4350,9 @@
           "description" : {
             "type" : "string"
           },
+          "enforce" : {
+            "type" : "boolean"
+          },
           "graph" : {
             "$ref" : "#/components/schemas/Graph"
           },
@@ -4356,12 +4372,21 @@
           "title" : {
             "type" : "string"
           },
+          "unlockRestAfter" : {
+            "type" : "string"
+          },
           "updatedAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "warnings" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "applied", "courseId", "courseName", "description", "graph", "id", "lockOthers", "published", "slug", "title", "updatedAt" ]
+        "required" : [ "applied", "courseId", "courseName", "description", "enforce", "graph", "id", "lockOthers", "published", "slug", "title", "unlockRestAfter", "updatedAt", "warnings" ]
       },
       "PathLink" : {
         "type" : "object",
@@ -4391,6 +4416,9 @@
           "description" : {
             "type" : "string"
           },
+          "enforce" : {
+            "type" : "boolean"
+          },
           "id" : {
             "type" : "integer",
             "format" : "int64"
@@ -4413,7 +4441,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "courseId", "courseName", "description", "id", "published", "slug", "stations", "title", "updatedAt" ]
+        "required" : [ "courseId", "courseName", "description", "enforce", "id", "published", "slug", "stations", "title", "updatedAt" ]
       },
       "PathUpdate" : {
         "type" : "object",
@@ -4424,6 +4452,9 @@
           },
           "description" : {
             "type" : "string"
+          },
+          "enforce" : {
+            "type" : "boolean"
           },
           "graph" : {
             "$ref" : "#/components/schemas/Graph"
@@ -4439,9 +4470,12 @@
           },
           "title" : {
             "type" : "string"
+          },
+          "unlockRestAfter" : {
+            "type" : "string"
           }
         },
-        "required" : [ "courseId", "description", "graph", "lockOthers", "published", "slug", "title" ]
+        "required" : [ "courseId", "description", "enforce", "graph", "lockOthers", "published", "slug", "title", "unlockRestAfter" ]
       },
       "PathView" : {
         "type" : "object",
@@ -4454,6 +4488,9 @@
             "items" : {
               "$ref" : "#/components/schemas/Edge"
             }
+          },
+          "enforce" : {
+            "type" : "boolean"
           },
           "nodes" : {
             "type" : "array",
@@ -4479,7 +4516,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "edges", "nodes", "recommendation", "slug", "stations", "stationsDone", "title" ]
+        "required" : [ "description", "edges", "enforce", "nodes", "recommendation", "slug", "stations", "stationsDone", "title" ]
       },
       "Profile" : {
         "type" : "object",
@@ -5207,12 +5244,18 @@
       "TaskSummary" : {
         "type" : "object",
         "properties" : {
+          "blockedReason" : {
+            "type" : "string"
+          },
           "difficulty" : {
             "type" : "string"
           },
           "id" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "isBlocked" : {
+            "type" : "boolean"
           },
           "isCompleted" : {
             "type" : "boolean"
@@ -5241,7 +5284,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "difficulty", "id", "isCompleted", "isLocked", "points", "pointsEarned", "slug", "status", "title", "type" ]
+        "required" : [ "blockedReason", "difficulty", "id", "isBlocked", "isCompleted", "isLocked", "points", "pointsEarned", "slug", "status", "title", "type" ]
       },
       "TestOutput" : {
         "type" : "object",

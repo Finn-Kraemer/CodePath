@@ -236,7 +236,9 @@ public class KnowledgeService implements MediaUsage {
                 .filter(KnowledgeArticle::isPublished)
                 .filter(a -> a.getModuleSlug() == null || moduleVisible.computeIfAbsent(a.getModuleSlug(), slug -> {
                     Optional<Module> module = contentService.modules().stream().filter(m -> m.getSlug().equals(slug)).findFirst();
-                    return module.isPresent() && releases.moduleAccess(module.get(), contentService.publishedTasks(module.get())).visible();
+                    if (module.isEmpty()) return false;
+                    AccessPolicy.ModuleAccess access = releases.moduleAccess(module.get(), contentService.publishedTasks(module.get()));
+                    return access.visible() && !access.blocked();
                 }))
                 .toList();
     }

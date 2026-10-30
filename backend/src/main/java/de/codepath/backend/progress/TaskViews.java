@@ -16,7 +16,12 @@ public final class TaskViews {
     }
 
     public record TaskSummary(Long id, String slug, String title, String type, String difficulty, int points,
-                              String status, boolean isCompleted, boolean isLocked, long pointsEarned) {
+                              String status, boolean isCompleted, boolean isLocked, boolean isBlocked,
+                              String blockedReason, long pointsEarned) {
+        public TaskSummary(Long id, String slug, String title, String type, String difficulty, int points,
+                           String status, boolean isCompleted, boolean isLocked, long pointsEarned) {
+            this(id, slug, title, type, difficulty, points, status, isCompleted, isLocked, false, null, pointsEarned);
+        }
     }
 
     public record ModuleDetail(ModuleSummary module, List<TaskSummary> tasks) {

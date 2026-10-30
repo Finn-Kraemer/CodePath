@@ -34,6 +34,10 @@ class LearningPathTest extends IntegrationTestBase {
         return Map.of("from", from, "to", to);
     }
 
+    static Map<String, Object> requiredEdge(String from, String to) {
+        return Map.of("from", from, "to", to, "required", true);
+    }
+
     long create(String title, String slug) throws Exception {
         return body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", title, "slug", slug)).andExpect(status().isOk()))
                 .get("id").asLong();
@@ -193,6 +197,144 @@ class LearningPathTest extends IntegrationTestBase {
     void nothingToRecommendWithoutReleasedModules() throws Exception {
         User tom = student("tom", course("8b"));
         getAs(as(tom), "/api/learning/next").andExpect(status().isNoContent());
+    }
+
+    @Test
+    void enforcedPathBlocksSuccessorsAndUnlocksRestAfterStation() throws Exception {
+        Course course = course("8c");
+        User lena = student("lena", course);
+        User tom = student("tom", course);
+        long id = create("Pflichtpfad", "pflichtpfad");
+
+        var graph = Map.of(
+                "nodes", List.of(
+                        node("t1", "TASK", "git", "g1", "Aufgabe 1", 0),
+                        node("t2", "TASK", "git", "g5", "Aufgabe 2", 100),
+                        node("t3", "TASK", "git", "g3", "Aufgabe 3", 200),
+                        node("opt", "TASK", "git", "g6", "Zusatz", 250),
+                        node("frei", "MILESTONE", null, null, "Freies Arbeiten", 300)),
+                "edges", List.of(
+                        requiredEdge("t1", "t2"),
+                        requiredEdge("t2", "t3"),
+                        edge("t1", "opt"),
+                        requiredEdge("t3", "frei")));
+
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of(
+                "graph", graph,
+                "courseId", course.getId(),
+                "enforce", true,
+                "unlockRestAfter", "frei",
+                "published", true)).andExpect(status().isOk());
+
+        // Vor Erledigung von Aufgabe 1: Aufgabe 2 & 3 sind BLOCKED, Empfehlungs-Kante (opt) ist UPCOMING & bearbeitbar
+        JsonNode view = body(getAs(as(lena), "/api/learning-paths/pflichtpfad"));
+        assertTrue(view.get("enforce").asBoolean());
+        assertEquals("AVAILABLE", state(view, "t1"));
+        assertEquals("BLOCKED", state(view, "t2"));
+        assertTrue(find(view, "t2").get("href").isNull());
+        assertEquals("Erst „Aufgabe 1“ abschließen.", find(view, "t2").get("reason").asString());
+        assertEquals("BLOCKED", state(view, "t3"));
+        assertEquals("UPCOMING", state(view, "opt"), "Empfehlungs-Verbindung blockiert nicht");
+        assertFalse(find(view, "opt").get("href").isNull());
+        assertEquals("BLOCKED", state(view, "frei"));
+
+        // Vorschau der Lehrkraft „als Schüler“
+        JsonNode previewAsLena = body(getAs(teacher(), "/api/learning-paths/pflichtpfad?student=lena").andExpect(status().isOk()));
+        assertEquals("BLOCKED", state(previewAsLena, "t2"));
+
+        // Serverseitige Durchsetzung: Aufgabe 2 weder lesbar noch abgebbar, Tipp/Lösung abgewiesen
+        getAs(as(lena), "/api/modules/git/g1").andExpect(status().isOk());
+        getAs(as(lena), "/api/modules/git/g6").andExpect(status().isOk());
+        getAs(as(lena), "/api/modules/git/g5").andExpect(status().isForbidden());
+        postAs(as(lena), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isForbidden());
+        postAs(as(lena), "/api/modules/git/g5/hint", null).andExpect(status().isForbidden());
+        postAs(as(lena), "/api/modules/git/g5/reveal", null).andExpect(status().isForbidden());
+
+        // Aufgaben & Module außerhalb des Pfads sind vor Erreichen von „frei“ gesperrt
+        getAs(as(lena), "/api/modules/datenbanken").andExpect(status().isForbidden());
+        JsonNode gitDetail = body(getAs(as(lena), "/api/modules/git").andExpect(status().isOk()));
+        assertEquals(4, gitDetail.get("tasks").size(), "Nur die 4 Aufgaben des Pfads sind vorab im Modul sichtbar");
+        for (JsonNode t : gitDetail.get("tasks")) {
+            if (t.get("slug").asString().equals("g5")) {
+                assertTrue(t.get("isBlocked").asBoolean());
+                assertEquals("Erst „Aufgabe 1“ abschließen.", t.get("blockedReason").asString());
+            }
+        }
+
+        // Schritt für Schritt lösen: 1 → 2 → 3
+        postAs(as(lena), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        assertEquals("g5", body(getAs(as(lena), "/api/learning/next")).get("taskSlug").asString());
+        getAs(as(lena), "/api/modules/git/g5").andExpect(status().isOk());
+        getAs(as(lena), "/api/modules/git/g3").andExpect(status().isForbidden());
+
+        postAs(as(lena), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        assertEquals("g3", body(getAs(as(lena), "/api/learning/next")).get("taskSlug").asString());
+        getAs(as(lena), "/api/modules/git/g3").andExpect(status().isOk());
+
+        postAs(as(lena), "/api/modules/git/g3/submit", Map.of("answers", List.of("Working Directory", "Staging Area", "Repository"))).andExpect(status().isOk());
+
+        // Meilenstein „frei“ erreicht → alle übrigen Module und Aufgaben sind für Lena frei (ohne Änderung an module_releases!)
+        view = body(getAs(as(lena), "/api/learning-paths/pflichtpfad"));
+        assertEquals("DONE", state(view, "frei"));
+        getAs(as(lena), "/api/modules/datenbanken").andExpect(status().isOk());
+        assertTrue(body(getAs(as(lena), "/api/modules")).size() > 1, "Übrige Module sind für Lena freigeschaltet");
+        JsonNode dbModuleInAdmin = module(body(getAs(teacher(), "/api/admin/modules?courseId=" + course.getId())), "datenbanken");
+        assertFalse(dbModuleInAdmin.get("isUnlocked").asBoolean(), "module_releases bleibt unverändert");
+
+        // Für Tom im selben Kurs ist Datenbanken weiterhin gesperrt
+        getAs(as(tom), "/api/modules/datenbanken").andExpect(status().isForbidden());
+    }
+
+    @Test
+    void rejectsSecondEnforcedPathAndHandlesDuplicateTasksAndKnowledgeVisibility() throws Exception {
+        Course courseA = course("10a");
+        Course courseB = course("10b");
+        unlock(courseA, "git");
+        unlock(courseA, "datenbanken");
+        User lena = student("lena", courseA);
+
+        long p1 = create("Pfad A", "pfad-a");
+        var graph = Map.of(
+                "nodes", List.of(
+                        node("n1", "TASK", "git", "g1", "Start", 0),
+                        node("n2", "TASK", "git", "g1", "Wiederholung", 100),
+                        node("db", "MODULE", "datenbanken", null, "Datenbanken", 200)),
+                "edges", List.of(requiredEdge("n1", "n2"), requiredEdge("n1", "db")));
+        putAs(teacher(), "/api/admin/learning-paths/" + p1, Map.of(
+                "graph", graph, "courseId", courseA.getId(), "enforce", true, "published", true))
+                .andExpect(status().isOk());
+
+        // Ungültige unlockRestAfter-Station wird abgelehnt
+        putAs(teacher(), "/api/admin/learning-paths/" + p1, Map.of("unlockRestAfter", "gibt-es-nicht"))
+                .andExpect(status().isBadRequest());
+
+        // Zweiter verbindlicher Pfad im selben Kurs oder für alle Kurse wird abgelehnt; anderer Kurs erlaubt
+        long p2 = create("Pfad A2", "pfad-a2");
+        putAs(teacher(), "/api/admin/learning-paths/" + p2, Map.of("courseId", courseA.getId(), "enforce", true))
+                .andExpect(status().isConflict());
+        putAs(teacher(), "/api/admin/learning-paths/" + p2, Map.of("courseId", 0, "enforce", true))
+                .andExpect(status().isConflict());
+        putAs(teacher(), "/api/admin/learning-paths/" + p2, Map.of("courseId", courseB.getId(), "enforce", true))
+                .andExpect(status().isOk());
+
+        // Aufgabe g1 kommt in n1 (AVAILABLE) und n2 (BLOCKED) vor → trotzdem bearbeitbar
+        getAs(as(lena), "/api/modules/git/g1").andExpect(status().isOk());
+
+        // Modul „datenbanken“ ist komplett durch n1 blockiert → Wissensartikel zu datenbanken noch nicht sichtbar
+        JsonNode articlesBefore = body(getAs(as(lena), "/api/knowledge"));
+        assertFalse(hasArticleForModule(articlesBefore, "datenbanken"), "Artikel eines komplett blockierten Moduls ist noch ausgeblendet");
+
+        // Nach Erledigung von n1 wird Modul „datenbanken“ frei → Wissensartikel sichtbar
+        postAs(as(lena), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        JsonNode articlesAfter = body(getAs(as(lena), "/api/knowledge"));
+        assertTrue(hasArticleForModule(articlesAfter, "datenbanken"), "Artikel wird mit Freischaltung der Station sichtbar");
+    }
+
+    static boolean hasArticleForModule(JsonNode articles, String moduleSlug) {
+        for (JsonNode a : articles) {
+            if (moduleSlug.equals(a.path("moduleSlug").asString(null))) return true;
+        }
+        return false;
     }
 
     static JsonNode find(JsonNode view, String id) {

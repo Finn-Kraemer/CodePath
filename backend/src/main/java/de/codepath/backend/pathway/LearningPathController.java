@@ -21,8 +21,9 @@ public class LearningPathController {
     }
 
     @GetMapping("/api/learning-paths/{slug}")
-    public LearningPathService.PathView view(@PathVariable("slug") String slug) {
-        return service.view(userService.currentUser(), slug);
+    public LearningPathService.PathView view(@PathVariable("slug") String slug,
+                                             @RequestParam(name = "student", required = false) String student) {
+        return service.view(userService.currentUser(), slug, student);
     }
 
     /** Empfohlene nächste Aufgabe; leere Antwort, wenn nichts mehr offen ist. */

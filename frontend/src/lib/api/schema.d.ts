@@ -1820,6 +1820,7 @@ export interface components {
 		};
 		Edge: {
 			from: string;
+			required: boolean;
 			to: string;
 		};
 		GeneratedAccount: {
@@ -2004,9 +2005,10 @@ export interface components {
 			/** @enum {string} */
 			kind: 'MODULE' | 'TASK' | 'MILESTONE';
 			label: string;
+			reason: string;
 			recommended: boolean;
 			/** @enum {string} */
-			state: 'DONE' | 'AVAILABLE' | 'UPCOMING' | 'CLOSED' | 'LOCKED';
+			state: 'DONE' | 'AVAILABLE' | 'BLOCKED' | 'UPCOMING' | 'CLOSED' | 'LOCKED';
 			/** Format: int32 */
 			total: number;
 			/** Format: int32 */
@@ -2047,6 +2049,7 @@ export interface components {
 			courseId: number;
 			courseName: string;
 			description: string;
+			enforce: boolean;
 			graph: components['schemas']['Graph'];
 			/** Format: int64 */
 			id: number;
@@ -2054,8 +2057,10 @@ export interface components {
 			published: boolean;
 			slug: string;
 			title: string;
+			unlockRestAfter: string;
 			/** Format: date-time */
 			updatedAt: string;
+			warnings: string[];
 		};
 		PathLink: {
 			description: string;
@@ -2067,6 +2072,7 @@ export interface components {
 			courseId: number;
 			courseName: string;
 			description: string;
+			enforce: boolean;
 			/** Format: int64 */
 			id: number;
 			published: boolean;
@@ -2081,15 +2087,18 @@ export interface components {
 			/** Format: int64 */
 			courseId: number;
 			description: string;
+			enforce: boolean;
 			graph: components['schemas']['Graph'];
 			lockOthers: boolean;
 			published: boolean;
 			slug: string;
 			title: string;
+			unlockRestAfter: string;
 		};
 		PathView: {
 			description: string;
 			edges: components['schemas']['Edge'][];
+			enforce: boolean;
 			nodes: components['schemas']['NodeView'][];
 			recommendation: components['schemas']['Recommendation'];
 			slug: string;
@@ -2432,9 +2441,11 @@ export interface components {
 			type: string;
 		};
 		TaskSummary: {
+			blockedReason: string;
 			difficulty: string;
 			/** Format: int64 */
 			id: number;
+			isBlocked: boolean;
 			isCompleted: boolean;
 			isLocked: boolean;
 			/** Format: int32 */
@@ -5030,7 +5041,9 @@ export interface operations {
 	};
 	view: {
 		parameters: {
-			query?: never;
+			query?: {
+				student?: string;
+			};
 			header?: never;
 			path: {
 				slug: string;

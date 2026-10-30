@@ -12,6 +12,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,7 +21,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class LearningPathTransfer implements TransferSection {
 
-    public record PathExport(String slug, String title, String description, Boolean published, PathGraph.Graph graph) {
+    public record PathExport(String slug, String title, String description, Boolean published,
+                             Boolean enforce, Boolean lockOthers, String unlockRestAfter,
+                             PathGraph.Graph graph) {
     }
 
     private final LearningPathRepository repository;
@@ -48,7 +51,8 @@ public class LearningPathTransfer implements TransferSection {
     public JsonNode export(Set<String> only) {
         List<PathExport> paths = repository.findAllByOrderByPositionAscIdAsc().stream()
                 .filter(p -> only.isEmpty() || only.contains(p.getSlug()))
-                .map(p -> new PathExport(p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(), service.read(p.getGraph())))
+                .map(p -> new PathExport(p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(),
+                        p.isEnforce(), p.isLockOthers(), p.getUnlockRestAfter(), service.read(p.getGraph())))
                 .toList();
         return objectMapper.valueToTree(paths);
     }
@@ -68,12 +72,19 @@ public class LearningPathTransfer implements TransferSection {
         String slug = LearningPathService.slug(in.slug());
         String title = LearningPathService.title(in.title());
         String description = LearningPathService.description(in.description());
-        String graph = service.write(service.checked(in.graph() == null ? PathGraph.Graph.empty() : in.graph()));
+        PathGraph.Graph checkedGraph = service.checked(in.graph() == null ? PathGraph.Graph.empty() : in.graph());
+        String unlockRestAfter = in.unlockRestAfter() == null || in.unlockRestAfter().isBlank() ? null : in.unlockRestAfter().strip();
+        service.validateUnlockRestAfter(checkedGraph, unlockRestAfter);
+        String graph = service.write(checkedGraph);
         boolean published = Boolean.TRUE.equals(in.published());
+        boolean enforce = Boolean.TRUE.equals(in.enforce());
+        boolean lockOthers = Boolean.TRUE.equals(in.lockOthers());
         Optional<LearningPath> existing = repository.findBySlug(slug);
         LearningPath path = existing.orElseGet(LearningPath::new);
         if (existing.isPresent() && title.equals(path.getTitle()) && description.equals(path.getDescription())
-                && published == path.isPublished() && service.read(path.getGraph()).equals(service.read(graph))) {
+                && published == path.isPublished() && enforce == path.isEnforce() && lockOthers == path.isLockOthers()
+                && Objects.equals(unlockRestAfter, path.getUnlockRestAfter())
+                && service.read(path.getGraph()).equals(service.read(graph))) {
             return TransferItem.Action.UNCHANGED;
         }
         if (existing.isEmpty()) {
@@ -83,7 +94,11 @@ public class LearningPathTransfer implements TransferSection {
         path.setTitle(title);
         path.setDescription(description);
         path.setPublished(published);
+        path.setEnforce(enforce);
+        path.setLockOthers(lockOthers);
+        path.setUnlockRestAfter(unlockRestAfter);
         path.setGraph(graph);
+        service.validateSingleEnforced(path);
         path.setUpdatedAt(LocalDateTime.now());
         repository.save(path);
         return existing.isPresent() ? TransferItem.Action.UPDATED : TransferItem.Action.CREATED;
