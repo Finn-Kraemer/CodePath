@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Logo from '$lib/components/Logo.svelte';
 	import { onMount } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
 	import { realtime } from '$lib/realtime.svelte';
@@ -87,18 +88,8 @@
 		class="relative z-20 flex items-center justify-between border-b-4 border-institutional-gold bg-institutional-navy p-8 shadow-2xl"
 	>
 		<div class="flex items-center gap-6">
-			<div class="bg-white p-3">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-12 w-12 text-institutional-navy"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="3"
-				>
-					<path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"
-					></path>
-				</svg>
+			<div class="bg-white">
+				<Logo class="h-18 w-18 text-institutional-navy" />
 			</div>
 			<div>
 				<h1 class="text-4xl leading-none font-black tracking-tighter uppercase">CodePath Live</h1>
