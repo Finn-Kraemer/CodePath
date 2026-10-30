@@ -19,6 +19,7 @@ import de.codepath.backend.progress.ProgressService;
 import de.codepath.backend.progress.ProgressStatus;
 import de.codepath.backend.site.KnowledgeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,7 @@ import java.util.stream.Stream;
  * einzeln gesperrt. Ist der Lernpfad verbindlich ({@link LearningPath#isEnforce()}), setzt {@link PathGate}
  * Pflicht-Verbindungen und die Einstellung für Module außerhalb des Pfads serverseitig über {@link AccessPolicy} durch.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LearningPathService implements PathGate {
@@ -177,6 +179,7 @@ public class LearningPathService implements PathGate {
     private final LearningPathChoiceRepository choiceRepository;
     private final LearningPathOverrideRepository overrideRepository;
     private final LearningPathBranchResultRepository branchResultRepository;
+    private final BranchResultRecorder branchResultRecorder;
     private final ContentService contentService;
     private final AccessPolicy accessPolicy;
     private final ReleaseService releaseService;
@@ -505,8 +508,9 @@ public class LearningPathService implements PathGate {
                 .filter(LearningPath::isPublished)
                 .filter(p -> !p.isTemplateOnly())
                 .filter(p -> user.isTeacher() || p.getCourseId() == null || p.getCourseId().equals(courseId))
-                .sorted(Comparator.comparing((LearningPath p) -> p.getCourseId() == null)
-                        .thenComparing(p -> !p.isEnforce()))
+                // Der verbindliche Lernpfad bestimmt, was frei ist – er steht vorn und liefert die Empfehlung
+                .sorted(Comparator.comparing((LearningPath p) -> !p.isEnforce())
+                        .thenComparing(p -> p.getCourseId() == null))
                 .toList();
     }
 
@@ -1413,9 +1417,14 @@ public class LearningPathService implements PathGate {
             if (user.isTeacher()) return;
             List<LearningPath> paths = publishedFor(user);
             if (paths.isEmpty()) return;
-            Situation situation = new Situation(user, accessPolicy.courseReleases(user), true);
-            for (LearningPath path : paths) {
-                evaluate(path, situation, path.isEnforce(), 0);
+            // Die Abgabe ist gebucht; ein Fehler in der Pfadauswertung darf sie nicht zurückrollen
+            try {
+                Situation situation = new Situation(user, accessPolicy.courseReleases(user), true);
+                for (LearningPath path : paths) {
+                    evaluate(path, situation, path.isEnforce(), 0);
+                }
+            } catch (RuntimeException e) {
+                log.warn("Lernpfad-Auswertung nach Abgabe von {} fehlgeschlagen", user.getUsername(), e);
             }
         });
     }
@@ -1635,7 +1644,9 @@ public class LearningPathService implements PathGate {
                 }
 
                 ProgressService.TaskProgressView prog = refTask != null ? s.taskProgress(refTask.taskId()) : null;
-                boolean settled = prog != null && (prog.finished() || s.finished(refTask));
+                // Praxisabgaben sind erst nach der Bewertung auswertbar
+                boolean settled = prog != null && prog.status() != ProgressStatus.PENDING_REVIEW
+                        && (prog.finished() || s.finished(refTask));
 
                 if (settled && s.user().getId() != null && path.getId() != null) {
                     boolean anyMatched = false;
@@ -1672,10 +1683,11 @@ public class LearningPathService implements PathGate {
                             }
                             case DEFAULT -> {}
                         }
-                        if (matched) anyMatched = true;
+                        // Ein Stütz-Knoten ist ein Umweg vor dem Normalweg, keine Alternative zu ihm
+                        if (matched && cond.rule() != PathGraph.ConditionRule.STRUGGLED) anyMatched = true;
                         LearningPathBranchResult br = new LearningPathBranchResult(
                                 s.user().getId(), path.getId(), e.from() + "->" + e.to(), matched, cond.rule().name(), detail);
-                        branchResultRepository.save(br);
+                        branchResultRecorder.record(br);
                         branchResults.put(br.getEdgeKey(), br);
                     }
                     if (defaultEdge != null) {
@@ -1684,7 +1696,7 @@ public class LearningPathService implements PathGate {
                         LearningPathBranchResult br = new LearningPathBranchResult(
                                 s.user().getId(), path.getId(), defaultEdge.from() + "->" + defaultEdge.to(),
                                 defaultMatched, PathGraph.ConditionRule.DEFAULT.name(), detail);
-                        branchResultRepository.save(br);
+                        branchResultRecorder.record(br);
                         branchResults.put(br.getEdgeKey(), br);
                     }
                 }
@@ -1696,13 +1708,31 @@ public class LearningPathService implements PathGate {
             String key = edge.from() + "->" + edge.to();
             if (edge.condition() == null) {
                 activeEdgeKeys.add(key);
-            } else if (branchResults.containsKey(key)) {
-                if (branchResults.get(key).isMatched()) {
-                    activeEdgeKeys.add(key);
-                }
-            } else {
-                if (edge.condition().rule() == PathGraph.ConditionRule.DEFAULT) {
-                    activeEdgeKeys.add(key);
+            } else if (edge.condition().rule() == PathGraph.ConditionRule.DEFAULT) {
+                // Normalweg, solange keine Abkürzung oder Bonus-Challenge desselben Knotens greift
+                boolean alternative = edges.stream().anyMatch(o -> o.from().equals(edge.from()) && o.condition() != null
+                        && o.condition().rule() != PathGraph.ConditionRule.DEFAULT
+                        && o.condition().rule() != PathGraph.ConditionRule.STRUGGLED
+                        && branchResults.containsKey(o.from() + "->" + o.to())
+                        && branchResults.get(o.from() + "->" + o.to()).isMatched());
+                if (!alternative) activeEdgeKeys.add(key);
+            } else if (branchResults.containsKey(key) && branchResults.get(key).isMatched()) {
+                activeEdgeKeys.add(key);
+            }
+        }
+
+        // Ausgelöste Stütz-Knoten liegen als Pflicht-Station vor den Zielen des Normalwegs
+        Map<String, List<String>> remedialBefore = new HashMap<>();
+        for (PathGraph.Edge edge : edges) {
+            PathGraph.Node target = nodeById.get(edge.to());
+            if (target == null || !target.remedial() || edge.condition() == null
+                    || edge.condition().rule() != PathGraph.ConditionRule.STRUGGLED
+                    || !activeEdgeKeys.contains(edge.from() + "->" + edge.to())) continue;
+            for (PathGraph.Edge normal : edges) {
+                if (normal.from().equals(edge.from()) && !normal.to().equals(target.id())
+                        && normal.condition() != null && normal.condition().rule() == PathGraph.ConditionRule.DEFAULT
+                        && !edges.stream().anyMatch(e -> e.from().equals(target.id()) && e.to().equals(normal.to()))) {
+                    remedialBefore.computeIfAbsent(normal.to(), k -> new ArrayList<>()).add(target.id());
                 }
             }
         }
@@ -1770,11 +1800,15 @@ public class LearningPathService implements PathGate {
             }
         }
 
-        for (PathGraph.Node node : ordered) {
+        // Ausgewertet wird in einer Reihenfolge, die eingeschobene Stütz-Knoten vor ihren Zielen berücksichtigt
+        List<PathGraph.Edge> withRemedial = new ArrayList<>(edges);
+        remedialBefore.forEach((to, rems) -> rems.forEach(r -> withRemedial.add(new PathGraph.Edge(r, to))));
+        for (PathGraph.Node node : PathGraph.order(new PathGraph.Graph(nodes, withRemedial))) {
             boolean teacherUnlocked = unlockedNodes.contains(node.id());
-            List<String> allPreds = predecessors.getOrDefault(node.id(), List.of()).stream()
-                    .filter(id -> activeEdgeKeys.contains(id + "->" + node.id()))
-                    .toList();
+            List<String> extraRemedial = remedialBefore.getOrDefault(node.id(), List.of());
+            List<String> allPreds = Stream.concat(predecessors.getOrDefault(node.id(), List.of()).stream()
+                            .filter(id -> activeEdgeKeys.contains(id + "->" + node.id())), extraRemedial.stream())
+                    .distinct().toList();
 
             // Stütz-Knoten prüfen: wenn eingehende STRUGGLED-Kante nicht aktiv und nicht durch Gate-Fallback aktiviert, ist der Knoten ausgeschlossen
             if (node.remedial()) {
@@ -1831,10 +1865,11 @@ public class LearningPathService implements PathGate {
             }
 
             List<String> baseReq = effectiveEnforce
-                    ? requiredPredecessors.getOrDefault(node.id(), List.of()).stream()
-                            .filter(id -> activeEdgeKeys.contains(id + "->" + node.id()))
-                            .filter(id -> !unlockedBranches.getOrDefault(id, Set.of()).contains(node.id()))
-                            .toList()
+                    ? Stream.concat(requiredPredecessors.getOrDefault(node.id(), List.of()).stream()
+                                    .filter(id -> activeEdgeKeys.contains(id + "->" + node.id()))
+                                    .filter(id -> !unlockedBranches.getOrDefault(id, Set.of()).contains(node.id())),
+                            extraRemedial.stream())
+                            .distinct().toList()
                     : List.of();
             List<String> choicePreds = allPreds.stream()
                     .filter(id -> nodeById.get(id) != null && nodeById.get(id).choice())
@@ -2124,7 +2159,7 @@ public class LearningPathService implements PathGate {
                                     s.user().getId(), path.getId(), gateKey, true, "GATE",
                                     percent + " % Punkte (" + totalEarned + "/" + totalMax + " P.)"
                             );
-                            branchResultRepository.save(br);
+                            branchResultRecorder.record(br);
                             branchResults.put(gateKey, br);
                         }
                     } else if (unreachable) {
@@ -2135,7 +2170,7 @@ public class LearningPathService implements PathGate {
                                         s.user().getId(), path.getId(), gateKey, true, "GATE",
                                         "Freigeschaltet (Fallback OPEN, " + percent + " % erreicht)"
                                 );
-                                branchResultRepository.save(br);
+                                branchResultRecorder.record(br);
                                 branchResults.put(gateKey, br);
                             }
                         } else if (req.fallback() == PathGraph.GateFallback.REMEDIAL && req.fallbackRemedialNode() != null) {
@@ -2146,7 +2181,7 @@ public class LearningPathService implements PathGate {
                                             s.user().getId(), path.getId(), gateKey, true, "GATE",
                                             "Freigeschaltet (Stützaufgabe erledigt)"
                                     );
-                                    branchResultRepository.save(br);
+                                    branchResultRecorder.record(br);
                                     branchResults.put(gateKey, br);
                                 }
                             }
@@ -2742,6 +2777,12 @@ public class LearningPathService implements PathGate {
         List<String> result = new ArrayList<>();
         if (p.isEnforce() && !graph.edges().isEmpty() && graph.edges().stream().noneMatch(PathGraph.Edge::required)) {
             result.add("Der Lernpfad ist verbindlich, enthält aber nur Empfehlungs-Verbindungen (gestrichelt).");
+        }
+        boolean usesRules = graph.nodes().stream().anyMatch(n -> n.choice() || n.requirement() != null || n.remedial())
+                || graph.edges().stream().anyMatch(e -> e.condition() != null);
+        if (!p.isEnforce() && !p.isTemplateOnly() && usesRules) {
+            result.add("Weichen, Bedingungen, Stütz-Knoten und Punkte-Schwellen sperren nur in einem verbindlichen Lernpfad. "
+                    + "Ohne „Verbindlich“ sind sie für Schüler nur eine Anzeige.");
         }
         if (p.getId() != null) {
             List<LearningPathChoice> choices = choiceRepository.findByPathId(p.getId());

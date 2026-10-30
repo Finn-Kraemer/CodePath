@@ -1513,7 +1513,7 @@ class LearningPathTest extends IntegrationTestBase {
         JsonNode hansView = body(getAs(as(hans), "/api/learning-paths/fallback-remedial"));
         assertEquals("AVAILABLE", state(hansView, "s_rem"));
         assertEquals("BLOCKED", state(hansView, "boss"));
-        assertTrue(find(hansView, "boss").path("reason").asString().contains("Erledige die Stützaufgabe"));
+        assertTrue(find(hansView, "boss").path("reason").asString().contains("Stütze"));
 
         // Hans löst Stützaufgabe g5 -> Gate wird freigeschaltet
         postAs(as(hans), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
