@@ -230,12 +230,11 @@
 <div class="flex flex-col gap-12">
 	<header class="border-b border-slate-200 pb-8">
 		<a
-			href="/admin"
+			href="/admin/students"
 			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
-			>← Zurück zur Administration</a
-		>
+			>← Alle Teilnehmenden</a>
 		<div class="flex flex-wrap items-end justify-between gap-4">
-			<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+			<h1 class="font-sans text-2xl md:text-3xl font-extrabold tracking-tight text-institutional-navy uppercase">
 				Teilnehmer-Akte: {username}
 			</h1>
 			<div class="flex border border-slate-200 bg-white" role="tablist" aria-label="Ansicht">

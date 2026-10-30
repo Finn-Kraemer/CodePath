@@ -46,14 +46,21 @@ textarea {
 	max-width: 1400px;
 	margin-left: auto;
 	margin-right: auto;
-	padding-left: 2.5rem;
-	padding-right: 2.5rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+	.container-institutional {
+		padding-left: 2rem;
+		padding-right: 2rem;
+	}
 }
 
 @media (min-width: 1024px) {
 	.container-institutional {
-		padding-left: 5rem;
-		padding-right: 5rem;
+		padding-left: 3rem;
+		padding-right: 3rem;
 	}
 }
 
@@ -142,7 +149,8 @@ textarea {
 	letter-spacing: 0.05em;
 }
 .ed-button:disabled {
-	opacity: 0.4;
+	opacity: 0.6;
+	cursor: not-allowed;
 }
 
 /* Treffer der Wiki-Suche (Ergebnisliste und Artikel) */

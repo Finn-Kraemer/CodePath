@@ -4,14 +4,19 @@
 	import { auth } from '$lib/auth.svelte';
 	import { canvasSize, edgePath, incomingSlot, NODE_H, NODE_W } from './geometry';
 
+	/** viewMode/hideViewSwitch: Die Seite kann Karte und Liste selbst umschalten (ein Umschalter statt zwei) */
 	let {
 		path,
 		student,
-		onupdate
+		onupdate,
+		viewMode = $bindable('map'),
+		hideViewSwitch = false
 	}: {
 		path: PathView;
 		student?: string;
 		onupdate?: (updated: PathView) => void;
+		viewMode?: 'map' | 'list';
+		hideViewSwitch?: boolean;
 	} = $props();
 
 	let choosing = $state(false);
@@ -31,7 +36,6 @@
 	let dragStartY = 0;
 	let initialPanX = 0;
 	let initialPanY = 0;
-	let viewMode = $state<'map' | 'list'>('map');
 	let isMobile = $state(false);
 
 	$effect(() => {
@@ -94,7 +98,7 @@
 	onMount(() => {
 		if (typeof window !== 'undefined') {
 			isMobile = window.innerWidth < 640;
-			if (isMobile) viewMode = 'list';
+			if (isMobile && !hideViewSwitch) viewMode = 'list';
 		}
 		setTimeout(() => {
 			centerOnRecommendedOrFit();
@@ -103,6 +107,7 @@
 
 	$effect(() => {
 		void currentPath.slug;
+		void viewMode;
 		if (viewportEl) {
 			setTimeout(() => {
 				centerOnRecommendedOrFit();
@@ -359,83 +364,84 @@
 	</div>
 {/each}
 
-<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-	<!-- View Switcher (Karte / Liste) -->
-	<div class="inline-flex rounded border border-slate-200 bg-white p-0.5 text-xs font-semibold">
-		<button
-			type="button"
-			class="rounded px-3 py-1 transition-colors {viewMode === 'map'
-				? 'bg-institutional-navy text-white shadow-sm'
-				: 'text-slate-600 hover:text-slate-900'}"
-			onclick={() => {
-				viewMode = 'map';
-				setTimeout(centerOnRecommendedOrFit, 50);
-			}}
-		>
-			🗺️ Karte
-		</button>
-		<button
-			type="button"
-			class="rounded px-3 py-1 transition-colors {viewMode === 'list'
-				? 'bg-institutional-navy text-white shadow-sm'
-				: 'text-slate-600 hover:text-slate-900'}"
-			onclick={() => (viewMode = 'list')}
-		>
-			📋 Liste
-		</button>
-	</div>
-
-	<!-- Canvas Controls only visible when viewMode === 'map' -->
-	{#if viewMode === 'map'}
-		<div
-			class="inline-flex items-center gap-1 rounded border border-slate-200 bg-white p-1 text-xs shadow-sm"
-			role="toolbar"
-			aria-label="Karten-Steuerung"
-		>
+{#if !hideViewSwitch}
+	<div class="mb-3 flex flex-wrap items-center gap-2">
+		<!-- View Switcher (Karte / Liste) -->
+		<div class="inline-flex rounded border border-slate-200 bg-white p-0.5 text-xs font-semibold">
 			<button
 				type="button"
-				class="rounded px-2.5 py-1 font-bold text-slate-700 transition-colors hover:bg-slate-100"
-				onclick={zoomOut}
-				title="Verkleinern (−)"
-				aria-label="Verkleinern"
+				class="rounded px-3 py-1 transition-colors {viewMode === 'map'
+					? 'bg-institutional-navy text-white shadow-sm'
+					: 'text-slate-600 hover:text-slate-900'}"
+				onclick={() => {
+					viewMode = 'map';
+					setTimeout(centerOnRecommendedOrFit, 50);
+				}}
 			>
-				−
-			</button>
-			<span class="min-w-12 text-center font-mono text-[11px] font-semibold text-slate-500">
-				{Math.round(zoom * 100)}%
-			</span>
-			<button
-				type="button"
-				class="rounded px-2.5 py-1 font-bold text-slate-700 transition-colors hover:bg-slate-100"
-				onclick={zoomIn}
-				title="Vergrößern (+)"
-				aria-label="Vergrößern"
-			>
-				+
-			</button>
-			<div class="mx-1 h-4 w-px bg-slate-200"></div>
-			<button
-				type="button"
-				class="rounded px-2.5 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-100"
-				onclick={fitToScreen}
-				title="Auf Bildschirm einpassen"
-			>
-				⛶ Einpassen
+				🗺️ Karte
 			</button>
 			<button
 				type="button"
-				class="rounded px-2.5 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-100"
-				onclick={() => centerOnRecommendedOrFit(true)}
-				title="Aktuelle Station zentrieren"
+				class="rounded px-3 py-1 transition-colors {viewMode === 'list'
+					? 'bg-institutional-navy text-white shadow-sm'
+					: 'text-slate-600 hover:text-slate-900'}"
+				onclick={() => (viewMode = 'list')}
 			>
-				🎯 Fokus
+				📋 Liste
 			</button>
-			<span class="hidden px-2 text-[10px] text-slate-400 md:inline"
-				>Strg + Mausrad: zoomen · ziehen: verschieben</span
-			>
 		</div>
-	{/if}
-</div>
+	</div>
+{/if}
+
+{#snippet mapControls()}
+	<div
+		class="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded border border-slate-200 bg-white/95 p-1 text-xs shadow-sm"
+		role="toolbar"
+		aria-label="Karten-Steuerung"
+	>
+		<button
+			type="button"
+			class="rounded px-2.5 py-1 font-bold text-slate-700 transition-colors hover:bg-slate-100"
+			onclick={zoomOut}
+			title="Verkleinern (−)"
+			aria-label="Verkleinern"
+		>
+			−
+		</button>
+		<span class="min-w-12 text-center font-mono text-[11px] font-semibold text-slate-500">
+			{Math.round(zoom * 100)}%
+		</span>
+		<button
+			type="button"
+			class="rounded px-2.5 py-1 font-bold text-slate-700 transition-colors hover:bg-slate-100"
+			onclick={zoomIn}
+			title="Vergrößern (+)"
+			aria-label="Vergrößern"
+		>
+			+
+		</button>
+		<div class="mx-1 h-4 w-px bg-slate-200"></div>
+		<button
+			type="button"
+			class="rounded px-2.5 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-100"
+			onclick={fitToScreen}
+			title="Auf Bildschirm einpassen"
+		>
+			⛶ Einpassen
+		</button>
+		<button
+			type="button"
+			class="rounded px-2.5 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-100"
+			onclick={() => centerOnRecommendedOrFit(true)}
+			title="Aktuelle Station zentrieren"
+		>
+			🎯 Fokus
+		</button>
+		<span class="hidden px-2 text-[10px] text-slate-400 md:inline"
+			>Strg + Mausrad: zoomen · ziehen: verschieben</span
+		>
+	</div>
+{/snippet}
 
 {#if currentPath.nodes.some((n) => n.state === 'SKIPPED')}
 	<div
@@ -629,7 +635,8 @@
 		bind:this={viewportEl}
 		role="region"
 		aria-label="Lernpfad-Netzwerkkarte"
-		class="relative h-[calc(100vh-320px)] max-h-[820px] min-h-[480px] w-full cursor-grab touch-none overflow-hidden border border-slate-200 bg-slate-50/60 select-none active:cursor-grabbing"
+		class="relative w-full cursor-grab touch-none overflow-hidden border border-slate-200 bg-slate-50/60 select-none active:cursor-grabbing"
+		style="height: clamp(320px, {size.height + 60}px, calc(100vh - 200px))"
 		data-testid="path-map"
 		onpointerdown={handlePointerDown}
 		onpointermove={handlePointerMove}
@@ -637,6 +644,7 @@
 		onpointercancel={handlePointerUp}
 		onwheel={handleWheel}
 	>
+		{@render mapControls()}
 		<div
 			class="relative transition-transform duration-75 ease-out"
 			style="width: {size.width}px; height: {size.height}px; transform: translate({panX}px, {panY}px) scale({zoom}); transform-origin: 0 0;"

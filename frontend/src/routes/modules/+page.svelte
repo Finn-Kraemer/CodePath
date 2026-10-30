@@ -22,8 +22,8 @@
 	let paths = $state<PathLink[]>([]);
 	let pathSlug = $state('');
 	let path = $state<PathView | null>(null);
-	/** Lernpfad-Karte oder Liste; die Wahl merkt sich der Browser */
-	let view = $state<'map' | 'list'>('map');
+	/** Karte oder Stationsliste des Lernpfads oder alle Module; die Wahl merkt sich der Browser */
+	let view = $state<'map' | 'stations' | 'modules'>('map');
 	let lastTrigger = 0;
 
 	const isFocus = $derived(
@@ -35,7 +35,7 @@
 
 	$effect(() => {
 		pathFocus.set(isFocus);
-		if (isFocus) {
+		if (isFocus && view === 'modules') {
 			view = 'map';
 		}
 	});
@@ -51,7 +51,10 @@
 	// Update now every second for countdowns
 	onMount(() => {
 		try {
-			if (localStorage.getItem(VIEW_KEY) === 'list') view = 'list';
+			const stored = localStorage.getItem(VIEW_KEY);
+			if (stored === 'stations' || stored === 'modules') view = stored;
+			else if (stored === 'list') view = 'modules';
+			else if (window.innerWidth < 640) view = 'stations';
 		} catch {
 			// Ohne Speicher gilt die Karte
 		}
@@ -80,7 +83,16 @@
 		path = await api<PathView>(`/api/learning-paths/${slug}`);
 	}
 
-	function setView(value: 'map' | 'list') {
+	const progress = $derived(
+		path && path.stations ? Math.round((path.stationsDone / path.stations) * 100) : 0
+	);
+	const views = $derived([
+		{ id: 'map', label: 'Karte' },
+		{ id: 'stations', label: 'Stationen' },
+		...(isFocus ? [] : [{ id: 'modules', label: 'Alle Module' }])
+	] as { id: 'map' | 'stations' | 'modules'; label: string }[]);
+
+	function setView(value: 'map' | 'stations' | 'modules') {
 		view = value;
 		try {
 			localStorage.setItem(VIEW_KEY, value);
@@ -107,64 +119,57 @@
 	}
 </script>
 
-<div class="flex flex-col gap-12">
+<div class="flex flex-col gap-6">
 	{#if teacherNotice}
 		<div
-			class="flex items-center gap-3 border-l-4 border-sky-600 bg-sky-50 px-5 py-4 text-sm text-sky-900"
+			class="flex items-center gap-3 border-l-4 border-sky-600 bg-sky-50 px-4 py-2.5 text-sm text-sky-900"
 			role="status"
 		>
-			<span class="text-xl">🎯</span>
-			<div>
-				<p class="font-bold">Fokus-Modus aktiv</p>
-				<p class="mt-0.5 text-xs text-sky-800">
-					Schülerinnen und Schüler sehen in diesem Kurs nur den Lernpfad – die Gesamtübersicht der Module und die Pfadauswahl sind für sie ausgeblendet.
-				</p>
-			</div>
+			<span aria-hidden="true">🎯</span>
+			<span
+				><strong>Fokus-Modus aktiv:</strong> Schülerinnen und Schüler sehen in diesem Kurs nur den Lernpfad.</span
+			>
 		</div>
 	{/if}
 
-	<header class="border-b border-slate-200 pb-8">
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			{isFocus ? 'Lernpfad' : 'Lernmodule'}
-		</h1>
-		<div class="mt-4 flex flex-wrap items-end justify-between gap-4">
-			<p class="text-slate-500">
+	<header class="flex flex-wrap items-end justify-between gap-4">
+		<div>
+			<h1 class="text-2xl font-extrabold tracking-tight text-institutional-navy md:text-3xl">
+				{isFocus ? 'Dein Lernpfad' : 'Lernmodule'}
+			</h1>
+			<p class="mt-1 text-sm text-slate-500">
 				{isFocus
-					? 'Folge deinem Lernpfad, um alle Stationen abzuschließen.'
-					: paths.length
+					? 'Arbeite die Stationen der Reihe nach ab.'
+					: path
 						? 'Folge deinem Lernpfad oder wähle selbst ein Modul.'
 						: 'Wähle ein Modul aus, um mit den Aufgaben zu beginnen.'}
 			</p>
-			{#if !isFocus && paths.length && modules.length}
-				<div class="flex border border-slate-200 bg-white" role="group" aria-label="Ansicht">
-					<button
-						class="px-4 py-2 text-[10px] font-black tracking-[2px] uppercase {view === 'map'
-							? 'bg-institutional-navy text-white'
-							: 'text-slate-500'}"
-						aria-pressed={view === 'map'}
-						onclick={() => setView('map')}>Lernpfad</button
-					>
-					<button
-						class="px-4 py-2 text-[10px] font-black tracking-[2px] uppercase {view === 'list'
-							? 'bg-institutional-navy text-white'
-							: 'text-slate-500'}"
-						aria-pressed={view === 'list'}
-						onclick={() => setView('list')}>Liste</button
-					>
-				</div>
-			{/if}
 		</div>
+		{#if path}
+			<div class="flex border border-slate-200 bg-white p-0.5" role="group" aria-label="Ansicht">
+				{#each views as v (v.id)}
+					<button
+						type="button"
+						class="px-3.5 py-1.5 text-xs font-bold transition-colors {view === v.id
+							? 'bg-institutional-navy text-white'
+							: 'text-slate-600 hover:text-institutional-navy'}"
+						aria-pressed={view === v.id}
+						onclick={() => setView(v.id)}>{v.label}</button
+					>
+				{/each}
+			</div>
+		{/if}
 	</header>
 
 	{#if realtime.lastPathNotice && realtime.lastPathNotice.username === auth.user?.username}
 		<div
-			class="flex items-center justify-between gap-4 border-l-4 border-institutional-navy bg-slate-50 px-5 py-4 text-sm text-institutional-navy"
+			class="flex items-center justify-between gap-4 border-l-4 border-institutional-navy bg-slate-50 px-4 py-2.5 text-sm text-institutional-navy"
 			role="status"
 		>
 			<span>{realtime.lastPathNotice.message}</span>
 			<button
 				type="button"
-				class="text-xs font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+				class="text-xs font-bold text-slate-500 hover:text-institutional-navy"
 				onclick={() => realtime.clearPathNotice()}
 			>
 				Ausblenden
@@ -173,7 +178,7 @@
 	{/if}
 
 	{#if next}
-		<NextTask {next} />
+		<NextTask {next} compact />
 	{/if}
 
 	{#if loading}
@@ -188,31 +193,47 @@
 				Aktuell sind keine Module zur Bearbeitung freigeschaltet.
 			</p>
 		</div>
-	{:else if (view === 'map' || isFocus) && path}
-		<section class="flex flex-col gap-4" aria-label="Lernpfad">
-			<div class="flex flex-wrap items-center justify-between gap-4">
-				<div>
-					<h2 class="text-xl font-bold text-institutional-navy">{path.title}</h2>
+	{:else if view !== 'modules' && path}
+		<section class="flex flex-col gap-3" aria-label="Lernpfad">
+			<div
+				class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border border-slate-200 bg-white px-4 py-3"
+			>
+				<div class="min-w-0">
+					<div class="flex flex-wrap items-center gap-2">
+						<h2 class="text-lg font-bold text-institutional-navy">{path.title}</h2>
+						{#if paths.length > 1 && !isFocus}
+							<select
+								class="border border-slate-200 bg-white px-2 py-1 text-xs"
+								aria-label="Lernpfad wählen"
+								value={pathSlug}
+								onchange={(e) => showPath((e.currentTarget as HTMLSelectElement).value)}
+							>
+								{#each paths as p (p.slug)}<option value={p.slug}>{p.title}</option>{/each}
+							</select>
+						{/if}
+					</div>
 					{#if path.description}<p class="text-sm text-slate-500">{path.description}</p>{/if}
 				</div>
-				<div class="flex items-center gap-4">
-					{#if paths.length > 1 && !isFocus}
-						<select
-							class="border border-slate-200 bg-white px-3 py-2 text-sm"
-							aria-label="Lernpfad wählen"
-							value={pathSlug}
-							onchange={(e) => showPath((e.currentTarget as HTMLSelectElement).value)}
-						>
-							{#each paths as p (p.slug)}<option value={p.slug}>{p.title}</option>{/each}
-						</select>
-					{/if}
-					<span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+				<div class="flex min-w-48 flex-1 items-center gap-3 sm:max-w-xs">
+					<div
+						class="h-2 flex-1 bg-slate-100"
+						role="progressbar"
+						aria-valuenow={progress}
+						aria-valuemin={0}
+						aria-valuemax={100}
+						aria-label="Fortschritt im Lernpfad"
+					>
+						<div class="h-full bg-emerald-500 transition-all" style="width: {progress}%"></div>
+					</div>
+					<span class="shrink-0 font-mono text-xs font-bold text-slate-600"
 						>{path.stationsDone}/{path.stations} Stationen</span
 					>
 				</div>
 			</div>
 			<PathMap
 				{path}
+				hideViewSwitch
+				viewMode={view === 'stations' ? 'list' : 'map'}
 				onupdate={(updated) => {
 					path = updated;
 					fetchModules();
@@ -220,7 +241,7 @@
 			/>
 		</section>
 	{:else}
-		<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+		<div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
 			{#each modules as mod (mod.slug)}
 				<div
 					class="relative flex flex-col rounded-none border border-slate-200 bg-white shadow-sm transition-all
@@ -238,8 +259,8 @@
 						</div>
 					{/if}
 
-					<div class="flex-grow p-8">
-						<div class="mb-6 flex items-center justify-between">
+					<div class="flex-grow p-5">
+						<div class="mb-3 flex items-center justify-between">
 							<span
 								class="text-4xl grayscale transition-all {isExpired(mod.availableUntil)
 									? ''
@@ -264,7 +285,7 @@
 
 					<!-- Progress & Action -->
 					<div
-						class="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 p-8"
+						class="flex items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/50 px-5 py-4"
 					>
 						<div class="flex flex-col gap-4">
 							<div class="flex items-center gap-4">

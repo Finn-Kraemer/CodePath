@@ -66,7 +66,7 @@
 				>← Administration</a
 			>
 			<h1
-				class="mt-4 font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase"
+				class="mt-4 font-sans text-2xl md:text-3xl font-extrabold tracking-tight text-institutional-navy uppercase"
 			>
 				Feedback-Zentrum
 			</h1>

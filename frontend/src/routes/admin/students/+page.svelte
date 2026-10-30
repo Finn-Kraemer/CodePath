@@ -45,7 +45,7 @@
 				>
 			</div>
 			<h1
-				class="font-sans text-6xl leading-none font-black tracking-tighter text-institutional-navy uppercase"
+				class="font-sans text-2xl md:text-3xl  font-black tracking-tighter text-institutional-navy uppercase"
 			>
 				Teilnehmer
 			</h1>

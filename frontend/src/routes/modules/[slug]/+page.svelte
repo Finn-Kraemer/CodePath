@@ -36,19 +36,19 @@
 <svelte:head><title>{detail?.module?.title ?? 'Modul'} | CodePath</title></svelte:head>
 
 <div class="mx-auto max-w-5xl">
-	<div class="mb-12 border-b border-slate-200 pb-8">
+	<div class="mb-6 border-b border-slate-200 pb-5">
 		<a
 			href="/modules"
-			class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+			class="mb-3 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
 		>
 			← Zurück zur Übersicht
 		</a>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="text-2xl font-extrabold tracking-tight text-institutional-navy md:text-3xl">
 			{detail?.module?.icon ?? ''}
 			{detail?.module?.title ?? ''}
 		</h1>
 		{#if detail?.module}
-			<p class="mt-4 text-slate-500">{detail.module.description}</p>
+			<p class="mt-2 max-w-3xl text-sm text-slate-500">{detail.module.description}</p>
 			<p class="mt-2 font-mono text-xs text-slate-400">
 				{detail.module.completedTasks}/{detail.module.totalTasks} gelöst · {detail.module
 					.pointsEarned} von {detail.module.maxPoints} Punkten
@@ -65,21 +65,21 @@
 			></div>
 		</div>
 	{:else}
-		<ol class="space-y-4">
+		<ol class="space-y-2">
 			{#each detail.tasks ?? [] as task, i (task.slug)}
 				<li>
 					<svelte:element
 						this={task.isBlocked ? 'div' : 'a'}
 						href={task.isBlocked ? undefined : `/modules/${slug}/${task.slug}`}
-						class="group flex items-center justify-between rounded-none border p-6 transition-all {tone(
+						class="group flex items-center justify-between gap-4 rounded-none border px-4 py-3 transition-all {tone(
 							task.status,
 							task.isLocked,
 							task.isBlocked
 						)}"
 					>
-						<div class="flex items-center gap-6">
+						<div class="flex min-w-0 items-center gap-4">
 							<div
-								class="flex h-12 w-12 items-center justify-center font-mono text-[11px] font-black {task.status ===
+								class="flex h-9 w-9 shrink-0 items-center justify-center font-mono text-[11px] font-black {task.status ===
 								'SOLVED'
 									? 'bg-green-600 text-white'
 									: task.isBlocked
@@ -89,12 +89,10 @@
 								{task.status === 'SOLVED' ? '✓' : task.isBlocked ? '🔒' : i + 1}
 							</div>
 							<div>
-								<h2
-									class="font-sans text-lg font-bold tracking-tight text-institutional-navy uppercase"
-								>
+								<h2 class="font-sans text-base font-bold tracking-tight text-institutional-navy">
 									{task.title}
 								</h2>
-								<div class="mt-2 flex flex-wrap items-center gap-3">
+								<div class="mt-1 flex flex-wrap items-center gap-3">
 									<span
 										class="border px-2 py-0.5 font-mono text-[9px] font-bold tracking-widest uppercase {difficultyColors[
 											task.difficulty ?? ''

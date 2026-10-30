@@ -74,6 +74,8 @@
 	let connecting = $state(false);
 	let connectFrom = $state<string | null>(null);
 	let preview = $state<PathView | null>(null);
+	/** Einstellungen nur aufgeklappt, solange der Lernpfad noch nicht veröffentlicht ist */
+	let settingsOpen = $state(false);
 
 	let draft = $state<{
 		kind: Kind;
@@ -165,6 +167,7 @@
 			selectedEdge = null;
 			preview = null;
 			apply(path);
+			settingsOpen = !path.published;
 			draft.module = catalog[0]?.module.slug ?? '';
 			draft.path = pathList.find((p) => p.id !== targetId)?.slug ?? '';
 		} catch (e) {
@@ -843,121 +846,187 @@
 <svelte:head><title>Lernpfad bearbeiten | CodePath</title></svelte:head>
 
 <div class="flex flex-col gap-6 pb-24">
-	<header class="border-b border-slate-200 pb-6">
-		<a
-			href="/admin/learning-paths"
-			class="mb-4 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Alle Lernpfade</a
+	{#if saved}
+		<!-- Aktionsleiste: Titel, Status und Speichern bleiben beim Arbeiten auf der Karte im Blick -->
+		<header
+			class="sticky top-16 z-30 -mx-1 flex flex-wrap items-center gap-x-4 gap-y-2 border border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur"
 		>
-		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			{form.title || 'Lernpfad'}
-		</h1>
-	</header>
+			<a
+				href="/admin/learning-paths"
+				class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+				>← Lernpfade</a
+			>
+			<h1 class="min-w-0 truncate text-xl font-extrabold text-institutional-navy">
+				{form.title || 'Lernpfad'}
+			</h1>
+			<div class="flex flex-wrap gap-1.5 text-[11px] font-bold">
+				<span
+					class="px-2 py-0.5 {form.published
+						? 'bg-emerald-100 text-emerald-800'
+						: 'bg-slate-100 text-slate-600'}">{form.published ? 'Veröffentlicht' : 'Entwurf'}</span
+				>
+				{#if form.enforce}<span class="bg-institutional-navy px-2 py-0.5 text-white"
+						>Verbindlich</span
+					>{/if}
+				{#if form.hideOverview}<span class="bg-sky-100 px-2 py-0.5 text-sky-900">Fokus-Modus</span
+					>{/if}
+				{#if form.templateOnly}<span class="bg-violet-100 px-2 py-0.5 text-violet-900"
+						>Baustein</span
+					>{/if}
+				<span class="bg-slate-100 px-2 py-0.5 text-slate-600"
+					>{form.courseId
+						? `Kurs ${courses.find((c) => c.id === form.courseId)?.name ?? ''}`
+						: 'Alle Kurse'}</span
+				>
+			</div>
+			<span class="flex-1"></span>
+			<button class="ed-button" onclick={() => (preview ? (preview = null) : showPreview())}
+				>{preview ? 'Vorschau schließen' : 'Vorschau als Schüler'}</button
+			>
+			<button
+				class="ed-button bg-institutional-navy text-white disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
+				onclick={save}
+				disabled={busy || !dirty}
+				>{busy ? 'Speichert …' : dirty ? 'Speichern' : 'Gespeichert ✓'}</button
+			>
+		</header>
+	{/if}
 
-	{#if message}<p
-			class="text-[11px] font-bold tracking-widest text-teal-700 uppercase"
-			role="status"
-		>
-			{message}
-		</p>{/if}
+	{#if message}<p class="text-sm font-bold text-teal-700" role="status">{message}</p>{/if}
 	{#if error}<div class="border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700" role="alert">
 			{error}
 		</div>{/if}
 
 	{#if saved}
-		<section class="grid grid-cols-1 gap-4 border border-slate-200 bg-white p-5 md:grid-cols-4">
-			<label class="ed-label">Titel<input class="ed-input" bind:value={form.title} /></label>
-			<label class="ed-label"
-				>Adresse<input class="ed-input mono" bind:value={form.slug} pattern="[a-z0-9-]+" /></label
+		<details
+			class="group border border-slate-200 bg-white"
+			open={settingsOpen}
+			ontoggle={(e) => (settingsOpen = (e.currentTarget as HTMLDetailsElement).open)}
+		>
+			<summary
+				class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3 text-sm font-bold text-institutional-navy"
 			>
-			<label class="ed-label md:col-span-2"
-				>Beschreibung<input class="ed-input" bind:value={form.description} maxlength="500" /></label
-			>
-			<label class="ed-label md:col-span-2"
-				>Gilt für
-				<select class="ed-input" bind:value={form.courseId}>
-					<option value={0}>Alle Kurse (ändert keine Freigaben)</option>
-					{#each courses as course (course.id)}
-						<option value={course.id}
-							>Kurs {course.name}{course.status === 'ENDED' ? ' (beendet)' : ''}</option
-						>
-					{/each}
-				</select>
-			</label>
-			<div class="flex flex-col gap-2 md:col-span-2">
-				<span class="ed-label">Alles außerhalb des Lernpfads</span>
-				<div class="flex flex-wrap gap-2">
-					<select
-						class="ed-input mt-0 flex-1"
-						aria-label="Alles außerhalb des Lernpfads"
-						value={outsideMode}
-						onchange={(e) => setOutsideMode((e.currentTarget as HTMLSelectElement).value)}
+				<span>⚙️ Einstellungen: Titel, Kurs, Verbindlichkeit, Sichtbarkeit</span>
+				<span class="text-xs text-slate-400 group-open:hidden">aufklappen ▾</span>
+				<span class="hidden text-xs text-slate-400 group-open:inline">zuklappen ▴</span>
+			</summary>
+			<div class="grid grid-cols-1 gap-6 border-t border-slate-100 p-5 lg:grid-cols-2">
+				<fieldset class="flex flex-col gap-3">
+					<legend
+						class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+						>Grunddaten</legend
 					>
-						<option value="FREE">Frei (folgt der Modul-Steuerung)</option>
-						<option value="LOCKED">Gesperrt (nur Lernpfad sichtbar)</option>
-						<option value="AFTER">Frei ab Station …</option>
-					</select>
-					{#if outsideMode === 'AFTER'}
-						<select
-							class="ed-input mt-0 flex-1"
-							aria-label="Frei ab Station"
-							bind:value={form.unlockRestAfter}
+					<label class="ed-label">Titel<input class="ed-input" bind:value={form.title} /></label>
+					<label class="ed-label"
+						>Adresse<input
+							class="ed-input mono"
+							bind:value={form.slug}
+							pattern="[a-z0-9-]+"
+						/></label
+					>
+					<label class="ed-label"
+						>Beschreibung<input
+							class="ed-input"
+							bind:value={form.description}
+							maxlength="500"
+						/></label
+					>
+					<div class="flex flex-wrap gap-2 pt-1">
+						<a class="ed-button" href={exportUrl(['learningPaths'], [saved.slug])} download
+							>Exportieren</a
 						>
-							{#each nodes as n (n.id)}
-								<option value={n.id}>ab „{label(n)}“</option>
+						<button class="ed-button text-rose-700" onclick={remove}>Lernpfad löschen</button>
+					</div>
+					{#if saved.usedIn?.length}
+						<p class="text-xs text-slate-500">
+							🧩 Wird als Baustein eingebunden in: <strong>{saved.usedIn.join(', ')}</strong>
+						</p>
+					{/if}
+				</fieldset>
+				<fieldset class="flex flex-col gap-3">
+					<legend
+						class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+						>Für Schülerinnen und Schüler</legend
+					>
+					<label class="ed-label"
+						>Gilt für
+						<select class="ed-input" bind:value={form.courseId}>
+							<option value={0}>Alle Kurse (ändert keine Freigaben)</option>
+							{#each courses as course (course.id)}
+								<option value={course.id}
+									>Kurs {course.name}{course.status === 'ENDED' ? ' (beendet)' : ''}</option
+								>
 							{/each}
 						</select>
-					{/if}
-				</div>
-				{#if form.courseId}
-					<span class="text-xs text-slate-500"
-						>Veröffentlicht übernimmt jedes Speichern die Module und Aufgaben dieses Lernpfads in
-						die <a href="/admin/modules" class="underline">Modul-Steuerung</a> des Kurses.</span
+					</label>
+					<label class="flex items-start gap-2 text-sm"
+						><input class="mt-0.5" type="checkbox" bind:checked={form.published} />
+						<span><strong>Veröffentlicht</strong> – Schüler sehen den Lernpfad</span></label
 					>
-				{/if}
+					<label class="flex items-start gap-2 text-sm"
+						><input
+							class="mt-0.5"
+							type="checkbox"
+							checked={form.enforce}
+							onchange={(e) => toggleEnforce((e.currentTarget as HTMLInputElement).checked)}
+						/>
+						<span
+							><strong>Verbindlich</strong> – durchgezogene Verbindungen sperren, bis der Vorgänger erledigt
+							ist. Nur dann wirken Weichen, Bedingungen und Punkte-Schwellen.</span
+						></label
+					>
+					<label class="flex items-start gap-2 text-sm {form.enforce ? '' : 'text-slate-400'}"
+						><input
+							class="mt-0.5"
+							type="checkbox"
+							bind:checked={form.hideOverview}
+							disabled={!form.enforce}
+						/>
+						<span
+							><strong>Fokus-Modus</strong> – Schüler sehen nur diesen Lernpfad, keine Modulübersicht</span
+						></label
+					>
+					<label class="flex items-start gap-2 text-sm"
+						><input class="mt-0.5" type="checkbox" bind:checked={form.templateOnly} />
+						<span
+							><strong>Nur als Baustein</strong> – erscheint nicht einzeln, wird in andere Lernpfade eingebunden</span
+						></label
+					>
+					<div class="flex flex-col gap-1">
+						<span class="ed-label">Module außerhalb des Lernpfads</span>
+						<div class="flex flex-wrap gap-2">
+							<select
+								class="ed-input mt-0 flex-1"
+								aria-label="Alles außerhalb des Lernpfads"
+								value={outsideMode}
+								onchange={(e) => setOutsideMode((e.currentTarget as HTMLSelectElement).value)}
+							>
+								<option value="FREE">Frei (folgt der Modul-Steuerung)</option>
+								<option value="LOCKED">Gesperrt (nur Lernpfad sichtbar)</option>
+								<option value="AFTER">Frei ab Station …</option>
+							</select>
+							{#if outsideMode === 'AFTER'}
+								<select
+									class="ed-input mt-0 flex-1"
+									aria-label="Frei ab Station"
+									bind:value={form.unlockRestAfter}
+								>
+									{#each nodes as n (n.id)}
+										<option value={n.id}>ab „{label(n)}“</option>
+									{/each}
+								</select>
+							{/if}
+						</div>
+						{#if form.courseId}
+							<span class="text-xs text-slate-500"
+								>Veröffentlicht übernimmt jedes Speichern die Module und Aufgaben dieses Lernpfads
+								in die <a href="/admin/modules" class="underline">Modul-Steuerung</a> des Kurses.</span
+							>
+						{/if}
+					</div>
+				</fieldset>
 			</div>
-			<div class="flex flex-wrap items-center gap-4 md:col-span-4">
-				<label class="flex items-center gap-2 text-sm"
-					><input type="checkbox" bind:checked={form.published} /> Veröffentlicht (für Schüler sichtbar)</label
-				>
-				<label class="flex items-center gap-2 text-sm font-bold text-institutional-navy"
-					><input
-						type="checkbox"
-						checked={form.enforce}
-						onchange={(e) => toggleEnforce((e.currentTarget as HTMLInputElement).checked)}
-					/> Verbindlich (Pflicht-Vorgänger müssen erledigt sein)</label
-				>
-				<label
-					class="flex items-center gap-2 text-sm font-semibold {form.enforce
-						? 'text-sky-900'
-						: 'text-slate-400'}"
-					><input type="checkbox" bind:checked={form.hideOverview} disabled={!form.enforce} /> Gesamtübersicht
-					für Schüler ausblenden (Fokus-Modus)</label
-				>
-				<label class="flex items-center gap-2 text-sm text-violet-900"
-					><input type="checkbox" bind:checked={form.templateOnly} /> Nur als Baustein (nicht einzeln
-					in der Schüler-Auswahl)</label
-				>
-				<span class="flex-1"></span>
-				<button class="ed-button" onclick={() => (preview ? (preview = null) : showPreview())}
-					>{preview ? 'Vorschau schließen' : 'Vorschau'}</button
-				>
-				<a class="ed-button" href={exportUrl(['learningPaths'], [saved.slug])} download
-					>Exportieren</a
-				>
-				<button class="ed-button text-rose-700" onclick={remove}>Löschen</button>
-				<button
-					class="ed-button bg-institutional-navy text-white"
-					onclick={save}
-					disabled={busy || !dirty}>{dirty ? 'Speichern' : 'Gespeichert'}</button
-				>
-			</div>
-			{#if saved.usedIn?.length}
-				<p class="text-xs text-slate-500 md:col-span-4">
-					🧩 Wird als Baustein eingebunden in: <strong>{saved.usedIn.join(', ')}</strong>
-				</p>
-			{/if}
-		</section>
+		</details>
 
 		{#if saved.warnings?.length}
 			<section class="border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">

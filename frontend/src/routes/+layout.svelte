@@ -122,6 +122,7 @@
 	$effect(() => {
 		void page.url.pathname;
 		pagesMenuOpen = false;
+		mobileMenuOpen = false;
 	});
 
 	// Helpers for special layouts
@@ -152,7 +153,7 @@
 			class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 shadow-sm backdrop-blur-md transition-all"
 		>
 			<div class="container-institutional">
-				<div class="flex h-20 items-center justify-between">
+				<div class="flex h-16 items-center justify-between">
 					<div class="flex items-center gap-8">
 						<!-- Logo Section -->
 						<a href="/" class="group flex items-center gap-3 rounded-none">
@@ -353,14 +354,14 @@
 			<!-- Mobile Navigation -->
 			{#if mobileMenuOpen && auth.isAuthenticated}
 				<div
-					class="animate-in slide-in-from-top fade-in border-t border-slate-100 bg-white p-6 duration-300 lg:hidden"
+					class="animate-in slide-in-from-top fade-in max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-slate-100 bg-white px-4 py-3 duration-200 lg:hidden"
 				>
-					<div class="flex flex-col gap-4">
+					<div class="flex flex-col gap-0.5">
 						{#each allLinks as link (link.path)}
 							<a
 								href={link.path}
 								onclick={() => (mobileMenuOpen = false)}
-								class="px-4 py-3 text-[11px] font-black tracking-[2px] uppercase {isActive(
+								class="px-3 py-2.5 text-[11px] font-black tracking-[2px] uppercase {isActive(
 									link.path
 								)
 									? 'border-l-4 border-institutional-gold bg-slate-50 text-institutional-navy'
@@ -373,7 +374,7 @@
 							<a
 								href="/seiten"
 								onclick={() => (mobileMenuOpen = false)}
-								class="px-4 py-3 text-[11px] font-black tracking-[2px] uppercase {page.url
+								class="px-3 py-2.5 text-[11px] font-black tracking-[2px] uppercase {page.url
 									.pathname === '/seiten'
 									? 'border-l-4 border-institutional-gold bg-slate-50 text-institutional-navy'
 									: 'text-slate-500'}"
@@ -382,30 +383,34 @@
 							</a>
 						{/if}
 
-						<div class="my-4 h-px bg-slate-100"></div>
+						<div class="my-2 h-px bg-slate-100"></div>
 
-						<div class="px-4 py-2">
-							<p class="text-[10px] font-black text-institutional-navy uppercase">
-								{auth.user?.username}
-							</p>
-							<p class="text-[8px] font-bold tracking-widest text-slate-400 uppercase">
-								{auth.user?.role}
-							</p>
-						</div>
+						<a
+							href="/profile"
+							onclick={() => (mobileMenuOpen = false)}
+							class="flex items-baseline justify-between px-3 py-2.5"
+						>
+							<span class="text-[11px] font-black text-institutional-navy uppercase"
+								>{auth.user?.username}</span
+							>
+							<span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+								>Profil</span
+							>
+						</a>
 
 						{#if auth.user?.role === 'ADMIN'}
 							<a
 								href="/admin"
 								onclick={() => (mobileMenuOpen = false)}
-								class="px-4 py-3 text-[11px] font-black tracking-[2px] text-institutional-navy uppercase"
+								class="px-3 py-2.5 text-[11px] font-black tracking-[2px] text-institutional-navy uppercase"
 							>
-								Administrator-Bereich
+								Leitstand
 							</a>
 						{/if}
 
 						<button
 							onclick={handleLogout}
-							class="mt-4 w-full rounded-none bg-institutional-navy py-4 text-[10px] font-black tracking-[4px] text-white uppercase"
+							class="mt-2 w-full rounded-none bg-institutional-navy py-3 text-[10px] font-black tracking-[4px] text-white uppercase"
 						>
 							Abmelden
 						</button>
@@ -417,7 +422,7 @@
 
 	<!-- Global Announcement Banner -->
 	{#if announcement && announcement.content && !isProjector}
-		<div class="relative z-40 border-b border-white/10 bg-institutional-navy py-4 shadow-inner">
+		<div class="relative z-40 border-b border-white/10 bg-institutional-navy py-2 shadow-inner">
 			<div class="container-institutional flex items-center justify-between gap-8">
 				<div class="flex items-center gap-4 text-white">
 					<div
@@ -472,7 +477,7 @@
 	{/if}
 
 	<!-- Main Content Area -->
-	<main class="flex-grow {isFrontpage || isProjector ? '' : 'py-12'}">
+	<main class="flex-grow {isFrontpage || isProjector ? '' : 'py-8'}">
 		<div class={isFrontpage || isProjector ? '' : 'container-institutional'}>
 			{@render children()}
 		</div>

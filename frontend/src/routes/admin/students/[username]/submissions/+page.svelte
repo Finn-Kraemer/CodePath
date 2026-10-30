@@ -86,7 +86,7 @@
 			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
 			>← Zurück zur Teilnehmer-Akte: {username}</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-2xl md:text-3xl font-extrabold tracking-tight text-institutional-navy uppercase">
 			Leistungs-Nachweise
 		</h1>
 		<p class="mt-4 text-slate-500">
