@@ -32,6 +32,7 @@
 	type Edge = Schemas['Edge'];
 	type Kind = PathNode['kind'];
 	type ChoiceNodeStats = Schemas['ChoiceNodeStats'];
+	type ArticleSummary = Schemas['ArticleSummary'];
 
 	const id = $derived(Number(page.params.id));
 
@@ -60,6 +61,7 @@
 	let nodes = $state<PathNode[]>([]);
 	let edges = $state<Edge[]>([]);
 	let catalog = $state<ModuleRow[]>([]);
+	let articles = $state<ArticleSummary[]>([]);
 	let error = $state('');
 	let message = $state('');
 	let busy = $state(false);
@@ -144,9 +146,7 @@
 				api<ChoiceNodeStats[]>(`/api/admin/learning-paths/${targetId}/choice-stats`).catch(
 					() => []
 				),
-				api<GateStudentStat[]>(`/api/admin/learning-paths/${targetId}/gate-stats`).catch(
-					() => []
-				)
+				api<GateStudentStat[]>(`/api/admin/learning-paths/${targetId}/gate-stats`).catch(() => [])
 			]);
 			allPaths = pathList;
 			catalog = modules;
@@ -154,6 +154,7 @@
 			students = studentList;
 			choiceStats = stats;
 			gateStats = gStats;
+			articles = await api<ArticleSummary[]>('/api/knowledge').catch(() => []);
 			selectedId = null;
 			selectedEdge = null;
 			preview = null;
@@ -169,8 +170,12 @@
 		try {
 			const courseQuery = form.courseId ? `?courseId=${form.courseId}` : '';
 			const [cStats, gStats] = await Promise.all([
-				api<ChoiceNodeStats[]>(`/api/admin/learning-paths/${id}/choice-stats${courseQuery}`).catch(() => []),
-				api<GateStudentStat[]>(`/api/admin/learning-paths/${id}/gate-stats${courseQuery}`).catch(() => [])
+				api<ChoiceNodeStats[]>(`/api/admin/learning-paths/${id}/choice-stats${courseQuery}`).catch(
+					() => []
+				),
+				api<GateStudentStat[]>(`/api/admin/learning-paths/${id}/gate-stats${courseQuery}`).catch(
+					() => []
+				)
 			]);
 			choiceStats = cStats;
 			gateStats = gStats;
@@ -189,13 +194,16 @@
 		error = '';
 		busy = true;
 		try {
-			const res = await api<{ affected: number }>(`/api/admin/learning-paths/${id}/course-actions`, {
-				method: 'POST',
-				body: {
-					...body,
-					courseId: form.courseId || undefined
+			const res = await api<{ affected: number }>(
+				`/api/admin/learning-paths/${id}/course-actions`,
+				{
+					method: 'POST',
+					body: {
+						...body,
+						courseId: form.courseId || undefined
+					}
 				}
-			});
+			);
 			await refreshChoiceStats();
 			if (preview) await showPreview();
 			flash(`Kurs-Aktion für ${res.affected} Schüler/innen ausgeführt.`);
@@ -242,13 +250,17 @@
 		if (e.label?.trim()) edge.label = e.label.trim();
 		if (e.hint?.trim()) edge.hint = e.hint.trim();
 		if (e.condition && e.condition.rule) {
-			edge.condition = {
-				rule: e.condition.rule,
-				task: e.condition.task?.trim() || undefined,
-				scoreThreshold: e.condition.scoreThreshold,
-				failedAttemptsThreshold: e.condition.failedAttemptsThreshold,
-				hintsThreshold: e.condition.hintsThreshold
-			};
+			const c = e.condition;
+			const condition: Record<string, unknown> = { rule: c.rule };
+			if (c.rule !== 'DEFAULT') {
+				if (c.task?.trim()) condition.task = c.task.trim();
+				if (c.rule === 'SCORE_AT_LEAST') condition.scoreThreshold = c.scoreThreshold ?? 80;
+				if (c.rule === 'STRUGGLED') {
+					condition.failedAttemptsThreshold = c.failedAttemptsThreshold ?? 3;
+					condition.hintsThreshold = c.hintsThreshold ?? 2;
+				}
+			}
+			edge.condition = condition;
 		}
 		return edge as unknown as Edge;
 	}
@@ -264,7 +276,23 @@
 		if (n.label) node.label = n.label;
 		if (n.kind === 'OR') node.min = Math.max(1, n.min ?? 1);
 		if (n.kind === 'BONUS') node.points = Math.max(1, Math.min(1000, n.points ?? 10));
-		if (n.kind === 'REMEDIAL' && n.knowledgeArticle?.trim()) node.knowledgeArticle = n.knowledgeArticle.trim();
+		if (n.kind === 'REMEDIAL' && n.knowledgeArticle?.trim())
+			node.knowledgeArticle = n.knowledgeArticle.trim();
+		if ((n.kind === 'TASK' || n.kind === 'MODULE') && n.boss) node.boss = true;
+		if ((n.kind === 'TASK' || n.kind === 'MODULE' || n.kind === 'MILESTONE') && n.requirement) {
+			// Gleiche Form wie vom Server, damit „ungespeichert“ stimmt und nichts verloren geht
+			const r = n.requirement;
+			const requirement: Record<string, unknown> = {
+				minPercent: Math.max(1, Math.min(100, r.minPercent ?? 80)),
+				mode: r.mode ?? 'TOTAL',
+				fallback: r.fallback ?? 'TEACHER'
+			};
+			if (r.scope?.length) requirement.scope = [...r.scope];
+			if (r.fallback === 'REMEDIAL' && r.fallbackRemedialNode) {
+				requirement.fallbackRemedialNode = r.fallbackRemedialNode;
+			}
+			node.requirement = requirement;
+		}
 		node.x = n.x;
 		node.y = n.y;
 		return node as unknown as PathNode;
@@ -338,7 +366,10 @@
 			form.unlockRestAfter = '';
 		} else if (mode === 'AFTER') {
 			form.lockOthers = true;
-			form.unlockRestAfter = nodes[nodes.length - 1]?.id ?? '';
+			form.unlockRestAfter =
+				form.unlockRestAfter ||
+				(nodes.find((n) => n.kind === 'MILESTONE') ?? nodes[nodes.length - 1])?.id ||
+				'';
 		}
 	}
 
@@ -444,6 +475,11 @@
 			error = 'Bitte eine Stützaufgabe wählen.';
 			return;
 		}
+		if (draft.kind === 'REMEDIAL' && !conditionTasks(selected ?? undefined).length) {
+			error =
+				'Erst die Aufgaben- oder Modul-Station anklicken, bei der Schwierigkeiten auftreten können – der Stütz-Knoten wird dort angehängt.';
+			return;
+		}
 		if (draft.kind === 'PATH' && !draft.path) {
 			error = 'Bitte einen Lernpfad-Baustein wählen.';
 			return;
@@ -460,15 +496,37 @@
 			label: draft.label.trim(),
 			min: draft.kind === 'OR' ? Math.max(1, draft.min || 1) : undefined,
 			points: draft.kind === 'BONUS' ? Math.max(1, Math.min(1000, draft.points || 10)) : undefined,
-			knowledgeArticle: draft.kind === 'REMEDIAL' && draft.knowledgeArticle.trim() ? draft.knowledgeArticle.trim() : undefined,
-			x: anchor ? anchor.x : 60,
+			knowledgeArticle:
+				draft.kind === 'REMEDIAL' && draft.knowledgeArticle.trim()
+					? draft.knowledgeArticle.trim()
+					: undefined,
+			// Stütz-Knoten seitlich neben den Normalweg, alles andere darunter
+			x: anchor ? (draft.kind === 'REMEDIAL' ? snap(anchor.x + NODE_W + 80) : anchor.x) : 60,
 			y: anchor
 				? anchor.y + NODE_H + 70
 				: snap(Math.max(-NODE_H, ...nodes.map((n) => n.y)) + NODE_H + 70)
 		});
 		nodes = [...nodes, node];
-		// An die gewählte Station anhängen – so entsteht ein Pfad Schritt für Schritt
-		if (anchor) {
+		if (anchor && draft.kind === 'REMEDIAL') {
+			// Hängt an einer Schwierigkeiten-Bedingung; der Server schaltet ihn bei Bedarf vor den Normalweg
+			const task = conditionTasks(anchor).at(-1)?.slug ?? '';
+			edges = [
+				...edges,
+				normalizeEdge({
+					from: anchor.id,
+					to: node.id,
+					required: true,
+					condition: {
+						rule: 'STRUGGLED',
+						task,
+						failedAttemptsThreshold: 3,
+						hintsThreshold: 2
+					} as unknown as EdgeCondition
+				})
+			];
+			ensureDefault(anchor.id, `${anchor.id}>${node.id}`);
+		} else if (anchor) {
+			// An die gewählte Station anhängen – so entsteht ein Pfad Schritt für Schritt
 			edges = [
 				...edges,
 				normalizeEdge({
@@ -622,6 +680,68 @@
 	function removeEdge(key: string) {
 		edges = edges.filter((e) => edgeKey(e) !== key);
 		if (selectedEdge === key) selectedEdge = null;
+	}
+
+	/** Aufgaben, auf die sich eine Bedingung ab dieser Station beziehen kann */
+	function conditionTasks(node: PathNode | undefined): { slug: string; title: string }[] {
+		if (!node) return [];
+		const all = moduleTasks(node.module);
+		if (node.kind === 'TASK') return all.filter((t) => t.slug === node.task);
+		if (node.kind === 'MODULE')
+			return node.tasks?.length ? all.filter((t) => node.tasks!.includes(t.slug)) : all;
+		return [];
+	}
+
+	/** Bedingungen gibt es nur ab Aufgaben- und Modul-Stationen; Standard ist die letzte Aufgabe der Station */
+	function setCondition(key: string, rule: string) {
+		const edge = edges.find((e) => edgeKey(e) === key);
+		if (!edge) return;
+		if (rule === 'NONE') {
+			updateEdge(key, { condition: undefined });
+			return;
+		}
+		const task = conditionTasks(byId.get(edge.from)).at(-1)?.slug ?? '';
+		updateEdge(key, {
+			condition: (rule === 'DEFAULT' ? { rule } : { rule, task }) as unknown as EdgeCondition
+		});
+		if (rule !== 'DEFAULT') ensureDefault(edge.from, key);
+	}
+
+	/** Gibt es bedingte Wege, braucht die Station einen Normalweg – die einzige übrige Verbindung wird es automatisch */
+	function ensureDefault(from: string, except: string) {
+		const siblings = edges.filter((e) => e.from === from && edgeKey(e) !== except);
+		if (siblings.some((e) => e.condition?.rule === 'DEFAULT')) return;
+		const plain = siblings.filter((e) => !e.condition);
+		if (plain.length === 1) {
+			updateEdge(edgeKey(plain[0]), { condition: { rule: 'DEFAULT' } as unknown as EdgeCondition });
+		} else {
+			error = `„${label(byId.get(from)!)}“ braucht noch einen Normalweg: Verbindung zur nächsten Station anlegen und als „Normalweg“ markieren.`;
+		}
+	}
+
+	function conditionText(edge: Edge): string {
+		const c = edge.condition;
+		if (!c) return '';
+		if (c.rule === 'DEFAULT') return 'Normalweg';
+		if (c.rule === 'PERFECT_FIRST_TRY') return '⚡ 100 % im 1. Versuch';
+		if (c.rule === 'SCORE_AT_LEAST') return `≥ ${Math.round(c.scoreThreshold ?? 0)} % Punkte`;
+		return `🛟 ≥ ${c.failedAttemptsThreshold ?? 3} Fehlv. / ${c.hintsThreshold ?? 2} Tipps`;
+	}
+
+	/** Alle Stationen vor einer Station (für den Punktebereich eines Tors) */
+	function ancestorsOf(nodeId: string): Set<string> {
+		const result = new Set<string>();
+		const stack = [nodeId];
+		while (stack.length) {
+			const current = stack.pop()!;
+			for (const e of edges) {
+				if (e.to === current && !result.has(e.from)) {
+					result.add(e.from);
+					stack.push(e.from);
+				}
+			}
+		}
+		return result;
 	}
 
 	// ------------------------------------------------------------ Ziehen
@@ -802,11 +922,8 @@
 					class="flex items-center gap-2 text-sm font-semibold {form.enforce
 						? 'text-sky-900'
 						: 'text-slate-400'}"
-					><input
-						type="checkbox"
-						bind:checked={form.hideOverview}
-						disabled={!form.enforce}
-					/> Gesamtübersicht für Schüler ausblenden (Fokus-Modus)</label
+					><input type="checkbox" bind:checked={form.hideOverview} disabled={!form.enforce} /> Gesamtübersicht
+					für Schüler ausblenden (Fokus-Modus)</label
 				>
 				<label class="flex items-center gap-2 text-sm text-violet-900"
 					><input type="checkbox" bind:checked={form.templateOnly} /> Nur als Baustein (nicht einzeln
@@ -834,10 +951,7 @@
 		</section>
 
 		{#if saved.warnings?.length}
-			<section
-				class="border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
-				role="status"
-			>
+			<section class="border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">
 				<p class="font-bold">Hinweise zum Lernpfad:</p>
 				<ul class="mt-1 list-disc pl-5">
 					{#each saved.warnings as w, i (i)}<li>{w}</li>{/each}
@@ -942,16 +1056,47 @@
 								{@const to = byId.get(edge.to)}
 								{#if from && to}
 									{@const isGateTarget = to.kind === 'AND' || to.kind === 'OR'}
-									{@const slot = isGateTarget ? incomingSlot(edges, byId, edge) : { index: 0, count: 1 }}
+									{@const slot = isGateTarget
+										? incomingSlot(edges, byId, edge)
+										: { index: 0, count: 1 }}
 									{@const d = edgePath(from, to, slot.index, slot.count)}
 									<path
 										{d}
 										fill="none"
 										stroke-width="2.5"
-										class={selectedEdge === edgeKey(edge) ? 'stroke-rose-500' : 'stroke-slate-400'}
+										class={selectedEdge === edgeKey(edge)
+											? 'stroke-rose-500'
+											: edge.condition?.rule === 'STRUGGLED'
+												? 'stroke-sky-500'
+												: edge.condition && edge.condition.rule !== 'DEFAULT'
+													? 'stroke-amber-500'
+													: 'stroke-slate-400'}
 										stroke-dasharray={edge.required ? undefined : '6 5'}
 										marker-end="url(#edit-arrow)"
 									/>
+									{#if edge.condition}
+										{@const midX = (from.x + to.x) / 2 + NODE_W / 2}
+										{@const midY = (from.y + to.y) / 2 + NODE_H / 2}
+										<g transform="translate({midX}, {midY})" class="pointer-events-none">
+											<rect
+												x="-62"
+												y="-10"
+												width="124"
+												height="20"
+												rx="4"
+												class="fill-white stroke-slate-300"
+												stroke-width="1"
+											/>
+											<text
+												x="0"
+												y="4"
+												text-anchor="middle"
+												font-size="10"
+												font-weight="bold"
+												class="fill-slate-700">{conditionText(edge)}</text
+											>
+										</g>
+									{/if}
 									<!-- Breite, unsichtbare Linie zum Anklicken -->
 									<path
 										{d}
@@ -974,7 +1119,8 @@
 						{#each nodes as node (node.id)}
 							{@const isGate = node.kind === 'AND' || node.kind === 'OR'}
 							{@const branchStyle = branchStyles.get(node.id)}
-							{@const subpathInfo = node.kind === 'PATH' ? pathsBySlug.get(node.path ?? '') : undefined}
+							{@const subpathInfo =
+								node.kind === 'PATH' ? pathsBySlug.get(node.path ?? '') : undefined}
 							<div
 								class="absolute flex cursor-grab touch-none flex-col justify-between border-2 p-3 select-none active:cursor-grabbing {node.kind ===
 								'MILESTONE'
@@ -1015,6 +1161,14 @@
 										>{label(node)}</span
 									>
 								</div>
+								{#if node.boss || node.requirement}
+									<span
+										class="absolute -top-3 right-2 border border-amber-300 bg-amber-100 px-1.5 font-mono text-[9px] font-black text-amber-900"
+										>{node.boss ? '👑 Boss' : ''}{node.boss && node.requirement
+											? ' · '
+											: ''}{node.requirement ? `🚪 ≥ ${node.requirement.minPercent} %` : ''}</span
+									>
+								{/if}
 								<span
 									class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
 									>{node.kind === 'PATH' && subpathInfo
@@ -1034,6 +1188,7 @@
 					{@const edge = edges.find((e) => edgeKey(e) === selectedEdge)}
 					{#if edge}
 						{@const fromNode = byId.get(edge.from)}
+						{@const refTasks = conditionTasks(fromNode)}
 						<section class="flex flex-col gap-3 border border-slate-200 bg-white p-4">
 							<h2 class="ed-label">Verbindung</h2>
 							<p class="text-sm">
@@ -1088,103 +1243,127 @@
 								</label>
 							</fieldset>
 
-							<fieldset class="flex flex-col gap-2 text-sm border-t border-slate-200 pt-3">
-								<legend class="ed-label">Bedingung</legend>
-								<select
-									class="ed-input"
-									value={edge.condition?.rule ?? 'NONE'}
-									onchange={(e) => {
-										const val = (e.currentTarget as HTMLSelectElement).value;
-										if (val === 'NONE') {
-											updateEdge(selectedEdge!, { condition: undefined });
-										} else if (val === 'DEFAULT') {
-											updateEdge(selectedEdge!, { condition: { rule: 'DEFAULT' } as unknown as EdgeCondition });
-										} else if (val === 'PERFECT_FIRST_TRY') {
-											const defaultTask = fromNode?.task ?? (fromNode?.tasks?.[0] ?? '');
-											updateEdge(selectedEdge!, { condition: { rule: 'PERFECT_FIRST_TRY', task: defaultTask } as unknown as EdgeCondition });
-										} else if (val === 'STRUGGLED') {
-											const defaultTask = fromNode?.task ?? (fromNode?.tasks?.[0] ?? '');
-											updateEdge(selectedEdge!, { condition: { rule: 'STRUGGLED', task: defaultTask, failedAttemptsThreshold: 3, hintsThreshold: 2 } as unknown as EdgeCondition });
-										} else if (val === 'SCORE_AT_LEAST') {
-											const defaultTask = fromNode?.task ?? (fromNode?.tasks?.[0] ?? '');
-											updateEdge(selectedEdge!, { condition: { rule: 'SCORE_AT_LEAST', task: defaultTask, scoreThreshold: 80 } as unknown as EdgeCondition });
-										}
-									}}
-								>
-									<option value="NONE">Keine Bedingung (immer aktiv)</option>
-									<option value="DEFAULT">Normalweg (DEFAULT)</option>
-									<option value="PERFECT_FIRST_TRY">⚡ 100 % im 1. Versuch (Fast-Track / Bonus)</option>
-									<option value="STRUGGLED">🛟 Schwierigkeiten (Stütz-Knoten)</option>
-									<option value="SCORE_AT_LEAST">Mindest-Punktzahl</option>
-								</select>
-
-								{#if edge.condition && edge.condition.rule !== 'DEFAULT'}
-									<label class="ed-label mt-1">
-										Bezugsaufgabe
-										<input
-											class="ed-input"
-											placeholder="z. B. aufgabe-1 oder modul/aufgabe"
-											value={edge.condition.task ?? ''}
-											oninput={(e) => {
-												updateEdge(selectedEdge!, {
-													condition: { ...edge.condition!, task: (e.currentTarget as HTMLInputElement).value }
-												});
-											}}
-										/>
-									</label>
-
-									{#if edge.condition.rule === 'STRUGGLED'}
-										<div class="grid grid-cols-2 gap-2 mt-1">
-											<label class="ed-label">
-												Fehlversuche
-												<input
-													type="number"
-													min="1"
-													max="20"
-													class="ed-input"
-													value={edge.condition.failedAttemptsThreshold ?? 3}
-													oninput={(e) => {
-														updateEdge(selectedEdge!, {
-															condition: { ...edge.condition!, failedAttemptsThreshold: Number((e.currentTarget as HTMLInputElement).value) || 3 }
-														});
-													}}
-												/>
-											</label>
-											<label class="ed-label">
-												Tipps genutzt
-												<input
-													type="number"
-													min="1"
-													max="20"
-													class="ed-input"
-													value={edge.condition.hintsThreshold ?? 2}
-													oninput={(e) => {
-														updateEdge(selectedEdge!, {
-															condition: { ...edge.condition!, hintsThreshold: Number((e.currentTarget as HTMLInputElement).value) || 2 }
-														});
-													}}
-												/>
-											</label>
-										</div>
-									{:else if edge.condition.rule === 'SCORE_AT_LEAST'}
+							{#if refTasks.length || edge.condition}
+								<fieldset class="flex flex-col gap-2 border-t border-slate-200 pt-3 text-sm">
+									<legend class="ed-label">Bedingung</legend>
+									<select
+										class="ed-input"
+										aria-label="Bedingung"
+										value={edge.condition?.rule ?? 'NONE'}
+										onchange={(e) =>
+											setCondition(selectedEdge!, (e.currentTarget as HTMLSelectElement).value)}
+									>
+										<option value="NONE">Keine Bedingung (immer)</option>
+										<option value="DEFAULT">Normalweg (wenn keine Abkürzung greift)</option>
+										<option value="PERFECT_FIRST_TRY"
+											>⚡ 100 % im 1. Versuch → Abkürzung / Bonus-Challenge</option
+										>
+										<option value="SCORE_AT_LEAST">Mindest-Punktzahl erreicht</option>
+										<option value="STRUGGLED">🛟 Schwierigkeiten → Stütz-Knoten</option>
+									</select>
+									{#if edge.condition && edge.condition.rule !== 'DEFAULT'}
 										<label class="ed-label mt-1">
-											Mindestpunktzahl (%)
-											<input
-												type="number"
-												min="0"
-												max="100"
+											Bezugsaufgabe
+											<select
 												class="ed-input"
-												value={edge.condition.scoreThreshold ?? 80}
-												oninput={(e) => {
+												value={edge.condition.task ?? ''}
+												onchange={(e) =>
 													updateEdge(selectedEdge!, {
-														condition: { ...edge.condition!, scoreThreshold: Number((e.currentTarget as HTMLInputElement).value) || 0 }
-													});
-												}}
-											/>
+														condition: {
+															...edge.condition!,
+															task: (e.currentTarget as HTMLSelectElement).value
+														}
+													})}
+											>
+												{#if !refTasks.some((t) => t.slug === edge.condition?.task)}
+													<option value={edge.condition.task ?? ''}
+														>{edge.condition.task
+															? `⚠ ${edge.condition.task}`
+															: 'Aufgabe wählen …'}</option
+													>
+												{/if}
+												{#each refTasks as t (t.slug)}<option value={t.slug}>{t.title}</option
+													>{/each}
+											</select>
 										</label>
+										{#if edge.condition.rule === 'STRUGGLED'}
+											<div class="mt-1 grid grid-cols-2 gap-2">
+												<label class="ed-label">
+													ab Fehlversuchen
+													<input
+														type="number"
+														min="1"
+														max="20"
+														class="ed-input"
+														value={edge.condition.failedAttemptsThreshold ?? 3}
+														oninput={(e) =>
+															updateEdge(selectedEdge!, {
+																condition: {
+																	...edge.condition!,
+																	failedAttemptsThreshold: Math.max(
+																		1,
+																		Number((e.currentTarget as HTMLInputElement).value) || 3
+																	)
+																}
+															})}
+													/>
+												</label>
+												<label class="ed-label">
+													oder ab Tipps
+													<input
+														type="number"
+														min="1"
+														max="20"
+														class="ed-input"
+														value={edge.condition.hintsThreshold ?? 2}
+														oninput={(e) =>
+															updateEdge(selectedEdge!, {
+																condition: {
+																	...edge.condition!,
+																	hintsThreshold: Math.max(
+																		1,
+																		Number((e.currentTarget as HTMLInputElement).value) || 2
+																	)
+																}
+															})}
+													/>
+												</label>
+											</div>
+											<p class="text-xs text-slate-500">
+												Auch eine aufgedeckte Lösung oder „nicht bestanden“ zählt als Schwierigkeit.
+											</p>
+										{:else if edge.condition.rule === 'SCORE_AT_LEAST'}
+											<label class="ed-label mt-1">
+												Mindestpunktzahl (%)
+												<input
+													type="number"
+													min="0"
+													max="100"
+													class="ed-input"
+													value={edge.condition.scoreThreshold ?? 80}
+													oninput={(e) =>
+														updateEdge(selectedEdge!, {
+															condition: {
+																...edge.condition!,
+																scoreThreshold: Math.max(
+																	0,
+																	Math.min(
+																		100,
+																		Number((e.currentTarget as HTMLInputElement).value) || 0
+																	)
+																)
+															}
+														})}
+												/>
+											</label>
+										{/if}
+										<p class="text-xs text-slate-500">
+											Entschieden wird einmal, sobald die Bezugsaufgabe erledigt ist (Praxisaufgaben
+											erst nach der Bewertung). Daneben braucht die Station einen Normalweg.
+										</p>
 									{/if}
-								{/if}
-							</fieldset>
+								</fieldset>
+							{/if}
 							<button class="ed-button text-rose-700" onclick={() => removeEdge(selectedEdge!)}
 								>Verbindung löschen</button
 							>
@@ -1194,7 +1373,8 @@
 
 				{#if selected}
 					{@const incomingCount = edges.filter((e) => e.to === selected.id).length}
-					{@const targetSubpath = selected.kind === 'PATH' ? pathsBySlug.get(selected.path ?? '') : undefined}
+					{@const targetSubpath =
+						selected.kind === 'PATH' ? pathsBySlug.get(selected.path ?? '') : undefined}
 					<section
 						class="flex flex-col gap-3 border border-slate-200 bg-white p-4"
 						aria-label="Station bearbeiten"
@@ -1211,9 +1391,7 @@
 								{#if targetSubpath}· {targetSubpath.stations} Stationen{/if}
 							</p>
 							{#if targetSubpath}
-								<a
-									class="ed-button text-center"
-									href="/admin/learning-paths/{targetSubpath.id}"
+								<a class="ed-button text-center" href="/admin/learning-paths/{targetSubpath.id}"
 									>Baustein bearbeiten →</a
 								>
 							{/if}
@@ -1242,6 +1420,24 @@
 								/>
 							</label>
 						{/if}
+						{#if selected.kind === 'REMEDIAL'}
+							<p class="font-mono text-xs text-slate-500">{selected.module}/{selected.task}</p>
+							<label class="ed-label">
+								Wissensartikel (optional)
+								<select
+									class="ed-input"
+									value={selected.knowledgeArticle ?? ''}
+									onchange={(e) =>
+										updateNode(selected.id, {
+											knowledgeArticle: (e.currentTarget as HTMLSelectElement).value
+										})}
+								>
+									<option value="">Kein Artikel</option>
+									{#each articles as a (a.slug)}<option value={a.slug}>{a.icon} {a.title}</option
+										>{/each}
+								</select>
+							</label>
+						{/if}
 						{#if selected.kind === 'BONUS'}
 							<label class="ed-label">
 								Bonuspunkte (1–1000)
@@ -1253,7 +1449,10 @@
 									value={selected.points ?? 10}
 									oninput={(e) =>
 										updateNode(selected.id, {
-											points: Math.max(1, Math.min(1000, Number((e.currentTarget as HTMLInputElement).value) || 10))
+											points: Math.max(
+												1,
+												Math.min(1000, Number((e.currentTarget as HTMLInputElement).value) || 10)
+											)
 										})}
 								/>
 							</label>
@@ -1315,19 +1514,28 @@
 							</fieldset>
 						{/if}
 						{#if selected.kind === 'TASK' || selected.kind === 'MODULE'}
-							<label class="flex items-center gap-2 p-2 rounded bg-amber-50 border border-amber-200 text-xs font-bold text-amber-950 cursor-pointer">
+							<label
+								class="flex cursor-pointer items-center gap-2 rounded border border-amber-200 bg-amber-50 p-2 text-xs font-bold text-amber-950"
+							>
 								<input
 									type="checkbox"
 									checked={!!selected.boss}
-									onchange={(e) => updateNode(selected.id, { boss: (e.currentTarget as HTMLInputElement).checked })}
+									onchange={(e) =>
+										updateNode(selected.id, {
+											boss: (e.currentTarget as HTMLInputElement).checked
+										})}
 								/>
 								<span>👑 Boss-Aufgabe (besondere Auszeichnung auf der Karte)</span>
 							</label>
 						{/if}
 						{#if selected.kind === 'TASK' || selected.kind === 'MODULE' || selected.kind === 'MILESTONE'}
-							<fieldset class="flex flex-col gap-2 rounded border border-slate-200 bg-slate-50/60 p-3">
+							<fieldset
+								class="flex flex-col gap-2 rounded border border-slate-200 bg-slate-50/60 p-3"
+							>
 								<legend class="ed-label">🚪 Freischaltung ab Punkte-Schwelle (Gate)</legend>
-								<label class="flex items-center gap-2 text-xs cursor-pointer font-medium text-slate-800">
+								<label
+									class="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-800"
+								>
 									<input
 										type="checkbox"
 										checked={!!selected.requirement}
@@ -1352,7 +1560,10 @@
 								</label>
 
 								{#if selected.requirement}
-									{@const ancestorCandidates = nodes.filter((n) => n.id !== selected.id && (n.kind === 'TASK' || n.kind === 'MODULE'))}
+									{@const before = ancestorsOf(selected.id)}
+									{@const ancestorCandidates = nodes.filter(
+										(n) => before.has(n.id) && (n.kind === 'TASK' || n.kind === 'MODULE')
+									)}
 									<div class="mt-2 flex flex-col gap-2.5 border-t border-slate-200 pt-2.5">
 										<label class="ed-label">
 											Mindest-Punkte-Schwelle (1–100 %)
@@ -1363,7 +1574,10 @@
 												max="100"
 												value={selected.requirement.minPercent ?? 80}
 												oninput={(e) => {
-													const val = Math.max(1, Math.min(100, Number((e.currentTarget as HTMLInputElement).value) || 80));
+													const val = Math.max(
+														1,
+														Math.min(100, Number((e.currentTarget as HTMLInputElement).value) || 80)
+													);
 													updateNode(selected.id, {
 														requirement: { ...selected.requirement!, minPercent: val }
 													});
@@ -1378,14 +1592,20 @@
 													class="ed-input"
 													value={selected.requirement.mode ?? 'TOTAL'}
 													onchange={(e) => {
-														const m = (e.currentTarget as HTMLSelectElement).value as 'TOTAL' | 'EACH';
+														const m = (e.currentTarget as HTMLSelectElement).value as
+															| 'TOTAL'
+															| 'EACH';
 														updateNode(selected.id, {
 															requirement: { ...selected.requirement!, mode: m }
 														});
 													}}
 												>
-													<option value="TOTAL">TOTAL – Aggregierte Gesamtpunkte aller Vorgänger</option>
-													<option value="EACH">EACH – Jeder eingehende Zweig muss Schwelle erreichen</option>
+													<option value="TOTAL"
+														>TOTAL – Aggregierte Gesamtpunkte aller Vorgänger</option
+													>
+													<option value="EACH"
+														>EACH – Jeder eingehende Zweig muss Schwelle erreichen</option
+													>
 												</select>
 											</label>
 										{/if}
@@ -1396,13 +1616,18 @@
 												class="ed-input"
 												value={selected.requirement.fallback ?? 'TEACHER'}
 												onchange={(e) => {
-													const fb = (e.currentTarget as HTMLSelectElement).value as 'TEACHER' | 'OPEN' | 'REMEDIAL';
+													const fb = (e.currentTarget as HTMLSelectElement).value as
+														| 'TEACHER'
+														| 'OPEN'
+														| 'REMEDIAL';
 													updateNode(selected.id, {
 														requirement: { ...selected.requirement!, fallback: fb }
 													});
 												}}
 											>
-												<option value="TEACHER">TEACHER – Bleibt gesperrt, an Lehrkraft wenden</option>
+												<option value="TEACHER"
+													>TEACHER – Bleibt gesperrt, an Lehrkraft wenden</option
+												>
 												<option value="OPEN">OPEN – Notfall-Öffnung: wird trotzdem frei</option>
 												<option value="REMEDIAL">REMEDIAL – Freischaltung über Stützaufgabe</option>
 											</select>
@@ -1433,10 +1658,17 @@
 										<div class="flex flex-col gap-1.5">
 											<span class="ed-label">Punktebereich (Scope)</span>
 											<p class="text-[10px] text-slate-500">
-												Standard: Alle Vorgänger-Stationen zählen. Bei Bedarf hier gezielt einschränken:
+												Standard: Alle Vorgänger-Stationen zählen. Bei Bedarf hier gezielt
+												einschränken:
 											</p>
-											{#if ancestorCandidates.length > 0}
-												<div class="max-h-36 overflow-y-auto border border-slate-200 bg-white p-2 rounded flex flex-col gap-1">
+											{#if ancestorCandidates.length === 0}
+												<p class="text-xs text-amber-700">
+													Vor dieser Station liegen noch keine Aufgaben – erst Vorgänger verbinden.
+												</p>
+											{:else}
+												<div
+													class="flex max-h-36 flex-col gap-1 overflow-y-auto rounded border border-slate-200 bg-white p-2"
+												>
 													{#each ancestorCandidates as cand (cand.id)}
 														{@const inScope = (selected.requirement.scope ?? []).includes(cand.id)}
 														<label class="flex items-center gap-2 text-xs">
@@ -1461,7 +1693,7 @@
 												{#if (selected.requirement.scope ?? []).length > 0}
 													<button
 														type="button"
-														class="text-[10px] text-slate-500 hover:text-slate-700 underline text-left cursor-pointer"
+														class="cursor-pointer text-left text-[10px] text-slate-500 underline hover:text-slate-700"
 														onclick={() => {
 															updateNode(selected.id, {
 																requirement: { ...selected.requirement!, scope: [] }
@@ -1547,14 +1779,21 @@
 								type="button"
 								class="ed-button bg-white"
 								disabled={busy}
-								onclick={() =>
+								onclick={() => {
+									const who = form.courseId
+										? 'alle Schüler/innen des Kurses'
+										: 'alle Schüler/innen';
+									if (!confirm(`„${label(selected)}“ für ${who} freischalten?`)) return;
 									runCourseAction({
 										action: 'UNLOCK_NODE',
 										pathSlug: saved?.slug,
 										nodeId: selected.id
-									})}
+									});
+								}}
 							>
-								Station für ganzen Kurs freischalten
+								{form.courseId
+									? 'Station für ganzen Kurs freischalten'
+									: 'Station für alle freischalten'}
 							</button>
 						{/if}
 						<button class="ed-button text-rose-700" onclick={() => removeNode(selected.id)}
@@ -1671,34 +1910,48 @@
 							<div class="space-y-2 border border-slate-200 bg-slate-50/60 p-3 text-xs">
 								<div class="flex flex-wrap items-center justify-between gap-2">
 									<span class="font-bold text-institutional-navy">🚪 {gateLabel}</span>
-									<span class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-700">
+									<span
+										class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-slate-700"
+									>
 										Gefordert: ≥ {minPct} %
 									</span>
 								</div>
 								<div class="flex items-center gap-3 font-mono text-[10px]">
-									<span class="text-emerald-700 font-bold">{passedCount}/{statsForGate.length} freigeschaltet</span>
+									<span class="font-bold text-emerald-700"
+										>{passedCount}/{statsForGate.length} freigeschaltet</span
+									>
 									{#if stuckCount > 0}
-										<span class="text-rose-700 font-bold bg-rose-100 px-1.5 py-0.5 rounded">⚠ {stuckCount} stecken fest</span>
+										<span class="rounded bg-rose-100 px-1.5 py-0.5 font-bold text-rose-700"
+											>⚠ {stuckCount} stecken fest</span
+										>
 									{/if}
 								</div>
 								<div class="space-y-1.5 pt-1">
 									{#each statsForGate as st (st.username)}
-										<div class="flex flex-wrap items-center justify-between gap-2 border border-slate-200 bg-white px-2.5 py-1.5">
+										<div
+											class="flex flex-wrap items-center justify-between gap-2 border border-slate-200 bg-white px-2.5 py-1.5"
+										>
 											<div class="flex items-center gap-2">
 												<span class="font-semibold text-slate-800">{st.displayName}</span>
 												<span class="font-mono text-[10px] text-slate-500">({st.percent} %)</span>
 											</div>
 											<div class="flex items-center gap-2">
 												{#if st.open}
-													<span class="rounded bg-emerald-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-emerald-800 uppercase">
+													<span
+														class="rounded bg-emerald-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-emerald-800 uppercase"
+													>
 														Offen
 													</span>
 												{:else if st.unreachable}
-													<span class="rounded bg-rose-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-rose-800 uppercase">
+													<span
+														class="rounded bg-rose-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-rose-800 uppercase"
+													>
 														Unerreichbar (-{st.missingPoints}P)
 													</span>
 												{:else}
-													<span class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-800 uppercase">
+													<span
+														class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-800 uppercase"
+													>
 														Noch {st.missingPoints}P
 													</span>
 												{/if}
@@ -1744,19 +1997,26 @@
 					{/if}
 					{#if draft.kind === 'TASK' || draft.kind === 'REMEDIAL'}
 						<select class="ed-input" bind:value={draft.task} aria-label="Aufgabe">
-							<option value="">{draft.kind === 'REMEDIAL' ? 'Stützaufgabe wählen …' : 'Aufgabe wählen …'}</option>
+							<option value=""
+								>{draft.kind === 'REMEDIAL' ? 'Stützaufgabe wählen …' : 'Aufgabe wählen …'}</option
+							>
 							{#each draftTasks as t (t.slug)}<option value={t.slug}>{t.title}</option>{/each}
 						</select>
 					{/if}
 					{#if draft.kind === 'REMEDIAL'}
 						<label class="ed-label">
-							Wissensartikel-Slug (optional)
-							<input
-								class="ed-input"
-								placeholder="z. B. datenbank-grundlagen"
-								bind:value={draft.knowledgeArticle}
-							/>
+							Wissensartikel (optional)
+							<select class="ed-input" bind:value={draft.knowledgeArticle}>
+								<option value="">Kein Artikel</option>
+								{#each articles as a (a.slug)}<option value={a.slug}>{a.icon} {a.title}</option
+									>{/each}
+							</select>
 						</label>
+						<p class="text-xs text-slate-500">
+							Erst die Station anklicken, bei der Schwierigkeiten auftreten können. Der Stütz-Knoten
+							wird dort angehängt und erscheint nur, wenn jemand dort hängen bleibt – dann muss er
+							vor dem Weitergehen erledigt werden.
+						</p>
 					{/if}
 					{#if draft.kind === 'PATH'}
 						<select class="ed-input" bind:value={draft.path} aria-label="Lernpfad-Baustein">

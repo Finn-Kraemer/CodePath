@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { api, type PathView, type NodeView } from '$lib/api';
+	import { auth } from '$lib/auth.svelte';
 	import { canvasSize, edgePath, incomingSlot, NODE_H, NODE_W } from './geometry';
 
 	let {
@@ -72,7 +73,11 @@
 		SKIPPED: 'border-dashed border-sky-300 bg-sky-50/70 text-slate-700'
 	};
 
-	function conditionBadge(cond?: { rule?: string; failedAttemptsThreshold?: number; scoreThreshold?: number }): string | null {
+	function conditionBadge(cond?: {
+		rule?: string;
+		failedAttemptsThreshold?: number;
+		scoreThreshold?: number;
+	}): string | null {
 		if (!cond || !cond.rule) return null;
 		if (cond.rule === 'PERFECT_FIRST_TRY') return '⚡ 1. Versuch';
 		if (cond.rule === 'STRUGGLED') {
@@ -105,7 +110,7 @@
 		}
 	});
 
-	function centerOnRecommendedOrFit() {
+	function centerOnRecommendedOrFit(force = false) {
 		if (!viewportEl) return;
 		const vpWidth = viewportEl.clientWidth || 800;
 		const vpHeight = viewportEl.clientHeight || 500;
@@ -114,12 +119,14 @@
 			currentPath.nodes.find((n) => n.state === 'AVAILABLE') ??
 			currentPath.nodes[0];
 
-		if (targetNode) {
+		// Passt die ganze Karte lesbar hinein, alles zeigen – sonst auf die aktuelle Station
+		const fits = Math.min((vpWidth - 40) / size.width, (vpHeight - 40) / size.height) >= 0.6;
+		if ((fits && !force) || !targetNode) {
+			fitToScreen();
+		} else {
 			zoom = 1;
 			panX = Math.round(vpWidth / 2 - (targetNode.x + NODE_W / 2));
 			panY = Math.round(vpHeight / 2 - (targetNode.y + NODE_H / 2));
-		} else {
-			fitToScreen();
 		}
 	}
 
@@ -131,7 +138,7 @@
 		const scaleX = (vpWidth - pad) / Math.max(size.width, 100);
 		const scaleY = (vpHeight - pad) / Math.max(size.height, 100);
 		const fitScale = Math.min(scaleX, scaleY);
-		zoom = Math.min(Math.max(+fitScale.toFixed(2), 0.35), 1.2);
+		zoom = Math.min(Math.max(+fitScale.toFixed(2), 0.35), 1);
 		panX = Math.round((vpWidth - size.width * zoom) / 2);
 		panY = Math.round((vpHeight - size.height * zoom) / 2);
 	}
@@ -160,7 +167,9 @@
 		zoom = newZoom;
 	}
 
+	/** Zoomen nur mit Strg/⌘ – sonst scrollt das Mausrad wie gewohnt die Seite */
 	function handleWheel(e: WheelEvent) {
+		if (!e.ctrlKey && !e.metaKey) return;
 		e.preventDefault();
 		const delta = -e.deltaY * 0.0015;
 		const newZoom = Math.min(2.5, Math.max(0.35, +(zoom + delta).toFixed(2)));
@@ -310,7 +319,9 @@
 					{choiceNode.label}: Wähle deinen Weg
 				</h3>
 				<p class="text-xs text-slate-500">
-					Entscheide dich für einen Weg. Die anderen Wege sind danach gesperrt.
+					{student
+						? 'Vorschau: Die Wahl trifft die Schülerin bzw. der Schüler selbst (oder du über „Wahl setzen“).'
+						: 'Entscheide dich für einen Weg. Die anderen Wege sind danach gesperrt.'}
 				</p>
 			</div>
 		</div>
@@ -321,7 +332,9 @@
 						<div class="flex items-start justify-between gap-2">
 							<span class="block text-sm font-bold text-institutional-navy">{opt.label}</span>
 							{#if opt.bonusPoints && opt.bonusPoints > 0}
-								<span class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800">
+								<span
+									class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800"
+								>
 									+{opt.bonusPoints} P.
 								</span>
 							{/if}
@@ -330,14 +343,16 @@
 							<span class="mt-1 block text-xs text-slate-600">{opt.hint}</span>
 						{/if}
 					</div>
-					<button
-						type="button"
-						class="bg-institutional-navy px-4 py-2 text-[10px] font-black tracking-widest text-white uppercase transition-colors hover:bg-slate-800 disabled:opacity-50"
-						disabled={choosing}
-						onclick={() => chooseBranch(choiceNode.id, opt.to, opt.label)}
-					>
-						Diesen Weg nehmen
-					</button>
+					{#if !student}
+						<button
+							type="button"
+							class="bg-institutional-navy px-4 py-2 text-[10px] font-black tracking-widest text-white uppercase transition-colors hover:bg-slate-800 disabled:opacity-50"
+							disabled={choosing}
+							onclick={() => chooseBranch(choiceNode.id, opt.to, opt.label)}
+						>
+							Diesen Weg nehmen
+						</button>
+					{/if}
 				</div>
 			{/each}
 		</div>
@@ -349,7 +364,7 @@
 	<div class="inline-flex rounded border border-slate-200 bg-white p-0.5 text-xs font-semibold">
 		<button
 			type="button"
-			class="px-3 py-1 rounded transition-colors {viewMode === 'map'
+			class="rounded px-3 py-1 transition-colors {viewMode === 'map'
 				? 'bg-institutional-navy text-white shadow-sm'
 				: 'text-slate-600 hover:text-slate-900'}"
 			onclick={() => {
@@ -361,7 +376,7 @@
 		</button>
 		<button
 			type="button"
-			class="px-3 py-1 rounded transition-colors {viewMode === 'list'
+			class="rounded px-3 py-1 transition-colors {viewMode === 'list'
 				? 'bg-institutional-navy text-white shadow-sm'
 				: 'text-slate-600 hover:text-slate-900'}"
 			onclick={() => (viewMode = 'list')}
@@ -379,29 +394,29 @@
 		>
 			<button
 				type="button"
-				class="rounded px-2.5 py-1 font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+				class="rounded px-2.5 py-1 font-bold text-slate-700 transition-colors hover:bg-slate-100"
 				onclick={zoomOut}
 				title="Verkleinern (−)"
 				aria-label="Verkleinern"
 			>
 				−
 			</button>
-			<span class="min-w-12 text-center font-mono text-[11px] text-slate-500 font-semibold">
+			<span class="min-w-12 text-center font-mono text-[11px] font-semibold text-slate-500">
 				{Math.round(zoom * 100)}%
 			</span>
 			<button
 				type="button"
-				class="rounded px-2.5 py-1 font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+				class="rounded px-2.5 py-1 font-bold text-slate-700 transition-colors hover:bg-slate-100"
 				onclick={zoomIn}
 				title="Vergrößern (+)"
 				aria-label="Vergrößern"
 			>
 				+
 			</button>
-			<div class="h-4 w-px bg-slate-200 mx-1"></div>
+			<div class="mx-1 h-4 w-px bg-slate-200"></div>
 			<button
 				type="button"
-				class="rounded px-2.5 py-1 font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+				class="rounded px-2.5 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-100"
 				onclick={fitToScreen}
 				title="Auf Bildschirm einpassen"
 			>
@@ -409,20 +424,29 @@
 			</button>
 			<button
 				type="button"
-				class="rounded px-2.5 py-1 font-medium text-slate-700 hover:bg-slate-100 transition-colors"
-				onclick={centerOnRecommendedOrFit}
+				class="rounded px-2.5 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-100"
+				onclick={() => centerOnRecommendedOrFit(true)}
 				title="Aktuelle Station zentrieren"
 			>
 				🎯 Fokus
 			</button>
+			<span class="hidden px-2 text-[10px] text-slate-400 md:inline"
+				>Strg + Mausrad: zoomen · ziehen: verschieben</span
+			>
 		</div>
 	{/if}
 </div>
 
 {#if currentPath.nodes.some((n) => n.state === 'SKIPPED')}
-	<div class="mb-3 flex items-center gap-2 rounded border border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 shadow-sm" data-testid="fast-track-banner">
+	<div
+		class="mb-3 flex items-center gap-2 rounded border border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 shadow-sm"
+		data-testid="fast-track-banner"
+	>
 		<span class="text-base">⚡</span>
-		<span><strong>Fast-Track freigeschaltet!</strong> Du hast eine Abkürzung genommen. Übersprungene Stationen können freiwillig bearbeitet werden.</span>
+		<span
+			><strong>Fast-Track freigeschaltet!</strong> Du hast eine Abkürzung genommen. Übersprungene Stationen
+			können freiwillig bearbeitet werden.</span
+		>
 	</div>
 {/if}
 
@@ -463,12 +487,16 @@
 									{node.label}
 								</h4>
 								{#if node.boss}
-									<span class="rounded bg-amber-200 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-900 uppercase">
+									<span
+										class="rounded bg-amber-200 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-900 uppercase"
+									>
 										👑 Boss
 									</span>
 								{/if}
 								{#if node.recommended}
-									<span class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-800 uppercase">
+									<span
+										class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-800 uppercase"
+									>
 										Empfohlen
 									</span>
 								{/if}
@@ -494,21 +522,28 @@
 								<div class="mt-2 rounded border border-amber-200 bg-amber-50/60 p-2 text-xs">
 									<div class="flex items-center justify-between gap-2 font-mono text-[11px]">
 										<span class="font-bold text-slate-700">
-											Punkte-Tor ({node.gateProgress.earnedPoints}/{node.gateProgress.maxPoints} P. = {node.gateProgress.percent} %)
+											Punkte-Tor ({node.gateProgress.earnedPoints}/{node.gateProgress.maxPoints} P. =
+											{node.gateProgress.percent} %)
 										</span>
-										<span class="font-bold {node.gateProgress.satisfied ? 'text-emerald-700' : 'text-amber-800'}">
+										<span
+											class="font-bold {node.gateProgress.satisfied
+												? 'text-emerald-700'
+												: 'text-amber-800'}"
+										>
 											Gefordert: ≥ {node.requirement?.minPercent}%
 										</span>
 									</div>
 									<div class="mt-1 flex items-center justify-between gap-2">
 										{#if node.gateProgress.missingPoints > 0}
-											<span class="text-amber-700 font-bold">Noch {node.gateProgress.missingPoints} Punkte nötig</span>
+											<span class="font-bold text-amber-700"
+												>Noch {node.gateProgress.missingPoints} Punkte nötig</span
+											>
 										{:else}
-											<span class="text-emerald-700 font-bold">Schwelle erreicht</span>
+											<span class="font-bold text-emerald-700">Schwelle erreicht</span>
 										{/if}
 										<button
 											type="button"
-											class="text-institutional-navy hover:underline text-[11px] font-bold"
+											class="text-[11px] font-bold text-institutional-navy hover:underline"
 											onclick={() => (activeGateNode = node)}
 										>
 											Details & offene Aufgaben ({node.gateProgress.openTasks?.length ?? 0}) →
@@ -518,7 +553,7 @@
 							{/if}
 						</div>
 					</div>
-					<div class="flex flex-col items-end gap-1 shrink-0">
+					<div class="flex shrink-0 flex-col items-end gap-1">
 						<span
 							class="rounded px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider uppercase {done
 								? 'bg-emerald-100 text-emerald-800'
@@ -543,7 +578,9 @@
 								<div class="flex items-start justify-between gap-1">
 									<span class="text-xs font-bold text-institutional-navy">{opt.label}</span>
 									{#if opt.bonusPoints && opt.bonusPoints > 0}
-										<span class="rounded bg-amber-100 px-1 font-mono text-[9px] font-bold text-amber-800">
+										<span
+											class="rounded bg-amber-100 px-1 font-mono text-[9px] font-bold text-amber-800"
+										>
 											+{opt.bonusPoints} P.
 										</span>
 									{/if}
@@ -551,14 +588,16 @@
 								{#if opt.hint}
 									<span class="text-[11px] text-slate-500">{opt.hint}</span>
 								{/if}
-								<button
-									type="button"
-									class="mt-1 bg-institutional-navy px-3 py-1.5 text-[10px] font-black tracking-wider text-white uppercase hover:bg-slate-800 disabled:opacity-50"
-									disabled={choosing}
-									onclick={() => chooseBranch(node.id, opt.to, opt.label)}
-								>
-									Wählen
-								</button>
+								{#if !student}
+									<button
+										type="button"
+										class="mt-1 bg-institutional-navy px-3 py-1.5 text-[10px] font-black tracking-wider text-white uppercase hover:bg-slate-800 disabled:opacity-50"
+										disabled={choosing}
+										onclick={() => chooseBranch(node.id, opt.to, opt.label)}
+									>
+										Wählen
+									</button>
+								{/if}
 							</div>
 						{/each}
 					</div>
@@ -590,7 +629,7 @@
 		bind:this={viewportEl}
 		role="region"
 		aria-label="Lernpfad-Netzwerkkarte"
-		class="relative overflow-hidden border border-slate-200 bg-slate-50/60 select-none touch-none cursor-grab active:cursor-grabbing min-h-[480px] h-[calc(100vh-320px)] max-h-[820px] w-full"
+		class="relative h-[calc(100vh-320px)] max-h-[820px] min-h-[480px] w-full cursor-grab touch-none overflow-hidden border border-slate-200 bg-slate-50/60 select-none active:cursor-grabbing"
 		data-testid="path-map"
 		onpointerdown={handlePointerDown}
 		onpointermove={handlePointerMove}
@@ -654,14 +693,31 @@
 							stroke-dasharray={done || required ? undefined : '6 5'}
 							marker-end="url(#{done ? 'arrow-done' : 'arrow-open'})"
 						/>
-						{#if edge.condition}
+						{#if edge.condition && (student || auth.user?.role === 'ADMIN')}
+							<!-- Bedingungen sieht nur die Lehrkraft in der Vorschau – niemand soll sich bloßgestellt fühlen -->
 							{@const cBadge = conditionBadge(edge.condition)}
 							{#if cBadge}
 								{@const midX = (from.x + to.x) / 2 + NODE_W / 2}
 								{@const midY = (from.y + to.y) / 2 + NODE_H / 2 - 12}
 								<g transform="translate({midX}, {midY})">
-									<rect x="-46" y="-9" width="92" height="18" rx="4" class="fill-white stroke-slate-300 shadow-sm" stroke-width="1" />
-									<text x="0" y="3" text-anchor="middle" font-size="8.5" font-family="sans-serif" font-weight="bold" class="fill-slate-700 pointer-events-none">{cBadge}</text>
+									<rect
+										x="-46"
+										y="-9"
+										width="92"
+										height="18"
+										rx="4"
+										class="fill-white stroke-slate-300 shadow-sm"
+										stroke-width="1"
+									/>
+									<text
+										x="0"
+										y="3"
+										text-anchor="middle"
+										font-size="8.5"
+										font-family="sans-serif"
+										font-weight="bold"
+										class="pointer-events-none fill-slate-700">{cBadge}</text
+									>
 								</g>
 							{/if}
 						{/if}
@@ -677,21 +733,30 @@
 						<button
 							type="button"
 							onclick={() => (activeGateNode = node)}
-							class="absolute flex flex-col items-center justify-center gap-1 rounded-full border-2 px-4 text-center transition-all border-amber-500 bg-amber-50/80 hover:shadow-md cursor-pointer ring-2 ring-amber-400/50"
+							class="absolute flex cursor-pointer flex-col items-center justify-center gap-1 rounded-full border-2 border-amber-500 bg-amber-50/80 px-4 text-center ring-2 ring-amber-400/50 transition-all hover:shadow-md"
 							{style}
 							title={node.reason ?? 'Punkte-Tor Details'}
 						>
 							<span class="text-lg">
 								{node.state === 'DONE' ? '🏆' : '🚪'}
 							</span>
-							<span class="text-xs font-black tracking-wide text-institutional-navy uppercase truncate max-w-full">
+							<span
+								class="max-w-full truncate text-xs font-black tracking-wide text-institutional-navy uppercase"
+							>
 								{node.label}
 							</span>
 							{#if node.gateProgress}
-								<div class="flex items-center gap-1 font-mono text-[9px] font-bold {node.gateProgress.satisfied ? 'text-emerald-700' : 'text-amber-800'}">
+								<div
+									class="flex items-center gap-1 font-mono text-[9px] font-bold {node.gateProgress
+										.satisfied
+										? 'text-emerald-700'
+										: 'text-amber-800'}"
+								>
 									<span>{node.gateProgress.percent}% / {node.requirement?.minPercent}%</span>
 									{#if node.gateProgress.missingPoints > 0}
-										<span class="text-[8px] bg-amber-200 px-1 rounded">-{node.gateProgress.missingPoints}P</span>
+										<span class="rounded bg-amber-200 px-1 text-[8px]"
+											>-{node.gateProgress.missingPoints}P</span
+										>
 									{/if}
 								</div>
 							{/if}
@@ -710,7 +775,9 @@
 							<span class="text-lg">
 								{node.state === 'DONE' ? '🏆' : node.state === 'BLOCKED' ? '🔒' : '🏁'}
 							</span>
-							<span class="text-xs font-black tracking-wide text-institutional-navy uppercase truncate max-w-full">
+							<span
+								class="max-w-full truncate text-xs font-black tracking-wide text-institutional-navy uppercase"
+							>
 								{node.label}
 							</span>
 						</div>
@@ -720,7 +787,7 @@
 						class="absolute flex flex-col justify-between border-2 p-3 {node.state === 'DONE'
 							? 'border-emerald-400 bg-emerald-50'
 							: node.state === 'AVAILABLE'
-								? 'border-institutional-navy bg-white ring-4 ring-institutional-gold/40 shadow-md'
+								? 'border-institutional-navy bg-white shadow-md ring-4 ring-institutional-gold/40'
 								: 'border-amber-300 bg-amber-50/50'}"
 						{style}
 						title={node.reason ?? undefined}
@@ -728,7 +795,9 @@
 					>
 						<div class="flex items-center gap-2">
 							<span class="text-xl leading-none">{node.state === 'BLOCKED' ? '🔒' : '🔀'}</span>
-							<span class="line-clamp-2 text-xs font-black tracking-wide text-institutional-navy uppercase">
+							<span
+								class="line-clamp-2 text-xs font-black tracking-wide text-institutional-navy uppercase"
+							>
 								{node.label}
 							</span>
 						</div>
@@ -761,7 +830,9 @@
 									{node.label}
 								</span>
 							</div>
-							<span class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800">
+							<span
+								class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800"
+							>
 								+{node.points ?? 10} P.
 							</span>
 						</div>
@@ -772,7 +843,10 @@
 									? 'text-amber-700'
 									: 'text-slate-400'}"
 							>
-								{node.reason ?? (node.state === 'DONE' ? `+${node.points ?? 10} erhalten` : STATE_LABELS[node.state])}
+								{node.reason ??
+									(node.state === 'DONE'
+										? `+${node.points ?? 10} erhalten`
+										: STATE_LABELS[node.state])}
 							</span>
 						</div>
 					</div>
@@ -795,7 +869,9 @@
 								{node.icon}
 							</span>
 							<div class="min-w-0">
-								<span class="block truncate text-xs font-black tracking-wide text-institutional-navy uppercase">
+								<span
+									class="block truncate text-xs font-black tracking-wide text-institutional-navy uppercase"
+								>
 									{node.label}
 								</span>
 								<span class="block font-mono text-[10px] font-bold text-slate-600">
@@ -820,9 +896,9 @@
 						onclick={canOpen ? () => openSubpath(node.path!) : undefined}
 						class="absolute flex flex-col justify-between border-2 p-3 text-left transition-all {STATE_STYLES[
 							node.state
-						]} {canOpen ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-lg' : ''} {node.recommended
-							? 'ring-4 ring-institutional-gold/40'
-							: ''}"
+						]} {canOpen
+							? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-lg'
+							: ''} {node.recommended ? 'ring-4 ring-institutional-gold/40' : ''}"
 						{style}
 						title={node.reason ?? undefined}
 						aria-label="{node.label}: {node.state === 'EXCLUDED'
@@ -879,10 +955,12 @@
 						this={node.href ? 'a' : 'div'}
 						href={node.href ?? undefined}
 						class="absolute flex flex-col justify-between border-2 p-3 transition-all {isBoss
-							? (node.state === 'DONE' ? 'border-amber-400 bg-amber-50 shadow-sm ring-2 ring-amber-300' : 'border-purple-600 bg-purple-50/40 ring-2 ring-purple-400/40 shadow-sm')
-							: STATE_STYLES[node.state]} {node.href ? 'hover:-translate-y-0.5 hover:shadow-lg' : ''} {node.recommended
-							? 'ring-4 ring-institutional-gold/40'
-							: ''}"
+							? node.state === 'DONE'
+								? 'border-amber-400 bg-amber-50 shadow-sm ring-2 ring-amber-300'
+								: 'border-purple-600 bg-purple-50/40 shadow-sm ring-2 ring-purple-400/40'
+							: STATE_STYLES[node.state]} {node.href
+							? 'hover:-translate-y-0.5 hover:shadow-lg'
+							: ''} {node.recommended ? 'ring-4 ring-institutional-gold/40' : ''}"
 						{style}
 						title={node.reason ?? undefined}
 						aria-label="{node.label}: {node.state === 'EXCLUDED'
@@ -890,15 +968,23 @@
 							: (node.reason ?? STATE_LABELS[node.state])}"
 					>
 						{#if isBoss}
-							<div class="mb-1 flex items-center justify-between gap-1 w-full border-b border-purple-200/60 pb-1">
-								<span class="inline-flex items-center gap-1 rounded bg-amber-200/90 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-900 uppercase">
+							<div
+								class="mb-1 flex w-full items-center justify-between gap-1 border-b border-purple-200/60 pb-1"
+							>
+								<span
+									class="inline-flex items-center gap-1 rounded bg-amber-200/90 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-900 uppercase"
+								>
 									👑 Boss
 								</span>
 								{#if hasGate && node.gateProgress}
 									<button
 										type="button"
-										onclick={(e) => { e.preventDefault(); e.stopPropagation(); activeGateNode = node; }}
-										class="rounded bg-purple-100 hover:bg-purple-200 px-1.5 py-0.5 font-mono text-[9px] font-bold text-purple-900 cursor-pointer"
+										onclick={(e) => {
+											e.preventDefault();
+											e.stopPropagation();
+											activeGateNode = node;
+										}}
+										class="cursor-pointer rounded bg-purple-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-purple-900 hover:bg-purple-200"
 										title="Punkte-Details anzeigen"
 									>
 										{node.gateProgress.percent}% / {node.requirement?.minPercent}% ℹ
@@ -935,8 +1021,12 @@
 							{#if hasGate && !isBoss && node.gateProgress}
 								<button
 									type="button"
-									onclick={(e) => { e.preventDefault(); e.stopPropagation(); activeGateNode = node; }}
-									class="shrink-0 rounded bg-amber-100 hover:bg-amber-200 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-900 cursor-pointer"
+									onclick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										activeGateNode = node;
+									}}
+									class="shrink-0 cursor-pointer rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-900 hover:bg-amber-200"
 									title="Punkte-Details anzeigen"
 								>
 									{node.gateProgress.percent}% / {node.requirement?.minPercent}%
@@ -964,20 +1054,20 @@
 
 {#if activeGateNode && activeGateNode.gateProgress}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-		<div class="w-full max-w-lg rounded-lg bg-white p-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+		<div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-5 shadow-2xl">
 			<div class="flex items-start justify-between gap-3 border-b border-slate-200 pb-3">
 				<div>
 					<div class="flex items-center gap-2">
 						<span class="text-2xl">{activeGateNode.boss ? '👑' : '🚪'}</span>
 						<h3 class="text-lg font-bold text-institutional-navy">{activeGateNode.label}</h3>
 					</div>
-					<p class="font-mono text-xs text-slate-500 mt-0.5">
+					<p class="mt-0.5 font-mono text-xs text-slate-500">
 						{activeGateNode.boss ? 'Boss-Aufgabe' : 'Meilenstein-Gate'} – Freischaltung ab Punkte-Schwelle
 					</p>
 				</div>
 				<button
 					type="button"
-					class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 text-lg leading-none cursor-pointer"
+					class="cursor-pointer rounded p-1 text-lg leading-none text-slate-400 hover:bg-slate-100 hover:text-slate-600"
 					onclick={() => (activeGateNode = null)}
 					aria-label="Schließen"
 				>
@@ -986,63 +1076,96 @@
 			</div>
 
 			<div class="mt-4 space-y-4">
-				<div class="rounded-lg bg-slate-50 p-3 border border-slate-200">
-					<div class="flex items-center justify-between text-xs font-mono font-bold">
+				<div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+					<div class="flex items-center justify-between font-mono text-xs font-bold">
 						<span class="text-slate-700">Fortschritt</span>
-						<span class="{activeGateNode.gateProgress.satisfied ? 'text-emerald-700' : 'text-amber-800'}">
-							{activeGateNode.gateProgress.percent} % / Mind. {activeGateNode.requirement?.minPercent} %
+						<span
+							class={activeGateNode.gateProgress.satisfied ? 'text-emerald-700' : 'text-amber-800'}
+						>
+							{activeGateNode.gateProgress.percent} % / Mind. {activeGateNode.requirement
+								?.minPercent} %
 						</span>
 					</div>
-					<div class="mt-2 h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
+					<div class="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
 						<div
-							class="h-full {activeGateNode.gateProgress.satisfied ? 'bg-emerald-500' : 'bg-amber-500'} transition-all"
+							class="h-full {activeGateNode.gateProgress.satisfied
+								? 'bg-emerald-500'
+								: 'bg-amber-500'} transition-all"
 							style="width: {Math.min(100, activeGateNode.gateProgress.percent)}%"
 						></div>
 					</div>
 					<div class="mt-2 flex items-center justify-between text-xs text-slate-600">
-						<span>Punkte im Bereich: <strong>{activeGateNode.gateProgress.earnedPoints} von {activeGateNode.gateProgress.maxPoints} P.</strong></span>
+						<span
+							>Punkte im Bereich: <strong
+								>{activeGateNode.gateProgress.earnedPoints} von {activeGateNode.gateProgress
+									.maxPoints} P.</strong
+							></span
+						>
 						{#if activeGateNode.gateProgress.missingPoints > 0}
-							<span class="font-bold text-amber-700">Noch {activeGateNode.gateProgress.missingPoints} P. fehlen</span>
+							<span class="font-bold text-amber-700"
+								>Noch {activeGateNode.gateProgress.missingPoints} P. fehlen</span
+							>
 						{/if}
 					</div>
 				</div>
 
 				{#if activeGateNode.gateProgress.satisfied}
-					<div class="rounded-md bg-emerald-50 border border-emerald-300 p-3 text-xs text-emerald-800">
-						<strong>✔ Freigeschaltet:</strong> Die Punkte-Schwelle wurde erreicht. Einmal freigeschaltet bleibt diese Station offen.
+					<div
+						class="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-800"
+					>
+						<strong>✔ Freigeschaltet:</strong> Die Punkte-Schwelle wurde erreicht. Einmal freigeschaltet
+						bleibt diese Station offen.
 					</div>
 				{:else if activeGateNode.gateProgress.unreachable}
-					<div class="rounded-md bg-rose-50 border border-rose-300 p-3 text-xs text-rose-800">
+					<div class="rounded-md border border-rose-300 bg-rose-50 p-3 text-xs text-rose-800">
 						<strong>⚠ Schwelle unerreichbar:</strong>
 						<p class="mt-1">
-							Selbst wenn alle verbleibenden Aufgaben gelöst werden, können höchstens {activeGateNode.gateProgress.earnedPoints + (activeGateNode.gateProgress.openTasks?.reduce((acc, t) => acc + t.potentialPoints, 0) ?? 0)} Punkte erreicht werden ({activeGateNode.gateProgress.percent} % erreicht, gefordert: {activeGateNode.requirement?.minPercent} %).
+							Selbst wenn alle verbleibenden Aufgaben gelöst werden, können höchstens {activeGateNode
+								.gateProgress.earnedPoints +
+								(activeGateNode.gateProgress.openTasks?.reduce(
+									(acc, t) => acc + t.potentialPoints,
+									0
+								) ?? 0)} Punkte erreicht werden ({activeGateNode.gateProgress.percent} % erreicht, gefordert:
+							{activeGateNode.requirement?.minPercent} %).
 						</p>
 						{#if activeGateNode.requirement?.fallback === 'TEACHER'}
-							<p class="mt-2 font-bold">Wende dich an deine Lehrkraft, um diesen Pfad freizuschalten.</p>
+							<p class="mt-2 font-bold">
+								Wende dich an deine Lehrkraft, um diesen Pfad freizuschalten.
+							</p>
 						{:else if activeGateNode.requirement?.fallback === 'OPEN'}
-							<p class="mt-2 font-bold">Rückfall-Regel: Das Tor öffnet sich automatisch als Notfall-Öffnung.</p>
+							<p class="mt-2 font-bold">
+								Rückfall-Regel: Das Tor öffnet sich automatisch als Notfall-Öffnung.
+							</p>
 						{:else if activeGateNode.requirement?.fallback === 'REMEDIAL'}
-							<p class="mt-2 font-bold">Rückfall-Regel: Schließe die Stützaufgabe ab, um dieses Tor zu öffnen.</p>
+							<p class="mt-2 font-bold">
+								Rückfall-Regel: Schließe die Stützaufgabe ab, um dieses Tor zu öffnen.
+							</p>
 						{/if}
 					</div>
 				{:else}
-					<div class="rounded-md bg-amber-50 border border-amber-300 p-3 text-xs text-amber-800">
+					<div class="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
 						Noch {activeGateNode.gateProgress.missingPoints} Punkte fehlen bis zur Freischaltung.
 					</div>
 				{/if}
 
 				<div>
-					<h4 class="text-xs font-black uppercase text-institutional-navy mb-2">Hier kannst du noch Punkte holen:</h4>
+					<h4 class="mb-2 text-xs font-black text-institutional-navy uppercase">
+						Hier kannst du noch Punkte holen:
+					</h4>
 					{#if activeGateNode.gateProgress.openTasks && activeGateNode.gateProgress.openTasks.length > 0}
-						<ul class="space-y-2 max-h-56 overflow-y-auto pr-1">
+						<ul class="max-h-56 space-y-2 overflow-y-auto pr-1">
 							{#each activeGateNode.gateProgress.openTasks as t}
-								<li class="flex items-center justify-between gap-3 p-2.5 rounded border border-slate-200 bg-slate-50 hover:bg-white transition-colors">
+								<li
+									class="flex items-center justify-between gap-3 rounded border border-slate-200 bg-slate-50 p-2.5 transition-colors hover:bg-white"
+								>
 									<div class="min-w-0">
-										<p class="font-bold text-xs text-slate-800 truncate">{t.title}</p>
-										<p class="text-[10px] text-slate-500 font-mono">Modul: {t.moduleSlug}</p>
+										<p class="truncate text-xs font-bold text-slate-800">{t.title}</p>
+										<p class="font-mono text-[10px] text-slate-500">Modul: {t.moduleSlug}</p>
 									</div>
-									<div class="flex items-center gap-2 shrink-0">
-										<span class="rounded bg-amber-100 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-800">
+									<div class="flex shrink-0 items-center gap-2">
+										<span
+											class="rounded bg-amber-100 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-800"
+										>
 											+{t.potentialPoints} P.
 										</span>
 										<a
@@ -1056,16 +1179,18 @@
 							{/each}
 						</ul>
 					{:else}
-						<p class="text-xs text-slate-500 italic p-2 border border-dashed border-slate-200 rounded">
+						<p
+							class="rounded border border-dashed border-slate-200 p-2 text-xs text-slate-500 italic"
+						>
 							Keine weiteren offenen Aufgaben im Punkte-Bereich verfügbar.
 						</p>
 					{/if}
 				</div>
 
-				<div class="flex justify-end pt-2 border-t border-slate-200">
+				<div class="flex justify-end border-t border-slate-200 pt-2">
 					<button
 						type="button"
-						class="bg-slate-200 hover:bg-slate-300 px-4 py-1.5 text-xs font-bold text-slate-800 rounded uppercase tracking-wider cursor-pointer"
+						class="cursor-pointer rounded bg-slate-200 px-4 py-1.5 text-xs font-bold tracking-wider text-slate-800 uppercase hover:bg-slate-300"
 						onclick={() => (activeGateNode = null)}
 					>
 						Schließen

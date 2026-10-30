@@ -53,6 +53,8 @@
 	);
 
 	async function load() {
+		blockedReason = '';
+		error = '';
 		try {
 			task = await api<TaskDetail>(base);
 			renderKey++;
