@@ -13,6 +13,8 @@ export default defineConfig({
 		}
 	},
 	ssr: { noExternal: ['clsx'] },
+	// Der Texteditor für Praxisabgaben (TipTap/ProseMirror) ist ein eigener, nur bei Bedarf geladener Chunk
+	build: { chunkSizeWarningLimit: 700 },
 	test: {
 		include: ['src/**/*.test.ts']
 	}

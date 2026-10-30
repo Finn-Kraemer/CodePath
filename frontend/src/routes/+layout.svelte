@@ -308,6 +308,8 @@
 							<!-- Mobile Menu Toggle -->
 							<button
 								class="flex h-10 w-10 flex-col items-center justify-center gap-1.5 lg:hidden"
+								aria-label="Menü"
+								aria-expanded={mobileMenuOpen}
 								onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
 							>
 								<span
@@ -446,6 +448,7 @@
 					</div>
 				</div>
 				<button
+					aria-label="Mitteilung schließen"
 					onclick={() => (announcement = null)}
 					class="p-2 text-white/40 transition-colors hover:text-white"
 				>

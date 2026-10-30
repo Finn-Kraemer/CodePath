@@ -112,6 +112,7 @@
 								<td class="px-8 py-5 text-right">
 									<a
 										href={`/admin/students/${student.username}`}
+										aria-label="Teilnehmer-Akte von {student.username} öffnen"
 										class="block translate-x-2 transform opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100"
 									>
 										<svg

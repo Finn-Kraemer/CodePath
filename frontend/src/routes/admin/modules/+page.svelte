@@ -170,11 +170,13 @@
 
 					<div class="space-y-4 bg-slate-50/50 p-8">
 						<label
+							for="deadline-{mod.slug}"
 							class="block font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
 							>End-Uhrzeit (Heute)</label
 						>
 						<div class="flex gap-2">
 							<input
+								id="deadline-{mod.slug}"
 								type="time"
 								value={mod.availableUntil ? formatTime(mod.availableUntil) : ''}
 								onchange={(e) => setDeadline(mod, e.currentTarget.value)}

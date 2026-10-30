@@ -892,6 +892,7 @@
 					{@const canOpen = !!node.path && !!node.href}
 					<svelte:element
 						this={canOpen ? 'button' : 'div'}
+						role={canOpen ? 'button' : 'group'}
 						type={canOpen ? 'button' : undefined}
 						onclick={canOpen ? () => openSubpath(node.path!) : undefined}
 						class="absolute flex flex-col justify-between border-2 p-3 text-left transition-all {STATE_STYLES[

@@ -78,10 +78,12 @@
 		<div class="space-y-10 border border-slate-200 bg-white p-12 shadow-sm">
 			<div class="space-y-4">
 				<label
+					for="announcement-content"
 					class="font-sans text-[10px] font-black tracking-[4px] text-institutional-navy uppercase"
 					>Inhalt der Mitteilung</label
 				>
 				<textarea
+					id="announcement-content"
 					bind:value={announcement}
 					placeholder="Wichtige System-Meldung verfassen..."
 					class="h-64 w-full resize-none rounded-none border border-slate-200 bg-slate-50 p-6 font-sans text-sm text-slate-700 transition-all focus:border-institutional-navy focus:outline-none"
@@ -89,11 +91,16 @@
 			</div>
 
 			<div class="space-y-4">
-				<label
-					class="font-sans text-[10px] font-black tracking-[4px] text-institutional-navy uppercase"
-					>Anzeigeort wählen</label
+				<span
+					id="announcement-mode"
+					class="block font-sans text-[10px] font-black tracking-[4px] text-institutional-navy uppercase"
+					>Anzeigeort wählen</span
 				>
-				<div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+				<div
+					class="grid grid-cols-1 gap-3 sm:grid-cols-3"
+					role="group"
+					aria-labelledby="announcement-mode"
+				>
 					{#each ['HEADER', 'INFO_PAGE', 'BOTH'] as mode (mode)}
 						<button
 							onclick={() => (displayMode = mode)}
