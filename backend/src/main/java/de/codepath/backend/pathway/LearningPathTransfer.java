@@ -28,7 +28,7 @@ public class LearningPathTransfer implements TransferSection {
 
     public record PathExport(String slug, String title, String description, Boolean published,
                              Boolean enforce, Boolean templateOnly, Boolean lockOthers, String unlockRestAfter,
-                             PathGraph.Graph graph) {
+                             Boolean hideOverview, PathGraph.Graph graph) {
     }
 
     private final LearningPathRepository repository;
@@ -84,7 +84,8 @@ public class LearningPathTransfer implements TransferSection {
                 .map(bySlug::get)
                 .filter(Objects::nonNull)
                 .map(p -> new PathExport(p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(),
-                        p.isEnforce(), p.isTemplateOnly(), p.isLockOthers(), p.getUnlockRestAfter(), graphs.get(p.getSlug())))
+                        p.isEnforce(), p.isTemplateOnly(), p.isLockOthers(), p.getUnlockRestAfter(), p.isHideOverview(),
+                        graphs.get(p.getSlug())))
                 .toList();
         return objectMapper.valueToTree(paths);
     }
@@ -163,11 +164,13 @@ public class LearningPathTransfer implements TransferSection {
         boolean enforce = Boolean.TRUE.equals(in.enforce());
         boolean templateOnly = Boolean.TRUE.equals(in.templateOnly());
         boolean lockOthers = Boolean.TRUE.equals(in.lockOthers());
+        boolean hideOverview = Boolean.TRUE.equals(in.hideOverview());
         Optional<LearningPath> existing = repository.findBySlug(slug);
         LearningPath path = existing.orElseGet(LearningPath::new);
         if (existing.isPresent() && title.equals(path.getTitle()) && description.equals(path.getDescription())
                 && published == path.isPublished() && enforce == path.isEnforce()
                 && templateOnly == path.isTemplateOnly() && lockOthers == path.isLockOthers()
+                && hideOverview == path.isHideOverview()
                 && Objects.equals(unlockRestAfter, path.getUnlockRestAfter())
                 && service.read(path.getGraph()).equals(service.read(graph))) {
             return TransferItem.Action.UNCHANGED;
@@ -182,6 +185,7 @@ public class LearningPathTransfer implements TransferSection {
         path.setEnforce(enforce);
         path.setTemplateOnly(templateOnly);
         path.setLockOthers(lockOthers);
+        path.setHideOverview(hideOverview);
         path.setUnlockRestAfter(unlockRestAfter);
         path.setGraph(graph);
         service.validateSingleEnforced(path);

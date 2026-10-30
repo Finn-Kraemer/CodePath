@@ -42,6 +42,7 @@
 		published: false,
 		enforce: false,
 		templateOnly: false,
+		hideOverview: false,
 		courseId: 0,
 		lockOthers: false,
 		unlockRestAfter: ''
@@ -99,6 +100,7 @@
 					published: saved.published,
 					enforce: saved.enforce ?? false,
 					templateOnly: saved.templateOnly ?? false,
+					hideOverview: saved.hideOverview ?? false,
 					courseId: saved.courseId ?? 0,
 					lockOthers: saved.lockOthers,
 					unlockRestAfter: saved.unlockRestAfter ?? '',
@@ -209,6 +211,7 @@
 			published: path.published,
 			enforce: path.enforce ?? false,
 			templateOnly: path.templateOnly ?? false,
+			hideOverview: path.hideOverview ?? false,
 			courseId: path.courseId ?? 0,
 			lockOthers: path.lockOthers,
 			unlockRestAfter: path.unlockRestAfter ?? ''
@@ -295,6 +298,9 @@
 
 	function toggleEnforce(checked: boolean) {
 		form.enforce = checked;
+		if (!checked) {
+			form.hideOverview = false;
+		}
 		if (checked && edges.length > 0 && edges.every((e) => !e.required)) {
 			edges = edges.map((e) => ({ ...e, required: true }));
 		}
@@ -761,6 +767,16 @@
 						checked={form.enforce}
 						onchange={(e) => toggleEnforce((e.currentTarget as HTMLInputElement).checked)}
 					/> Verbindlich (Pflicht-Vorgänger müssen erledigt sein)</label
+				>
+				<label
+					class="flex items-center gap-2 text-sm font-semibold {form.enforce
+						? 'text-sky-900'
+						: 'text-slate-400'}"
+					><input
+						type="checkbox"
+						bind:checked={form.hideOverview}
+						disabled={!form.enforce}
+					/> Gesamtübersicht für Schüler ausblenden (Fokus-Modus)</label
 				>
 				<label class="flex items-center gap-2 text-sm text-violet-900"
 					><input type="checkbox" bind:checked={form.templateOnly} /> Nur als Baustein (nicht einzeln

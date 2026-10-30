@@ -12,6 +12,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { siteNavigation } from '$lib/site/navigation.svelte';
+	import { pathFocus } from '$lib/pathway/focus.svelte';
 
 	let { children } = $props();
 	let announcement = $state<{ content: string; updatedAt?: string; displayMode?: string } | null>(
@@ -53,15 +54,22 @@
 		if (auth.isAuthenticated) {
 			realtime.connect();
 			try {
-				const res = await auth.apiFetch('/api/common/announcement');
+				const [res, pathsRes] = await Promise.all([
+					auth.apiFetch('/api/common/announcement'),
+					auth.apiFetch('/api/learning-paths')
+				]);
 				if (res.ok) {
 					const data = await res.json();
 					if (data.content && (data.displayMode === 'HEADER' || data.displayMode === 'BOTH')) {
 						announcement = data;
 					}
 				}
+				if (pathsRes.ok) {
+					const links: { hideOverview?: boolean }[] = await pathsRes.json();
+					pathFocus.set(links.some((l) => !!l.hideOverview));
+				}
 			} catch (e) {
-				console.error('Failed to fetch announcement', e);
+				console.error('Failed to fetch announcement or paths', e);
 			}
 		}
 	});
@@ -88,13 +96,16 @@
 		return page.url.pathname.startsWith(path);
 	}
 
-	const navLinks = [
-		{ name: 'Module', path: '/modules' },
+	const navLinks = $derived([
+		{
+			name: pathFocus.active && auth.user?.role !== 'ADMIN' ? 'Lernpfad' : 'Module',
+			path: '/modules'
+		},
 		{ name: 'Wissen', path: '/knowledge' },
 		{ name: 'Info', path: '/info' },
 		{ name: 'Feedback', path: '/feedback' },
 		{ name: 'Rangliste', path: '/leaderboard' }
-	];
+	]);
 
 	// Feste Menüpunkte für Angemeldete, dazu angeheftete eigene Seiten (öffentliche auch ohne Login).
 	// Alle übrigen Seiten stehen im Aufklappmenü „Seiten“ und unter /seiten.

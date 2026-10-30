@@ -2246,6 +2246,7 @@ export interface components {
 			description: string;
 			enforce: boolean;
 			graph: components['schemas']['Graph'];
+			hideOverview: boolean;
 			/** Format: int64 */
 			id: number;
 			lockOthers: boolean;
@@ -2261,6 +2262,7 @@ export interface components {
 		};
 		PathLink: {
 			description: string;
+			hideOverview: boolean;
 			slug: string;
 			title: string;
 		};
@@ -2270,6 +2272,7 @@ export interface components {
 			courseName: string;
 			description: string;
 			enforce: boolean;
+			hideOverview: boolean;
 			/** Format: int64 */
 			id: number;
 			published: boolean;
@@ -2288,6 +2291,7 @@ export interface components {
 			description: string;
 			enforce: boolean;
 			graph: components['schemas']['Graph'];
+			hideOverview: boolean;
 			lockOthers: boolean;
 			published: boolean;
 			slug: string;
@@ -2299,6 +2303,7 @@ export interface components {
 			description: string;
 			edges: components['schemas']['Edge'][];
 			enforce: boolean;
+			hideOverview: boolean;
 			nodes: components['schemas']['NodeView'][];
 			recommendation: components['schemas']['Recommendation'];
 			slug: string;

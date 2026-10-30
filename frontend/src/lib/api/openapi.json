@@ -4827,6 +4827,9 @@
           "graph" : {
             "$ref" : "#/components/schemas/Graph"
           },
+          "hideOverview" : {
+            "type" : "boolean"
+          },
           "id" : {
             "type" : "integer",
             "format" : "int64"
@@ -4866,13 +4869,16 @@
             }
           }
         },
-        "required" : [ "applied", "courseId", "courseName", "description", "enforce", "graph", "id", "lockOthers", "published", "slug", "templateOnly", "title", "unlockRestAfter", "updatedAt", "usedIn", "warnings" ]
+        "required" : [ "applied", "courseId", "courseName", "description", "enforce", "graph", "hideOverview", "id", "lockOthers", "published", "slug", "templateOnly", "title", "unlockRestAfter", "updatedAt", "usedIn", "warnings" ]
       },
       "PathLink" : {
         "type" : "object",
         "properties" : {
           "description" : {
             "type" : "string"
+          },
+          "hideOverview" : {
+            "type" : "boolean"
           },
           "slug" : {
             "type" : "string"
@@ -4881,7 +4887,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "slug", "title" ]
+        "required" : [ "description", "hideOverview", "slug", "title" ]
       },
       "PathSummary" : {
         "type" : "object",
@@ -4897,6 +4903,9 @@
             "type" : "string"
           },
           "enforce" : {
+            "type" : "boolean"
+          },
+          "hideOverview" : {
             "type" : "boolean"
           },
           "id" : {
@@ -4930,7 +4939,7 @@
             }
           }
         },
-        "required" : [ "courseId", "courseName", "description", "enforce", "id", "published", "slug", "stations", "templateOnly", "title", "updatedAt", "usedIn" ]
+        "required" : [ "courseId", "courseName", "description", "enforce", "hideOverview", "id", "published", "slug", "stations", "templateOnly", "title", "updatedAt", "usedIn" ]
       },
       "PathUpdate" : {
         "type" : "object",
@@ -4947,6 +4956,9 @@
           },
           "graph" : {
             "$ref" : "#/components/schemas/Graph"
+          },
+          "hideOverview" : {
+            "type" : "boolean"
           },
           "lockOthers" : {
             "type" : "boolean"
@@ -4967,7 +4979,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "courseId", "description", "enforce", "graph", "lockOthers", "published", "slug", "templateOnly", "title", "unlockRestAfter" ]
+        "required" : [ "courseId", "description", "enforce", "graph", "hideOverview", "lockOthers", "published", "slug", "templateOnly", "title", "unlockRestAfter" ]
       },
       "PathView" : {
         "type" : "object",
@@ -4982,6 +4994,9 @@
             }
           },
           "enforce" : {
+            "type" : "boolean"
+          },
+          "hideOverview" : {
             "type" : "boolean"
           },
           "nodes" : {
@@ -5008,7 +5023,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "edges", "enforce", "nodes", "recommendation", "slug", "stations", "stationsDone", "title" ]
+        "required" : [ "description", "edges", "enforce", "hideOverview", "nodes", "recommendation", "slug", "stations", "stationsDone", "title" ]
       },
       "Profile" : {
         "type" : "object",

@@ -75,6 +75,7 @@ class TransferTest extends IntegrationTestBase {
         orGate.put("min", 2);
         putAs(teacher(), "/api/admin/learning-paths/" + pathId, Map.of(
                 "enforce", true,
+                "hideOverview", true,
                 "unlockRestAfter", "m3",
                 "graph", Map.of(
                         "nodes", List.of(
@@ -101,6 +102,7 @@ class TransferTest extends IntegrationTestBase {
         assertEquals("db-baustein", manifest.at("/sections/learningPaths/0/slug").asString());
         assertTrue(manifest.at("/sections/learningPaths/0/templateOnly").asBoolean());
         assertTrue(manifest.at("/sections/learningPaths/1/enforce").asBoolean());
+        assertTrue(manifest.at("/sections/learningPaths/1/hideOverview").asBoolean());
         assertEquals("m3", manifest.at("/sections/learningPaths/1/unlockRestAfter").asString());
         assertEquals("CHOICE", manifest.at("/sections/learningPaths/1/graph/nodes/0/kind").asString());
         assertEquals("PATH", manifest.at("/sections/learningPaths/1/graph/nodes/2/kind").asString());
@@ -120,6 +122,7 @@ class TransferTest extends IntegrationTestBase {
         assertEquals("CodePath-Export (ZIP)", report.get("detected").asString());
         assertEquals(List.of("anfahrt:CREATED"), actions(report, "Seiten"));
         assertEquals(List.of("db-baustein:CREATED", "standard:CREATED"), actions(report, "Lernpfade"));
+        assertTrue(jdbc.queryForObject("select hide_overview from learning_paths where slug = 'standard'", Boolean.class));
         assertTrue(actions(report, "Wissensdatenbank").contains("transfer-test:UPDATED"));
         assertTrue(actions(report, "Module").stream().allMatch(a -> a.endsWith(":UNCHANGED")));
         assertTrue(actions(report, "Aufgaben").stream().allMatch(a -> a.endsWith(":UNCHANGED")));

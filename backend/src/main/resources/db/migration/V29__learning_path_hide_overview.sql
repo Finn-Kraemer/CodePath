@@ -1,0 +1,1 @@
+ALTER TABLE learning_paths ADD COLUMN hide_overview BOOLEAN NOT NULL DEFAULT FALSE;

@@ -52,6 +52,10 @@ public class LearningPath {
     @Column(name = "template_only", nullable = false)
     private boolean templateOnly;
 
+    /** Fokus-Modus: Schüler sehen nur den Lernpfad; Modul-Kacheln und Liste sind ausgeblendet */
+    @Column(name = "hide_overview", nullable = false)
+    private boolean hideOverview;
+
     @Column(nullable = false)
     private int position;
 

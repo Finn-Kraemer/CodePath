@@ -96,13 +96,13 @@ public class LearningPathService implements PathGate {
 
     /** courseId/courseName: Kurs, für den der Lernpfad gilt; null für alle Kurse */
     public record PathSummary(Long id, String slug, String title, String description, boolean published,
-                              boolean enforce, boolean templateOnly, int stations, Long courseId, String courseName,
+                              boolean enforce, boolean templateOnly, boolean hideOverview, int stations, Long courseId, String courseName,
                               List<String> usedIn, LocalDateTime updatedAt) {
     }
 
     /** applied: was beim Speichern in die Modul-Steuerung des Kurses übernommen wurde */
     public record PathAdmin(Long id, String slug, String title, String description, boolean published,
-                            boolean enforce, boolean templateOnly, PathGraph.Graph graph, Long courseId, String courseName,
+                            boolean enforce, boolean templateOnly, boolean hideOverview, PathGraph.Graph graph, Long courseId, String courseName,
                             boolean lockOthers, String unlockRestAfter, List<String> usedIn, List<String> applied,
                             List<String> warnings, LocalDateTime updatedAt) {
     }
@@ -114,11 +114,11 @@ public class LearningPathService implements PathGate {
      * @param unlockRestAfter Station-ID oder leerer String zum Aufheben
      */
     public record PathUpdate(String title, String slug, String description, Boolean published, Boolean enforce,
-                             Boolean templateOnly, PathGraph.Graph graph, Long courseId, Boolean lockOthers,
+                             Boolean templateOnly, Boolean hideOverview, PathGraph.Graph graph, Long courseId, Boolean lockOthers,
                              String unlockRestAfter) {
     }
 
-    public record PathLink(String slug, String title, String description) {
+    public record PathLink(String slug, String title, String description, boolean hideOverview) {
     }
 
     /** href: Ziel beim Anklicken, null bei gesperrten/blockierten Stationen, Meilensteinen, Weichen, Logik-Blöcken und Bonus-Stationen */
@@ -128,7 +128,7 @@ public class LearningPathService implements PathGate {
                            Integer points) {
     }
 
-    public record PathView(String slug, String title, String description, boolean enforce,
+    public record PathView(String slug, String title, String description, boolean enforce, boolean hideOverview,
                            List<NodeView> nodes, List<PathGraph.Edge> edges,
                            int stationsDone, int stations, Recommendation recommendation) {
     }
@@ -190,6 +190,7 @@ public class LearningPathService implements PathGate {
         if (update.published() != null) path.setPublished(update.published());
         if (update.enforce() != null) path.setEnforce(update.enforce());
         if (update.templateOnly() != null) path.setTemplateOnly(update.templateOnly());
+        if (update.hideOverview() != null) path.setHideOverview(update.hideOverview());
         if (update.courseId() != null) path.setCourseId(update.courseId() <= 0 ? null : courseService.get(update.courseId()).getId());
         if (update.lockOthers() != null) path.setLockOthers(update.lockOthers());
         if (update.unlockRestAfter() != null) {
@@ -423,7 +424,12 @@ public class LearningPathService implements PathGate {
     /** Veröffentlichte Lernpfade dieser Person: zuerst die ihres Kurses, dann die für alle Kurse. */
     @Transactional(readOnly = true)
     public List<PathLink> published(User user) {
-        return publishedFor(user).stream().map(p -> new PathLink(p.getSlug(), p.getTitle(), p.getDescription())).toList();
+        Optional<LearningPath> focus = activeFocusPath(user);
+        if (focus.isPresent()) {
+            LearningPath p = focus.get();
+            return List.of(new PathLink(p.getSlug(), p.getTitle(), p.getDescription(), true));
+        }
+        return publishedFor(user).stream().map(p -> new PathLink(p.getSlug(), p.getTitle(), p.getDescription(), p.isHideOverview())).toList();
     }
 
     private List<LearningPath> publishedFor(User user) {
@@ -439,15 +445,32 @@ public class LearningPathService implements PathGate {
 
     private Optional<LearningPath> enforcedFor(User user) {
         if (user.isTeacher()) return Optional.empty();
-        Long courseId = userService.courseOf(user.getId()).filter(Course::isActive).map(Course::getId).orElse(null);
-        if (courseId == null) return Optional.empty();
+        Optional<Course> course = userService.courseOf(user.getId()).filter(Course::isActive);
+        Long courseId = course.map(Course::getId).orElse(null);
         return repository.findAllByOrderByPositionAscIdAsc().stream()
                 .filter(LearningPath::isPublished)
                 .filter(p -> !p.isTemplateOnly())
                 .filter(LearningPath::isEnforce)
-                .filter(p -> p.getCourseId() == null || p.getCourseId().equals(courseId))
+                .filter(p -> p.getCourseId() == null || (courseId != null && courseId.equals(p.getCourseId())))
                 .sorted(Comparator.comparing((LearningPath p) -> p.getCourseId() == null))
                 .findFirst();
+    }
+
+    private Optional<LearningPath> activeFocusPath(User user) {
+        if (user.isTeacher()) return Optional.empty();
+        Optional<LearningPath> enforcedOpt = enforcedFor(user);
+        if (enforcedOpt.isEmpty()) return Optional.empty();
+        LearningPath path = enforcedOpt.get();
+        if (!path.isHideOverview()) return Optional.empty();
+        String unlockAfter = path.getUnlockRestAfter();
+        if (unlockAfter != null && !unlockAfter.isBlank()) {
+            Situation situation = new Situation(user, accessPolicy.courseReleases(user));
+            EvaluatedPath eval = evaluate(path, situation, true, 0);
+            if (eval.clear().contains(unlockAfter)) {
+                return Optional.empty();
+            }
+        }
+        return Optional.of(path);
     }
 
     /** Karte mit Stand; nicht veröffentlichte Lernpfade und die anderer Kurse sieht nur die Lehrkraft (Vorschau). */
@@ -482,6 +505,22 @@ public class LearningPathService implements PathGate {
     private ResolvedPath resolveAccessiblePath(User actor, User target, String slug, Situation situation) {
         LearningPath targetPath = repository.findBySlug(slug)
                 .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+        Optional<LearningPath> focus = activeFocusPath(target);
+        if (focus.isPresent() && !actor.isTeacher()) {
+            LearningPath focusPath = focus.get();
+            if (focusPath.getId().equals(targetPath.getId())) {
+                return new ResolvedPath(targetPath, true, true);
+            }
+            EvaluatedPath focusEval = evaluate(focusPath, situation, true, 0);
+            SubpathAccess access = findSubpathAccess(focusEval, slug, true);
+            if (access != null && access.accessible()) {
+                return new ResolvedPath(targetPath, true, true);
+            }
+            if (access != null && !access.accessible()) {
+                throw ApiException.forbidden(access.reason() != null ? access.reason() : "Dieser Lernpfad-Baustein ist noch nicht freigeschaltet.");
+            }
+            throw ApiException.forbidden("Im Fokus-Modus ist nur der aktuelle Lernpfad sichtbar.");
+        }
         List<LearningPath> published = publishedFor(target);
         boolean directPublished = published.stream().anyMatch(q -> q.getId().equals(targetPath.getId()));
 
@@ -625,7 +664,7 @@ public class LearningPathService implements PathGate {
         Situation situation = new Situation(student, accessPolicy.courseReleases(student));
         List<LearningPath> published = publishedFor(student);
         List<PathLink> links = new ArrayList<>(published.stream()
-                .map(p -> new PathLink(p.getSlug(), p.getTitle(), p.getDescription()))
+                .map(p -> new PathLink(p.getSlug(), p.getTitle(), p.getDescription(), p.isHideOverview()))
                 .toList());
         LearningPath selected = null;
         if (requestedSlug != null && !requestedSlug.isBlank()) {
@@ -633,7 +672,7 @@ public class LearningPathService implements PathGate {
                     .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
             selected = reqPath;
             if (links.stream().noneMatch(l -> l.slug().equals(reqPath.getSlug()))) {
-                links.add(new PathLink(reqPath.getSlug(), reqPath.getTitle(), reqPath.getDescription()));
+                links.add(new PathLink(reqPath.getSlug(), reqPath.getTitle(), reqPath.getDescription(), reqPath.isHideOverview()));
             }
         } else if (!published.isEmpty()) {
             selected = published.getFirst();
@@ -1185,8 +1224,11 @@ public class LearningPathService implements PathGate {
         String unlockAfter = path.getUnlockRestAfter();
         boolean hasUnlockAfter = unlockAfter != null && !unlockAfter.isBlank();
         boolean restUnlocked = hasUnlockAfter && evaluated.clear().contains(unlockAfter);
+        boolean activeHideOverview = path.isHideOverview() && !restUnlocked;
         String outsideReason;
-        if (hasUnlockAfter && !restUnlocked) {
+        if (activeHideOverview) {
+            outsideReason = "Im Fokus-Modus sind nur Stationen des Lernpfads sichtbar.";
+        } else if (hasUnlockAfter && !restUnlocked) {
             PathGraph.Node unlockNode = evaluated.nodeById().get(unlockAfter);
             outsideReason = unlockNode != null
                     ? "Erst „" + situation.label(unlockNode) + "“ abschließen."
@@ -1194,7 +1236,7 @@ public class LearningPathService implements PathGate {
         } else {
             outsideReason = "Nicht Teil des aktuellen Lernpfads.";
         }
-        boolean lockOutside = (hasUnlockAfter && !restUnlocked) || (!hasUnlockAfter && path.isLockOthers());
+        boolean lockOutside = activeHideOverview || (hasUnlockAfter && !restUnlocked) || (!hasUnlockAfter && path.isLockOthers());
 
         return new PathGate.Evaluation() {
             @Override
@@ -1650,7 +1692,11 @@ public class LearningPathService implements PathGate {
                     href, nodeDone, nodeTotal, node.id().equals(recommendedId), nodeReason, node.min(), options, chosenTo, subpathSlug,
                     unlockedNodes.contains(node.id()), node.points()));
         }
-        PathView pathView = new PathView(path.getSlug(), path.getTitle(), path.getDescription(), effectiveEnforce,
+        String unlockAfter = path.getUnlockRestAfter();
+        boolean hasUnlockAfter = unlockAfter != null && !unlockAfter.isBlank();
+        boolean restUnlocked = hasUnlockAfter && clear.contains(unlockAfter);
+        boolean activeHideOverview = effectiveEnforce && path.isHideOverview() && !restUnlocked;
+        PathView pathView = new PathView(path.getSlug(), path.getTitle(), path.getDescription(), effectiveEnforce, activeHideOverview,
                 views, edges, done, total, recommendation);
         return new EvaluatedPath(pathView, live, nodeById, states, reasons, clear, achieved, genuinelyAchieved, subpaths, nextTask);
     }
@@ -2055,7 +2101,7 @@ public class LearningPathService implements PathGate {
     private PathSummary summary(LearningPath p, List<LearningPath> allPaths, Map<String, PathGraph.Graph> graphs) {
         int stations = countStations(graphs.getOrDefault(p.getSlug(), read(p.getGraph())), graphs, new HashSet<>(), 0);
         return new PathSummary(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(),
-                p.isEnforce(), p.isTemplateOnly(), stations, p.getCourseId(), courseName(p),
+                p.isEnforce(), p.isTemplateOnly(), p.isHideOverview(), stations, p.getCourseId(), courseName(p),
                 usedInTitles(p.getSlug(), allPaths), p.getUpdatedAt());
     }
 
@@ -2079,7 +2125,7 @@ public class LearningPathService implements PathGate {
         PathGraph.Graph graph = read(p.getGraph());
         List<LearningPath> allPaths = repository.findAllByOrderByPositionAscIdAsc();
         return new PathAdmin(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(),
-                p.isEnforce(), p.isTemplateOnly(), graph, p.getCourseId(), courseName(p), p.isLockOthers(),
+                p.isEnforce(), p.isTemplateOnly(), p.isHideOverview(), graph, p.getCourseId(), courseName(p), p.isLockOthers(),
                 p.getUnlockRestAfter(), usedInTitles(p.getSlug(), allPaths), applied, warnings(p, graph), p.getUpdatedAt());
     }
 

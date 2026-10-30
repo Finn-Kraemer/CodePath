@@ -950,6 +950,94 @@ class LearningPathTest extends IntegrationTestBase {
         assertEquals(pointsBeforeUnlock, points(tim), "UNLOCK_NODE vergibt keine Bonuspunkte");
     }
 
+    @Test
+    void focusModeHidesOverviewForStudentsUntilUnlockStation() throws Exception {
+        Course course = course("10f");
+        User felix = student("felix_focus", course);
+
+        // 1. Zweiten Lernpfad anlegen, der für alle Kurse veröffentlicht ist
+        long otherId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Anderer Pfad", "slug", "anderer-pfad"))
+                .andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + otherId, Map.of(
+                "published", true,
+                "enforce", false,
+                "graph", Map.of("nodes", List.of(node("o1", "TASK", "git", "g5", null, 0)), "edges", List.of())
+        )).andExpect(status().isOk());
+
+        // 2. Fokus-Pfad für den Kurs anlegen: verbindlich, hideOverview = true, git/g1 als Station, frei ab g1
+        long focusId = body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Fokus Pfad", "slug", "fokus-pfad"))
+                .andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/learning-paths/" + focusId, Map.of(
+                "published", true,
+                "enforce", true,
+                "hideOverview", true,
+                "courseId", course.getId(),
+                "unlockRestAfter", "s1",
+                "graph", Map.of(
+                        "nodes", List.of(
+                                node("s1", "TASK", "git", "g1", null, 0),
+                                node("s2", "TASK", "git", "g3", null, 120)
+                        ),
+                        "edges", List.of(edge("s1", "s2"))
+                )
+        )).andExpect(status().isOk());
+
+        // 3. Prüfen: PathAdmin liefert hideOverview = true
+        JsonNode adminView = body(getAs(teacher(), "/api/admin/learning-paths/" + focusId));
+        assertTrue(adminView.get("hideOverview").asBoolean());
+
+        // 4. Schüler im Fokus-Modus vor Abschluss von s1
+        // a) /api/learning-paths liefert NUR den Fokus-Pfad
+        JsonNode links = body(getAs(as(felix), "/api/learning-paths"));
+        assertEquals(1, links.size());
+        assertEquals("fokus-pfad", links.get(0).get("slug").asString());
+        assertTrue(links.get(0).get("hideOverview").asBoolean());
+
+        // b) Pfad-Ansicht liefert hideOverview = true
+        JsonNode view = body(getAs(as(felix), "/api/learning-paths/fokus-pfad"));
+        assertTrue(view.get("hideOverview").asBoolean());
+
+        // c) Direktzugriff auf anderen Pfad ist für Schüler gesperrt (403 Forbidden)
+        getAs(as(felix), "/api/learning-paths/anderer-pfad").andExpect(status().isForbidden());
+
+        // d) /api/modules liefert für Schüler nur Module/Aufgaben des Pfads
+        JsonNode modules = body(getAs(as(felix), "/api/modules"));
+        assertEquals(1, modules.size());
+        assertEquals("git", modules.get(0).get("slug").asString());
+
+        // e) Modul außerhalb des Pfads (z.B. datenbanken) ist für Schüler nicht erreichbar
+        JsonNode modForbidden = body(getAs(as(felix), "/api/modules/datenbanken").andExpect(status().isForbidden()));
+        assertTrue(modForbidden.get("message").asString().contains("Fokus-Modus"));
+
+        // f) Aufgabe außerhalb des Pfads (z.B. datenbanken/db1 oder git/g5) ist für Schüler nicht erreichbar
+        getAs(as(felix), "/api/modules/datenbanken/db1").andExpect(status().isForbidden());
+        getAs(as(felix), "/api/modules/git/g5").andExpect(status().isForbidden());
+
+        // g) Lehrkraft sieht weiterhin alles
+        getAs(teacher(), "/api/modules/datenbanken").andExpect(status().isOk());
+        getAs(teacher(), "/api/learning-paths/anderer-pfad").andExpect(status().isOk());
+
+        // 5. Schüler schließt Freischalt-Station s1 (git/g1) ab
+        postAs(as(felix), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+
+        // 6. Fokus-Modus ist nun beendet ("Frei ab Station X")
+        // a) Pfad-Ansicht meldet hideOverview = false
+        view = body(getAs(as(felix), "/api/learning-paths/fokus-pfad"));
+        assertFalse(view.get("hideOverview").asBoolean());
+
+        // b) /api/learning-paths liefert wieder alle Pfade
+        links = body(getAs(as(felix), "/api/learning-paths"));
+        assertTrue(links.size() > 1);
+
+        // c) /api/modules liefert wieder alle Module
+        modules = body(getAs(as(felix), "/api/modules"));
+        assertTrue(modules.size() > 1);
+
+        // d) Modul und Pfad außerhalb sind jetzt für Schüler erreichbar
+        getAs(as(felix), "/api/modules/datenbanken").andExpect(status().isOk());
+        getAs(as(felix), "/api/learning-paths/anderer-pfad").andExpect(status().isOk());
+    }
+
     static boolean hasArticleForModule(JsonNode articles, String moduleSlug) {
         for (JsonNode a : articles) {
             if (moduleSlug.equals(a.path("moduleSlug").asString(null))) return true;
