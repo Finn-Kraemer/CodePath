@@ -15,6 +15,7 @@ import de.codepath.backend.platform.audit.AuditService;
 import de.codepath.backend.progress.ProgressService;
 import de.codepath.backend.progress.ProgressStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Lernpfade: Die Lehrkraft zeichnet eine Karte aus Modulen, Aufgaben und Meilensteinen; Schüler sehen darauf
@@ -43,9 +45,15 @@ public class LearningPathService implements PathGate {
      * Stand einer Station aus Sicht der Person: DONE erledigt, AVAILABLE als Nächstes dran (alle Vorgänger
      * erledigt), BLOCKED durch offene Pflicht-Vorgänger im verbindlichen Pfad gesperrt, UPCOMING später
      * (Empfehlungs-Vorgänger offen, trotzdem schon bearbeitbar), CLOSED Frist abgelaufen,
-     * LOCKED (noch) nicht von der Lehrkraft freigegeben.
+     * LOCKED (noch) nicht von der Lehrkraft freigegeben, EXCLUDED durch Entscheidung an einer Weiche ausgeschlossen.
      */
-    public enum NodeState { DONE, AVAILABLE, BLOCKED, UPCOMING, CLOSED, LOCKED }
+    public enum NodeState { DONE, AVAILABLE, BLOCKED, UPCOMING, CLOSED, LOCKED, EXCLUDED }
+
+    public record ChoiceOption(String to, String label, String hint, boolean chosen) {
+    }
+
+    public record ChoiceRequest(String nodeId, String to) {
+    }
 
     /** courseId/courseName: Kurs, für den der Lernpfad gilt; null für alle Kurse */
     public record PathSummary(Long id, String slug, String title, String description, boolean published,
@@ -72,9 +80,10 @@ public class LearningPathService implements PathGate {
     public record PathLink(String slug, String title, String description) {
     }
 
-    /** href: Ziel beim Anklicken, null bei gesperrten/blockierten Stationen, Meilensteinen und Logik-Blöcken */
+    /** href: Ziel beim Anklicken, null bei gesperrten/blockierten Stationen, Meilensteinen, Weichen und Logik-Blöcken */
     public record NodeView(String id, PathGraph.NodeKind kind, String label, String icon, int x, int y, NodeState state,
-                           String href, int done, int total, boolean recommended, String reason, Integer min) {
+                           String href, int done, int total, boolean recommended, String reason, Integer min,
+                           List<ChoiceOption> options, String chosenTo) {
     }
 
     public record PathView(String slug, String title, String description, boolean enforce,
@@ -88,6 +97,7 @@ public class LearningPathService implements PathGate {
     }
 
     private final LearningPathRepository repository;
+    private final LearningPathChoiceRepository choiceRepository;
     private final ContentService contentService;
     private final AccessPolicy accessPolicy;
     private final ReleaseService releaseService;
@@ -316,6 +326,65 @@ public class LearningPathService implements PathGate {
         return fallback(new Situation(user, accessPolicy.releases(user)));
     }
 
+    /**
+     * Trifft eine Entscheidung an einer Entweder-oder-Weiche ({@link PathGraph.NodeKind#CHOICE}).
+     * Die Wahl ist für Schülerinnen und Schüler verbindlich und sperrt die nicht gewählten Zweige.
+     */
+    @Transactional
+    public PathView choose(User user, String slug, String nodeId, String to) {
+        if (nodeId == null || nodeId.isBlank() || to == null || to.isBlank()) {
+            throw ApiException.badRequest("Bitte eine Weiche und einen Weg angeben.");
+        }
+        LearningPath path = repository.findBySlug(slug)
+                .filter(p -> user.isTeacher() || publishedFor(user).stream().anyMatch(q -> q.getId().equals(p.getId())))
+                .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+        String trimmedNode = nodeId.strip();
+        String trimmedTo = to.strip();
+        Situation situation = new Situation(user, accessPolicy.courseReleases(user));
+        EvaluatedPath evaluated = evaluate(path, situation);
+        PathGraph.Node choiceNode = evaluated.nodeById().get(trimmedNode);
+        if (choiceNode == null || choiceNode.kind() != PathGraph.NodeKind.CHOICE) {
+            throw ApiException.badRequest("Die Weiche „" + trimmedNode + "“ gibt es im Lernpfad nicht.");
+        }
+        boolean validEdge = evaluated.live().edges().stream()
+                .anyMatch(e -> e.from().equals(trimmedNode) && e.to().equals(trimmedTo));
+        if (!validEdge) {
+            throw ApiException.badRequest("Der gewählte Weg gehört nicht zu dieser Weiche.");
+        }
+        Optional<LearningPathChoice> existing = choiceRepository.findByUserIdAndPathIdAndNodeId(user.getId(), path.getId(), trimmedNode);
+        if (existing.isPresent()) {
+            LearningPathChoice prev = existing.get();
+            boolean prevStillValid = evaluated.live().edges().stream()
+                    .anyMatch(e -> e.from().equals(trimmedNode) && e.to().equals(prev.getChosenEdgeTo()));
+            if (prevStillValid) {
+                throw ApiException.conflict("An dieser Weiche wurde bereits ein Weg gewählt.");
+            }
+            choiceRepository.delete(prev);
+            choiceRepository.flush();
+        }
+        NodeState currentState = evaluated.states().get(trimmedNode);
+        if (currentState != NodeState.AVAILABLE) {
+            throw ApiException.forbidden("Diese Weiche ist noch nicht freigeschaltet.");
+        }
+        LearningPathChoice choice = new LearningPathChoice();
+        choice.setUserId(user.getId());
+        choice.setPathId(path.getId());
+        choice.setNodeId(trimmedNode);
+        choice.setChosenEdgeTo(trimmedTo);
+        choice.setChosenBy(user.isTeacher() ? "TEACHER" : "STUDENT");
+        choiceRepository.save(choice);
+        auditService.log("LEARNING_PATH_CHOICE_MADE", path.getSlug(), Map.of("nodeId", trimmedNode, "to", trimmedTo));
+        return evaluate(path, situation).view();
+    }
+
+    @EventListener
+    @Transactional
+    public void onCourseEnding(CourseService.CourseEndingEvent event) {
+        if (!event.userIds().isEmpty()) {
+            choiceRepository.deleteByUserIdIn(event.userIds());
+        }
+    }
+
     @Override
     @Transactional(readOnly = true)
     public PathGate.Evaluation evaluate(User user, AccessPolicy.Releases baseReleases) {
@@ -326,10 +395,12 @@ public class LearningPathService implements PathGate {
         EvaluatedPath evaluated = evaluate(path, situation);
 
         Map<String, List<PathGraph.Node>> taskNodes = new HashMap<>();
+        Map<String, List<PathGraph.Node>> moduleNodes = new HashMap<>();
         Set<String> modulesInPath = new HashSet<>();
         for (PathGraph.Node node : evaluated.live().nodes()) {
             if (!node.station()) continue;
             modulesInPath.add(node.module());
+            moduleNodes.computeIfAbsent(node.module(), k -> new ArrayList<>()).add(node);
             if (node.kind() == PathGraph.NodeKind.TASK) {
                 taskNodes.computeIfAbsent(node.module() + "/" + node.task(), k -> new ArrayList<>()).add(node);
             } else if (node.partial()) {
@@ -366,6 +437,9 @@ public class LearningPathService implements PathGate {
                 String key = task.module().getSlug() + "/" + task.task().getSlug();
                 List<PathGraph.Node> nodes = taskNodes.get(key);
                 if (nodes != null && !nodes.isEmpty()) {
+                    if (nodes.stream().allMatch(n -> evaluated.states().get(n.id()) == NodeState.EXCLUDED)) {
+                        return new Decision(State.HIDDEN, "Du hast dich für einen anderen Weg entschieden.");
+                    }
                     // Bereits vor dem Einschalten von „Verbindlich“ erledigte Aufgaben bleiben gültig
                     if (situation.finished(task)) return Decision.OPEN;
                     for (PathGraph.Node n : nodes) {
@@ -389,6 +463,15 @@ public class LearningPathService implements PathGate {
             @Override
             public Decision module(Module module) {
                 if (modulesInPath.contains(module.getSlug())) {
+                    List<PathGraph.Node> mNodes = moduleNodes.getOrDefault(module.getSlug(), List.of());
+                    if (!mNodes.isEmpty() && mNodes.stream().allMatch(n -> evaluated.states().get(n.id()) == NodeState.EXCLUDED)) {
+                        boolean wholeModuleInPath = mNodes.stream().anyMatch(n -> n.kind() == PathGraph.NodeKind.MODULE && !n.partial())
+                                || situation.tasks(module).stream().allMatch(t -> taskNodes.containsKey(module.getSlug() + "/" + t.task().getSlug()));
+                        if (wholeModuleInPath || !restUnlocked) {
+                            return new Decision(State.HIDDEN, "Du hast dich für einen anderen Weg entschieden.");
+                        }
+                        return Decision.UNLOCKED;
+                    }
                     return Decision.OPEN;
                 }
                 if (restUnlocked) return Decision.UNLOCKED;
@@ -414,6 +497,21 @@ public class LearningPathService implements PathGate {
         Map<String, List<String>> requiredPredecessors = PathGraph.requiredPredecessors(live);
         List<PathGraph.Node> ordered = PathGraph.order(live);
 
+        Map<String, String> chosenByNode = new HashMap<>();
+        if (path.getId() != null && s.user().getId() != null) {
+            for (LearningPathChoice c : choiceRepository.findByUserIdAndPathId(s.user().getId(), path.getId())) {
+                PathGraph.Node cn = nodeById.get(c.getNodeId());
+                boolean edgeExists = edges.stream().anyMatch(e -> e.from().equals(c.getNodeId()) && e.to().equals(c.getChosenEdgeTo()));
+                if (cn != null && cn.kind() == PathGraph.NodeKind.CHOICE && edgeExists) {
+                    chosenByNode.put(c.getNodeId(), c.getChosenEdgeTo());
+                }
+            }
+        }
+        Set<String> excluded = new HashSet<>();
+        for (Map.Entry<String, String> entry : chosenByNode.entrySet()) {
+            excluded.addAll(PathGraph.excludedByChoice(live, entry.getKey(), Set.of(entry.getValue())));
+        }
+
         Map<String, NodeState> states = new HashMap<>();
         Map<String, String> reasons = new HashMap<>();
         Map<String, Station> stations = new HashMap<>();
@@ -421,12 +519,24 @@ public class LearningPathService implements PathGate {
         Map<String, Integer> gateTotal = new HashMap<>();
         // clear: Station und alles davor ist erledigt oder gar nicht machbar – erst dann geht es dahinter weiter
         Set<String> clear = new HashSet<>();
-        // achieved: Station ist tatsächlich erledigt (nicht nur wegen gesperrter/abgelaufener Vorgänger übersprungen)
+        // achieved: Station ist tatsächlich erledigt (nicht nur wegen gesperrter/abgelaufener/ausgeschlossener Vorgänger übersprungen)
         Set<String> achieved = new HashSet<>();
 
         for (PathGraph.Node node : ordered) {
             List<String> allPreds = predecessors.getOrDefault(node.id(), List.of());
-            List<String> reqPreds = path.isEnforce() ? requiredPredecessors.getOrDefault(node.id(), List.of()) : List.of();
+            if (excluded.contains(node.id()) || (!allPreds.isEmpty() && allPreds.stream().allMatch(excluded::contains))) {
+                excluded.add(node.id());
+                states.put(node.id(), NodeState.EXCLUDED);
+                reasons.put(node.id(), "Du hast dich für einen anderen Weg entschieden.");
+                clear.add(node.id());
+                continue;
+            }
+            List<String> baseReq = path.isEnforce() ? requiredPredecessors.getOrDefault(node.id(), List.of()) : List.of();
+            List<String> choicePreds = allPreds.stream()
+                    .filter(id -> nodeById.get(id) != null && nodeById.get(id).choice())
+                    .toList();
+            List<String> reqPreds = choicePreds.isEmpty() ? baseReq
+                    : Stream.concat(baseReq.stream(), choicePreds.stream()).distinct().toList();
             if (node.gate()) {
                 List<String> inputs = !reqPreds.isEmpty() ? reqPreds : allPreds;
                 int m = inputs.size();
@@ -480,7 +590,13 @@ public class LearningPathService implements PathGate {
             boolean requiredReady = clear.containsAll(reqPreds);
             if (!requiredReady) {
                 List<String> openPreds = reqPreds.stream().filter(id -> !clear.contains(id)).toList();
-                if (openPreds.size() == 1
+                Optional<PathGraph.Node> openChoice = openPreds.stream()
+                        .map(nodeById::get)
+                        .filter(n -> n != null && n.choice())
+                        .findFirst();
+                if (openChoice.isPresent()) {
+                    reasons.put(node.id(), "Wähle zuerst einen Weg bei „" + s.label(openChoice.get()) + "“.");
+                } else if (openPreds.size() == 1
                         && nodeById.get(openPreds.getFirst()) != null
                         && nodeById.get(openPreds.getFirst()).gate()
                         && (nodeById.get(openPreds.getFirst()).label() == null || nodeById.get(openPreds.getFirst()).label().isBlank())
@@ -494,10 +610,29 @@ public class LearningPathService implements PathGate {
                 }
             }
             NodeState state;
-            if (node.kind() == PathGraph.NodeKind.MILESTONE) {
+            if (node.choice()) {
                 if (!requiredReady) {
                     state = NodeState.BLOCKED;
-                } else if (path.isEnforce() && !reqPreds.isEmpty()) {
+                } else if (chosenByNode.containsKey(node.id())) {
+                    state = NodeState.DONE;
+                    clear.add(node.id());
+                    achieved.add(node.id());
+                    String chosenTo = chosenByNode.get(node.id());
+                    String chosenLabel = edges.stream()
+                            .filter(e -> e.from().equals(node.id()) && e.to().equals(chosenTo))
+                            .map(PathGraph.Edge::label)
+                            .filter(l -> l != null && !l.isBlank())
+                            .findFirst()
+                            .orElseGet(() -> s.label(nodeById.get(chosenTo)));
+                    reasons.put(node.id(), "Gewählter Weg: „" + chosenLabel + "“.");
+                } else {
+                    state = NodeState.AVAILABLE;
+                    reasons.put(node.id(), "Wähle einen Weg, um fortzufahren.");
+                }
+            } else if (node.kind() == PathGraph.NodeKind.MILESTONE) {
+                if (!requiredReady) {
+                    state = NodeState.BLOCKED;
+                } else if (!reqPreds.isEmpty()) {
                     state = NodeState.DONE;
                 } else {
                     state = allReady ? NodeState.DONE : NodeState.UPCOMING;
@@ -522,7 +657,7 @@ public class LearningPathService implements PathGate {
                 }
                 boolean canClear = state == NodeState.DONE
                         ? requiredReady
-                        : (path.isEnforce() && !reqPreds.isEmpty() ? requiredReady : allReady) && settled(state);
+                        : (!reqPreds.isEmpty() ? requiredReady : allReady) && settled(state);
                 if (canClear) {
                     clear.add(node.id());
                     if (state == NodeState.DONE) achieved.add(node.id());
@@ -556,16 +691,30 @@ public class LearningPathService implements PathGate {
         for (PathGraph.Node node : nodes) {
             NodeState state = states.getOrDefault(node.id(), NodeState.LOCKED);
             Station station = stations.get(node.id());
-            if (node.station()) {
+            if (node.station() && state != NodeState.EXCLUDED) {
                 total++;
                 if (state == NodeState.DONE) done++;
             }
-            String href = station == null || state == NodeState.LOCKED || state == NodeState.BLOCKED ? null : station.href();
-            int nodeDone = node.gate() ? gateDone.getOrDefault(node.id(), 0) : (station == null ? 0 : station.done());
+            String href = station == null || state == NodeState.LOCKED || state == NodeState.BLOCKED || state == NodeState.EXCLUDED ? null : station.href();
+            int nodeDone = node.gate() ? gateDone.getOrDefault(node.id(), 0) : (station == null || state == NodeState.EXCLUDED ? 0 : station.done());
             int nodeTotal = node.gate() ? gateTotal.getOrDefault(node.id(), 0) : (station == null ? 0 : station.total());
-            String nodeReason = node.gate() || state == NodeState.BLOCKED ? reasons.get(node.id()) : null;
+            String nodeReason = node.gate() || node.choice() || state == NodeState.BLOCKED || state == NodeState.EXCLUDED ? reasons.get(node.id()) : null;
+            List<ChoiceOption> options = null;
+            String chosenTo = null;
+            if (node.choice()) {
+                chosenTo = chosenByNode.get(node.id());
+                String finalChosenTo = chosenTo;
+                options = edges.stream()
+                        .filter(e -> e.from().equals(node.id()))
+                        .map(e -> new ChoiceOption(
+                                e.to(),
+                                e.label() != null && !e.label().isBlank() ? e.label() : s.label(nodeById.get(e.to())),
+                                e.hint(),
+                                e.to().equals(finalChosenTo)))
+                        .toList();
+            }
             views.add(new NodeView(node.id(), node.kind(), s.label(node), s.icon(node), node.x(), node.y(), state,
-                    href, nodeDone, nodeTotal, node.id().equals(recommendedId), nodeReason, node.min()));
+                    href, nodeDone, nodeTotal, node.id().equals(recommendedId), nodeReason, node.min(), options, chosenTo));
         }
         PathView pathView = new PathView(path.getSlug(), path.getTitle(), path.getDescription(), path.isEnforce(),
                 views, edges, done, total, recommendation);
@@ -620,7 +769,7 @@ public class LearningPathService implements PathGate {
 
     /** Ein Vorgänger, der erledigt ist oder gar nicht erledigt werden kann, hält niemanden auf. */
     private static boolean settled(NodeState state) {
-        return state == NodeState.DONE || state == NodeState.LOCKED || state == NodeState.CLOSED;
+        return state == NodeState.DONE || state == NodeState.LOCKED || state == NodeState.CLOSED || state == NodeState.EXCLUDED;
     }
 
     private Recommendation fallback(Situation s) {
@@ -651,15 +800,21 @@ public class LearningPathService implements PathGate {
 
     /** Freigaben und Fortschritt einer Person, einmal geladen für viele Stationen. */
     private final class Situation {
+        private final User user;
         private final AccessPolicy.Releases releases;
         private final Map<Long, ProgressStatus> status;
         private final Map<String, Module> modules = new LinkedHashMap<>();
         private final Map<String, List<PublishedTask>> tasks = new HashMap<>();
 
         Situation(User user, AccessPolicy.Releases releases) {
+            this.user = user;
             this.releases = releases;
             this.status = progressService.statusByTask(user.getId());
             contentService.modules().forEach(m -> modules.put(m.getSlug(), m));
+        }
+
+        User user() {
+            return user;
         }
 
         Collection<Module> modules() {
@@ -682,7 +837,7 @@ public class LearningPathService implements PathGate {
 
         boolean exists(PathGraph.Node node) {
             return switch (node.kind()) {
-                case MILESTONE, AND, OR -> true;
+                case MILESTONE, AND, OR, CHOICE -> true;
                 case MODULE -> modules.containsKey(node.module());
                 case TASK -> task(node.module(), node.task()).isPresent();
             };
@@ -724,6 +879,7 @@ public class LearningPathService implements PathGate {
         String label(PathGraph.Node node) {
             if (node == null) return "";
             if (node.label() != null && !node.label().isBlank()) return node.label();
+            if (node.kind() == PathGraph.NodeKind.CHOICE) return "Weiche";
             if (node.kind() == PathGraph.NodeKind.AND) return "UND-Block";
             if (node.kind() == PathGraph.NodeKind.OR) {
                 int min = node.min() != null ? node.min() : 1;
@@ -739,6 +895,7 @@ public class LearningPathService implements PathGate {
 
         String icon(PathGraph.Node node) {
             if (node.kind() == PathGraph.NodeKind.MILESTONE) return "🏁";
+            if (node.kind() == PathGraph.NodeKind.CHOICE) return "🔀";
             if (node.kind() == PathGraph.NodeKind.AND) return "&";
             if (node.kind() == PathGraph.NodeKind.OR) {
                 int min = node.min() != null ? node.min() : 1;
@@ -755,6 +912,21 @@ public class LearningPathService implements PathGate {
         List<String> result = new ArrayList<>();
         if (p.isEnforce() && !graph.edges().isEmpty() && graph.edges().stream().noneMatch(PathGraph.Edge::required)) {
             result.add("Der Lernpfad ist verbindlich, enthält aber nur Empfehlungs-Verbindungen (gestrichelt).");
+        }
+        if (p.getId() != null) {
+            List<LearningPathChoice> choices = choiceRepository.findByPathId(p.getId());
+            if (!choices.isEmpty()) {
+                Map<String, Long> byNode = choices.stream()
+                        .collect(Collectors.groupingBy(LearningPathChoice::getNodeId, Collectors.counting()));
+                for (PathGraph.Node node : graph.nodes()) {
+                    if (!node.choice()) continue;
+                    long count = byNode.getOrDefault(node.id(), 0L);
+                    if (count > 0) {
+                        String name = node.label() != null && !node.label().isBlank() ? node.label() : "Weiche";
+                        result.add(count + " Schüler haben an dieser Weiche („" + name + "“) schon gewählt.");
+                    }
+                }
+            }
         }
         if (p.getCourseId() != null && p.isPublished()) {
             AccessPolicy.Releases courseRel = accessPolicy.forCourse(p.getCourseId());
@@ -839,7 +1011,7 @@ public class LearningPathService implements PathGate {
     }
 
     private PathSummary summary(LearningPath p) {
-        int stations = (int) read(p.getGraph()).nodes().stream().filter(n -> !n.gate()).count();
+        int stations = (int) read(p.getGraph()).nodes().stream().filter(n -> !n.gate() && !n.choice()).count();
         return new PathSummary(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(),
                 p.isEnforce(), stations, p.getCourseId(), courseName(p), p.getUpdatedAt());
     }

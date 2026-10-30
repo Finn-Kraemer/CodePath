@@ -446,6 +446,138 @@ class LearningPathTest extends IntegrationTestBase {
         assertEquals("AVAILABLE", state(view, "end"));
     }
 
+    @Test
+    void choiceNodeLocksOtherBranchesMergesAndCleansUpOnCourseEnd() throws Exception {
+        Course course = course("10d");
+        User lena = student("lena", course);
+        long id = body(postAs(teacher(), "/api/admin/learning-paths",
+                Map.of("title", "Weichen-Pfad", "slug", "weichenpfad")).andExpect(status().isOk())).get("id").asLong();
+
+        // Ungültige Weiche ablehnen: < 2 Ausgänge oder fehlendes Label an einer ausgehenden Kante
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", Map.of(
+                "nodes", List.of(
+                        node("c", "CHOICE", null, null, "Zu wenig Wege", 0),
+                        node("a", "TASK", "git", "g1", "Einziger Weg", 100)),
+                "edges", List.of(Map.of("from", "c", "to", "a", "required", true, "label", "Nur A")))))
+                .andExpect(status().isBadRequest());
+
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of("graph", Map.of(
+                "nodes", List.of(
+                        node("c", "CHOICE", null, null, "Ohne Label", 0),
+                        node("a", "TASK", "git", "g1", "Weg A", 100),
+                        node("b", "TASK", "git", "g5", "Weg B", 100)),
+                "edges", List.of(
+                        Map.of("from", "c", "to", "a", "required", true, "label", "Weg A"),
+                        Map.of("from", "c", "to", "b", "required", true)))))
+                .andExpect(status().isBadRequest());
+
+        // Gültiger Pfad: Start (git/g1) -> Weiche c -> Weg A (git/g5 -> git/g6) ODER Weg B (Modul datenbanken) -> Zusammenführung (git/g3)
+        // Zusätzlich: Aufgabe git/g6 kommt SOWOHL im nicht gewählten Zweig als auch hinter der Zusammenführung vor,
+        // um zu prüfen, dass eine Aufgabe nur gesperrt wird, wenn ALLE ihre Stationen EXCLUDED sind.
+        var graph = Map.of(
+                "nodes", List.of(
+                        node("start", "TASK", "git", "g1", "Einstieg", 0),
+                        node("weiche", "CHOICE", null, null, "Schwerpunkt wählen", 100),
+                        node("wegA", "TASK", "git", "g5", "Git-Vertiefung", 200),
+                        node("wegB", "MODULE", "datenbanken", null, "Datenbanken-Pfad", 200),
+                        node("wegBTask", "TASK", "git", "g7", "Nur in B", 250),
+                        node("wegB2", "TASK", "git", "g6", "Zusatz in B", 300),
+                        node("merge", "TASK", "git", "g3", "Gemeinsamer Abschluss", 400),
+                        node("sharedG6", "TASK", "git", "g6", "Gemeinsame Nachbereitung", 500)),
+                "edges", List.of(
+                        requiredEdge("start", "weiche"),
+                        Map.of("from", "weiche", "to", "wegA", "required", true, "label", "Git-Weg", "hint", "Kompakt"),
+                        Map.of("from", "weiche", "to", "wegB", "required", true, "label", "Datenbank-Weg", "hint", "Ausführlich"),
+                        requiredEdge("wegB", "wegBTask"),
+                        requiredEdge("wegBTask", "wegB2"),
+                        requiredEdge("wegA", "merge"),
+                        requiredEdge("wegB2", "merge"),
+                        requiredEdge("merge", "sharedG6")));
+
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of(
+                "courseId", course.getId(),
+                "published", true,
+                "enforce", true,
+                "unlockRestAfter", "merge",
+                "graph", graph)).andExpect(status().isOk());
+
+        // 1. Vor Abschluss von "start" ist die Weiche BLOCKED -> Wahl wird mit 403 abgelehnt
+        JsonNode view = body(getAs(as(lena), "/api/learning-paths/weichenpfad"));
+        assertEquals("AVAILABLE", state(view, "start"));
+        assertEquals("BLOCKED", state(view, "weiche"));
+        assertEquals("BLOCKED", state(view, "wegA"));
+        assertEquals("BLOCKED", state(view, "wegB"));
+        assertEquals("BLOCKED", state(view, "merge"));
+        postAs(as(lena), "/api/learning-paths/weichenpfad/choices", Map.of("nodeId", "weiche", "to", "wegA"))
+                .andExpect(status().isForbidden());
+
+        // 2. Lena löst "start" (git/g1) -> Weiche ist AVAILABLE, aber beide Wege vor der Wahl noch BLOCKED!
+        postAs(as(lena), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        view = body(getAs(as(lena), "/api/learning-paths/weichenpfad"));
+        assertEquals("DONE", state(view, "start"));
+        assertEquals("AVAILABLE", state(view, "weiche"));
+        assertEquals(2, find(view, "weiche").get("options").size());
+        assertEquals("BLOCKED", state(view, "wegA"));
+        assertTrue(find(view, "wegA").get("reason").asString().contains("Schwerpunkt wählen"));
+        assertEquals("BLOCKED", state(view, "wegB"));
+        assertEquals("BLOCKED", state(view, "merge"));
+        getAs(as(lena), "/api/modules/git/g5").andExpect(status().isForbidden());
+        getAs(as(lena), "/api/modules/datenbanken/db1").andExpect(status().isForbidden());
+
+        // 3. Lena wählt "wegA" -> wegA wird AVAILABLE, wegB und wegB2 werden EXCLUDED!
+        view = body(postAs(as(lena), "/api/learning-paths/weichenpfad/choices", Map.of("nodeId", "weiche", "to", "wegA"))
+                .andExpect(status().isOk()));
+        assertEquals("DONE", state(view, "weiche"));
+        assertEquals("wegA", find(view, "weiche").get("chosenTo").asString());
+        assertEquals("AVAILABLE", state(view, "wegA"));
+        assertEquals("EXCLUDED", state(view, "wegB"));
+        assertEquals("EXCLUDED", state(view, "wegB2"));
+        assertEquals("BLOCKED", state(view, "merge"), "Zusammenführung wartet noch auf den gewählten Zweig wegA");
+
+        // Zweite Wahl oder Wechsel durch Schülerin wird mit 409 Conflict abgelehnt
+        postAs(as(lena), "/api/learning-paths/weichenpfad/choices", Map.of("nodeId", "weiche", "to", "wegB"))
+                .andExpect(status().isConflict());
+
+        // Nicht gewählter Zweig (Modul datenbanken) ist überall unsichtbar und per API/Wissensartikel mit 403 gesperrt
+        JsonNode modules = body(getAs(as(lena), "/api/modules"));
+        for (JsonNode m : modules) {
+            assertNotEquals("datenbanken", m.get("slug").asString(), "Ausgeschlossenes Modul darf nicht in der Übersicht erscheinen");
+        }
+        JsonNode forbiddenMod = body(getAs(as(lena), "/api/modules/datenbanken").andExpect(status().isForbidden()));
+        assertEquals("Du hast dich für einen anderen Weg entschieden.", forbiddenMod.get("message").asString());
+        JsonNode forbiddenTask = body(getAs(as(lena), "/api/modules/git/g7").andExpect(status().isForbidden()));
+        assertEquals("Du hast dich für einen anderen Weg entschieden.", forbiddenTask.get("message").asString());
+        postAs(as(lena), "/api/modules/git/g7/submit", Map.of("selected", List.of("a"))).andExpect(status().isForbidden());
+        assertFalse(hasArticleForModule(body(getAs(as(lena), "/api/knowledge")), "datenbanken"));
+
+        // 4. Lena schließt wegA (git/g5) ab -> Zusammenführung "merge" (git/g3) wird AVAILABLE!
+        postAs(as(lena), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        view = body(getAs(as(lena), "/api/learning-paths/weichenpfad"));
+        assertEquals("DONE", state(view, "wegA"));
+        assertEquals("AVAILABLE", state(view, "merge"), "EXCLUDED-Vorgänger wegB2 hält die Zusammenführung nicht auf");
+
+        // 5. Lena schließt "merge" (git/g3) ab -> unlockRestAfter ("merge") gibt Module außerhalb frei,
+        //    ABER das ausgeschlossene Modul "datenbanken" bleibt weiterhin gesperrt!
+        //    Und git/g6 (kommt in wegB2 [EXCLUDED] UND sharedG6 [AVAILABLE] vor) ist frei!
+        postAs(as(lena), "/api/modules/git/g3/submit", Map.of("answers", List.of("Working Directory", "Staging Area", "Repository")))
+                .andExpect(status().isOk());
+        view = body(getAs(as(lena), "/api/learning-paths/weichenpfad"));
+        assertEquals("DONE", state(view, "merge"));
+        assertEquals("AVAILABLE", state(view, "sharedG6"));
+        getAs(as(lena), "/api/modules/git/g6").andExpect(status().isOk());
+        assertTrue(body(getAs(as(lena), "/api/modules")).size() > 1, "Übrige Module außerhalb des Pfads sind freigeschaltet");
+        getAs(as(lena), "/api/modules/datenbanken").andExpect(status().isForbidden());
+
+        // 6. Editor-Warnung bei bestehenden Schüler-Wahlen prüfen
+        JsonNode adminAfterChoice = body(getAs(teacher(), "/api/admin/learning-paths/" + id));
+        assertTrue(adminAfterChoice.get("warnings").toString().contains("1 Schüler haben an dieser Weiche"));
+
+        // 7. Kurs beenden löscht learning_path_choices der Kursmitglieder
+        postAs(teacher(), "/api/admin/courses/" + course.getId() + "/end", Map.of("confirmation", "10d"))
+                .andExpect(status().isOk());
+        assertEquals(0, jdbc.queryForObject("select count(*) from learning_path_choices", Integer.class));
+    }
+
     static boolean hasArticleForModule(JsonNode articles, String moduleSlug) {
         for (JsonNode a : articles) {
             if (moduleSlug.equals(a.path("moduleSlug").asString(null))) return true;

@@ -72,11 +72,14 @@ class TransferTest extends IntegrationTestBase {
                 "unlockRestAfter", "m3",
                 "graph", Map.of(
                         "nodes", List.of(
-                                LearningPathTest.node("m1", "MODULE", "git", null, null, 0),
-                                LearningPathTest.node("m2", "MODULE", "datenbanken", null, null, 0),
+                                LearningPathTest.node("c1", "CHOICE", null, null, "Weiche", 0),
+                                LearningPathTest.node("m1", "MODULE", "git", null, null, 50),
+                                LearningPathTest.node("m2", "MODULE", "datenbanken", null, null, 50),
                                 orGate,
                                 LearningPathTest.node("m3", "MILESTONE", null, null, "Ziel", 200)),
                         "edges", List.of(
+                                Map.of("from", "c1", "to", "m1", "required", true, "label", "Git-Weg", "hint", "Tipp A"),
+                                Map.of("from", "c1", "to", "m2", "required", true, "label", "DB-Weg"),
                                 LearningPathTest.requiredEdge("m1", "or1"),
                                 LearningPathTest.requiredEdge("m2", "or1"),
                                 LearningPathTest.requiredEdge("or1", "m3"))))).andExpect(status().isOk());
@@ -91,9 +94,12 @@ class TransferTest extends IntegrationTestBase {
         }
         assertTrue(manifest.at("/sections/learningPaths/0/enforce").asBoolean());
         assertEquals("m3", manifest.at("/sections/learningPaths/0/unlockRestAfter").asString());
-        assertEquals("OR", manifest.at("/sections/learningPaths/0/graph/nodes/2/kind").asString());
-        assertEquals(2, manifest.at("/sections/learningPaths/0/graph/nodes/2/min").asInt());
+        assertEquals("CHOICE", manifest.at("/sections/learningPaths/0/graph/nodes/0/kind").asString());
+        assertEquals("OR", manifest.at("/sections/learningPaths/0/graph/nodes/3/kind").asString());
+        assertEquals(2, manifest.at("/sections/learningPaths/0/graph/nodes/3/min").asInt());
         assertTrue(manifest.at("/sections/learningPaths/0/graph/edges/0/required").asBoolean());
+        assertEquals("Git-Weg", manifest.at("/sections/learningPaths/0/graph/edges/0/label").asString());
+        assertEquals("Tipp A", manifest.at("/sections/learningPaths/0/graph/edges/0/hint").asString());
 
         // Seite und Lernpfad weg, Artikel geändert → angelegt, überarbeitet, Rest unverändert
         mvc.perform(delete("/api/admin/pages/" + page).with(teacher()).with(csrf())).andExpect(status().isNoContent());

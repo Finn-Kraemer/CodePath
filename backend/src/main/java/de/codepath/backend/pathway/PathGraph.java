@@ -17,7 +17,7 @@ public final class PathGraph {
     private PathGraph() {
     }
 
-    public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR }
+    public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR, CHOICE }
 
     /**
      * @param module Slug des Moduls (MODULE und TASK)
@@ -25,17 +25,28 @@ public final class PathGraph {
      * @param tasks  nur MODULE: Slugs der Aufgaben, die diese Station nutzt; leer oder null für alle – so lässt
      *               sich ein Modul auf mehrere Stationen verteilen (Programmierung 1, Web 1, Programmierung 2)
      * @param label  eigene Beschriftung; Pflicht für Meilensteine, sonst gilt der Titel von Modul bzw. Aufgabe
-     * @param min    nur OR: Mindestanzahl erfüllter Eingänge (Standard 1)
+     * @param min    nur OR / CHOICE: Mindestanzahl erfüllter Eingänge bzw. zu wählender Wege (Standard 1)
+     * @param max    optional für CHOICE: Höchstanzahl zu wählender Wege (Standard 1)
      */
     public record Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
-                       Integer min, int x, int y) {
+                       Integer min, Integer max, int x, int y) {
         public Node {
             tasks = tasks == null || tasks.isEmpty() ? null : List.copyOf(new LinkedHashSet<>(tasks));
-            min = kind == NodeKind.OR ? (min == null ? 1 : min) : null;
+            if (kind == NodeKind.OR) {
+                min = min == null ? Integer.valueOf(1) : min;
+            } else if (kind != NodeKind.CHOICE) {
+                min = null;
+            }
+            max = kind == NodeKind.CHOICE ? max : null;
+        }
+
+        public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
+                    Integer min, int x, int y) {
+            this(id, kind, module, task, tasks, label, min, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label, int x, int y) {
-            this(id, kind, module, task, tasks, label, null, x, y);
+            this(id, kind, module, task, tasks, label, null, null, x, y);
         }
 
         /** Nutzt die Station nur einen Teil der Aufgaben ihres Moduls? */
@@ -47,18 +58,28 @@ public final class PathGraph {
             return kind == NodeKind.AND || kind == NodeKind.OR;
         }
 
+        public boolean choice() {
+            return kind == NodeKind.CHOICE;
+        }
+
         public boolean station() {
             return kind == NodeKind.MODULE || kind == NodeKind.TASK;
         }
     }
 
-    public record Edge(String from, String to, Boolean required) {
+    public record Edge(String from, String to, Boolean required, String label, String hint) {
         public Edge {
             required = Boolean.TRUE.equals(required);
+            label = label == null || label.isBlank() ? null : label.strip();
+            hint = hint == null || hint.isBlank() ? null : hint.strip();
+        }
+
+        public Edge(String from, String to, Boolean required) {
+            this(from, to, required, null, null);
         }
 
         public Edge(String from, String to) {
-            this(from, to, false);
+            this(from, to, false, null, null);
         }
     }
 
@@ -101,34 +122,52 @@ public final class PathGraph {
                 case TASK -> {
                     if (isBlank(node.module()) || isBlank(node.task())) throw ApiException.badRequest("Station " + node.id() + ": Aufgabe fehlt.");
                 }
-                case AND, OR -> {
+                case AND, OR, CHOICE -> {
                 }
             }
         }
         Set<String> seen = new HashSet<>();
         Map<String, Integer> inCount = new HashMap<>();
         Map<String, Integer> outCount = new HashMap<>();
+        Map<String, List<Edge>> outgoingEdges = new HashMap<>();
         for (Edge edge : graph.edges()) {
             if (edge == null || !ids.contains(edge.from()) || !ids.contains(edge.to())) {
                 throw ApiException.badRequest("Eine Verbindung zeigt auf eine Station, die es nicht gibt.");
             }
             if (edge.from().equals(edge.to())) throw ApiException.badRequest("Eine Station kann nicht mit sich selbst verbunden sein.");
             if (!seen.add(edge.from() + "→" + edge.to())) throw ApiException.badRequest("Eine Verbindung kommt doppelt vor.");
+            if (edge.label() != null && edge.label().length() > 80) {
+                throw ApiException.badRequest("Weg-Beschriftung höchstens 80 Zeichen.");
+            }
+            if (edge.hint() != null && edge.hint().length() > 200) {
+                throw ApiException.badRequest("Weg-Kurzbeschreibung höchstens 200 Zeichen.");
+            }
             inCount.merge(edge.to(), 1, Integer::sum);
             outCount.merge(edge.from(), 1, Integer::sum);
+            outgoingEdges.computeIfAbsent(edge.from(), k -> new ArrayList<>()).add(edge);
         }
         for (Node node : graph.nodes()) {
-            if (!node.gate()) continue;
+            String name = isBlank(node.label()) ? node.id() : node.label();
             int inc = inCount.getOrDefault(node.id(), 0);
             int out = outCount.getOrDefault(node.id(), 0);
-            String kindName = node.kind() == NodeKind.AND ? "UND-Block" : "ODER-Block";
-            String name = isBlank(node.label()) ? node.id() : node.label();
-            if (inc < 2 || out < 1) {
-                throw ApiException.badRequest(kindName + " „" + name + "“ braucht mindestens 2 eingehende und 1 ausgehende Verbindung.");
-            }
-            if (node.kind() == NodeKind.OR && (node.min() == null || node.min() < 1 || node.min() > inc)) {
-                throw ApiException.badRequest(kindName + " „" + name + "“: Mindestanzahl (" + node.min()
-                        + ") muss zwischen 1 und der Anzahl der Eingänge (" + inc + ") liegen.");
+            if (node.gate()) {
+                String kindName = node.kind() == NodeKind.AND ? "UND-Block" : "ODER-Block";
+                if (inc < 2 || out < 1) {
+                    throw ApiException.badRequest(kindName + " „" + name + "“ braucht mindestens 2 eingehende und 1 ausgehende Verbindung.");
+                }
+                if (node.kind() == NodeKind.OR && (node.min() == null || node.min() < 1 || node.min() > inc)) {
+                    throw ApiException.badRequest(kindName + " „" + name + "“: Mindestanzahl (" + node.min()
+                            + ") muss zwischen 1 und der Anzahl der Eingänge (" + inc + ") liegen.");
+                }
+            } else if (node.choice()) {
+                if (out < 2) {
+                    throw ApiException.badRequest("Weiche „" + name + "“ braucht mindestens 2 ausgehende Verbindungen (Wege).");
+                }
+                for (Edge edge : outgoingEdges.getOrDefault(node.id(), List.of())) {
+                    if (isBlank(edge.label())) {
+                        throw ApiException.badRequest("Jeder Weg ab Weiche „" + name + "“ braucht eine Beschriftung.");
+                    }
+                }
             }
         }
         if (order(graph).size() != graph.nodes().size()) {
@@ -195,6 +234,72 @@ public final class PathGraph {
             result.put(node.id(), set);
         }
         return result;
+    }
+
+    /** Alle von einer Station aus erreichbaren Stationen (inklusive der Station selbst). */
+    static Map<String, Set<String>> reachableFrom(Graph graph) {
+        Map<String, List<String>> outgoing = new HashMap<>();
+        for (Edge e : graph.edges()) {
+            outgoing.computeIfAbsent(e.from(), k -> new ArrayList<>()).add(e.to());
+        }
+        Map<String, Set<String>> result = new HashMap<>();
+        List<Node> ordered = order(graph);
+        for (int i = ordered.size() - 1; i >= 0; i--) {
+            String id = ordered.get(i).id();
+            Set<String> set = new LinkedHashSet<>();
+            set.add(id);
+            for (String next : outgoing.getOrDefault(id, List.of())) {
+                set.addAll(result.getOrDefault(next, Set.of(next)));
+            }
+            result.put(id, set);
+        }
+        return result;
+    }
+
+    /**
+     * Exklusive Stationen je Weg einer Weiche: alle Stationen, die von diesem Weg aus erreichbar sind, aber
+     * von keinem anderen Weg derselben Weiche. Stationen hinter der Zusammenführung gehören zu keinem Weg exklusiv.
+     */
+    static Map<String, Set<String>> choiceBranches(Graph graph, String choiceNodeId) {
+        Map<String, Set<String>> reachable = reachableFrom(graph);
+        List<String> targets = graph.edges().stream()
+                .filter(e -> e.from().equals(choiceNodeId))
+                .map(Edge::to)
+                .toList();
+        Map<String, Set<String>> branches = new LinkedHashMap<>();
+        for (String target : targets) {
+            Set<String> exclusive = new LinkedHashSet<>(reachable.getOrDefault(target, Set.of()));
+            for (String other : targets) {
+                if (!other.equals(target)) {
+                    exclusive.removeAll(reachable.getOrDefault(other, Set.of()));
+                }
+            }
+            branches.put(target, exclusive);
+        }
+        return branches;
+    }
+
+    /**
+     * Welche Stationen durch die Wahl an einer Weiche ausgeschlossen sind: alle Stationen, die von nicht
+     * gewählten/freigeschalteten Wegen erreichbar sind, aber von keinem der erlaubten Wege.
+     */
+    static Set<String> excludedByChoice(Graph graph, String choiceNodeId, Set<String> allowedTargets) {
+        Map<String, Set<String>> reachable = reachableFrom(graph);
+        List<String> targets = graph.edges().stream()
+                .filter(e -> e.from().equals(choiceNodeId))
+                .map(Edge::to)
+                .toList();
+        Set<String> allowedReachable = new HashSet<>();
+        Set<String> unchosenReachable = new LinkedHashSet<>();
+        for (String target : targets) {
+            if (allowedTargets.contains(target)) {
+                allowedReachable.addAll(reachable.getOrDefault(target, Set.of()));
+            } else {
+                unchosenReachable.addAll(reachable.getOrDefault(target, Set.of()));
+            }
+        }
+        unchosenReachable.removeAll(allowedReachable);
+        return unchosenReachable;
     }
 
     private static boolean isBlank(String value) {

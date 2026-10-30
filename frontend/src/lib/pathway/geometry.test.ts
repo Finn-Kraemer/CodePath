@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	canvasSize,
+	choiceBranches,
 	edgePath,
 	gateInputOffset,
 	incomingSlot,
@@ -68,5 +69,19 @@ describe('Lernpfad-Karte', () => {
 		expect(pos.get('b')!.y).toBe(pos.get('c')!.y);
 		expect(pos.get('b')!.x).not.toBe(pos.get('c')!.x);
 		expect(pos.get('d')!.y).toBeGreaterThan(pos.get('b')!.y);
+	});
+
+	it('trennt exklusive Zweige einer Weiche von der gemeinsamen Zusammenführung', () => {
+		const edges = [
+			{ from: 'c', to: 'a1' },
+			{ from: 'a1', to: 'a2' },
+			{ from: 'c', to: 'b1' },
+			{ from: 'a2', to: 'merge' },
+			{ from: 'b1', to: 'merge' },
+			{ from: 'merge', to: 'end' }
+		];
+		const branches = choiceBranches(edges, 'c');
+		expect([...(branches.get('a1') ?? [])]).toEqual(['a1', 'a2']);
+		expect([...(branches.get('b1') ?? [])]).toEqual(['b1']);
 	});
 });

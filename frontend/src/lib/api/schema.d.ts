@@ -1412,6 +1412,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/learning-paths/{slug}/choices': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['choose'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/learning/next': {
 		parameters: {
 			query?: never;
@@ -1733,6 +1749,16 @@ export interface components {
 			problems: string[];
 			valid: boolean;
 		};
+		ChoiceOption: {
+			chosen: boolean;
+			hint: string;
+			label: string;
+			to: string;
+		};
+		ChoiceRequest: {
+			nodeId?: string;
+			to?: string;
+		};
 		Compass: {
 			entries: components['schemas']['CompassEntry'][];
 			top: components['schemas']['CompassEntry'][];
@@ -1820,6 +1846,8 @@ export interface components {
 		};
 		Edge: {
 			from: string;
+			hint: string;
+			label: string;
 			required: boolean;
 			to: string;
 		};
@@ -1986,8 +2014,10 @@ export interface components {
 		Node: {
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR';
+			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE';
 			label: string;
+			/** Format: int32 */
+			max: number;
 			/** Format: int32 */
 			min: number;
 			module: string;
@@ -1999,20 +2029,22 @@ export interface components {
 			y: number;
 		};
 		NodeView: {
+			chosenTo: string;
 			/** Format: int32 */
 			done: number;
 			href: string;
 			icon: string;
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR';
+			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE';
 			label: string;
 			/** Format: int32 */
 			min: number;
+			options: components['schemas']['ChoiceOption'][];
 			reason: string;
 			recommended: boolean;
 			/** @enum {string} */
-			state: 'DONE' | 'AVAILABLE' | 'BLOCKED' | 'UPCOMING' | 'CLOSED' | 'LOCKED';
+			state: 'DONE' | 'AVAILABLE' | 'BLOCKED' | 'UPCOMING' | 'CLOSED' | 'LOCKED' | 'EXCLUDED';
 			/** Format: int32 */
 			total: number;
 			/** Format: int32 */
@@ -5055,6 +5087,32 @@ export interface operations {
 			cookie?: never;
 		};
 		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PathView'];
+				};
+			};
+		};
+	};
+	choose: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ChoiceRequest'];
+			};
+		};
 		responses: {
 			/** @description OK */
 			200: {

@@ -13,6 +13,7 @@
 	} from '$lib/api';
 	import {
 		canvasSize,
+		choiceBranches,
 		edgePath,
 		incomingSlot,
 		layered,
@@ -120,7 +121,7 @@
 		// Gleiche Schlüsselreihenfolge wie beim Vergleich, damit "ungespeichert" stimmt
 		const graph = {
 			nodes: path.graph.nodes.map(normalize),
-			edges: path.graph.edges.map((e) => ({ from: e.from, to: e.to, required: !!e.required }))
+			edges: path.graph.edges.map(normalizeEdge)
 		};
 		saved = { ...path, graph };
 		form = {
@@ -137,7 +138,20 @@
 		edges = structuredClone(graph.edges);
 	}
 
-	function normalize(n: PathNode): PathNode {
+	function normalizeEdge(e: Partial<Edge> & { from: string; to: string }): Edge {
+		const edge: Record<string, unknown> = {
+			from: e.from,
+			to: e.to,
+			required: !!e.required
+		};
+		if (e.label?.trim()) edge.label = e.label.trim();
+		if (e.hint?.trim()) edge.hint = e.hint.trim();
+		return edge as unknown as Edge;
+	}
+
+	function normalize(
+		n: Partial<PathNode> & { id: string; kind: Kind; x: number; y: number }
+	): PathNode {
 		const node: Record<string, unknown> = { id: n.id, kind: n.kind };
 		if (n.module) node.module = n.module;
 		if (n.task) node.task = n.task;
@@ -160,7 +174,10 @@
 		try {
 			const updated = await api<PathAdmin>(`/api/admin/learning-paths/${id}`, {
 				method: 'PUT',
-				body: { ...form, graph: { nodes: nodes.map(normalize), edges } }
+				body: {
+					...form,
+					graph: { nodes: nodes.map(normalize), edges: edges.map(normalizeEdge) }
+				}
 			});
 			apply(updated);
 			applied = form.courseId && form.published ? updated.applied : null;
@@ -218,6 +235,7 @@
 
 	function label(n: PathNode): string {
 		if (n.label) return n.label;
+		if (n.kind === 'CHOICE') return 'Weiche';
 		if (n.kind === 'AND') return 'UND-Block';
 		if (n.kind === 'OR') {
 			const min = n.min ?? 1;
@@ -236,6 +254,7 @@
 
 	function icon(n: PathNode): string {
 		if (n.kind === 'MILESTONE') return '🏁';
+		if (n.kind === 'CHOICE') return '🔀';
 		if (n.kind === 'AND') return '&';
 		if (n.kind === 'OR') return `≥${n.min ?? 1}`;
 		return modulesBySlug.get(n.module)?.module.icon ?? '';
@@ -246,8 +265,34 @@
 		TASK: 'Aufgabe',
 		MILESTONE: 'Meilenstein',
 		AND: 'Logik-Block: UND',
-		OR: 'Logik-Block: ODER'
+		OR: 'Logik-Block: ODER',
+		CHOICE: 'Entweder-oder-Weiche'
 	};
+
+	const BRANCH_PALETTE = [
+		'border-sky-400 bg-sky-50/70',
+		'border-violet-400 bg-violet-50/70',
+		'border-teal-400 bg-teal-50/70',
+		'border-amber-400 bg-amber-50/70'
+	];
+
+	/** Exklusive Zweig-Einfärbung für Weichen (Stationen hinter dem Zusammenführungspunkt bleiben neutral). */
+	const branchStyles = $derived.by(() => {
+		const map = new Map<string, string>();
+		let colorIdx = 0;
+		for (const n of nodes) {
+			if (n.kind !== 'CHOICE') continue;
+			const branches = choiceBranches(edges, n.id);
+			for (const [, exclusiveIds] of branches) {
+				const style = BRANCH_PALETTE[colorIdx % BRANCH_PALETTE.length];
+				colorIdx++;
+				for (const id of exclusiveIds) {
+					map.set(id, style);
+				}
+			}
+		}
+		return map;
+	});
 
 	function freeId(): string {
 		let i = nodes.length + 1;
@@ -284,10 +329,20 @@
 			y: anchor
 				? anchor.y + NODE_H + 70
 				: snap(Math.max(-NODE_H, ...nodes.map((n) => n.y)) + NODE_H + 70)
-		} as PathNode);
+		});
 		nodes = [...nodes, node];
 		// An die gewählte Station anhängen – so entsteht ein Pfad Schritt für Schritt
-		if (anchor) edges = [...edges, { from: anchor.id, to: node.id, required: form.enforce }];
+		if (anchor) {
+			edges = [
+				...edges,
+				normalizeEdge({
+					from: anchor.id,
+					to: node.id,
+					required: form.enforce || anchor.kind === 'CHOICE',
+					label: anchor.kind === 'CHOICE' ? label(node) : undefined
+				})
+			];
+		}
 		selectedId = node.id;
 		draft.label = '';
 		draft.min = 1;
@@ -361,7 +416,7 @@
 			label: `${title} ${part}`,
 			x: node.x,
 			y: node.y + NODE_H + 70
-		} as PathNode);
+		});
 		if (!node.label && node.tasks?.length) updateNode(node.id, { label: `${title} 1` });
 		nodes = [...nodes, added];
 		selectedId = added.id;
@@ -406,11 +461,25 @@
 			error = 'Diese Verbindung würde einen Kreis bilden.';
 			return;
 		}
-		edges = [...edges, { from, to, required: form.enforce }];
+		const fromNode = byId.get(from);
+		const toNode = byId.get(to);
+		edges = [
+			...edges,
+			normalizeEdge({
+				from,
+				to,
+				required: form.enforce || fromNode?.kind === 'CHOICE',
+				label: fromNode?.kind === 'CHOICE' && toNode ? label(toNode) : undefined
+			})
+		];
 	}
 
 	function setEdgeRequired(key: string, required: boolean) {
 		edges = edges.map((e) => (edgeKey(e) === key ? { ...e, required } : e));
+	}
+
+	function updateEdge(key: string, change: Partial<Edge>) {
+		edges = edges.map((e) => (edgeKey(e) === key ? normalizeEdge({ ...e, ...change }) : e));
 	}
 
 	function removeEdge(key: string) {
@@ -748,13 +817,16 @@
 						</svg>
 						{#each nodes as node (node.id)}
 							{@const isGate = node.kind === 'AND' || node.kind === 'OR'}
+							{@const branchStyle = branchStyles.get(node.id)}
 							<div
-								class="absolute flex cursor-grab touch-none flex-col justify-between border-2 bg-white p-3 select-none active:cursor-grabbing {node.kind ===
+								class="absolute flex cursor-grab touch-none flex-col justify-between border-2 p-3 select-none active:cursor-grabbing {node.kind ===
 								'MILESTONE'
-									? 'rounded-full border-dashed border-institutional-gold text-center'
-									: isGate
-										? 'border-institutional-navy bg-slate-50'
-										: 'border-slate-300'} {selectedId === node.id
+									? 'rounded-full border-dashed border-institutional-gold bg-white text-center'
+									: node.kind === 'CHOICE'
+										? 'border-institutional-navy bg-amber-50/70'
+										: isGate
+											? 'border-institutional-navy bg-slate-50'
+											: (branchStyle ?? 'border-slate-300 bg-white')} {selectedId === node.id
 									? 'ring-4 ring-institutional-navy/30'
 									: ''} {connectFrom === node.id ? 'ring-4 ring-institutional-gold/60' : ''}"
 								style="left: {node.x}px; top: {node.y}px; width: {NODE_W}px; height: {NODE_H}px"
@@ -796,11 +868,39 @@
 				{#if selectedEdge}
 					{@const edge = edges.find((e) => edgeKey(e) === selectedEdge)}
 					{#if edge}
+						{@const fromNode = byId.get(edge.from)}
 						<section class="flex flex-col gap-3 border border-slate-200 bg-white p-4">
 							<h2 class="ed-label">Verbindung</h2>
 							<p class="text-sm">
-								{label(byId.get(edge.from)!)} → {label(byId.get(edge.to)!)}
+								{label(fromNode!)} → {label(byId.get(edge.to)!)}
 							</p>
+							{#if fromNode?.kind === 'CHOICE'}
+								<label class="ed-label">
+									Beschriftung des Wegs (Pflicht)
+									<input
+										class="ed-input"
+										maxlength="80"
+										value={edge.label ?? ''}
+										oninput={(e) =>
+											updateEdge(selectedEdge!, {
+												label: (e.currentTarget as HTMLInputElement).value
+											})}
+									/>
+								</label>
+								<label class="ed-label">
+									Kurzbeschreibung (optional)
+									<input
+										class="ed-input"
+										maxlength="200"
+										placeholder="z. B. schwieriger – dafür +50 Punkte"
+										value={edge.hint ?? ''}
+										oninput={(e) =>
+											updateEdge(selectedEdge!, {
+												hint: (e.currentTarget as HTMLInputElement).value
+											})}
+									/>
+								</label>
+							{/if}
 							<fieldset class="flex flex-col gap-1 text-sm">
 								<legend class="ed-label">Art der Verbindung</legend>
 								<label class="flex items-center gap-2">
@@ -930,17 +1030,43 @@
 								oninput={(e) => setLabel((e.currentTarget as HTMLInputElement).value)}
 							/></label
 						>
-						<div class="flex flex-col gap-1">
+						<div class="flex flex-col gap-2">
 							<span class="ed-label">Danach kommt</span>
 							{#each edges.filter((e) => e.from === selected.id) as edge (edgeKey(edge))}
-								<span class="flex items-center justify-between gap-2 text-sm">
-									→ {label(byId.get(edge.to)!)}
-									<button
-										class="text-xs text-rose-700"
-										onclick={() => removeEdge(edgeKey(edge))}
-										aria-label="Verbindung zu {label(byId.get(edge.to)!)} löschen">✕</button
-									>
-								</span>
+								<div class="flex flex-col gap-1 border border-slate-100 bg-slate-50/60 p-2 text-sm">
+									<div class="flex items-center justify-between gap-2">
+										<span class="font-medium">→ {label(byId.get(edge.to)!)}</span>
+										<button
+											class="text-xs text-rose-700"
+											onclick={() => removeEdge(edgeKey(edge))}
+											aria-label="Verbindung zu {label(byId.get(edge.to)!)} löschen">✕</button
+										>
+									</div>
+									{#if selected.kind === 'CHOICE'}
+										<input
+											class="ed-input text-xs"
+											placeholder="Beschriftung des Wegs (Pflicht)"
+											aria-label="Weg-Beschriftung nach {label(byId.get(edge.to)!)}"
+											maxlength="80"
+											value={edge.label ?? ''}
+											oninput={(e) =>
+												updateEdge(edgeKey(edge), {
+													label: (e.currentTarget as HTMLInputElement).value
+												})}
+										/>
+										<input
+											class="ed-input text-xs"
+											placeholder="Kurzbeschreibung (optional)"
+											aria-label="Weg-Kurzbeschreibung nach {label(byId.get(edge.to)!)}"
+											maxlength="200"
+											value={edge.hint ?? ''}
+											oninput={(e) =>
+												updateEdge(edgeKey(edge), {
+													hint: (e.currentTarget as HTMLInputElement).value
+												})}
+										/>
+									{/if}
+								</div>
 							{/each}
 							<select
 								class="ed-input"
@@ -970,6 +1096,7 @@
 						<option value="MODULE">Modul</option>
 						<option value="TASK">Einzelne Aufgabe</option>
 						<option value="MILESTONE">Meilenstein</option>
+						<option value="CHOICE">Entweder-oder-Weiche (🔀)</option>
 						<option value="AND">Logik-Block · UND (&amp;)</option>
 						<option value="OR">Logik-Block · ODER (≥1)</option>
 					</select>
@@ -1004,12 +1131,14 @@
 							/>
 						</label>
 					{/if}
-					{#if draft.kind === 'MILESTONE' || draft.kind === 'AND' || draft.kind === 'OR'}
+					{#if draft.kind === 'MILESTONE' || draft.kind === 'CHOICE' || draft.kind === 'AND' || draft.kind === 'OR'}
 						<input
 							class="ed-input"
 							placeholder={draft.kind === 'MILESTONE'
 								? 'z. B. Grundlagen geschafft!'
-								: 'Beschriftung (optional)'}
+								: draft.kind === 'CHOICE'
+									? 'z. B. Cloud oder Web?'
+									: 'Beschriftung (optional)'}
 							aria-label="Beschriftung"
 							maxlength="80"
 							bind:value={draft.label}

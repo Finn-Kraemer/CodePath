@@ -2927,6 +2927,42 @@
         "tags" : [ "learning-path-controller" ]
       }
     },
+    "/api/learning-paths/{slug}/choices" : {
+      "post" : {
+        "operationId" : "choose",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChoiceRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
     "/api/learning/next" : {
       "get" : {
         "operationId" : "next",
@@ -3543,6 +3579,35 @@
         },
         "required" : [ "dryRun", "problems", "valid" ]
       },
+      "ChoiceOption" : {
+        "type" : "object",
+        "properties" : {
+          "chosen" : {
+            "type" : "boolean"
+          },
+          "hint" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "to" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "chosen", "hint", "label", "to" ]
+      },
+      "ChoiceRequest" : {
+        "type" : "object",
+        "properties" : {
+          "nodeId" : {
+            "type" : "string"
+          },
+          "to" : {
+            "type" : "string"
+          }
+        }
+      },
       "Compass" : {
         "type" : "object",
         "properties" : {
@@ -3734,6 +3799,12 @@
           "from" : {
             "type" : "string"
           },
+          "hint" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
           "required" : {
             "type" : "boolean"
           },
@@ -3741,7 +3812,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "from", "required", "to" ]
+        "required" : [ "from", "hint", "label", "required", "to" ]
       },
       "GeneratedAccount" : {
         "type" : "object",
@@ -4182,10 +4253,14 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE" ]
           },
           "label" : {
             "type" : "string"
+          },
+          "max" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "min" : {
             "type" : "integer",
@@ -4212,11 +4287,14 @@
             "format" : "int32"
           }
         },
-        "required" : [ "id", "kind", "label", "min", "module", "task", "tasks", "x", "y" ]
+        "required" : [ "id", "kind", "label", "max", "min", "module", "task", "tasks", "x", "y" ]
       },
       "NodeView" : {
         "type" : "object",
         "properties" : {
+          "chosenTo" : {
+            "type" : "string"
+          },
           "done" : {
             "type" : "integer",
             "format" : "int32"
@@ -4232,7 +4310,7 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE" ]
           },
           "label" : {
             "type" : "string"
@@ -4240,6 +4318,12 @@
           "min" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChoiceOption"
+            }
           },
           "reason" : {
             "type" : "string"
@@ -4249,7 +4333,7 @@
           },
           "state" : {
             "type" : "string",
-            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED" ]
+            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED" ]
           },
           "total" : {
             "type" : "integer",
@@ -4264,7 +4348,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "done", "href", "icon", "id", "kind", "label", "min", "reason", "recommended", "state", "total", "x", "y" ]
+        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "label", "min", "options", "reason", "recommended", "state", "total", "x", "y" ]
       },
       "PageDetail" : {
         "type" : "object",

@@ -162,7 +162,13 @@
 					>
 				</div>
 			</div>
-			<PathMap {path} />
+			<PathMap
+				{path}
+				onupdate={(updated) => {
+					path = updated;
+					fetchModules();
+				}}
+			/>
 		</section>
 	{:else}
 		<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">

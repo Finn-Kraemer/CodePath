@@ -26,6 +26,12 @@ public class LearningPathController {
         return service.view(userService.currentUser(), slug, student);
     }
 
+    @PostMapping("/api/learning-paths/{slug}/choices")
+    public LearningPathService.PathView choose(@PathVariable("slug") String slug,
+                                               @RequestBody LearningPathService.ChoiceRequest request) {
+        return service.choose(userService.currentUser(), slug, request.nodeId(), request.to());
+    }
+
     /** Empfohlene nächste Aufgabe; leere Antwort, wenn nichts mehr offen ist. */
     @GetMapping("/api/learning/next")
     public ResponseEntity<LearningPathService.Recommendation> next() {

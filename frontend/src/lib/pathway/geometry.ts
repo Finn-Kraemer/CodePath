@@ -129,3 +129,42 @@ export function layered<T extends { id: string }>(
 	}
 	return positions;
 }
+
+/**
+ * Bestimmt für jeden ausgehenden Weg einer Weiche (CHOICE) die exklusiven Stationen, die nur von diesem
+ * Weg aus erreichbar sind (ohne gemeinsame Zusammenführungspunkte dahinter).
+ */
+export function choiceBranches(
+	edges: { from: string; to: string }[],
+	choiceId: string
+): Map<string, Set<string>> {
+	const adj = new Map<string, string[]>();
+	for (const e of edges) {
+		const list = adj.get(e.from) ?? [];
+		list.push(e.to);
+		adj.set(e.from, list);
+	}
+	const reachableFrom = (start: string): Set<string> => {
+		const visited = new Set<string>();
+		const stack = [start];
+		while (stack.length) {
+			const curr = stack.pop()!;
+			if (visited.has(curr)) continue;
+			visited.add(curr);
+			for (const next of adj.get(curr) ?? []) stack.push(next);
+		}
+		return visited;
+	};
+	const targets = edges.filter((e) => e.from === choiceId).map((e) => e.to);
+	const reachByTarget = new Map<string, Set<string>>(targets.map((t) => [t, reachableFrom(t)]));
+	const result = new Map<string, Set<string>>();
+	for (const target of targets) {
+		const exclusive = new Set(reachByTarget.get(target) ?? []);
+		for (const other of targets) {
+			if (other === target) continue;
+			for (const id of reachByTarget.get(other) ?? []) exclusive.delete(id);
+		}
+		result.set(target, exclusive);
+	}
+	return result;
+}

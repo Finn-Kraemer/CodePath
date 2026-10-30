@@ -1,11 +1,23 @@
 <script lang="ts">
-	import type { PathView } from '$lib/api';
+	import { api, type PathView } from '$lib/api';
 	import { canvasSize, edgePath, incomingSlot, NODE_H, NODE_W } from './geometry';
 
-	let { path }: { path: PathView } = $props();
+	let {
+		path,
+		onupdate
+	}: {
+		path: PathView;
+		onupdate?: (updated: PathView) => void;
+	} = $props();
+
+	let choosing = $state(false);
+	let choiceError = $state('');
 
 	const byId = $derived(new Map(path.nodes.map((n) => [n.id, n])));
 	const size = $derived(canvasSize(path.nodes, 320, 200));
+	const openChoices = $derived(
+		path.nodes.filter((n) => n.kind === 'CHOICE' && n.state === 'AVAILABLE' && n.options?.length)
+	);
 
 	const STATE_LABELS: Record<string, string> = {
 		DONE: 'Erledigt',
@@ -13,7 +25,8 @@
 		BLOCKED: 'Noch gesperrt',
 		UPCOMING: 'Später',
 		CLOSED: 'Zeit abgelaufen',
-		LOCKED: 'Gesperrt'
+		LOCKED: 'Gesperrt',
+		EXCLUDED: 'nicht gewählt'
 	};
 
 	const STATE_STYLES: Record<string, string> = {
@@ -22,9 +35,80 @@
 		BLOCKED: 'border-amber-300 bg-amber-50/40 opacity-85',
 		UPCOMING: 'border-slate-200 bg-white',
 		CLOSED: 'border-slate-200 bg-slate-50 opacity-70',
-		LOCKED: 'border-dashed border-slate-300 bg-slate-50 opacity-60'
+		LOCKED: 'border-dashed border-slate-300 bg-slate-50 opacity-60',
+		EXCLUDED: 'border-dashed border-slate-300 bg-slate-100/80 opacity-60 grayscale'
 	};
+
+	async function chooseBranch(nodeId: string, to: string, optionLabel: string) {
+		if (
+			!confirm(
+				`Möchtest du den Weg „${optionLabel}“ wählen? Die anderen Wege sind danach gesperrt.`
+			)
+		) {
+			return;
+		}
+		choiceError = '';
+		choosing = true;
+		try {
+			const updated = await api<PathView>(`/api/learning-paths/${path.slug}/choices`, {
+				method: 'POST',
+				body: { nodeId, to }
+			});
+			path = updated;
+			onupdate?.(updated);
+		} catch (e) {
+			choiceError = (e as Error).message;
+		} finally {
+			choosing = false;
+		}
+	}
 </script>
+
+{#if choiceError}
+	<div class="mb-3 border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700" role="alert">
+		{choiceError}
+	</div>
+{/if}
+
+{#each openChoices as choiceNode (choiceNode.id)}
+	<div
+		class="mb-4 border-2 border-institutional-navy bg-white p-5 shadow-sm"
+		role="region"
+		aria-label="Weiche: {choiceNode.label}"
+	>
+		<div class="mb-3 flex items-center gap-2">
+			<span class="text-xl">🔀</span>
+			<div>
+				<h3 class="text-sm font-black tracking-wide text-institutional-navy uppercase">
+					{choiceNode.label}: Wähle deinen Weg
+				</h3>
+				<p class="text-xs text-slate-500">
+					Entscheide dich für einen Weg. Die anderen Wege sind danach gesperrt.
+				</p>
+			</div>
+		</div>
+		<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+			{#each choiceNode.options ?? [] as opt (opt.to)}
+				<div class="flex flex-col justify-between gap-3 border border-slate-200 bg-slate-50/60 p-4">
+					<div>
+						<span class="block text-sm font-bold text-institutional-navy">{opt.label}</span>
+						{#if opt.hint}
+							<span class="mt-1 block text-xs text-slate-600">{opt.hint}</span>
+						{/if}
+					</div>
+					<button
+						type="button"
+						class="bg-institutional-navy px-4 py-2 text-[10px] font-black tracking-widest text-white uppercase transition-colors hover:bg-slate-800 disabled:opacity-50"
+						disabled={choosing}
+						onclick={() => chooseBranch(choiceNode.id, opt.to, opt.label)}
+					>
+						Diesen Weg nehmen
+					</button>
+				</div>
+			{/each}
+		</div>
+	</div>
+{/each}
 
 <div class="overflow-x-auto border border-slate-200 bg-slate-50/60" data-testid="path-map">
 	<div class="relative" style="width: {size.width}px; height: {size.height}px">
@@ -102,6 +186,34 @@
 						>{node.label}</span
 					>
 				</div>
+			{:else if node.kind === 'CHOICE'}
+				<div
+					class="absolute flex flex-col justify-between border-2 p-3 {node.state === 'DONE'
+						? 'border-emerald-400 bg-emerald-50'
+						: node.state === 'AVAILABLE'
+							? 'border-institutional-navy bg-white ring-4 ring-institutional-gold/40 shadow-md'
+							: 'border-amber-300 bg-amber-50/50'}"
+					{style}
+					title={node.reason ?? undefined}
+					aria-label="Weiche {node.label}: {node.reason ?? STATE_LABELS[node.state]}"
+				>
+					<div class="flex items-center gap-2">
+						<span class="text-xl leading-none">{node.state === 'BLOCKED' ? '🔒' : '🔀'}</span>
+						<span class="line-clamp-2 text-xs font-black tracking-wide text-institutional-navy uppercase">
+							{node.label}
+						</span>
+					</div>
+					<span
+						class="line-clamp-1 font-mono text-[9px] font-bold tracking-widest uppercase {node.state ===
+						'DONE'
+							? 'text-emerald-700'
+							: node.state === 'AVAILABLE'
+								? 'text-institutional-navy'
+								: 'text-amber-700'}"
+					>
+						{node.reason ?? STATE_LABELS[node.state]}
+					</span>
+				</div>
 			{:else if node.kind === 'AND' || node.kind === 'OR'}
 				{@const needed = node.kind === 'OR' ? (node.min ?? 1) : node.total}
 				<div
@@ -149,14 +261,18 @@
 						: ''}"
 					{style}
 					title={node.reason ?? undefined}
-					aria-label="{node.label}: {node.reason ?? STATE_LABELS[node.state]}"
+					aria-label="{node.label}: {node.state === 'EXCLUDED'
+						? `${node.label} – nicht gewählt`
+						: (node.reason ?? STATE_LABELS[node.state])}"
 				>
 					<div class="flex items-start gap-2">
 						<span class="text-xl leading-none"
-							>{node.state === 'LOCKED' || node.state === 'BLOCKED' ? '🔒' : node.icon}</span
+							>{node.state === 'LOCKED' || node.state === 'BLOCKED' || node.state === 'EXCLUDED'
+								? '🔒'
+								: node.icon}</span
 						>
 						<span class="line-clamp-2 text-sm leading-tight font-bold text-institutional-navy"
-							>{node.label}</span
+							>{node.state === 'EXCLUDED' ? `${node.label} – nicht gewählt` : node.label}</span
 						>
 					</div>
 					<div class="flex items-center justify-between gap-2">

@@ -7,6 +7,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ## Unveröffentlicht
 
 ### Neu
+- **Entweder-oder-Weichen in Lernpfaden** (#23): An einer Weiche (`🔀`) entscheiden sich Schülerinnen und Schüler explizit für einen Weg; die nicht gewählten Zweige werden für sie gesperrt (`EXCLUDED` – auf der Karte, in der Modulübersicht, per Direktlink und bei gekoppelten Wissensartikeln). Der Editor färbt exklusive Zweige ein und warnt beim Bearbeiten, wenn bereits Wahlen vorliegen.
 - **UND- und ODER-Blöcke in Lernpfaden** (#22): Logik-Blöcke (`&` und `≥1` bzw. `≥n` für „mindestens n von m Eingängen“) verknüpfen mehrere Zweige sichtbar auf der Karte, zeigen ihren Erfüllungsstand („1 von 2 erfüllt“) und bevorzugen bei der Aufgabenempfehlung an ODER-Blöcken den bereits begonnenen Zweig.
 - **Verbindliche Lernpfade** (#21): Lernpfade lassen sich als *verbindlich* einstellen – Pflicht-Verbindungen (durchgezogen) sperren nachfolgende Stationen auf dem Server, bis ihre Vorgänger erledigt sind; Empfehlungs-Verbindungen (gestrichelt) bleiben sofort bearbeitbar. Übrige Module außerhalb des Pfads sind wahlweise frei, gesperrt oder erst ab einer bestimmten Station (z. B. Meilenstein „Freies Arbeiten“) automatisch freigeschaltet. Vorschau im Editor auch aus Sicht einzelner Schülerkonten.
 - **Modul „Die Kommandozeile“** (14 Aufgaben): Als Azubi im IT-Team der Stadtwerke orientiert man sich im Ordnerbaum, räumt auf, liest und durchsucht Logs mit `grep`, `find`, `head`/`tail` und Pipes und behebt am Ende einen Server-Notfall ohne Anleitung.
@@ -36,6 +37,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update
+- Migration V25 legt die Tabelle `learning_path_choices` für Entscheidungen an Entweder-oder-Weichen an (wird beim Beenden eines Kurses bereinigt).
 - Migration V24 ergänzt Lernpfade um `enforce` (verbindlich) und `unlock_rest_after` (Freigabe übriger Module ab einer Station). Bestehende Lernpfade bleiben unverändert.
 - Migration V23 ordnet Lernpfade optional einem Kurs zu.
 - Migration V22 legt das Modul *Die Kommandozeile* an und verschiebt die Aufgabe *Projekt-Setup im Terminal* samt Versuchen und Punkten dorthin. Im Git-Modul werden die durch Terminal-Aufgaben ersetzten Fragen (g2, g4, g8–g11, g13, g14) archiviert – Versuche, Punkte und Praxisabgaben bleiben erhalten, im Editor lassen sie sich zurückholen. Die neuen Aufgaben legt der Start an; beide Module sind danach für alle Kurse gesperrt, bis die Lehrkraft sie freischaltet. Die Modulreihenfolge wird nur angepasst, wo sie noch der ausgelieferten entspricht.
