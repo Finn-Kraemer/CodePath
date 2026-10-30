@@ -169,7 +169,14 @@
 			{#each choiceNode.options ?? [] as opt (opt.to)}
 				<div class="flex flex-col justify-between gap-3 border border-slate-200 bg-slate-50/60 p-4">
 					<div>
-						<span class="block text-sm font-bold text-institutional-navy">{opt.label}</span>
+						<div class="flex items-start justify-between gap-2">
+							<span class="block text-sm font-bold text-institutional-navy">{opt.label}</span>
+							{#if opt.bonusPoints && opt.bonusPoints > 0}
+								<span class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800">
+									+{opt.bonusPoints} P.
+								</span>
+							{/if}
+						</div>
 						{#if opt.hint}
 							<span class="mt-1 block text-xs text-slate-600">{opt.hint}</span>
 						{/if}
@@ -293,6 +300,39 @@
 					>
 						{node.reason ?? STATE_LABELS[node.state]}
 					</span>
+				</div>
+			{:else if node.kind === 'BONUS'}
+				<div
+					class="absolute flex flex-col justify-between border-2 p-3 {node.state === 'DONE'
+						? 'border-amber-400 bg-amber-50 shadow-sm'
+						: node.state === 'BLOCKED'
+							? 'border-amber-300 bg-amber-50/40 opacity-85'
+							: 'border-amber-300 bg-white'}"
+					{style}
+					title={node.reason ?? undefined}
+					aria-label="Bonus-Station {node.label}: {node.reason ?? `+${node.points ?? 10} Punkte`}"
+				>
+					<div class="flex items-start justify-between gap-2">
+						<div class="flex items-center gap-2">
+							<span class="text-xl leading-none">⭐</span>
+							<span class="line-clamp-2 text-sm leading-tight font-bold text-institutional-navy">
+								{node.label}
+							</span>
+						</div>
+						<span class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800">
+							+{node.points ?? 10} P.
+						</span>
+					</div>
+					<div class="flex items-center justify-between gap-2">
+						<span
+							class="line-clamp-1 font-mono text-[9px] font-bold tracking-widest uppercase {node.state ===
+							'DONE'
+								? 'text-amber-700'
+								: 'text-slate-400'}"
+						>
+							{node.reason ?? (node.state === 'DONE' ? `+${node.points ?? 10} erhalten` : STATE_LABELS[node.state])}
+						</span>
+					</div>
 				</div>
 			{:else if node.kind === 'AND' || node.kind === 'OR'}
 				{@const needed = node.kind === 'OR' ? (node.min ?? 1) : node.total}

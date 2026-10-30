@@ -37,6 +37,51 @@ public class PointsService {
         realtime.publishLeaderboardUpdate();
     }
 
+    /**
+     * Bucht Bonuspunkte für eine erreichte Bonus-Station auf einem Lernpfad – höchstens einmal je
+     * Schüler und aktiver Bonus-Station.
+     */
+    @Transactional
+    public boolean awardBonusOnce(Long userId, Long pathId, String nodeId, int amount, String note) {
+        if (userId == null || pathId == null || nodeId == null || amount <= 0) return false;
+        boolean booked = repository.insertBonusOnce(userId, pathId, nodeId, amount, note) == 1;
+        if (booked) {
+            auditService.log("POINTS_PATH_BONUS", "user:" + userId,
+                    Map.of("path", pathId, "node", nodeId, "amount", amount, "note", note == null ? "" : note));
+            realtime.publishLeaderboardUpdate();
+        }
+        return booked;
+    }
+
+    public Set<String> activeBonusNodeIds(Long userId, Long pathId) {
+        if (userId == null || pathId == null) return Set.of();
+        Set<String> result = new HashSet<>();
+        for (PointsEntry entry : repository.findActiveBonuses(userId, pathId)) {
+            if (entry.getNodeId() != null) result.add(entry.getNodeId());
+        }
+        return result;
+    }
+
+    /**
+     * Storniert einen bereits gebuchten Lernpfad-Bonus per Gegenbuchung im Punkte-Journal;
+     * der ursprüngliche Eintrag wird als storniert markiert, sodass ein erneutes Erreichen
+     * wieder buchen kann und das Journal vollständig nachvollziehbar bleibt.
+     */
+    @Transactional
+    public void cancelBonus(Long userId, Long pathId, String nodeId, String note, Long actorId) {
+        if (userId == null || pathId == null || nodeId == null) return;
+        Optional<PointsEntry> active = repository.findActiveBonus(userId, pathId, nodeId);
+        if (active.isEmpty()) return;
+        PointsEntry entry = active.get();
+        repository.markBonusCancelled(entry.getId());
+        int delta = -entry.getAmount();
+        String cancelNote = note != null && !note.isBlank() ? note : "Storno " + (entry.getNote() != null ? entry.getNote() : "Bonus");
+        repository.insertBonusCancellation(userId, pathId, nodeId, delta, cancelNote, actorId);
+        auditService.log("POINTS_BONUS_CANCELLED", "user:" + userId,
+                Map.of("path", pathId, "node", nodeId, "amount", delta, "note", cancelNote));
+        realtime.publishLeaderboardUpdate();
+    }
+
     public boolean hasAward(Long userId, Long taskId) {
         return repository.existsByUserIdAndTaskIdAndReasonIn(userId, taskId,
                 List.of(PointsReason.SOLVED, PointsReason.PARTIAL, PointsReason.REVIEW));

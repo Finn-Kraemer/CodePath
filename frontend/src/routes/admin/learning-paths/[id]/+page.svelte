@@ -72,13 +72,15 @@
 		path: string;
 		label: string;
 		min: number;
+		points: number;
 	}>({
 		kind: 'MODULE',
 		module: '',
 		task: '',
 		path: '',
 		label: '',
-		min: 1
+		min: 1,
+		points: 10
 	});
 
 	const selected = $derived(nodes.find((n) => n.id === selectedId) ?? null);
@@ -236,6 +238,7 @@
 		if (n.kind === 'PATH' && n.path) node.path = n.path;
 		if (n.label) node.label = n.label;
 		if (n.kind === 'OR') node.min = Math.max(1, n.min ?? 1);
+		if (n.kind === 'BONUS') node.points = Math.max(1, Math.min(1000, n.points ?? 10));
 		node.x = n.x;
 		node.y = n.y;
 		return node as unknown as PathNode;
@@ -315,6 +318,7 @@
 	function label(n: PathNode): string {
 		if (n.label) return n.label;
 		if (n.kind === 'CHOICE') return 'Weiche';
+		if (n.kind === 'BONUS') return 'Bonus';
 		if (n.kind === 'AND') return 'UND-Block';
 		if (n.kind === 'OR') {
 			const min = n.min ?? 1;
@@ -338,6 +342,7 @@
 		if (n.kind === 'MILESTONE') return '🏁';
 		if (n.kind === 'CHOICE') return '🔀';
 		if (n.kind === 'PATH') return '🧩';
+		if (n.kind === 'BONUS') return '⭐';
 		if (n.kind === 'AND') return '&';
 		if (n.kind === 'OR') return `≥${n.min ?? 1}`;
 		return modulesBySlug.get(n.module)?.module.icon ?? '';
@@ -350,7 +355,8 @@
 		AND: 'Logik-Block: UND',
 		OR: 'Logik-Block: ODER',
 		CHOICE: 'Entweder-oder-Weiche',
-		PATH: 'Lernpfad-Baustein'
+		PATH: 'Lernpfad-Baustein',
+		BONUS: 'Bonus-Station'
 	};
 
 	const BRANCH_PALETTE = [
@@ -395,6 +401,10 @@
 			error = 'Ein Meilenstein braucht eine Beschriftung.';
 			return;
 		}
+		if (draft.kind === 'BONUS' && !draft.label.trim()) {
+			error = 'Eine Bonus-Station braucht eine Beschriftung.';
+			return;
+		}
 		if (draft.kind === 'TASK' && !draft.task) {
 			error = 'Bitte eine Aufgabe wählen.';
 			return;
@@ -414,6 +424,7 @@
 			path: draft.kind === 'PATH' ? draft.path : undefined,
 			label: draft.label.trim(),
 			min: draft.kind === 'OR' ? Math.max(1, draft.min || 1) : undefined,
+			points: draft.kind === 'BONUS' ? Math.max(1, Math.min(1000, draft.points || 10)) : undefined,
 			x: anchor ? anchor.x : 60,
 			y: anchor
 				? anchor.y + NODE_H + 70
@@ -435,6 +446,7 @@
 		selectedId = node.id;
 		draft.label = '';
 		draft.min = 1;
+		draft.points = 10;
 	}
 
 	/** Veröffentlichte, nicht archivierte Aufgaben eines Moduls in ihrer Reihenfolge */
@@ -923,11 +935,13 @@
 									? 'rounded-full border-dashed border-institutional-gold bg-white text-center'
 									: node.kind === 'CHOICE'
 										? 'border-institutional-navy bg-amber-50/70'
-										: node.kind === 'PATH'
-											? (branchStyle ?? 'border-violet-400 bg-violet-50/50')
-											: isGate
-												? 'border-institutional-navy bg-slate-50'
-												: (branchStyle ?? 'border-slate-300 bg-white')} {selectedId === node.id
+										: node.kind === 'BONUS'
+											? (branchStyle ?? 'border-amber-400 bg-amber-50/80')
+											: node.kind === 'PATH'
+												? (branchStyle ?? 'border-violet-400 bg-violet-50/50')
+												: isGate
+													? 'border-institutional-navy bg-slate-50'
+													: (branchStyle ?? 'border-slate-300 bg-white')} {selectedId === node.id
 									? 'ring-4 ring-institutional-navy/30'
 									: ''} {connectFrom === node.id ? 'ring-4 ring-institutional-gold/60' : ''}"
 								style="left: {node.x}px; top: {node.y}px; width: {NODE_W}px; height: {NODE_H}px"
@@ -959,7 +973,9 @@
 									class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
 									>{node.kind === 'PATH' && subpathInfo
 										? `${KIND_LABELS[node.kind]} · ${subpathInfo.stations} Stationen`
-										: KIND_LABELS[node.kind]}</span
+										: node.kind === 'BONUS'
+											? `Bonus · +${node.points ?? 10} P.`
+											: KIND_LABELS[node.kind]}</span
 								>
 							</div>
 						{/each}
@@ -1082,6 +1098,22 @@
 								/>
 							</label>
 						{/if}
+						{#if selected.kind === 'BONUS'}
+							<label class="ed-label">
+								Bonuspunkte (1–1000)
+								<input
+									type="number"
+									class="ed-input"
+									min="1"
+									max="1000"
+									value={selected.points ?? 10}
+									oninput={(e) =>
+										updateNode(selected.id, {
+											points: Math.max(1, Math.min(1000, Number((e.currentTarget as HTMLInputElement).value) || 10))
+										})}
+								/>
+							</label>
+						{/if}
 						{#if selected.kind === 'MODULE'}
 							{@const node = selected}
 							{@const taken = usedElsewhere(node)}
@@ -1139,7 +1171,9 @@
 							</fieldset>
 						{/if}
 						<label class="ed-label"
-							>{selected.kind === 'MILESTONE' ? 'Beschriftung' : 'Eigene Beschriftung (optional)'}
+							>{selected.kind === 'MILESTONE' || selected.kind === 'BONUS'
+								? 'Beschriftung'
+								: 'Eigene Beschriftung (optional)'}
 							<input
 								class="ed-input"
 								value={selected.label ?? ''}
@@ -1323,6 +1357,7 @@
 						<option value="MODULE">Modul</option>
 						<option value="TASK">Einzelne Aufgabe</option>
 						<option value="PATH">Lernpfad-Baustein (🧩)</option>
+						<option value="BONUS">Bonus-Station (⭐)</option>
 						<option value="MILESTONE">Meilenstein</option>
 						<option value="CHOICE">Entweder-oder-Weiche (🔀)</option>
 						<option value="AND">Logik-Block · UND (&amp;)</option>
@@ -1367,14 +1402,29 @@
 							/>
 						</label>
 					{/if}
-					{#if draft.kind === 'MILESTONE' || draft.kind === 'CHOICE' || draft.kind === 'AND' || draft.kind === 'OR' || draft.kind === 'PATH'}
+					{#if draft.kind === 'BONUS'}
+						<label class="ed-label">
+							Bonuspunkte (1–1000)
+							<input
+								type="number"
+								class="ed-input"
+								min="1"
+								max="1000"
+								aria-label="Bonuspunkte"
+								bind:value={draft.points}
+							/>
+						</label>
+					{/if}
+					{#if draft.kind === 'MILESTONE' || draft.kind === 'BONUS' || draft.kind === 'CHOICE' || draft.kind === 'AND' || draft.kind === 'OR' || draft.kind === 'PATH'}
 						<input
 							class="ed-input"
 							placeholder={draft.kind === 'MILESTONE'
 								? 'z. B. Grundlagen geschafft!'
-								: draft.kind === 'CHOICE'
-									? 'z. B. Cloud oder Web?'
-									: 'Beschriftung (optional)'}
+								: draft.kind === 'BONUS'
+									? 'z. B. Fleißaufgabe gelöst!'
+									: draft.kind === 'CHOICE'
+										? 'z. B. Cloud oder Web?'
+										: 'Beschriftung (optional)'}
 							aria-label="Beschriftung"
 							maxlength="80"
 							bind:value={draft.label}

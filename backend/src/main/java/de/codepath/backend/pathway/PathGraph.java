@@ -17,20 +17,21 @@ public final class PathGraph {
     private PathGraph() {
     }
 
-    public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR, CHOICE, PATH }
+    public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR, CHOICE, PATH, BONUS }
 
     /**
      * @param module Slug des Moduls (MODULE und TASK)
      * @param task   Slug der Aufgabe (nur TASK)
      * @param tasks  nur MODULE: Slugs der Aufgaben, die diese Station nutzt; leer oder null für alle – so lässt
      *               sich ein Modul auf mehrere Stationen verteilen (Programmierung 1, Web 1, Programmierung 2)
-     * @param label  eigene Beschriftung; Pflicht für Meilensteine, sonst gilt der Titel von Modul bzw. Aufgabe
+     * @param label  eigene Beschriftung; Pflicht für Meilensteine und Bonus-Stationen, sonst gilt der Titel von Modul bzw. Aufgabe
      * @param min    nur OR / CHOICE: Mindestanzahl erfüllter Eingänge bzw. zu wählender Wege (Standard 1)
      * @param max    optional für CHOICE: Höchstanzahl zu wählender Wege (Standard 1)
      * @param path   nur PATH: Slug des eingebundenen Lernpfad-Bausteins
+     * @param points nur BONUS: Bonuspunkte (1–1000)
      */
     public record Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
-                       Integer min, Integer max, String path, int x, int y) {
+                       Integer min, Integer max, String path, Integer points, int x, int y) {
         public Node {
             tasks = tasks == null || tasks.isEmpty() ? null : List.copyOf(new LinkedHashSet<>(tasks));
             if (kind == NodeKind.OR) {
@@ -40,20 +41,26 @@ public final class PathGraph {
             }
             max = kind == NodeKind.CHOICE ? max : null;
             path = kind == NodeKind.PATH && path != null && !path.isBlank() ? path.strip() : null;
+            points = kind == NodeKind.BONUS ? points : null;
+        }
+
+        public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
+                    Integer min, Integer max, String path, int x, int y) {
+            this(id, kind, module, task, tasks, label, min, max, path, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
                     Integer min, Integer max, int x, int y) {
-            this(id, kind, module, task, tasks, label, min, max, null, x, y);
+            this(id, kind, module, task, tasks, label, min, max, null, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
                     Integer min, int x, int y) {
-            this(id, kind, module, task, tasks, label, min, null, null, x, y);
+            this(id, kind, module, task, tasks, label, min, null, null, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label, int x, int y) {
-            this(id, kind, module, task, tasks, label, null, null, null, x, y);
+            this(id, kind, module, task, tasks, label, null, null, null, null, x, y);
         }
 
         /** Nutzt die Station nur einen Teil der Aufgaben ihres Moduls? */
@@ -71,6 +78,10 @@ public final class PathGraph {
 
         public boolean subpath() {
             return kind == NodeKind.PATH;
+        }
+
+        public boolean bonus() {
+            return kind == NodeKind.BONUS;
         }
 
         public boolean station() {
@@ -137,6 +148,12 @@ public final class PathGraph {
                     if (isBlank(node.path())) throw ApiException.badRequest("Baustein „" + node.id() + "“ braucht die Adresse eines Lernpfads.");
                     if (!isBlank(node.module()) || !isBlank(node.task()) || node.tasks() != null) {
                         throw ApiException.badRequest("Baustein „" + node.id() + "“ verweist auf einen Lernpfad, nicht auf ein einzelnes Modul oder eine Aufgabe.");
+                    }
+                }
+                case BONUS -> {
+                    if (isBlank(node.label())) throw ApiException.badRequest("Eine Bonus-Station braucht eine Beschriftung.");
+                    if (node.points() == null || node.points() < 1 || node.points() > 1000) {
+                        throw ApiException.badRequest("Bonuspunkte müssen zwischen 1 und 1000 liegen.");
                     }
                 }
                 case AND, OR, CHOICE -> {

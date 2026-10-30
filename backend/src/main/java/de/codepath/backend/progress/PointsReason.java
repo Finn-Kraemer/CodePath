@@ -7,6 +7,8 @@ public enum PointsReason {
     PARTIAL,
     /** Praxisabgabe von der Lehrkraft bewertet */
     REVIEW,
+    /** Bonus-Station auf einem Lernpfad erreicht */
+    PATH_BONUS,
     /** Korrektur durch die Lehrkraft */
     CORRECTION
 }

@@ -3893,6 +3893,10 @@
       "ChoiceOption" : {
         "type" : "object",
         "properties" : {
+          "bonusPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "chosen" : {
             "type" : "boolean"
           },
@@ -3909,7 +3913,7 @@
             "type" : "boolean"
           }
         },
-        "required" : [ "chosen", "hint", "label", "to", "unlocked" ]
+        "required" : [ "bonusPoints", "chosen", "hint", "label", "to", "unlocked" ]
       },
       "ChoiceRequest" : {
         "type" : "object",
@@ -4603,7 +4607,7 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH", "BONUS" ]
           },
           "label" : {
             "type" : "string"
@@ -4621,6 +4625,10 @@
           },
           "path" : {
             "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "task" : {
             "type" : "string"
@@ -4640,7 +4648,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "id", "kind", "label", "max", "min", "module", "path", "task", "tasks", "x", "y" ]
+        "required" : [ "id", "kind", "label", "max", "min", "module", "path", "points", "task", "tasks", "x", "y" ]
       },
       "NodeUnlockRequest" : {
         "type" : "object",
@@ -4671,7 +4679,7 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH", "BONUS" ]
           },
           "label" : {
             "type" : "string"
@@ -4688,6 +4696,10 @@
           },
           "path" : {
             "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "reason" : {
             "type" : "string"
@@ -4715,7 +4727,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "label", "min", "options", "path", "reason", "recommended", "state", "teacherUnlocked", "total", "x", "y" ]
+        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "label", "min", "options", "path", "points", "reason", "recommended", "state", "teacherUnlocked", "total", "x", "y" ]
       },
       "PageDetail" : {
         "type" : "object",

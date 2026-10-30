@@ -28,6 +28,40 @@ public interface PointsEntryRepository extends JpaRepository<PointsEntry, Long> 
             values (:userId, :taskId, :amount, 'CORRECTION', :note, now(), :createdBy)""", nativeQuery = true)
     void insertCorrection(Long userId, Long taskId, int amount, String note, Long createdBy);
 
+    @Modifying
+    @Query(value = """
+            insert into points_entries (user_id, path_id, node_id, amount, reason, note, created_at, cancelled)
+            values (:userId, :pathId, :nodeId, :amount, 'PATH_BONUS', :note, now(), false)
+            on conflict do nothing""", nativeQuery = true)
+    int insertBonusOnce(Long userId, Long pathId, String nodeId, int amount, String note);
+
+    @Query("""
+            select p from PointsEntry p
+            where p.userId = :userId
+              and p.pathId = :pathId
+              and p.nodeId = :nodeId
+              and p.reason = de.codepath.backend.progress.PointsReason.PATH_BONUS
+              and p.cancelled = false""")
+    java.util.Optional<PointsEntry> findActiveBonus(Long userId, Long pathId, String nodeId);
+
+    @Query("""
+            select p from PointsEntry p
+            where p.userId = :userId
+              and p.pathId = :pathId
+              and p.reason = de.codepath.backend.progress.PointsReason.PATH_BONUS
+              and p.cancelled = false""")
+    List<PointsEntry> findActiveBonuses(Long userId, Long pathId);
+
+    @Modifying
+    @Query(value = "update points_entries set cancelled = true where id = :id", nativeQuery = true)
+    void markBonusCancelled(Long id);
+
+    @Modifying
+    @Query(value = """
+            insert into points_entries (user_id, path_id, node_id, amount, reason, note, created_at, created_by)
+            values (:userId, :pathId, :nodeId, :amount, 'CORRECTION', :note, now(), :createdBy)""", nativeQuery = true)
+    void insertBonusCancellation(Long userId, Long pathId, String nodeId, int amount, String note, Long createdBy);
+
     @Query("select coalesce(sum(p.amount), 0) from PointsEntry p where p.userId = :userId")
     long total(Long userId);
 

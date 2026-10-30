@@ -2,8 +2,10 @@ package de.codepath.backend;
 
 import de.codepath.backend.identity.Course;
 import de.codepath.backend.identity.User;
+import de.codepath.backend.progress.PointsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
 
 import java.util.List;
@@ -16,6 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Lernpfade: Editor der Lehrkraft, Karte mit Stand und empfohlene nächste Aufgabe. */
 class LearningPathTest extends IntegrationTestBase {
+
+    @Autowired
+    private PointsService pointsService;
 
     @BeforeEach
     void clearPaths() {
@@ -842,6 +847,107 @@ class LearningPathTest extends IntegrationTestBase {
 
     public static Map<String, Object> pathNode(String id, String pathSlug, int y) {
         return Map.of("id", id, "kind", "PATH", "path", pathSlug, "x", 80, "y", y);
+    }
+
+    public static Map<String, Object> bonusNode(String id, String label, int points, int y) {
+        return Map.of("id", id, "kind", "BONUS", "label", label, "points", points, "x", 100, "y", y);
+    }
+
+    @Test
+    void bonusStationAwardsPointsOnceAndHandlesChoiceResetAndTeacherUnlock() throws Exception {
+        Course course = course("9b");
+        unlock(course, "git");
+        User tim = student("tim", course);
+        long id = create("Bonus-Pfad", "bonus-pfad");
+
+        // 1. Validierung: Bonus-Station braucht Label und Punkte 1-1000
+        var invalidNoLabel = Map.of("graph", Map.of(
+                "nodes", List.of(Map.of("id", "b1", "kind", "BONUS", "points", 50, "x", 0, "y", 0)),
+                "edges", List.of()));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, invalidNoLabel).andExpect(status().isBadRequest());
+
+        var invalidPoints = Map.of("graph", Map.of(
+                "nodes", List.of(Map.of("id", "b1", "kind", "BONUS", "label", "Extra", "points", 0, "x", 0, "y", 0)),
+                "edges", List.of()));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, invalidPoints).andExpect(status().isBadRequest());
+
+        // 2. Gültiger Pfad mit Weiche und Bonus-Stationen:
+        // start (git/g1) -> bonus1 (50 P.) -> ch (Weiche) -> branchA (git/g5) -> bonusA (30 P.)
+        //                                                 -> branchB (git/g3)
+        var graph = Map.of(
+                "nodes", List.of(
+                        node("start", "TASK", "git", "g1", "Start-Aufgabe", 0),
+                        bonusNode("bonus1", "Stern 1", 50, 100),
+                        node("ch", "CHOICE", null, null, "Weiche", 200),
+                        node("branchA", "TASK", "git", "g5", "Weg A", 300),
+                        bonusNode("bonusA", "Stern A", 30, 400),
+                        node("branchB", "TASK", "git", "g3", "Weg B", 300)
+                ),
+                "edges", List.of(
+                        requiredEdge("start", "bonus1"),
+                        requiredEdge("bonus1", "ch"),
+                        Map.of("from", "ch", "to", "branchA", "required", true, "label", "Schwer"),
+                        requiredEdge("branchA", "bonusA"),
+                        Map.of("from", "ch", "to", "branchB", "required", true, "label", "Leicht")
+                )
+        );
+
+        putAs(teacher(), "/api/admin/learning-paths/" + id,
+                Map.of("graph", graph, "published", true, "enforce", true, "courseId", course.getId()))
+                .andExpect(status().isOk());
+
+        // Vor Lösung von g1: bonus1 ist BLOCKED, Punkte = 0
+        JsonNode timView = body(getAs(as(tim), "/api/learning-paths/bonus-pfad"));
+        assertEquals("BLOCKED", state(timView, "bonus1"));
+        assertEquals(0, points(tim));
+
+        // 3. Lösung von g1: ProgressCompletedEvent schaltet bonus1 frei und bucht 50 Punkte
+        postAs(as(tim), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        long pointsAfterG1 = points(tim);
+        // Punkte = Punkte für g1 + 50 Bonuspunkte
+        long forTask = pointsService.forTask(tim.getId(), contentService.publishedTask("git", "g1").taskId());
+        assertEquals(forTask + 50, pointsAfterG1);
+
+        timView = body(getAs(as(tim), "/api/learning-paths/bonus-pfad"));
+        assertEquals("DONE", state(timView, "bonus1"));
+        assertTrue(find(timView, "bonus1").get("reason").asString().contains("+50"));
+
+        // Zweiter Aufruf bleibt idempotent (keine doppelten Bonuspunkte)
+        timView = body(getAs(as(tim), "/api/learning-paths/bonus-pfad"));
+        assertEquals(pointsAfterG1, points(tim));
+
+        // 4. Weichen-Optionen prüfen: Weg A enthält bonusA (30 Punkte), Weg B hat 0 Bonuspunkte
+        JsonNode chNode = find(timView, "ch");
+        assertEquals("AVAILABLE", chNode.get("state").asString());
+        JsonNode optA = chNode.get("options").get(0);
+        JsonNode optB = chNode.get("options").get(1);
+        assertEquals("branchA", optA.get("to").asString());
+        assertEquals(30, optA.get("bonusPoints").asInt());
+        assertEquals("branchB", optB.get("to").asString());
+        assertEquals(0, optB.get("bonusPoints").asInt());
+
+        // 5. Tim wählt Weg A und löst g5 -> bonusA wird erreicht und bucht 30 Bonuspunkte
+        postAs(as(tim), "/api/learning-paths/bonus-pfad/choices", Map.of("nodeId", "ch", "to", "branchA"))
+                .andExpect(status().isOk());
+        postAs(as(tim), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        long pointsAfterG5 = points(tim);
+        long forG5 = pointsService.forTask(tim.getId(), contentService.publishedTask("git", "g5").taskId());
+        assertEquals(pointsAfterG1 + forG5 + 30, pointsAfterG5);
+
+        // 6. Lehrkraft setzt die Weiche zurück (resetProgress = false)
+        // Bonuspunkte aus dem verlassenen Zweig (bonusA) müssen dennoch storniert werden (-30 P.)!
+        postAs(teacher(), "/api/admin/students/tim/learning-paths/bonus-pfad/choices/reset",
+                Map.of("nodeId", "ch", "resetProgress", false)).andExpect(status().isNoContent());
+        assertEquals(pointsAfterG5 - 30, points(tim), "Bonus aus verlassenem Zweig wurde storniert");
+
+        // 7. Manuelle Freischaltung durch Lehrkraft (UNLOCK_NODE): Station wird DONE, vergibt aber KEINE Bonuspunkte
+        long pointsBeforeUnlock = points(tim);
+        postAs(teacher(), "/api/admin/students/tim/learning-paths/bonus-pfad/nodes/unlock",
+                Map.of("nodeId", "bonusA")).andExpect(status().isNoContent());
+        timView = body(getAs(as(tim), "/api/learning-paths/bonus-pfad"));
+        assertEquals("DONE", state(timView, "bonusA"));
+        assertTrue(find(timView, "bonusA").get("reason").asString().contains("kein Bonus"));
+        assertEquals(pointsBeforeUnlock, points(tim), "UNLOCK_NODE vergibt keine Bonuspunkte");
     }
 
     static boolean hasArticleForModule(JsonNode articles, String moduleSlug) {

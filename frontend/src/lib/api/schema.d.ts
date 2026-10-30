@@ -1882,6 +1882,8 @@ export interface components {
 			totalStudents: number;
 		};
 		ChoiceOption: {
+			/** Format: int32 */
+			bonusPoints: number;
 			chosen: boolean;
 			hint: string;
 			label: string;
@@ -2161,7 +2163,7 @@ export interface components {
 		Node: {
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE' | 'PATH';
+			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE' | 'PATH' | 'BONUS';
 			label: string;
 			/** Format: int32 */
 			max: number;
@@ -2169,6 +2171,8 @@ export interface components {
 			min: number;
 			module: string;
 			path: string;
+			/** Format: int32 */
+			points: number;
 			task: string;
 			tasks: string[];
 			/** Format: int32 */
@@ -2187,12 +2191,14 @@ export interface components {
 			icon: string;
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE' | 'PATH';
+			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE' | 'PATH' | 'BONUS';
 			label: string;
 			/** Format: int32 */
 			min: number;
 			options: components['schemas']['ChoiceOption'][];
 			path: string;
+			/** Format: int32 */
+			points: number;
 			reason: string;
 			recommended: boolean;
 			/** @enum {string} */

@@ -5,6 +5,7 @@ import de.codepath.backend.content.PublishedTask;
 import de.codepath.backend.identity.UserService;
 import de.codepath.backend.platform.audit.AuditService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class ProgressService {
     private final ContentService contentService;
     private final UserService userService;
     private final AuditService auditService;
+    private final ApplicationEventPublisher events;
 
     public record AttemptView(Long id, Long userId, Long taskId, Long taskVersionId, Map<String, Object> answer,
                               String outcome, double score, String feedback, LocalDateTime createdAt) {
@@ -62,6 +64,15 @@ public class ProgressService {
         progress.setReviewComment(comment);
         progress.setBestScore(java.math.BigDecimal.ONE);
         progressRepository.save(progress);
+        events.publishEvent(new ProgressCompletedEvent(
+                userId,
+                taskId,
+                ProgressStatus.SOLVED,
+                1.0,
+                progress.getFailedAttempts(),
+                progress.getHintsUsed(),
+                progress.isSolutionRevealed()
+        ));
         return points;
     }
 
