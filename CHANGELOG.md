@@ -39,6 +39,17 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - **Wissensdatenbank ausgebaut**: Alle Modulartikel erklären jetzt, was die Aufgaben voraussetzen (u. a. Subnetze, OSI, TCP/UDP, HTTP, Transaktionen, Beziehungen, Branches und Merge-Konflikte, Hashing, Firewall-Regeln, Konfusionsmatrix, neuronale Netze, CSS, JavaScript, REST-APIs, while-Schleifen, Dictionaries, Fehlermeldungen, Hexadezimal). Neu: *So funktioniert CodePath* (Punkte, Versuche, Hinweise, Aufgabentypen) und *Browser-Entwicklerwerkzeuge* für das Browser-Labor. Vollständige Lösungen zu Programmieraufgaben stehen nicht in den Artikeln.
 - Neue Dokumentation: Handbücher für Lehrkräfte, Betrieb, Sicherheit und Entwicklung, Übersicht der Aufgabentypen.
 
+### Behoben
+- **Lernpfade 2.0 (#20) im Praxiseinsatz**:
+  - Karte, Aufgabenseite und Empfehlung brachen mit einem Serverfehler ab, sobald eine Bedingung oder ein Punkte-Tor beim bloßen Ansehen festgeschrieben werden musste.
+  - Ein ausgelöster Stütz-Knoten lag nicht vor dem Normalweg, wenn keine eigene Verbindung zurück gezeichnet war – Schüler liefen einfach weiter.
+  - Im Editor gingen Boss-Markierung und Punkte-Schwelle beim Speichern verloren; Stütz-Knoten ließen sich nicht speichern; die Bezugsaufgabe einer Bedingung musste von Hand getippt werden; der Punktebereich bot Stationen hinter dem Tor an.
+  - In der Vorschau „als Schüler“ konnte die Lehrkraft versehentlich für sich selbst einen Weg wählen.
+  - Die Empfehlung kam teils aus einem nicht verbindlichen Pfad und zeigte auf gesperrte Aufgaben; der Artikel-Link der Empfehlung führte ins Leere.
+  - Praxisabgaben wurden für Bedingungen schon vor der Bewertung (mit 0 %) ausgewertet.
+  - Das Mausrad zoomte die Karte statt die Seite zu scrollen (jetzt Strg/Cmd + Mausrad); Bedingungs-Etiketten sehen nur Lehrkräfte.
+  - Der Linien-Inspektor zeigt jetzt wie beschrieben, wie oft eine Bedingung ausgelöst wurde.
+
 ### Verbessert
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 

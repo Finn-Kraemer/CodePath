@@ -33,6 +33,7 @@
 	type Kind = PathNode['kind'];
 	type ChoiceNodeStats = Schemas['ChoiceNodeStats'];
 	type ArticleSummary = Schemas['ArticleSummary'];
+	type BranchConditionStats = Schemas['BranchConditionStats'];
 
 	const id = $derived(Number(page.params.id));
 
@@ -62,6 +63,8 @@
 	let edges = $state<Edge[]>([]);
 	let catalog = $state<ModuleRow[]>([]);
 	let articles = $state<ArticleSummary[]>([]);
+	/** Wie oft jede bedingte Verbindung ausgelöst wurde */
+	let branchStats = $state<BranchConditionStats[]>([]);
 	let error = $state('');
 	let message = $state('');
 	let busy = $state(false);
@@ -155,6 +158,9 @@
 			choiceStats = stats;
 			gateStats = gStats;
 			articles = await api<ArticleSummary[]>('/api/knowledge').catch(() => []);
+			branchStats = await api<BranchConditionStats[]>(
+				`/api/admin/learning-paths/${targetId}/branch-stats`
+			).catch(() => []);
 			selectedId = null;
 			selectedEdge = null;
 			preview = null;
@@ -179,6 +185,9 @@
 			]);
 			choiceStats = cStats;
 			gateStats = gStats;
+			branchStats = await api<BranchConditionStats[]>(
+				`/api/admin/learning-paths/${id}/branch-stats${courseQuery}`
+			).catch(() => []);
 		} catch {
 			// ignorieren
 		}
@@ -1356,6 +1365,14 @@
 														})}
 												/>
 											</label>
+										{/if}
+										{@const stat = branchStats.find(
+											(b) => b.pathSlug === saved?.slug && b.edgeKey === `${edge.from}->${edge.to}`
+										)}
+										{#if stat && stat.totalEvaluated > 0}
+											<p class="font-mono text-xs font-bold text-institutional-navy">
+												Ausgelöst: {stat.matchedCount} / {stat.totalEvaluated} Schüler/innen
+											</p>
 										{/if}
 										<p class="text-xs text-slate-500">
 											Entschieden wird einmal, sobald die Bezugsaufgabe erledigt ist (Praxisaufgaben
