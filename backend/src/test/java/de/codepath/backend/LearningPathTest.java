@@ -43,6 +43,28 @@ class LearningPathTest extends IntegrationTestBase {
         return Map.of("from", from, "to", to, "required", true);
     }
 
+    static Map<String, Object> conditionalEdge(String from, String to, boolean required, String rule, String task,
+                                              Double scoreThreshold, Integer failedAttemptsThreshold, Integer hintsThreshold) {
+        Map<String, Object> cond = new java.util.HashMap<>();
+        if (rule != null) cond.put("rule", rule);
+        if (task != null) cond.put("task", task);
+        if (scoreThreshold != null) cond.put("scoreThreshold", scoreThreshold);
+        if (failedAttemptsThreshold != null) cond.put("failedAttemptsThreshold", failedAttemptsThreshold);
+        if (hintsThreshold != null) cond.put("hintsThreshold", hintsThreshold);
+        Map<String, Object> edge = new java.util.HashMap<>(Map.of("from", from, "to", to, "required", required));
+        edge.put("condition", cond);
+        return edge;
+    }
+
+    static Map<String, Object> remedialNode(String id, String module, String task, String label, String knowledgeArticle, int y) {
+        Map<String, Object> node = new java.util.HashMap<>(Map.of("id", id, "kind", "REMEDIAL", "x", 100, "y", y));
+        if (module != null) node.put("module", module);
+        if (task != null) node.put("task", task);
+        if (label != null) node.put("label", label);
+        if (knowledgeArticle != null) node.put("knowledgeArticle", knowledgeArticle);
+        return node;
+    }
+
     long create(String title, String slug) throws Exception {
         return body(postAs(teacher(), "/api/admin/learning-paths", Map.of("title", title, "slug", slug)).andExpect(status().isOk()))
                 .get("id").asLong();
@@ -1036,6 +1058,197 @@ class LearningPathTest extends IntegrationTestBase {
         // d) Modul und Pfad außerhalb sind jetzt für Schüler erreichbar
         getAs(as(felix), "/api/modules/datenbanken").andExpect(status().isOk());
         getAs(as(felix), "/api/learning-paths/anderer-pfad").andExpect(status().isOk());
+    }
+
+    @Test
+    void conditionalEdgesAndRemedialNodesAreValidatedOnSave() throws Exception {
+        long id = create("Bedingungstest", "bed-val");
+
+        // 1. Bedingte Kante ohne DEFAULT-Kante am selben Startknoten -> 400
+        var noDefaultGraph = Map.of("graph", Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Station 1", 0),
+                        node("s2", "TASK", "git", "g5", "Station 2", 100)),
+                "edges", List.of(
+                        conditionalEdge("s1", "s2", true, "PERFECT_FIRST_TRY", "g1", null, null, null))));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, noDefaultGraph).andExpect(status().isBadRequest());
+
+        // 2. Bezugsaufgabe gehört nicht zur Ausgangsstation -> 400
+        var wrongTaskGraph = Map.of("graph", Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Station 1", 0),
+                        node("s2", "TASK", "git", "g5", "Station 2", 100),
+                        node("s3", "TASK", "git", "g3", "Station 3", 200)),
+                "edges", List.of(
+                        conditionalEdge("s1", "s2", true, "DEFAULT", null, null, null, null),
+                        conditionalEdge("s1", "s3", true, "PERFECT_FIRST_TRY", "db1", null, null, null))));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, wrongTaskGraph).andExpect(status().isBadRequest());
+
+        // 3. REMEDIAL-Knoten verweist auf ungültigen Wissensartikel -> 400
+        var badArticleGraph = Map.of("graph", Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Station 1", 0),
+                        remedialNode("s_rem", "git", "g5", "Stütz-Knoten", "nicht-vorhandener-artikel-xyz", 100),
+                        node("s2", "TASK", "git", "g3", "Station 2", 200)),
+                "edges", List.of(
+                        conditionalEdge("s1", "s2", true, "DEFAULT", null, null, null, null),
+                        conditionalEdge("s1", "s_rem", true, "STRUGGLED", "g1", null, 2, 1),
+                        edge("s_rem", "s2"))));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, badArticleGraph).andExpect(status().isBadRequest());
+
+        // 4. REMEDIAL-Knoten verweist auf ungültige Aufgabe -> 400
+        var badTaskRemedial = Map.of("graph", Map.of(
+                "nodes", List.of(
+                        remedialNode("s_rem", "git", "gibt-es-nicht", "Stütz-Knoten", null, 100)),
+                "edges", List.of()));
+        putAs(teacher(), "/api/admin/learning-paths/" + id, badTaskRemedial).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void fastTrackUnlocksShortcutAndMarksIntermediateStationsSkipped() throws Exception {
+        Course course = course("10a");
+        unlock(course, "git");
+        User anna = student("anna", course);
+        long id = create("Fast-Track Pfad", "fast-track-pfad");
+
+        var graph = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Station 1", 0),
+                        node("s2", "TASK", "git", "g5", "Normalweg", 100),
+                        node("s3", "TASK", "git", "g3", "Zielstation", 200)),
+                "edges", List.of(
+                        conditionalEdge("s1", "s2", true, "DEFAULT", null, null, null, null),
+                        conditionalEdge("s1", "s3", true, "PERFECT_FIRST_TRY", "g1", null, null, null),
+                        requiredEdge("s2", "s3")));
+
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of(
+                "graph", graph,
+                "courseId", course.getId(),
+                "enforce", true,
+                "published", true)).andExpect(status().isOk());
+
+        // Vor Abgabe: s1 ist AVAILABLE, s2 und s3 sind BLOCKED
+        JsonNode view = body(getAs(as(anna), "/api/learning-paths/fast-track-pfad"));
+        assertEquals("AVAILABLE", state(view, "s1"));
+        assertEquals("BLOCKED", state(view, "s2"));
+        assertEquals("BLOCKED", state(view, "s3"));
+
+        // Anna löst g1 perfekt im 1. Versuch (100 %, keine Tipps)
+        postAs(as(anna), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+
+        // Nach Abgabe:
+        // s1 ist DONE
+        // s2 (Normalweg) ist SKIPPED
+        // s3 (Ziel) ist freigeschaltet (AVAILABLE)
+        view = body(getAs(as(anna), "/api/learning-paths/fast-track-pfad"));
+        assertEquals("DONE", state(view, "s1"));
+        assertEquals("SKIPPED", state(view, "s2"));
+        assertEquals("AVAILABLE", state(view, "s3"));
+        boolean anySkipped = false;
+        for (JsonNode n : view.get("nodes")) {
+            if ("SKIPPED".equals(n.get("state").asString())) anySkipped = true;
+        }
+        assertTrue(anySkipped, "Fast-Track hat Station auf SKIPPED gesetzt");
+
+        // Empfehlung führt direkt zu s3 (g3)
+        JsonNode next = body(getAs(as(anna), "/api/learning/next"));
+        assertEquals("g3", next.get("taskSlug").asString());
+
+        // Lehrkraft: Zweig-Statistik des Lernpfads
+        JsonNode stats = body(getAs(teacher(), "/api/admin/learning-paths/" + id + "/branch-stats"));
+        assertTrue(stats.size() >= 1);
+        JsonNode fastTrackStat = null;
+        for (JsonNode st : stats) {
+            if ("s1->s3".equals(st.path("edgeKey").asString(null))) {
+                fastTrackStat = st;
+                break;
+            }
+        }
+        assertNotNull(fastTrackStat);
+        assertEquals("PERFECT_FIRST_TRY", fastTrackStat.get("rule").asString());
+        assertEquals(1, fastTrackStat.get("matchedCount").asInt());
+        assertEquals(1, fastTrackStat.get("totalEvaluated").asInt());
+
+        // Lehrkraft: Schüleransicht enthält evaluierte Verzweigungen
+        JsonNode studentAdmin = body(getAs(teacher(), "/api/admin/students/anna/learning-path"));
+        JsonNode branches = studentAdmin.path("branches");
+        assertTrue(branches.size() >= 1);
+        boolean foundAnnaBranch = false;
+        for (JsonNode br : branches) {
+            if ("s1->s3".equals(br.path("edgeKey").asString(null))) {
+                foundAnnaBranch = true;
+                assertTrue(br.path("matched").asBoolean());
+                break;
+            }
+        }
+        assertTrue(foundAnnaBranch, "s1->s3 Verzweigung für Anna erfasst");
+    }
+
+    @Test
+    void struggledActivatesRemedialNodeAndDefaultPathExcludesIt() throws Exception {
+        Course course = course("10b");
+        unlock(course, "git");
+        User bob = student("bob", course);
+        User clara = student("clara", course);
+        long id = create("Stütz-Pfad", "stuetz-pfad");
+
+        var graph = Map.of(
+                "nodes", List.of(
+                        node("s1", "TASK", "git", "g1", "Startaufgabe", 0),
+                        remedialNode("s_rem", "git", "g5", "Stütz-Station", "git", 100),
+                        node("s2", "TASK", "git", "g3", "Folgeaufgabe", 200)),
+                "edges", List.of(
+                        conditionalEdge("s1", "s2", true, "DEFAULT", null, null, null, null),
+                        conditionalEdge("s1", "s_rem", true, "STRUGGLED", "g1", null, 2, 1),
+                        requiredEdge("s_rem", "s2")));
+
+        putAs(teacher(), "/api/admin/learning-paths/" + id, Map.of(
+                "graph", graph,
+                "courseId", course.getId(),
+                "enforce", true,
+                "published", true)).andExpect(status().isOk());
+
+        // 1. Clara löst g1 ohne Schwierigkeiten (1. Versuch, ohne Tipps)
+        postAs(as(clara), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+
+        JsonNode claraView = body(getAs(as(clara), "/api/learning-paths/stuetz-pfad"));
+        assertEquals("DONE", state(claraView, "s1"));
+        assertEquals("EXCLUDED", state(claraView, "s_rem"));
+        assertEquals("AVAILABLE", state(claraView, "s2"));
+
+        JsonNode claraNext = body(getAs(as(clara), "/api/learning/next"));
+        assertEquals("g3", claraNext.get("taskSlug").asString());
+
+        // 2. Bob nimmt einen Tipp für g1
+        postAs(as(bob), "/api/modules/git/g1/hint", null).andExpect(status().isOk());
+        postAs(as(bob), "/api/modules/git/g1/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+
+        JsonNode bobView = body(getAs(as(bob), "/api/learning-paths/stuetz-pfad"));
+        assertEquals("DONE", state(bobView, "s1"));
+        assertEquals("AVAILABLE", state(bobView, "s_rem"));
+        assertEquals("🛟", find(bobView, "s_rem").get("icon").asString());
+        assertEquals("git", find(bobView, "s_rem").get("knowledgeArticle").asString());
+        assertEquals("BLOCKED", state(bobView, "s2"));
+
+        // Next-Aufgabe für Bob verlinkt Stützaufgabe und Wissensartikel
+        JsonNode bobNext = body(getAs(as(bob), "/api/learning/next"));
+        assertEquals("g5", bobNext.get("taskSlug").asString());
+        assertEquals("git", bobNext.get("articleSlug").asString());
+        assertNotNull(bobNext.get("articleTitle").asString());
+
+        // Bob erledigt die Stützaufgabe g5 -> s2 wird nun AVAILABLE
+        postAs(as(bob), "/api/modules/git/g5/submit", Map.of("selected", List.of("b"))).andExpect(status().isOk());
+        bobView = body(getAs(as(bob), "/api/learning-paths/stuetz-pfad"));
+        assertEquals("DONE", state(bobView, "s_rem"));
+        assertEquals("AVAILABLE", state(bobView, "s2"));
+
+        // 3. Lehrkraft kann Verzweigungsergebnis zurücksetzen
+        postAs(teacher(), "/api/admin/students/bob/learning-paths/stuetz-pfad/conditions/reset?edgeKey=s1->s_rem", null)
+                .andExpect(status().isNoContent());
+
+        assertEquals(0, jdbc.queryForObject(
+                "select count(*) from learning_path_branch_results where user_id = ? and path_id = ? and edge_key = 's1->s_rem'",
+                Integer.class, bob.getId(), id));
     }
 
     static boolean hasArticleForModule(JsonNode articles, String moduleSlug) {

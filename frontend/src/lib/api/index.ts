@@ -36,6 +36,11 @@ export type PathSummary = Schemas['PathSummary'];
 export type PathAdmin = Schemas['PathAdmin'];
 export type PathGraph = Schemas['Graph'];
 export type PathNode = Schemas['Node'];
+export type PathEdge = Schemas['Edge'];
+export type EdgeCondition = Schemas['EdgeCondition'];
+export type StudentPathAdminView = Schemas['StudentPathAdminView'];
+export type StudentBranchEntry = Schemas['StudentBranchEntry'];
+export type BranchConditionStats = Schemas['BranchConditionStats'];
 export type TransferReport = Schemas['TransferReport'];
 export type SectionInfo = Schemas['SectionInfo'];
 

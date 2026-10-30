@@ -17,21 +17,21 @@ public final class PathGraph {
     private PathGraph() {
     }
 
-    public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR, CHOICE, PATH, BONUS }
+    public enum NodeKind { MODULE, TASK, MILESTONE, AND, OR, CHOICE, PATH, BONUS, REMEDIAL }
 
     /**
-     * @param module Slug des Moduls (MODULE und TASK)
-     * @param task   Slug der Aufgabe (nur TASK)
-     * @param tasks  nur MODULE: Slugs der Aufgaben, die diese Station nutzt; leer oder null für alle – so lässt
-     *               sich ein Modul auf mehrere Stationen verteilen (Programmierung 1, Web 1, Programmierung 2)
-     * @param label  eigene Beschriftung; Pflicht für Meilensteine und Bonus-Stationen, sonst gilt der Titel von Modul bzw. Aufgabe
-     * @param min    nur OR / CHOICE: Mindestanzahl erfüllter Eingänge bzw. zu wählender Wege (Standard 1)
-     * @param max    optional für CHOICE: Höchstanzahl zu wählender Wege (Standard 1)
-     * @param path   nur PATH: Slug des eingebundenen Lernpfad-Bausteins
-     * @param points nur BONUS: Bonuspunkte (1–1000)
+     * @param module           Slug des Moduls (MODULE, TASK und REMEDIAL)
+     * @param task             Slug der Aufgabe (TASK und REMEDIAL)
+     * @param tasks            nur MODULE: Slugs der Aufgaben, die diese Station nutzt; leer oder null für alle
+     * @param label            eigene Beschriftung; Pflicht für Meilensteine und Bonus-Stationen, sonst gilt der Titel von Modul bzw. Aufgabe
+     * @param min              nur OR / CHOICE: Mindestanzahl erfüllter Eingänge bzw. zu wählender Wege (Standard 1)
+     * @param max              optional für CHOICE: Höchstanzahl zu wählender Wege (Standard 1)
+     * @param path             nur PATH: Slug des eingebundenen Lernpfad-Bausteins
+     * @param points           nur BONUS: Bonuspunkte (1–1000)
+     * @param knowledgeArticle optional für REMEDIAL: Slug des empfohlenen Wissensartikels
      */
     public record Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
-                       Integer min, Integer max, String path, Integer points, int x, int y) {
+                       Integer min, Integer max, String path, Integer points, String knowledgeArticle, int x, int y) {
         public Node {
             tasks = tasks == null || tasks.isEmpty() ? null : List.copyOf(new LinkedHashSet<>(tasks));
             if (kind == NodeKind.OR) {
@@ -42,25 +42,32 @@ public final class PathGraph {
             max = kind == NodeKind.CHOICE ? max : null;
             path = kind == NodeKind.PATH && path != null && !path.isBlank() ? path.strip() : null;
             points = kind == NodeKind.BONUS ? points : null;
+            knowledgeArticle = kind == NodeKind.REMEDIAL && knowledgeArticle != null && !knowledgeArticle.isBlank()
+                    ? knowledgeArticle.strip() : null;
+        }
+
+        public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
+                    Integer min, Integer max, String path, Integer points, int x, int y) {
+            this(id, kind, module, task, tasks, label, min, max, path, points, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
                     Integer min, Integer max, String path, int x, int y) {
-            this(id, kind, module, task, tasks, label, min, max, path, null, x, y);
+            this(id, kind, module, task, tasks, label, min, max, path, null, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
                     Integer min, Integer max, int x, int y) {
-            this(id, kind, module, task, tasks, label, min, max, null, null, x, y);
+            this(id, kind, module, task, tasks, label, min, max, null, null, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label,
                     Integer min, int x, int y) {
-            this(id, kind, module, task, tasks, label, min, null, null, null, x, y);
+            this(id, kind, module, task, tasks, label, min, null, null, null, null, x, y);
         }
 
         public Node(String id, NodeKind kind, String module, String task, List<String> tasks, String label, int x, int y) {
-            this(id, kind, module, task, tasks, label, null, null, null, null, x, y);
+            this(id, kind, module, task, tasks, label, null, null, null, null, null, x, y);
         }
 
         /** Nutzt die Station nur einen Teil der Aufgaben ihres Moduls? */
@@ -84,24 +91,53 @@ public final class PathGraph {
             return kind == NodeKind.BONUS;
         }
 
+        public boolean remedial() {
+            return kind == NodeKind.REMEDIAL;
+        }
+
         public boolean station() {
-            return kind == NodeKind.MODULE || kind == NodeKind.TASK;
+            return kind == NodeKind.MODULE || kind == NodeKind.TASK || kind == NodeKind.REMEDIAL;
         }
     }
 
-    public record Edge(String from, String to, Boolean required, String label, String hint) {
+    public enum ConditionRule {
+        PERFECT_FIRST_TRY,
+        SCORE_AT_LEAST,
+        STRUGGLED,
+        DEFAULT
+    }
+
+    public record EdgeCondition(ConditionRule rule, String task, Double scoreThreshold,
+                                Integer failedAttemptsThreshold, Integer hintsThreshold) {
+        public EdgeCondition {
+            if (rule == null) {
+                rule = ConditionRule.DEFAULT;
+            }
+            task = task != null && !task.isBlank() ? task.strip() : null;
+        }
+
+        public EdgeCondition(ConditionRule rule, String task) {
+            this(rule, task, null, null, null);
+        }
+    }
+
+    public record Edge(String from, String to, Boolean required, String label, String hint, EdgeCondition condition) {
         public Edge {
             required = Boolean.TRUE.equals(required);
             label = label == null || label.isBlank() ? null : label.strip();
             hint = hint == null || hint.isBlank() ? null : hint.strip();
         }
 
+        public Edge(String from, String to, Boolean required, String label, String hint) {
+            this(from, to, required, label, hint, null);
+        }
+
         public Edge(String from, String to, Boolean required) {
-            this(from, to, required, null, null);
+            this(from, to, required, null, null, null);
         }
 
         public Edge(String from, String to) {
-            this(from, to, false, null, null);
+            this(from, to, false, null, null, null);
         }
     }
 
@@ -156,6 +192,11 @@ public final class PathGraph {
                         throw ApiException.badRequest("Bonuspunkte müssen zwischen 1 und 1000 liegen.");
                     }
                 }
+                case REMEDIAL -> {
+                    if (isBlank(node.module()) || isBlank(node.task())) {
+                        throw ApiException.badRequest("Stütz-Knoten „" + node.id() + "“ braucht ein Modul und eine Aufgabe.");
+                    }
+                }
                 case AND, OR, CHOICE -> {
                 }
             }
@@ -164,6 +205,7 @@ public final class PathGraph {
         Map<String, Integer> inCount = new HashMap<>();
         Map<String, Integer> outCount = new HashMap<>();
         Map<String, List<Edge>> outgoingEdges = new HashMap<>();
+        Map<String, List<Edge>> incomingEdges = new HashMap<>();
         for (Edge edge : graph.edges()) {
             if (edge == null || !ids.contains(edge.from()) || !ids.contains(edge.to())) {
                 throw ApiException.badRequest("Eine Verbindung zeigt auf eine Station, die es nicht gibt.");
@@ -179,11 +221,60 @@ public final class PathGraph {
             inCount.merge(edge.to(), 1, Integer::sum);
             outCount.merge(edge.from(), 1, Integer::sum);
             outgoingEdges.computeIfAbsent(edge.from(), k -> new ArrayList<>()).add(edge);
+            incomingEdges.computeIfAbsent(edge.to(), k -> new ArrayList<>()).add(edge);
         }
         for (Node node : graph.nodes()) {
             String name = isBlank(node.label()) ? node.id() : node.label();
             int inc = inCount.getOrDefault(node.id(), 0);
             int out = outCount.getOrDefault(node.id(), 0);
+            if (node.remedial()) {
+                List<Edge> inEdges = incomingEdges.getOrDefault(node.id(), List.of());
+                if (inEdges.size() != 1 || inEdges.getFirst().condition() == null || inEdges.getFirst().condition().rule() != ConditionRule.STRUGGLED) {
+                    throw ApiException.badRequest("Stütz-Knoten „" + name + "“ braucht genau eine eingehende Verbindung mit der Bedingung STRUGGLED.");
+                }
+            }
+            List<Edge> outEdges = outgoingEdges.getOrDefault(node.id(), List.of());
+            boolean hasConditional = outEdges.stream().anyMatch(e -> e.condition() != null);
+            if (hasConditional) {
+                long defaultCount = outEdges.stream()
+                        .filter(e -> e.condition() != null && e.condition().rule() == ConditionRule.DEFAULT)
+                        .count();
+                if (defaultCount > 1) {
+                    throw ApiException.badRequest("Station „" + name + "“ darf höchstens eine DEFAULT-Verbindung haben.");
+                }
+                if (defaultCount == 0) {
+                    throw ApiException.badRequest("Station „" + name + "“ hat bedingte Verbindungen, braucht aber eine DEFAULT-Verbindung (Normalweg).");
+                }
+                for (Edge edge : outEdges) {
+                    EdgeCondition cond = edge.condition();
+                    if (cond == null || cond.rule() == ConditionRule.DEFAULT) continue;
+                    if (isBlank(cond.task())) {
+                        throw ApiException.badRequest("Bedingte Verbindung ab „" + name + "“ braucht eine Bezugsaufgabe.");
+                    }
+                    if (node.kind() == NodeKind.TASK) {
+                        if (!cond.task().equals(node.task()) && !(node.module() + "/" + node.task()).equals(cond.task())) {
+                            throw ApiException.badRequest("Bedingte Verbindung ab „" + name + "“: Die Bezugsaufgabe gehört nicht zu dieser Station.");
+                        }
+                    } else if (node.kind() == NodeKind.MODULE && node.partial()) {
+                        if (!node.tasks().contains(cond.task()) && node.tasks().stream().noneMatch(t -> (node.module() + "/" + t).equals(cond.task()))) {
+                            throw ApiException.badRequest("Bedingte Verbindung ab „" + name + "“: Die Bezugsaufgabe gehört nicht zu den Aufgaben dieser Station.");
+                        }
+                    }
+                    if (cond.rule() == ConditionRule.SCORE_AT_LEAST) {
+                        Double score = cond.scoreThreshold();
+                        if (score == null || score < 0.0 || score > 100.0) {
+                            throw ApiException.badRequest("Bedingte Verbindung ab „" + name + "“: Mindest-Punktzahl muss zwischen 0 und 100 % liegen.");
+                        }
+                    } else if (cond.rule() == ConditionRule.STRUGGLED) {
+                        if (cond.failedAttemptsThreshold() != null && cond.failedAttemptsThreshold() < 1) {
+                            throw ApiException.badRequest("Bedingte Verbindung ab „" + name + "“: Fehlversuche müssen mindestens 1 sein.");
+                        }
+                        if (cond.hintsThreshold() != null && cond.hintsThreshold() < 1) {
+                            throw ApiException.badRequest("Bedingte Verbindung ab „" + name + "“: Tipps müssen mindestens 1 sein.");
+                        }
+                    }
+                }
+            }
             if (node.gate()) {
                 String kindName = node.kind() == NodeKind.AND ? "UND-Block" : "ODER-Block";
                 if (inc < 2 || out < 1) {

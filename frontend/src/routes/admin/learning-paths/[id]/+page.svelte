@@ -10,7 +10,8 @@
 		type PathSummary,
 		type PathView,
 		type Schemas,
-		type StudentOverview
+		type StudentOverview,
+		type EdgeCondition
 	} from '$lib/api';
 	import {
 		canvasSize,
@@ -74,6 +75,7 @@
 		label: string;
 		min: number;
 		points: number;
+		knowledgeArticle: string;
 	}>({
 		kind: 'MODULE',
 		module: '',
@@ -81,7 +83,8 @@
 		path: '',
 		label: '',
 		min: 1,
-		points: 10
+		points: 10,
+		knowledgeArticle: ''
 	});
 
 	const selected = $derived(nodes.find((n) => n.id === selectedId) ?? null);
@@ -228,6 +231,15 @@
 		};
 		if (e.label?.trim()) edge.label = e.label.trim();
 		if (e.hint?.trim()) edge.hint = e.hint.trim();
+		if (e.condition && e.condition.rule) {
+			edge.condition = {
+				rule: e.condition.rule,
+				task: e.condition.task?.trim() || undefined,
+				scoreThreshold: e.condition.scoreThreshold,
+				failedAttemptsThreshold: e.condition.failedAttemptsThreshold,
+				hintsThreshold: e.condition.hintsThreshold
+			};
+		}
 		return edge as unknown as Edge;
 	}
 
@@ -242,6 +254,7 @@
 		if (n.label) node.label = n.label;
 		if (n.kind === 'OR') node.min = Math.max(1, n.min ?? 1);
 		if (n.kind === 'BONUS') node.points = Math.max(1, Math.min(1000, n.points ?? 10));
+		if (n.kind === 'REMEDIAL' && n.knowledgeArticle?.trim()) node.knowledgeArticle = n.knowledgeArticle.trim();
 		node.x = n.x;
 		node.y = n.y;
 		return node as unknown as PathNode;
@@ -349,6 +362,7 @@
 		if (n.kind === 'CHOICE') return '🔀';
 		if (n.kind === 'PATH') return '🧩';
 		if (n.kind === 'BONUS') return '⭐';
+		if (n.kind === 'REMEDIAL') return '🛟';
 		if (n.kind === 'AND') return '&';
 		if (n.kind === 'OR') return `≥${n.min ?? 1}`;
 		return modulesBySlug.get(n.module)?.module.icon ?? '';
@@ -357,6 +371,7 @@
 	const KIND_LABELS: Record<Kind, string> = {
 		MODULE: 'Modul',
 		TASK: 'Aufgabe',
+		REMEDIAL: 'Stütz-Knoten',
 		MILESTONE: 'Meilenstein',
 		AND: 'Logik-Block: UND',
 		OR: 'Logik-Block: ODER',
@@ -415,22 +430,27 @@
 			error = 'Bitte eine Aufgabe wählen.';
 			return;
 		}
+		if (draft.kind === 'REMEDIAL' && !draft.task) {
+			error = 'Bitte eine Stützaufgabe wählen.';
+			return;
+		}
 		if (draft.kind === 'PATH' && !draft.path) {
 			error = 'Bitte einen Lernpfad-Baustein wählen.';
 			return;
 		}
-		const isStation = draft.kind === 'MODULE' || draft.kind === 'TASK';
+		const isStation = draft.kind === 'MODULE' || draft.kind === 'TASK' || draft.kind === 'REMEDIAL';
 		const anchor = selected;
 		const node: PathNode = normalize({
 			id: freeId(),
 			kind: draft.kind,
 			module: isStation ? draft.module : '',
-			task: draft.kind === 'TASK' ? draft.task : '',
+			task: draft.kind === 'TASK' || draft.kind === 'REMEDIAL' ? draft.task : '',
 			tasks: [],
 			path: draft.kind === 'PATH' ? draft.path : undefined,
 			label: draft.label.trim(),
 			min: draft.kind === 'OR' ? Math.max(1, draft.min || 1) : undefined,
 			points: draft.kind === 'BONUS' ? Math.max(1, Math.min(1000, draft.points || 10)) : undefined,
+			knowledgeArticle: draft.kind === 'REMEDIAL' && draft.knowledgeArticle.trim() ? draft.knowledgeArticle.trim() : undefined,
 			x: anchor ? anchor.x : 60,
 			y: anchor
 				? anchor.y + NODE_H + 70
@@ -1057,6 +1077,104 @@
 									Empfehlung (gestrichelt)
 								</label>
 							</fieldset>
+
+							<fieldset class="flex flex-col gap-2 text-sm border-t border-slate-200 pt-3">
+								<legend class="ed-label">Bedingung</legend>
+								<select
+									class="ed-input"
+									value={edge.condition?.rule ?? 'NONE'}
+									onchange={(e) => {
+										const val = (e.currentTarget as HTMLSelectElement).value;
+										if (val === 'NONE') {
+											updateEdge(selectedEdge!, { condition: undefined });
+										} else if (val === 'DEFAULT') {
+											updateEdge(selectedEdge!, { condition: { rule: 'DEFAULT' } as unknown as EdgeCondition });
+										} else if (val === 'PERFECT_FIRST_TRY') {
+											const defaultTask = fromNode?.task ?? (fromNode?.tasks?.[0] ?? '');
+											updateEdge(selectedEdge!, { condition: { rule: 'PERFECT_FIRST_TRY', task: defaultTask } as unknown as EdgeCondition });
+										} else if (val === 'STRUGGLED') {
+											const defaultTask = fromNode?.task ?? (fromNode?.tasks?.[0] ?? '');
+											updateEdge(selectedEdge!, { condition: { rule: 'STRUGGLED', task: defaultTask, failedAttemptsThreshold: 3, hintsThreshold: 2 } as unknown as EdgeCondition });
+										} else if (val === 'SCORE_AT_LEAST') {
+											const defaultTask = fromNode?.task ?? (fromNode?.tasks?.[0] ?? '');
+											updateEdge(selectedEdge!, { condition: { rule: 'SCORE_AT_LEAST', task: defaultTask, scoreThreshold: 80 } as unknown as EdgeCondition });
+										}
+									}}
+								>
+									<option value="NONE">Keine Bedingung (immer aktiv)</option>
+									<option value="DEFAULT">Normalweg (DEFAULT)</option>
+									<option value="PERFECT_FIRST_TRY">⚡ 100 % im 1. Versuch (Fast-Track / Bonus)</option>
+									<option value="STRUGGLED">🛟 Schwierigkeiten (Stütz-Knoten)</option>
+									<option value="SCORE_AT_LEAST">Mindest-Punktzahl</option>
+								</select>
+
+								{#if edge.condition && edge.condition.rule !== 'DEFAULT'}
+									<label class="ed-label mt-1">
+										Bezugsaufgabe
+										<input
+											class="ed-input"
+											placeholder="z. B. aufgabe-1 oder modul/aufgabe"
+											value={edge.condition.task ?? ''}
+											oninput={(e) => {
+												updateEdge(selectedEdge!, {
+													condition: { ...edge.condition!, task: (e.currentTarget as HTMLInputElement).value }
+												});
+											}}
+										/>
+									</label>
+
+									{#if edge.condition.rule === 'STRUGGLED'}
+										<div class="grid grid-cols-2 gap-2 mt-1">
+											<label class="ed-label">
+												Fehlversuche
+												<input
+													type="number"
+													min="1"
+													max="20"
+													class="ed-input"
+													value={edge.condition.failedAttemptsThreshold ?? 3}
+													oninput={(e) => {
+														updateEdge(selectedEdge!, {
+															condition: { ...edge.condition!, failedAttemptsThreshold: Number((e.currentTarget as HTMLInputElement).value) || 3 }
+														});
+													}}
+												/>
+											</label>
+											<label class="ed-label">
+												Tipps genutzt
+												<input
+													type="number"
+													min="1"
+													max="20"
+													class="ed-input"
+													value={edge.condition.hintsThreshold ?? 2}
+													oninput={(e) => {
+														updateEdge(selectedEdge!, {
+															condition: { ...edge.condition!, hintsThreshold: Number((e.currentTarget as HTMLInputElement).value) || 2 }
+														});
+													}}
+												/>
+											</label>
+										</div>
+									{:else if edge.condition.rule === 'SCORE_AT_LEAST'}
+										<label class="ed-label mt-1">
+											Mindestpunktzahl (%)
+											<input
+												type="number"
+												min="0"
+												max="100"
+												class="ed-input"
+												value={edge.condition.scoreThreshold ?? 80}
+												oninput={(e) => {
+													updateEdge(selectedEdge!, {
+														condition: { ...edge.condition!, scoreThreshold: Number((e.currentTarget as HTMLInputElement).value) || 0 }
+													});
+												}}
+											/>
+										</label>
+									{/if}
+								{/if}
+							</fieldset>
 							<button class="ed-button text-rose-700" onclick={() => removeEdge(selectedEdge!)}
 								>Verbindung löschen</button
 							>
@@ -1372,6 +1490,7 @@
 					<select class="ed-input" bind:value={draft.kind} aria-label="Art der Station">
 						<option value="MODULE">Modul</option>
 						<option value="TASK">Einzelne Aufgabe</option>
+						<option value="REMEDIAL">Stütz-Knoten (🛟)</option>
 						<option value="PATH">Lernpfad-Baustein (🧩)</option>
 						<option value="BONUS">Bonus-Station (⭐)</option>
 						<option value="MILESTONE">Meilenstein</option>
@@ -1379,7 +1498,7 @@
 						<option value="AND">Logik-Block · UND (&amp;)</option>
 						<option value="OR">Logik-Block · ODER (≥1)</option>
 					</select>
-					{#if draft.kind === 'MODULE' || draft.kind === 'TASK'}
+					{#if draft.kind === 'MODULE' || draft.kind === 'TASK' || draft.kind === 'REMEDIAL'}
 						<select
 							class="ed-input"
 							bind:value={draft.module}
@@ -1391,11 +1510,21 @@
 							{/each}
 						</select>
 					{/if}
-					{#if draft.kind === 'TASK'}
+					{#if draft.kind === 'TASK' || draft.kind === 'REMEDIAL'}
 						<select class="ed-input" bind:value={draft.task} aria-label="Aufgabe">
-							<option value="">Aufgabe wählen …</option>
+							<option value="">{draft.kind === 'REMEDIAL' ? 'Stützaufgabe wählen …' : 'Aufgabe wählen …'}</option>
 							{#each draftTasks as t (t.slug)}<option value={t.slug}>{t.title}</option>{/each}
 						</select>
+					{/if}
+					{#if draft.kind === 'REMEDIAL'}
+						<label class="ed-label">
+							Wissensartikel-Slug (optional)
+							<input
+								class="ed-input"
+								placeholder="z. B. datenbank-grundlagen"
+								bind:value={draft.knowledgeArticle}
+							/>
+						</label>
 					{/if}
 					{#if draft.kind === 'PATH'}
 						<select class="ed-input" bind:value={draft.path} aria-label="Lernpfad-Baustein">
@@ -1431,7 +1560,7 @@
 							/>
 						</label>
 					{/if}
-					{#if draft.kind === 'MILESTONE' || draft.kind === 'BONUS' || draft.kind === 'CHOICE' || draft.kind === 'AND' || draft.kind === 'OR' || draft.kind === 'PATH'}
+					{#if draft.kind === 'MILESTONE' || draft.kind === 'BONUS' || draft.kind === 'CHOICE' || draft.kind === 'AND' || draft.kind === 'OR' || draft.kind === 'PATH' || draft.kind === 'REMEDIAL'}
 						<input
 							class="ed-input"
 							placeholder={draft.kind === 'MILESTONE'

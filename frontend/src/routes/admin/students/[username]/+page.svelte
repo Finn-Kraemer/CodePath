@@ -140,6 +140,23 @@
 		}
 	}
 
+	async function resetBranchCondition(pathSlug: string, edgeKey?: string) {
+		pathBusy = true;
+		pathError = '';
+		try {
+			const query = edgeKey ? `?edgeKey=${encodeURIComponent(edgeKey)}` : '';
+			await api(`/api/admin/students/${username}/learning-paths/${pathSlug}/conditions/reset${query}`, {
+				method: 'POST'
+			});
+			await fetchData(pathAdmin?.selectedSlug ?? undefined);
+			flashPath('Bedingung wird neu bewertet.');
+		} catch (e) {
+			pathError = (e as Error).message;
+		} finally {
+			pathBusy = false;
+		}
+	}
+
 	async function toggleTask(task: any, halfPoints: boolean = false) {
 		if (processingTaskId !== null) return;
 
@@ -662,6 +679,41 @@
 									{/each}
 								</div>
 							</div>
+
+							{#if pathAdmin && (pathAdmin.branches?.length ?? 0) > 0}
+								<div class="space-y-3">
+									<div class="flex items-center justify-between">
+										<h4 class="font-sans text-[10px] font-black tracking-widest text-slate-400 uppercase">
+											Bedingte Verzweigungen &amp; Stütz-Knoten
+										</h4>
+									</div>
+									<div class="space-y-2">
+										{#each pathAdmin.branches ?? [] as br (br.edgeKey)}
+											<div class="flex items-center justify-between gap-3 border border-slate-200 bg-white p-3 text-xs">
+												<div>
+													<div class="flex items-center gap-2">
+														<span class="font-bold text-institutional-navy">{br.fromLabel} → {br.toLabel}</span>
+														<span class="rounded px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase {br.matched ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-500'}">
+															{br.matched ? 'Ausgelöst' : 'Nicht ausgelöst'}
+														</span>
+													</div>
+													{#if br.detail}
+														<p class="mt-0.5 text-xs text-slate-500">{br.detail}</p>
+													{/if}
+												</div>
+												<button
+													type="button"
+													disabled={pathBusy}
+													class="shrink-0 border border-slate-300 bg-white px-2.5 py-1 font-mono text-[9px] font-bold text-institutional-navy uppercase hover:bg-slate-50"
+													onclick={() => resetBranchCondition(br.pathSlug, br.edgeKey)}
+												>
+													Neu bewerten
+												</button>
+											</div>
+										{/each}
+									</div>
+								</div>
+							{/if}
 						{/if}
 					</div>
 				{/if}

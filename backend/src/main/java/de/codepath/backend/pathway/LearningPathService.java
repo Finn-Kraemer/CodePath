@@ -17,6 +17,7 @@ import de.codepath.backend.progress.PointsService;
 import de.codepath.backend.progress.ProgressCompletedEvent;
 import de.codepath.backend.progress.ProgressService;
 import de.codepath.backend.progress.ProgressStatus;
+import de.codepath.backend.site.KnowledgeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -51,9 +52,10 @@ public class LearningPathService implements PathGate {
      * Stand einer Station aus Sicht der Person: DONE erledigt, AVAILABLE als Nächstes dran (alle Vorgänger
      * erledigt), BLOCKED durch offene Pflicht-Vorgänger im verbindlichen Pfad gesperrt, UPCOMING später
      * (Empfehlungs-Vorgänger offen, trotzdem schon bearbeitbar), CLOSED Frist abgelaufen,
-     * LOCKED (noch) nicht von der Lehrkraft freigegeben, EXCLUDED durch Entscheidung an einer Weiche ausgeschlossen.
+     * LOCKED (noch) nicht von der Lehrkraft freigegeben, EXCLUDED durch Entscheidung an einer Weiche ausgeschlossen,
+     * SKIPPED durch Fast-Track übersprungen (freiwillig bearbeitbar).
      */
-    public enum NodeState { DONE, AVAILABLE, BLOCKED, UPCOMING, CLOSED, LOCKED, EXCLUDED }
+    public enum NodeState { DONE, AVAILABLE, BLOCKED, UPCOMING, CLOSED, LOCKED, EXCLUDED, SKIPPED }
 
     public record ChoiceOption(String to, String label, String hint, boolean chosen, boolean unlocked, int bonusPoints) {
     }
@@ -77,8 +79,18 @@ public class LearningPathService implements PathGate {
                                        LocalDateTime createdAt) {
     }
 
+    public record StudentBranchEntry(String pathSlug, String pathTitle, String edgeKey, String fromId, String fromLabel,
+                                     String toId, String toLabel, boolean matched, String rule, String detail,
+                                     LocalDateTime decidedAt) {
+    }
+
+    public record BranchConditionStats(String pathSlug, String pathTitle, String edgeKey, String fromId, String fromLabel,
+                                       String toId, String toLabel, String rule, int matchedCount, int totalEvaluated) {
+    }
+
     public record StudentPathAdminView(String selectedSlug, List<PathLink> paths, PathView view,
-                                       List<StudentChoiceEntry> choices, List<StudentOverrideEntry> overrides) {
+                                       List<StudentChoiceEntry> choices, List<StudentOverrideEntry> overrides,
+                                       List<StudentBranchEntry> branches) {
     }
 
     public record ChoiceBranchStat(String to, String label, int count, int unlockedCount) {
@@ -125,7 +137,7 @@ public class LearningPathService implements PathGate {
     public record NodeView(String id, PathGraph.NodeKind kind, String label, String icon, int x, int y, NodeState state,
                            String href, int done, int total, boolean recommended, String reason, Integer min,
                            List<ChoiceOption> options, String chosenTo, String path, boolean teacherUnlocked,
-                           Integer points) {
+                           Integer points, String knowledgeArticle) {
     }
 
     public record PathView(String slug, String title, String description, boolean enforce, boolean hideOverview,
@@ -135,12 +147,17 @@ public class LearningPathService implements PathGate {
 
     /** Empfohlene nächste Aufgabe mit kurzer Begründung; pathSlug ist null, wenn sie nicht aus einem Lernpfad stammt. */
     public record Recommendation(String moduleSlug, String moduleTitle, String moduleIcon, String taskSlug, String taskTitle,
-                                 String reason, String pathSlug, String pathTitle) {
+                                 String reason, String pathSlug, String pathTitle, String articleSlug, String articleTitle) {
+        public Recommendation(String moduleSlug, String moduleTitle, String moduleIcon, String taskSlug, String taskTitle,
+                              String reason, String pathSlug, String pathTitle) {
+            this(moduleSlug, moduleTitle, moduleIcon, taskSlug, taskTitle, reason, pathSlug, pathTitle, null, null);
+        }
     }
 
     private final LearningPathRepository repository;
     private final LearningPathChoiceRepository choiceRepository;
     private final LearningPathOverrideRepository overrideRepository;
+    private final LearningPathBranchResultRepository branchResultRepository;
     private final ContentService contentService;
     private final AccessPolicy accessPolicy;
     private final ReleaseService releaseService;
@@ -148,6 +165,7 @@ public class LearningPathService implements PathGate {
     private final UserService userService;
     private final ProgressService progressService;
     private final PointsService pointsService;
+    private final KnowledgeService knowledgeService;
     private final AuditService auditService;
     private final RealtimeUpdateService realtime;
     private final ObjectMapper objectMapper;
@@ -280,7 +298,7 @@ public class LearningPathService implements PathGate {
                 continue;
             }
             Set<String> tasks = plan.computeIfAbsent(node.module(), m -> new LinkedHashSet<>());
-            if (node.kind() == PathGraph.NodeKind.TASK) tasks.add(node.task());
+            if (node.kind() == PathGraph.NodeKind.TASK || node.kind() == PathGraph.NodeKind.REMEDIAL) tasks.add(node.task());
             else tasks.addAll(node.tasks());
         }
     }
@@ -338,11 +356,41 @@ public class LearningPathService implements PathGate {
             if (module == null) throw ApiException.badRequest("Das Modul „" + node.module() + "“ gibt es nicht.");
             Set<String> slugs = tasks.computeIfAbsent(module.getSlug(), m -> contentService.publishedTasks(module).stream()
                     .map(t -> t.task().getSlug()).collect(Collectors.toSet()));
-            List<String> wanted = node.kind() == PathGraph.NodeKind.TASK ? List.of(node.task())
+            List<String> wanted = (node.kind() == PathGraph.NodeKind.TASK || node.kind() == PathGraph.NodeKind.REMEDIAL) ? List.of(node.task())
                     : node.partial() ? node.tasks() : List.of();
             for (String task : wanted) {
                 if (!slugs.contains(task)) {
                     throw ApiException.badRequest("Die Aufgabe „" + node.module() + "/" + task + "“ gibt es nicht oder sie ist nicht veröffentlicht.");
+                }
+            }
+            if (node.remedial() && node.knowledgeArticle() != null && !node.knowledgeArticle().isBlank()) {
+                if (!knowledgeService.exists(node.knowledgeArticle())) {
+                    throw ApiException.badRequest("Den Wissensartikel „" + node.knowledgeArticle() + "“ gibt es nicht.");
+                }
+            }
+        }
+        for (PathGraph.Edge edge : graph.edges()) {
+            if (edge.condition() != null && edge.condition().rule() != PathGraph.ConditionRule.DEFAULT) {
+                String refTask = edge.condition().task();
+                if (refTask != null && !refTask.isBlank()) {
+                    String refMod;
+                    String refSlug;
+                    if (refTask.contains("/")) {
+                        refMod = refTask.substring(0, refTask.indexOf('/'));
+                        refSlug = refTask.substring(refTask.indexOf('/') + 1);
+                    } else {
+                        PathGraph.Node fn = graph.nodes().stream().filter(n -> n.id().equals(edge.from())).findFirst().orElse(null);
+                        refMod = fn != null ? fn.module() : null;
+                        refSlug = refTask;
+                    }
+                    if (refMod == null || !modules.containsKey(refMod)) {
+                        throw ApiException.badRequest("Das Modul der Bezugsaufgabe („" + refTask + "“) gibt es nicht.");
+                    }
+                    Set<String> modSlugs = tasks.computeIfAbsent(refMod, m -> contentService.publishedTasks(modules.get(m)).stream()
+                            .map(t -> t.task().getSlug()).collect(Collectors.toSet()));
+                    if (!modSlugs.contains(refSlug)) {
+                        throw ApiException.badRequest("Die Bezugsaufgabe „" + refTask + "“ gibt es nicht.");
+                    }
                 }
             }
         }
@@ -678,19 +726,21 @@ public class LearningPathService implements PathGate {
             selected = published.getFirst();
         }
         if (selected == null) {
-            return new StudentPathAdminView(null, links, null, List.of(), List.of());
+            return new StudentPathAdminView(null, links, null, List.of(), List.of(), List.of());
         }
         ResolvedPath resolved = resolveAccessiblePath(actor, student, selected.getSlug(), situation);
         EvaluatedPath eval = evaluate(selected, situation, resolved.enforce(), 0);
         List<StudentChoiceEntry> choices = new ArrayList<>();
         List<StudentOverrideEntry> overrides = new ArrayList<>();
-        collectStudentAdminEntries(student, selected, eval, false, situation, choices, overrides, new HashSet<>());
-        return new StudentPathAdminView(selected.getSlug(), links, eval.view(), choices, overrides);
+        List<StudentBranchEntry> branches = new ArrayList<>();
+        collectStudentAdminEntries(student, selected, eval, false, situation, choices, overrides, branches, new HashSet<>());
+        return new StudentPathAdminView(selected.getSlug(), links, eval.view(), choices, overrides, branches);
     }
 
     private void collectStudentAdminEntries(User student, LearningPath path, EvaluatedPath eval, boolean isSubpath,
                                             Situation s, List<StudentChoiceEntry> choices,
-                                            List<StudentOverrideEntry> overrides, Set<Long> visitedPaths) {
+                                            List<StudentOverrideEntry> overrides,
+                                            List<StudentBranchEntry> branches, Set<Long> visitedPaths) {
         if (path.getId() == null || !visitedPaths.add(path.getId())) return;
         Map<String, LearningPathChoice> choiceMap = choiceRepository.findByUserIdAndPathId(student.getId(), path.getId()).stream()
                 .collect(Collectors.toMap(LearningPathChoice::getNodeId, Function.identity(), (a, b) -> a));
@@ -746,15 +796,55 @@ public class LearningPathService implements PathGate {
                     ov.getCreatedAt()
             ));
         }
+        for (LearningPathBranchResult br : branchResultRepository.findByUserIdAndPathId(student.getId(), path.getId())) {
+            String[] parts = br.getEdgeKey().split("->", 2);
+            String fromId = parts[0];
+            String toId = parts.length > 1 ? parts[1] : "";
+            PathGraph.Node fn = eval.nodeById().get(fromId);
+            PathGraph.Node tn = eval.nodeById().get(toId);
+            String fromLabel = fn != null ? s.label(fn) : fromId;
+            String toLabel = tn != null ? s.label(tn) : toId;
+            branches.add(new StudentBranchEntry(
+                    path.getSlug(),
+                    path.getTitle(),
+                    br.getEdgeKey(),
+                    fromId,
+                    fromLabel,
+                    toId,
+                    toLabel,
+                    br.isMatched(),
+                    br.getRule(),
+                    br.getDetail(),
+                    br.getDecidedAt()
+            ));
+        }
         for (PathGraph.Node node : eval.live().nodes()) {
             if (node.subpath() && node.path() != null) {
                 LearningPath sub = s.path(node.path());
                 EvaluatedPath subEval = eval.subpaths().get(node.id());
                 if (sub != null && subEval != null) {
-                    collectStudentAdminEntries(student, sub, subEval, true, s, choices, overrides, visitedPaths);
+                    collectStudentAdminEntries(student, sub, subEval, true, s, choices, overrides, branches, visitedPaths);
                 }
             }
         }
+    }
+
+    @Transactional
+    public void resetBranchCondition(User actor, String studentUsername, String pathSlug, String edgeKey) {
+        if (!actor.isTeacher()) throw ApiException.forbidden("Nur für Lehrkräfte.");
+        User student = userService.byUsername(studentUsername.strip());
+        LearningPath path = repository.findBySlug(pathSlug.strip())
+                .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+        if (edgeKey != null && !edgeKey.isBlank()) {
+            branchResultRepository.deleteByUserIdAndPathIdAndEdgeKey(student.getId(), path.getId(), edgeKey.strip());
+        } else {
+            branchResultRepository.deleteByUserIdAndPathId(student.getId(), path.getId());
+        }
+        auditService.log("LEARNING_PATH_BRANCH_RESET", path.getSlug(), Map.of(
+                "student", student.getUsername(),
+                "edgeKey", edgeKey != null ? edgeKey : "*"
+        ));
+        realtime.publishLearningPathUpdate(student.getUsername(), "Deine Lehrkraft hat deine Verzweigung zurückgesetzt.");
     }
 
     @Transactional
@@ -900,7 +990,7 @@ public class LearningPathService implements PathGate {
         Module module = modulesBySlug.get(node.module());
         if (module == null) return;
         List<PublishedTask> all = tasksCache.computeIfAbsent(module.getSlug(), s -> contentService.publishedTasks(module));
-        if (node.kind() == PathGraph.NodeKind.TASK) {
+        if (node.kind() == PathGraph.NodeKind.TASK || node.kind() == PathGraph.NodeKind.REMEDIAL) {
             all.stream().filter(t -> t.task().getSlug().equals(node.task())).forEach(t -> target.add(t.taskId()));
         } else if (node.partial()) {
             all.stream().filter(t -> node.tasks().contains(t.task().getSlug())).forEach(t -> target.add(t.taskId()));
@@ -1085,6 +1175,55 @@ public class LearningPathService implements PathGate {
         return stats;
     }
 
+    @Transactional(readOnly = true)
+    public List<BranchConditionStats> branchStats(Long pathId, Long courseId) {
+        LearningPath path = find(pathId);
+        List<LearningPath> hierarchy = new ArrayList<>();
+        Map<String, LearningPath> pathsBySlug = repository.findAll().stream()
+                .collect(Collectors.toMap(LearningPath::getSlug, Function.identity(), (a, b) -> a));
+        collectPathHierarchy(path, pathsBySlug, hierarchy, new HashSet<>(), 0);
+        List<LearningPathBranchResult> allResults = branchResultRepository.findByPathIdIn(
+                hierarchy.stream().map(LearningPath::getId).toList());
+        Long effectiveCourseId = courseId != null && courseId > 0 ? courseId : path.getCourseId();
+        Set<Long> studentIds = (effectiveCourseId != null
+                ? userService.memberIds(effectiveCourseId)
+                : userService.students().stream().map(User::getId).toList())
+                .stream().collect(Collectors.toSet());
+
+        Map<String, Module> modulesBySlug = contentService.modules().stream()
+                .collect(Collectors.toMap(Module::getSlug, Function.identity()));
+
+        List<BranchConditionStats> stats = new ArrayList<>();
+        for (LearningPath p : hierarchy) {
+            PathGraph.Graph g = read(p.getGraph());
+            Map<String, PathGraph.Node> nodeById = g.nodes().stream()
+                    .collect(Collectors.toMap(PathGraph.Node::id, Function.identity(), (a, b) -> a));
+            for (PathGraph.Edge edge : g.edges()) {
+                if (edge.condition() == null) continue;
+                String edgeKey = edge.from() + "->" + edge.to();
+                String fromLabel = nodeLabel(nodeById.get(edge.from()), modulesBySlug, pathsBySlug);
+                String toLabel = nodeLabel(nodeById.get(edge.to()), modulesBySlug, pathsBySlug);
+                List<LearningPathBranchResult> edgeResults = allResults.stream()
+                        .filter(r -> r.getPathId().equals(p.getId()) && r.getEdgeKey().equals(edgeKey) && studentIds.contains(r.getUserId()))
+                        .toList();
+                int matchedCount = (int) edgeResults.stream().filter(LearningPathBranchResult::isMatched).count();
+                stats.add(new BranchConditionStats(
+                        p.getSlug(),
+                        p.getTitle(),
+                        edgeKey,
+                        edge.from(),
+                        fromLabel,
+                        edge.to(),
+                        toLabel,
+                        edge.condition().rule().name(),
+                        matchedCount,
+                        edgeResults.size()
+                ));
+            }
+        }
+        return stats;
+    }
+
     private void collectPathHierarchy(LearningPath current, Map<String, LearningPath> pathsBySlug,
                                       List<LearningPath> result, Set<String> seen, int depth) {
         if (current == null || depth > MAX_PATH_DEPTH || !seen.add(current.getSlug())) return;
@@ -1107,6 +1246,17 @@ public class LearningPathService implements PathGate {
         if (node.subpath()) {
             LearningPath sub = paths.get(node.path());
             return sub != null ? sub.getTitle() : node.path();
+        }
+        if (node.remedial()) {
+            Module m = modules.get(node.module());
+            if (m != null) {
+                return contentService.publishedTasks(m).stream()
+                        .filter(t -> t.task().getSlug().equals(node.task()))
+                        .map(t -> "Stütze: " + t.version().getTitle())
+                        .findFirst()
+                        .orElse(node.task());
+            }
+            return "Stützaufgabe";
         }
         if (node.kind() == PathGraph.NodeKind.MODULE) {
             Module m = modules.get(node.module());
@@ -1201,6 +1351,7 @@ public class LearningPathService implements PathGate {
         if (!event.userIds().isEmpty()) {
             choiceRepository.deleteByUserIdIn(event.userIds());
             overrideRepository.deleteByUserIdIn(event.userIds());
+            branchResultRepository.deleteByUserIdIn(event.userIds());
         }
     }
 
@@ -1251,7 +1402,7 @@ public class LearningPathService implements PathGate {
                     if (situation.finished(task)) return Decision.OPEN;
                     for (GateStation e : entries) {
                         NodeState state = e.state();
-                        if (state == NodeState.AVAILABLE || state == NodeState.DONE || state == NodeState.UPCOMING) {
+                        if (state == NodeState.AVAILABLE || state == NodeState.DONE || state == NodeState.UPCOMING || state == NodeState.SKIPPED) {
                             return Decision.OPEN;
                         }
                     }
@@ -1310,7 +1461,7 @@ public class LearningPathService implements PathGate {
             GateStation entry = new GateStation(node, effectiveState, effectiveReason);
             modulesInPath.add(node.module());
             moduleNodes.computeIfAbsent(node.module(), k -> new ArrayList<>()).add(entry);
-            if (node.kind() == PathGraph.NodeKind.TASK) {
+            if (node.kind() == PathGraph.NodeKind.TASK || node.kind() == PathGraph.NodeKind.REMEDIAL) {
                 taskNodes.computeIfAbsent(node.module() + "/" + node.task(), k -> new ArrayList<>()).add(entry);
             } else if (node.partial()) {
                 for (String t : node.tasks()) {
@@ -1370,6 +1521,139 @@ public class LearningPathService implements PathGate {
             }
             activeBonuses.addAll(pointsService.activeBonusNodeIds(s.user().getId(), path.getId()));
         }
+
+        Map<String, LearningPathBranchResult> branchResults = new HashMap<>();
+        if (path.getId() != null && s.user().getId() != null) {
+            branchResultRepository.findByUserIdAndPathId(s.user().getId(), path.getId())
+                    .forEach(r -> branchResults.put(r.getEdgeKey(), r));
+        }
+
+        // Bedingungen auswerten, falls Referenzaufgabe erledigt ist und noch kein Ergebnis existiert
+        for (PathGraph.Node node : nodes) {
+            List<PathGraph.Edge> outEdges = edges.stream().filter(e -> e.from().equals(node.id())).toList();
+            List<PathGraph.Edge> condEdges = outEdges.stream().filter(e -> e.condition() != null).toList();
+            if (condEdges.isEmpty()) continue;
+
+            PathGraph.Edge defaultEdge = condEdges.stream()
+                    .filter(e -> e.condition().rule() == PathGraph.ConditionRule.DEFAULT)
+                    .findFirst().orElse(null);
+            List<PathGraph.Edge> ruleEdges = condEdges.stream()
+                    .filter(e -> e.condition().rule() != PathGraph.ConditionRule.DEFAULT)
+                    .toList();
+
+            boolean anyRecorded = condEdges.stream().anyMatch(e -> branchResults.containsKey(e.from() + "->" + e.to()));
+            if (!anyRecorded) {
+                String refTaskSlug = ruleEdges.stream()
+                        .map(e -> e.condition().task())
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElseGet(node::task);
+
+                PublishedTask refTask = null;
+                if (refTaskSlug != null) {
+                    if (refTaskSlug.contains("/")) {
+                        int slash = refTaskSlug.indexOf('/');
+                        refTask = s.task(refTaskSlug.substring(0, slash), refTaskSlug.substring(slash + 1)).orElse(null);
+                    } else {
+                        refTask = s.task(node.module(), refTaskSlug).orElse(null);
+                    }
+                }
+
+                ProgressService.TaskProgressView prog = refTask != null ? s.taskProgress(refTask.taskId()) : null;
+                boolean settled = prog != null && (prog.finished() || s.finished(refTask));
+
+                if (settled && s.user().getId() != null && path.getId() != null) {
+                    boolean anyMatched = false;
+                    for (PathGraph.Edge e : ruleEdges) {
+                        PathGraph.EdgeCondition cond = e.condition();
+                        boolean matched = false;
+                        String detail = "";
+                        switch (cond.rule()) {
+                            case PERFECT_FIRST_TRY -> {
+                                matched = prog.perfectFirstTry();
+                                detail = matched ? "100 % im 1. Versuch ohne Hilfen"
+                                        : (prog.failedAttempts() > 0 ? prog.failedAttempts() + " Fehlversuche"
+                                        : (prog.hintsUsed() > 0 ? prog.hintsUsed() + " Tipps genutzt"
+                                        : (prog.solutionRevealed() ? "Lösung aufgedeckt" : "Nicht voll gelöst")));
+                            }
+                            case SCORE_AT_LEAST -> {
+                                double thresh = cond.scoreThreshold() != null ? cond.scoreThreshold() : 0.0;
+                                double scorePct = prog.bestScore() * 100.0;
+                                matched = scorePct >= (thresh - 1e-4);
+                                detail = Math.round(scorePct) + " % Punkte (Schwelle: " + Math.round(thresh) + " %)";
+                            }
+                            case STRUGGLED -> {
+                                int failThresh = cond.failedAttemptsThreshold() != null ? cond.failedAttemptsThreshold() : 3;
+                                int hintThresh = cond.hintsThreshold() != null ? cond.hintsThreshold() : 2;
+                                matched = prog.failedAttempts() >= failThresh
+                                        || prog.hintsUsed() >= hintThresh
+                                        || prog.solutionRevealed()
+                                        || prog.status() == ProgressStatus.FAILED;
+                                detail = prog.status() == ProgressStatus.FAILED ? "Aufgabe nicht bestanden (FAILED)"
+                                        : prog.solutionRevealed() ? "Musterlösung aufgedeckt"
+                                        : prog.failedAttempts() >= failThresh ? prog.failedAttempts() + " Fehlversuche (Schwelle: " + failThresh + ")"
+                                        : prog.hintsUsed() >= hintThresh ? prog.hintsUsed() + " Tipps genutzt (Schwelle: " + hintThresh + ")"
+                                        : "Keine Schwierigkeiten";
+                            }
+                            case DEFAULT -> {}
+                        }
+                        if (matched) anyMatched = true;
+                        LearningPathBranchResult br = new LearningPathBranchResult(
+                                s.user().getId(), path.getId(), e.from() + "->" + e.to(), matched, cond.rule().name(), detail);
+                        branchResultRepository.save(br);
+                        branchResults.put(br.getEdgeKey(), br);
+                    }
+                    if (defaultEdge != null) {
+                        boolean defaultMatched = !anyMatched;
+                        String detail = defaultMatched ? "Normalweg (keine andere Bedingung eingetreten)" : "Alternativweg gewählt";
+                        LearningPathBranchResult br = new LearningPathBranchResult(
+                                s.user().getId(), path.getId(), defaultEdge.from() + "->" + defaultEdge.to(),
+                                defaultMatched, PathGraph.ConditionRule.DEFAULT.name(), detail);
+                        branchResultRepository.save(br);
+                        branchResults.put(br.getEdgeKey(), br);
+                    }
+                }
+            }
+        }
+
+        Set<String> activeEdgeKeys = new HashSet<>();
+        for (PathGraph.Edge edge : edges) {
+            String key = edge.from() + "->" + edge.to();
+            if (edge.condition() == null) {
+                activeEdgeKeys.add(key);
+            } else if (branchResults.containsKey(key)) {
+                if (branchResults.get(key).isMatched()) {
+                    activeEdgeKeys.add(key);
+                }
+            } else {
+                if (edge.condition().rule() == PathGraph.ConditionRule.DEFAULT) {
+                    activeEdgeKeys.add(key);
+                }
+            }
+        }
+
+        // Fast-Track übersprungene Knoten ermitteln
+        Set<String> skippedNodeIds = new HashSet<>();
+        Map<String, String> skippedByNode = new HashMap<>();
+        for (PathGraph.Edge edge : edges) {
+            if (edge.condition() != null && edge.condition().rule() != PathGraph.ConditionRule.DEFAULT
+                    && edge.condition().rule() != PathGraph.ConditionRule.STRUGGLED) {
+                String key = edge.from() + "->" + edge.to();
+                if (activeEdgeKeys.contains(key)) {
+                    PathGraph.Edge defEdge = edges.stream()
+                            .filter(e -> e.from().equals(edge.from()) && e.condition() != null && e.condition().rule() == PathGraph.ConditionRule.DEFAULT)
+                            .findFirst().orElse(null);
+                    if (defEdge != null) {
+                        Set<String> bypassed = findBypassedNodes(live, defEdge.to(), edge.to());
+                        skippedNodeIds.addAll(bypassed);
+                        for (String bId : bypassed) {
+                            skippedByNode.put(bId, edge.from());
+                        }
+                    }
+                }
+            }
+        }
+
         Set<String> excluded = new HashSet<>();
         for (Map.Entry<String, String> entry : chosenByNode.entrySet()) {
             Set<String> allowed = new LinkedHashSet<>();
@@ -1393,7 +1677,23 @@ public class LearningPathService implements PathGate {
 
         for (PathGraph.Node node : ordered) {
             boolean teacherUnlocked = unlockedNodes.contains(node.id());
-            List<String> allPreds = predecessors.getOrDefault(node.id(), List.of());
+            List<String> allPreds = predecessors.getOrDefault(node.id(), List.of()).stream()
+                    .filter(id -> activeEdgeKeys.contains(id + "->" + node.id()))
+                    .toList();
+
+            // Stütz-Knoten prüfen: wenn eingehende STRUGGLED-Kante nicht aktiv, ist der Knoten ausgeschlossen
+            if (node.remedial()) {
+                PathGraph.Edge inEdge = edges.stream().filter(e -> e.to().equals(node.id())).findFirst().orElse(null);
+                boolean remedialActive = inEdge != null && activeEdgeKeys.contains(inEdge.from() + "->" + node.id());
+                if (!teacherUnlocked && !remedialActive) {
+                    excluded.add(node.id());
+                    states.put(node.id(), NodeState.EXCLUDED);
+                    reasons.put(node.id(), "Stützaufgabe nicht erforderlich.");
+                    clear.add(node.id());
+                    continue;
+                }
+            }
+
             if (!teacherUnlocked && (excluded.contains(node.id()) || (!allPreds.isEmpty() && allPreds.stream().allMatch(excluded::contains)))) {
                 excluded.add(node.id());
                 states.put(node.id(), NodeState.EXCLUDED);
@@ -1408,8 +1708,35 @@ public class LearningPathService implements PathGate {
                 continue;
             }
             excluded.remove(node.id());
+
+            // Übersprungene Station durch Fast-Track
+            if (skippedNodeIds.contains(node.id())) {
+                Station station = s.station(node);
+                stations.put(node.id(), station);
+                NodeState st;
+                if (station.state() == NodeState.DONE) {
+                    st = NodeState.DONE;
+                    clear.add(node.id());
+                    achieved.add(node.id());
+                    if (!teacherUnlocked) genuinelyAchieved.add(node.id());
+                } else {
+                    st = NodeState.SKIPPED;
+                    clear.add(node.id());
+                    String fromId = skippedByNode.get(node.id());
+                    PathGraph.Node fn = fromId != null ? nodeById.get(fromId) : null;
+                    reasons.put(node.id(), "Übersprungen durch Fast-Track" + (fn != null ? " von „" + s.label(fn) + "“." : "."));
+                }
+                if (teacherUnlocked) {
+                    clear.add(node.id());
+                    achieved.add(node.id());
+                }
+                states.put(node.id(), st);
+                continue;
+            }
+
             List<String> baseReq = effectiveEnforce
                     ? requiredPredecessors.getOrDefault(node.id(), List.of()).stream()
+                            .filter(id -> activeEdgeKeys.contains(id + "->" + node.id()))
                             .filter(id -> !unlockedBranches.getOrDefault(id, Set.of()).contains(node.id()))
                             .toList()
                     : List.of();
@@ -1648,10 +1975,25 @@ public class LearningPathService implements PathGate {
                     .orElseThrow();
             recommendedId = best.id();
             nextTask = stations.get(best.id()).next();
-            String reason = best.kind() == PathGraph.NodeKind.TASK
-                    ? "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“."
-                    : "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“: Modul „" + nextTask.module().getTitle() + "“.";
-            recommendation = recommendation(nextTask, reason, path);
+            String reason;
+            String articleSlug = null;
+            String articleTitle = null;
+            if (best.remedial()) {
+                articleSlug = best.knowledgeArticle();
+                if (articleSlug != null && !articleSlug.isBlank()) {
+                    var art = knowledgeService.findBySlug(articleSlug);
+                    if (art.isPresent()) articleTitle = art.get().title();
+                }
+                reason = "Kleiner Umweg: Übe das noch einmal mit „" + nextTask.version().getTitle() + "“"
+                        + (articleTitle != null ? " – hier hilft dir der Artikel „" + articleTitle + "“" : ".");
+            } else if (best.kind() == PathGraph.NodeKind.TASK) {
+                reason = "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“.";
+            } else {
+                reason = "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“: Modul „" + nextTask.module().getTitle() + "“.";
+            }
+            recommendation = new Recommendation(nextTask.module().getSlug(), nextTask.module().getTitle(),
+                    nextTask.module().getIcon(), nextTask.task().getSlug(), nextTask.version().getTitle(),
+                    reason, path.getSlug(), path.getTitle(), articleSlug, articleTitle);
         }
 
         List<NodeView> views = new ArrayList<>();
@@ -1690,7 +2032,7 @@ public class LearningPathService implements PathGate {
             String subpathSlug = node.subpath() ? node.path() : null;
             views.add(new NodeView(node.id(), node.kind(), s.label(node), s.icon(node), node.x(), node.y(), state,
                     href, nodeDone, nodeTotal, node.id().equals(recommendedId), nodeReason, node.min(), options, chosenTo, subpathSlug,
-                    unlockedNodes.contains(node.id()), node.points()));
+                    unlockedNodes.contains(node.id()), node.points(), node.knowledgeArticle()));
         }
         String unlockAfter = path.getUnlockRestAfter();
         boolean hasUnlockAfter = unlockAfter != null && !unlockAfter.isBlank();
@@ -1750,6 +2092,46 @@ public class LearningPathService implements PathGate {
                 .filter(n -> subEval.states().get(n.id()) != NodeState.EXCLUDED)
                 .toList();
         return !activeSinks.isEmpty() && activeSinks.stream().allMatch(n -> subEval.genuinelyAchieved().contains(n.id()));
+    }
+
+    /**
+     * Ermittelt Stationen auf dem Normalweg zwischen der Verzweigung und dem Ziel des Fast-Tracks,
+     * die durch die Abkürzung übersprungen werden.
+     */
+    private static Set<String> findBypassedNodes(PathGraph.Graph live, String startNodeId, String targetNodeId) {
+        Set<String> reachableFromStart = new HashSet<>();
+        Deque<String> queue = new ArrayDeque<>();
+        queue.add(startNodeId);
+        reachableFromStart.add(startNodeId);
+        while (!queue.isEmpty()) {
+            String cur = queue.poll();
+            if (cur.equals(targetNodeId)) continue;
+            for (PathGraph.Edge e : live.edges()) {
+                if (e.from().equals(cur) && !e.to().equals(targetNodeId)) {
+                    if (reachableFromStart.add(e.to())) {
+                        queue.add(e.to());
+                    }
+                }
+            }
+        }
+        Set<String> canReachTarget = new HashSet<>();
+        queue.clear();
+        queue.add(targetNodeId);
+        canReachTarget.add(targetNodeId);
+        while (!queue.isEmpty()) {
+            String cur = queue.poll();
+            for (PathGraph.Edge e : live.edges()) {
+                if (e.to().equals(cur)) {
+                    if (canReachTarget.add(e.from())) {
+                        queue.add(e.from());
+                    }
+                }
+            }
+        }
+        Set<String> bypassed = new LinkedHashSet<>(reachableFromStart);
+        bypassed.retainAll(canReachTarget);
+        bypassed.remove(targetNodeId);
+        return bypassed;
     }
 
     private static Station subpathStation(LearningPath sub, EvaluatedPath subEval) {
@@ -1868,6 +2250,7 @@ public class LearningPathService implements PathGate {
         private final AccessPolicy.Releases releases;
         private final boolean allowBonusAward;
         private final Map<Long, ProgressStatus> status;
+        private final Map<Long, ProgressService.TaskProgressView> taskProgress;
         private final Map<String, Module> modules = new LinkedHashMap<>();
         private final Map<String, List<PublishedTask>> tasks = new HashMap<>();
         private final Map<String, LearningPath> pathsBySlug = new LinkedHashMap<>();
@@ -1881,6 +2264,7 @@ public class LearningPathService implements PathGate {
             this.releases = releases;
             this.allowBonusAward = allowBonusAward;
             this.status = progressService.statusByTask(user.getId());
+            this.taskProgress = progressService.taskProgressByTask(user.getId());
             contentService.modules().forEach(m -> modules.put(m.getSlug(), m));
             repository.findAllByOrderByPositionAscIdAsc().forEach(p -> pathsBySlug.put(p.getSlug(), p));
         }
@@ -1891,6 +2275,10 @@ public class LearningPathService implements PathGate {
 
         boolean allowBonusAward() {
             return allowBonusAward;
+        }
+
+        ProgressService.TaskProgressView taskProgress(Long taskId) {
+            return taskId != null ? taskProgress.get(taskId) : null;
         }
 
         Collection<Module> modules() {
@@ -1919,7 +2307,7 @@ public class LearningPathService implements PathGate {
             return switch (node.kind()) {
                 case MILESTONE, AND, OR, CHOICE, BONUS -> true;
                 case MODULE -> modules.containsKey(node.module());
-                case TASK -> task(node.module(), node.task()).isPresent();
+                case TASK, REMEDIAL -> task(node.module(), node.task()).isPresent();
                 case PATH -> node.path() != null && pathsBySlug.containsKey(node.path());
             };
         }
@@ -1971,6 +2359,9 @@ public class LearningPathService implements PathGate {
                 LearningPath sub = path(node.path());
                 return sub != null ? sub.getTitle() : node.path();
             }
+            if (node.kind() == PathGraph.NodeKind.REMEDIAL) {
+                return task(node.module(), node.task()).map(t -> "Stütze: " + t.version().getTitle()).orElse(node.task());
+            }
             if (node.kind() == PathGraph.NodeKind.MODULE) {
                 Module m = modules.get(node.module());
                 String title = m != null ? m.getTitle() : node.module();
@@ -1989,6 +2380,7 @@ public class LearningPathService implements PathGate {
                 int min = node.min() != null ? node.min() : 1;
                 return "≥" + min;
             }
+            if (node.kind() == PathGraph.NodeKind.REMEDIAL) return "🛟";
             Module module = modules.get(node.module());
             return module == null ? "" : module.getIcon();
         }

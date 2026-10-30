@@ -57,7 +57,7 @@ public abstract class IntegrationTestBase {
     void cleanDatabase() {
         jdbc.execute("""
                 delete from practice_reviews; delete from attempts; delete from points_entries; delete from progress;
-                delete from learning_path_overrides; delete from learning_path_choices; delete from module_releases; delete from memberships; delete from general_feedback; delete from audit_events;
+                delete from learning_path_overrides; delete from learning_path_choices; delete from learning_path_branch_results; delete from module_releases; delete from memberships; delete from general_feedback; delete from audit_events;
                 delete from users where role = 'STUDENT'; delete from courses; delete from spring_session; delete from learning_paths;""");
     }
 

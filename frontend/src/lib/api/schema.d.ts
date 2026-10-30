@@ -596,6 +596,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/learning-paths/{id}/branch-stats': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['branchStats'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/learning-paths/{id}/choice-stats': {
 		parameters: {
 			query?: never;
@@ -958,6 +974,22 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post: operations['setChoice'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/students/{username}/learning-paths/{slug}/conditions/reset': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['resetBranchCondition'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -1856,6 +1888,20 @@ export interface components {
 			role: string;
 			username: string;
 		};
+		BranchConditionStats: {
+			edgeKey: string;
+			fromId: string;
+			fromLabel: string;
+			/** Format: int32 */
+			matchedCount: number;
+			pathSlug: string;
+			pathTitle: string;
+			rule: string;
+			toId: string;
+			toLabel: string;
+			/** Format: int32 */
+			totalEvaluated: number;
+		};
 		CheckResult: {
 			dryRun: components['schemas']['DryRun'];
 			problems: string[];
@@ -1994,11 +2040,23 @@ export interface components {
 			wrongOutcome: string;
 		};
 		Edge: {
+			condition: components['schemas']['EdgeCondition'];
 			from: string;
 			hint: string;
 			label: string;
 			required: boolean;
 			to: string;
+		};
+		EdgeCondition: {
+			/** Format: int32 */
+			failedAttemptsThreshold: number;
+			/** Format: int32 */
+			hintsThreshold: number;
+			/** @enum {string} */
+			rule: 'PERFECT_FIRST_TRY' | 'SCORE_AT_LEAST' | 'STRUGGLED' | 'DEFAULT';
+			/** Format: double */
+			scoreThreshold: number;
+			task: string;
 		};
 		GeneratedAccount: {
 			password: string;
@@ -2163,7 +2221,17 @@ export interface components {
 		Node: {
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE' | 'PATH' | 'BONUS';
+			kind:
+				| 'MODULE'
+				| 'TASK'
+				| 'MILESTONE'
+				| 'AND'
+				| 'OR'
+				| 'CHOICE'
+				| 'PATH'
+				| 'BONUS'
+				| 'REMEDIAL';
+			knowledgeArticle: string;
 			label: string;
 			/** Format: int32 */
 			max: number;
@@ -2191,7 +2259,17 @@ export interface components {
 			icon: string;
 			id: string;
 			/** @enum {string} */
-			kind: 'MODULE' | 'TASK' | 'MILESTONE' | 'AND' | 'OR' | 'CHOICE' | 'PATH' | 'BONUS';
+			kind:
+				| 'MODULE'
+				| 'TASK'
+				| 'MILESTONE'
+				| 'AND'
+				| 'OR'
+				| 'CHOICE'
+				| 'PATH'
+				| 'BONUS'
+				| 'REMEDIAL';
+			knowledgeArticle: string;
 			label: string;
 			/** Format: int32 */
 			min: number;
@@ -2202,7 +2280,15 @@ export interface components {
 			reason: string;
 			recommended: boolean;
 			/** @enum {string} */
-			state: 'DONE' | 'AVAILABLE' | 'BLOCKED' | 'UPCOMING' | 'CLOSED' | 'LOCKED' | 'EXCLUDED';
+			state:
+				| 'DONE'
+				| 'AVAILABLE'
+				| 'BLOCKED'
+				| 'UPCOMING'
+				| 'CLOSED'
+				| 'LOCKED'
+				| 'EXCLUDED'
+				| 'SKIPPED';
 			teacherUnlocked: boolean;
 			/** Format: int32 */
 			total: number;
@@ -2331,6 +2417,8 @@ export interface components {
 			title: string;
 		};
 		Recommendation: {
+			articleSlug: string;
+			articleTitle: string;
 			moduleIcon: string;
 			moduleSlug: string;
 			moduleTitle: string;
@@ -2371,6 +2459,20 @@ export interface components {
 			/** Format: int64 */
 			timeout: number;
 		};
+		StudentBranchEntry: {
+			/** Format: date-time */
+			decidedAt: string;
+			detail: string;
+			edgeKey: string;
+			fromId: string;
+			fromLabel: string;
+			matched: boolean;
+			pathSlug: string;
+			pathTitle: string;
+			rule: string;
+			toId: string;
+			toLabel: string;
+		};
 		StudentChoiceEntry: {
 			/** Format: date-time */
 			chosenAt: string;
@@ -2383,7 +2485,15 @@ export interface components {
 			pathSlug: string;
 			pathTitle: string;
 			/** @enum {string} */
-			state: 'DONE' | 'AVAILABLE' | 'BLOCKED' | 'UPCOMING' | 'CLOSED' | 'LOCKED' | 'EXCLUDED';
+			state:
+				| 'DONE'
+				| 'AVAILABLE'
+				| 'BLOCKED'
+				| 'UPCOMING'
+				| 'CLOSED'
+				| 'LOCKED'
+				| 'EXCLUDED'
+				| 'SKIPPED';
 			subpath: boolean;
 		};
 		StudentOverrideEntry: {
@@ -2411,6 +2521,7 @@ export interface components {
 			username: string;
 		};
 		StudentPathAdminView: {
+			branches: components['schemas']['StudentBranchEntry'][];
 			choices: components['schemas']['StudentChoiceEntry'][];
 			overrides: components['schemas']['StudentOverrideEntry'][];
 			paths: components['schemas']['PathLink'][];
@@ -3795,6 +3906,30 @@ export interface operations {
 			};
 		};
 	};
+	branchStats: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BranchConditionStats'][];
+				};
+			};
+		};
+	};
 	choiceStats: {
 		parameters: {
 			query?: {
@@ -4441,6 +4576,29 @@ export interface operations {
 				'application/json': components['schemas']['ChoiceRequest'];
 			};
 		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	resetBranchCondition: {
+		parameters: {
+			query?: {
+				edgeKey?: string;
+			};
+			header?: never;
+			path: {
+				username: string;
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
 		responses: {
 			/** @description OK */
 			200: {

@@ -33,6 +33,13 @@ public class ProgressService {
         }
     }
 
+    public record TaskProgressView(Long userId, Long taskId, ProgressStatus status, double bestScore,
+                                   int failedAttempts, int hintsUsed, boolean solutionRevealed, boolean finished) {
+        public boolean perfectFirstTry() {
+            return status == ProgressStatus.SOLVED && failedAttempts == 0 && hintsUsed == 0 && !solutionRevealed && bestScore >= 1.0;
+        }
+    }
+
     public Optional<AttemptView> attempt(Long attemptId) {
         return attemptRepository.findById(attemptId).map(AttemptView::of);
     }
@@ -91,6 +98,23 @@ public class ProgressService {
     public Map<Long, ProgressStatus> statusByTask(Long userId) {
         Map<Long, ProgressStatus> result = new HashMap<>();
         progressRepository.findByUserId(userId).forEach(p -> result.put(p.getTaskId(), p.getStatus()));
+        return result;
+    }
+
+    /** Detaillierter Fortschritt je Aufgabe für die Auswertung von Bedingungen in Lernpfaden. */
+    public Map<Long, TaskProgressView> taskProgressByTask(Long userId) {
+        Map<Long, TaskProgressView> result = new HashMap<>();
+        if (userId == null) return result;
+        progressRepository.findByUserId(userId).forEach(p -> result.put(p.getTaskId(), new TaskProgressView(
+                p.getUserId(),
+                p.getTaskId(),
+                p.getStatus(),
+                p.getBestScore() != null ? p.getBestScore().doubleValue() : 0.0,
+                p.getFailedAttempts(),
+                p.getHintsUsed(),
+                p.isSolutionRevealed(),
+                p.isFinished()
+        )));
         return result;
     }
 

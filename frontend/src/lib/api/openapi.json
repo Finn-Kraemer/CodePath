@@ -1239,6 +1239,44 @@
         "tags" : [ "learning-path-controller" ]
       }
     },
+    "/api/admin/learning-paths/{id}/branch-stats" : {
+      "get" : {
+        "operationId" : "branchStats",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/BranchConditionStats"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
     "/api/admin/learning-paths/{id}/choice-stats" : {
       "get" : {
         "operationId" : "choiceStats",
@@ -2068,6 +2106,39 @@
           },
           "required" : true
         },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "learning-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/learning-paths/{slug}/conditions/reset" : {
+      "post" : {
+        "operationId" : "resetBranchCondition",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "edgeKey",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -3817,6 +3888,44 @@
         },
         "required" : [ "courseName", "displayName", "role", "username" ]
       },
+      "BranchConditionStats" : {
+        "type" : "object",
+        "properties" : {
+          "edgeKey" : {
+            "type" : "string"
+          },
+          "fromId" : {
+            "type" : "string"
+          },
+          "fromLabel" : {
+            "type" : "string"
+          },
+          "matchedCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "rule" : {
+            "type" : "string"
+          },
+          "toId" : {
+            "type" : "string"
+          },
+          "toLabel" : {
+            "type" : "string"
+          },
+          "totalEvaluated" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "edgeKey", "fromId", "fromLabel", "matchedCount", "pathSlug", "pathTitle", "rule", "toId", "toLabel", "totalEvaluated" ]
+      },
       "CheckResult" : {
         "type" : "object",
         "properties" : {
@@ -4150,6 +4259,9 @@
       "Edge" : {
         "type" : "object",
         "properties" : {
+          "condition" : {
+            "$ref" : "#/components/schemas/EdgeCondition"
+          },
           "from" : {
             "type" : "string"
           },
@@ -4166,7 +4278,32 @@
             "type" : "string"
           }
         },
-        "required" : [ "from", "hint", "label", "required", "to" ]
+        "required" : [ "condition", "from", "hint", "label", "required", "to" ]
+      },
+      "EdgeCondition" : {
+        "type" : "object",
+        "properties" : {
+          "failedAttemptsThreshold" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "hintsThreshold" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rule" : {
+            "type" : "string",
+            "enum" : [ "PERFECT_FIRST_TRY", "SCORE_AT_LEAST", "STRUGGLED", "DEFAULT" ]
+          },
+          "scoreThreshold" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "task" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "failedAttemptsThreshold", "hintsThreshold", "rule", "scoreThreshold", "task" ]
       },
       "GeneratedAccount" : {
         "type" : "object",
@@ -4607,7 +4744,10 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH", "BONUS" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH", "BONUS", "REMEDIAL" ]
+          },
+          "knowledgeArticle" : {
+            "type" : "string"
           },
           "label" : {
             "type" : "string"
@@ -4648,7 +4788,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "id", "kind", "label", "max", "min", "module", "path", "points", "task", "tasks", "x", "y" ]
+        "required" : [ "id", "kind", "knowledgeArticle", "label", "max", "min", "module", "path", "points", "task", "tasks", "x", "y" ]
       },
       "NodeUnlockRequest" : {
         "type" : "object",
@@ -4679,7 +4819,10 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH", "BONUS" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH", "BONUS", "REMEDIAL" ]
+          },
+          "knowledgeArticle" : {
+            "type" : "string"
           },
           "label" : {
             "type" : "string"
@@ -4709,7 +4852,7 @@
           },
           "state" : {
             "type" : "string",
-            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED" ]
+            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED", "SKIPPED" ]
           },
           "teacherUnlocked" : {
             "type" : "boolean"
@@ -4727,7 +4870,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "label", "min", "options", "path", "points", "reason", "recommended", "state", "teacherUnlocked", "total", "x", "y" ]
+        "required" : [ "chosenTo", "done", "href", "icon", "id", "kind", "knowledgeArticle", "label", "min", "options", "path", "points", "reason", "recommended", "state", "teacherUnlocked", "total", "x", "y" ]
       },
       "PageDetail" : {
         "type" : "object",
@@ -5073,6 +5216,12 @@
       "Recommendation" : {
         "type" : "object",
         "properties" : {
+          "articleSlug" : {
+            "type" : "string"
+          },
+          "articleTitle" : {
+            "type" : "string"
+          },
           "moduleIcon" : {
             "type" : "string"
           },
@@ -5098,7 +5247,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "moduleIcon", "moduleSlug", "moduleTitle", "pathSlug", "pathTitle", "reason", "taskSlug", "taskTitle" ]
+        "required" : [ "articleSlug", "articleTitle", "moduleIcon", "moduleSlug", "moduleTitle", "pathSlug", "pathTitle", "reason", "taskSlug", "taskTitle" ]
       },
       "RejectRequest" : {
         "type" : "object",
@@ -5193,6 +5342,46 @@
         },
         "required" : [ "timeout" ]
       },
+      "StudentBranchEntry" : {
+        "type" : "object",
+        "properties" : {
+          "decidedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "detail" : {
+            "type" : "string"
+          },
+          "edgeKey" : {
+            "type" : "string"
+          },
+          "fromId" : {
+            "type" : "string"
+          },
+          "fromLabel" : {
+            "type" : "string"
+          },
+          "matched" : {
+            "type" : "boolean"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "rule" : {
+            "type" : "string"
+          },
+          "toId" : {
+            "type" : "string"
+          },
+          "toLabel" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "decidedAt", "detail", "edgeKey", "fromId", "fromLabel", "matched", "pathSlug", "pathTitle", "rule", "toId", "toLabel" ]
+      },
       "StudentChoiceEntry" : {
         "type" : "object",
         "properties" : {
@@ -5229,7 +5418,7 @@
           },
           "state" : {
             "type" : "string",
-            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED" ]
+            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED", "SKIPPED" ]
           },
           "subpath" : {
             "type" : "boolean"
@@ -5302,6 +5491,12 @@
       "StudentPathAdminView" : {
         "type" : "object",
         "properties" : {
+          "branches" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StudentBranchEntry"
+            }
+          },
           "choices" : {
             "type" : "array",
             "items" : {
@@ -5327,7 +5522,7 @@
             "$ref" : "#/components/schemas/PathView"
           }
         },
-        "required" : [ "choices", "overrides", "paths", "selectedSlug", "view" ]
+        "required" : [ "branches", "choices", "overrides", "paths", "selectedSlug", "view" ]
       },
       "StudentTask" : {
         "type" : "object",

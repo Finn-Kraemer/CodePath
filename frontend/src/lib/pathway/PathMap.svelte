@@ -56,7 +56,8 @@
 		UPCOMING: 'Später',
 		CLOSED: 'Zeit abgelaufen',
 		LOCKED: 'Gesperrt',
-		EXCLUDED: 'nicht gewählt'
+		EXCLUDED: 'nicht gewählt',
+		SKIPPED: 'übersprungen (Fast-Track)'
 	};
 
 	const STATE_STYLES: Record<string, string> = {
@@ -66,8 +67,23 @@
 		UPCOMING: 'border-slate-200 bg-white',
 		CLOSED: 'border-slate-200 bg-slate-50 opacity-70',
 		LOCKED: 'border-dashed border-slate-300 bg-slate-50 opacity-60',
-		EXCLUDED: 'border-dashed border-slate-300 bg-slate-100/80 opacity-60 grayscale'
+		EXCLUDED: 'border-dashed border-slate-300 bg-slate-100/80 opacity-60 grayscale',
+		SKIPPED: 'border-dashed border-sky-300 bg-sky-50/70 text-slate-700'
 	};
+
+	function conditionBadge(cond?: { rule?: string; failedAttemptsThreshold?: number; scoreThreshold?: number }): string | null {
+		if (!cond || !cond.rule) return null;
+		if (cond.rule === 'PERFECT_FIRST_TRY') return '⚡ 1. Versuch';
+		if (cond.rule === 'STRUGGLED') {
+			const fails = cond.failedAttemptsThreshold ?? 3;
+			return `🛟 ≥ ${fails} Versuche`;
+		}
+		if (cond.rule === 'SCORE_AT_LEAST') {
+			return `≥ ${Math.round(cond.scoreThreshold ?? 0)} %`;
+		}
+		if (cond.rule === 'DEFAULT') return 'Normalweg';
+		return null;
+	}
 
 	onMount(() => {
 		if (typeof window !== 'undefined') {
@@ -402,9 +418,16 @@
 	{/if}
 </div>
 
+{#if currentPath.nodes.some((n) => n.state === 'SKIPPED')}
+	<div class="mb-3 flex items-center gap-2 rounded border border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 shadow-sm" data-testid="fast-track-banner">
+		<span class="text-base">⚡</span>
+		<span><strong>Fast-Track freigeschaltet!</strong> Du hast eine Abkürzung genommen. Übersprungene Stationen können freiwillig bearbeitet werden.</span>
+	</div>
+{/if}
+
 {#if viewMode === 'list'}
 	<div class="flex flex-col gap-3" data-testid="path-list">
-		{#each currentPath.nodes as node (node.id)}
+		{#each currentPath.nodes.filter((n) => !(n.kind === 'REMEDIAL' && n.state === 'EXCLUDED')) as node (node.id)}
 			{@const done = node.state === 'DONE'}
 			{@const available = node.state === 'AVAILABLE'}
 			{@const blocked = node.state === 'BLOCKED'}
@@ -425,6 +448,8 @@
 								⭐
 							{:else if node.kind === 'AND' || node.kind === 'OR'}
 								{node.icon}
+							{:else if node.kind === 'REMEDIAL'}
+								🛟
 							{:else if node.kind === 'PATH'}
 								{blocked || excluded ? '🔒' : '🧩'}
 							{:else}
@@ -578,7 +603,7 @@
 				{#each currentPath.edges as edge (edge.from + '>' + edge.to)}
 					{@const from = byId.get(edge.from)}
 					{@const to = byId.get(edge.to)}
-					{#if from && to}
+					{#if from && to && !(from.kind === 'REMEDIAL' && from.state === 'EXCLUDED') && !(to.kind === 'REMEDIAL' && to.state === 'EXCLUDED')}
 						{@const done = from.state === 'DONE'}
 						{@const required = !!currentPath.enforce && !!edge.required}
 						{@const isGateTarget = to.kind === 'AND' || to.kind === 'OR'}
@@ -597,11 +622,22 @@
 							stroke-dasharray={done || required ? undefined : '6 5'}
 							marker-end="url(#{done ? 'arrow-done' : 'arrow-open'})"
 						/>
+						{#if edge.condition}
+							{@const cBadge = conditionBadge(edge.condition)}
+							{#if cBadge}
+								{@const midX = (from.x + to.x) / 2 + NODE_W / 2}
+								{@const midY = (from.y + to.y) / 2 + NODE_H / 2 - 12}
+								<g transform="translate({midX}, {midY})">
+									<rect x="-46" y="-9" width="92" height="18" rx="4" class="fill-white stroke-slate-300 shadow-sm" stroke-width="1" />
+									<text x="0" y="3" text-anchor="middle" font-size="8.5" font-family="sans-serif" font-weight="bold" class="fill-slate-700 pointer-events-none">{cBadge}</text>
+								</g>
+							{/if}
+						{/if}
 					{/if}
 				{/each}
 			</svg>
 
-			{#each currentPath.nodes as node (node.id)}
+			{#each currentPath.nodes.filter((n) => !(n.kind === 'REMEDIAL' && n.state === 'EXCLUDED')) as node (node.id)}
 				{@const style = `left: ${node.x}px; top: ${node.y}px; width: ${NODE_W}px; height: ${NODE_H}px`}
 				{#if node.kind === 'MILESTONE'}
 					<div

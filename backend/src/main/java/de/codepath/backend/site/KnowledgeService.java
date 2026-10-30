@@ -227,6 +227,17 @@ public class KnowledgeService implements MediaUsage {
         return repository.findAllByOrderByPositionAscIdAsc().stream().mapToInt(KnowledgeArticle::getPosition).max().orElse(-1) + 1;
     }
 
+    @Transactional(readOnly = true)
+    public boolean exists(String slug) {
+        return repository.existsBySlug(slug);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<ArticleView> findBySlug(String slug) {
+        return repository.findBySlug(slug)
+                .map(a -> new ArticleView(a.getSlug(), a.getTitle(), a.getIcon(), a.getBody(), a.getModuleSlug(), a.isPublished()));
+    }
+
     private List<KnowledgeArticle> visibleArticles(User user) {
         List<KnowledgeArticle> articles = repository.findAllByOrderByPositionAscIdAsc();
         if (user.isTeacher()) return articles;

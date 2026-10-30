@@ -77,6 +77,12 @@ public class LearningPathController {
         return service.choiceStats(id, courseId);
     }
 
+    @GetMapping("/api/admin/learning-paths/{id}/branch-stats")
+    public List<LearningPathService.BranchConditionStats> branchStats(@PathVariable("id") Long id,
+                                                                      @RequestParam(name = "courseId", required = false) Long courseId) {
+        return service.branchStats(id, courseId);
+    }
+
     @PostMapping("/api/admin/learning-paths/{id}/course-actions")
     public Map<String, Integer> courseAction(@PathVariable("id") Long id,
                                              @RequestBody LearningPathService.CoursePathActionRequest request) {
@@ -95,6 +101,14 @@ public class LearningPathController {
                                             @PathVariable("slug") String slug,
                                             @RequestBody LearningPathService.ChoiceResetRequest request) {
         service.resetChoice(userService.currentUser(), username, slug, request.nodeId(), Boolean.TRUE.equals(request.resetProgress()));
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/api/admin/students/{username}/learning-paths/{slug}/conditions/reset")
+    public ResponseEntity<Void> resetBranchCondition(@PathVariable("username") String username,
+                                                     @PathVariable("slug") String slug,
+                                                     @RequestParam(name = "edgeKey", required = false) String edgeKey) {
+        service.resetBranchCondition(userService.currentUser(), username, slug, edgeKey);
         return ResponseEntity.noContent().build();
     }
 
