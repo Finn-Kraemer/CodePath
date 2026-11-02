@@ -204,13 +204,13 @@ public class CodePathService implements PathGate {
         return admin(find(id), List.of());
     }
 
-    /** Neuer CodePath, vorbelegt mit allen Modulen in ihrer Reihenfolge als Kette – zum Umbauen. */
+    /** Neuer CodePath mit leerer Karte – die Lehrkraft zieht die Stationen selbst hinein. */
     @Transactional
     public PathAdmin create(String title, String slug) {
         CodePath path = new CodePath();
         path.setTitle(title(title));
         path.setSlug(uniqueSlug(slug(slug), null));
-        path.setGraph(write(starter()));
+        path.setGraph(write(PathGraph.Graph.empty()));
         path.setPosition(repository.findAllByOrderByPositionAscIdAsc().stream().mapToInt(CodePath::getPosition).max().orElse(-1) + 1);
         repository.save(path);
         auditService.log("CODEPATH_CREATED", path.getSlug(), Map.of());
@@ -469,21 +469,6 @@ public class CodePathService implements PathGate {
             }
         }
         return used;
-    }
-
-    private PathGraph.Graph starter() {
-        List<PathGraph.Node> nodes = new ArrayList<>();
-        List<PathGraph.Edge> edges = new ArrayList<>();
-        int i = 0;
-        for (Module module : contentService.modules()) {
-            // Schlangenlinie: drei Stationen je Reihe, jede zweite Reihe von rechts nach links
-            int row = i / 3, column = row % 2 == 0 ? i % 3 : 2 - i % 3;
-            String id = "m" + (i + 1);
-            nodes.add(new PathGraph.Node(id, PathGraph.NodeKind.MODULE, module.getSlug(), null, null, null, 60 + column * 260, 60 + row * 160));
-            if (i > 0) edges.add(new PathGraph.Edge("m" + i, id));
-            i++;
-        }
-        return new PathGraph.Graph(nodes, edges);
     }
 
     // ---------------------------------------------------------------- Schüler & PathGate

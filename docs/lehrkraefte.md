@@ -57,7 +57,7 @@ Jede Aufgabe hat eine kurze Geschichte, einen Auftrag und ein Lernziel. Pro Aufg
 
 In der Modulübersicht steht oben die **empfohlene nächste Aufgabe**. Sie kommt aus dem ersten veröffentlichten CodePath; gibt es keinen, empfiehlt die Plattform die nächste offene Aufgabe – bevorzugt in einem Modul, das schon begonnen ist. Nach dem Lösen einer Aufgabe erscheint die Empfehlung auch auf der Aufgabenseite.
 
-**Leitstand → CodePaths** legt CodePaths an. Ein neuer CodePath startet mit allen Modulen als Kette. Der Editor passt auf einen Bildschirm: links die **Bausteine**, in der Mitte die Fläche, rechts die Eigenschaften der gewählten Station (ohne Auswahl: die Einstellungen des CodePaths).
+**Leitstand → CodePaths** legt CodePaths an. Ein neuer CodePath startet mit einer leeren Fläche. Der Editor nutzt die volle Bildschirmbreite: links die **Bausteine**, in der Mitte die Fläche, rechts die Eigenschaften der gewählten Station (ohne Auswahl: die Einstellungen des CodePaths).
 
 - **Bausteine hineinziehen**: Oben links stehen *Leerer Block* (Art erst danach festlegen), *Ganzes Modul*, *Teil eines Moduls*, *Einzelne Aufgabe* und *Meilenstein*, darunter unter **Steuerung** *Weiche*, *UND*, *ODER*, *Bonus*, *Stütz-Knoten* und *CodePath-Baustein*. Darunter stehen alle Module; ein Modul oder – aufgeklappt – eine einzelne Aufgabe lässt sich direkt hineinziehen. Anklicken statt Ziehen hängt den Block unter die gewählte Station.
 - **Wo man loslässt, zählt**: auf einer Station → wird darunter angehängt und verbunden; auf einer Linie → wird zwischen die beiden Stationen eingefügt; auf freier Fläche → steht für sich.

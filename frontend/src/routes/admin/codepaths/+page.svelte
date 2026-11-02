@@ -87,7 +87,8 @@
 	{:else}
 		{#if paths.length === 0}
 			<p class="border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-				Noch kein CodePath. Ein neuer CodePath startet mit allen Modulen als Kette – zum Umbauen.
+				Noch kein CodePath. Ein neuer CodePath startet mit einer leeren Karte – die Stationen ziehst
+				du im Editor selbst hinein.
 			</p>
 		{:else}
 			<ol class="flex flex-col border border-slate-200 bg-white">
