@@ -362,6 +362,43 @@ class HandlersTest {
     }
 
     @Nested
+    class Predict {
+        final PredictHandler handler = new PredictHandler();
+        final TaskSpec spec = spec(TaskType.PREDICT, 10, Map.of(
+                "code", "summe = 0\nfor i in range(1, 5):\n    summe = summe + i\nprint(summe)",
+                "breakpoint", Map.of("line", 3, "hit", 3),
+                "questions", List.of(
+                        Map.of("variable", "summe", "answers", List.of("3")),
+                        Map.of("variable", "i", "answers", List.of("3")))));
+
+        @Test
+        void gradesEachVariableAndHidesAnswers() {
+            assertTrue(handler.validate(spec.config(), 10).isEmpty());
+            assertTrue(handler.evaluate(spec, Map.of("answers", List.of(" 3 ", "3")), CONTEXT).isCorrect());
+            Evaluation half = handler.evaluate(spec, Map.of("answers", List.of("6", "3")), CONTEXT);
+            assertEquals(Evaluation.Outcome.PARTIAL, half.outcome());
+            assertEquals(List.of(false, true), half.details().get("blanks"));
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("answers", List.of("3")), CONTEXT).outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("answers", List.of("3", "")), CONTEXT).outcome());
+            assertEquals(Evaluation.Outcome.INVALID, handler.evaluate(spec, Map.of("answers", "3"), CONTEXT).outcome());
+
+            Map<String, Object> view = handler.publicView(spec, CONTEXT);
+            assertNoSolution(view);
+            assertEquals(Map.of("line", 3, "hit", 3), view.get("breakpoint"));
+            assertEquals(List.of("3", "3"), handler.solutionView(spec, CONTEXT).get("answers"));
+        }
+
+        @Test
+        void rejectsBrokenConfig() {
+            assertFalse(handler.validate(Map.of("code", "x = 1", "breakpoint", Map.of("line", 5),
+                    "questions", List.of(Map.of("variable", "x", "answers", List.of("1")))), 10).isEmpty(), "Zeile gibt es nicht");
+            assertFalse(handler.validate(Map.of("code", "x = 1", "breakpoint", Map.of("line", 1),
+                    "questions", List.of(Map.of("variable", "1x", "answers", List.of("1")))), 10).isEmpty(), "Kein Variablenname");
+            assertFalse(handler.validate(Map.of("code", "x = 1", "breakpoint", Map.of("line", 1), "questions", List.of()), 10).isEmpty());
+        }
+    }
+
+    @Nested
     class Matching {
         final MatchingHandler handler = new MatchingHandler();
         final TaskSpec spec = spec(TaskType.MATCHING, 10, handler.template());

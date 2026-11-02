@@ -9,7 +9,8 @@ import java.util.Map;
 
 /**
  * Freitextabgabe, bewertet von der Lehrkraft mit einer Rubrik.
- * Config: { instructions, submissionNote?, rubric: [{id, label, points}], codeEditor?, starterCode?, codeRequired? }
+ * Config: { instructions, submissionNote?, rubric: [{id, label, points}], codeEditor?, starterCode?, codeRequired?,
+ *          peerReview? (nach der eigenen Abgabe zwei Abgaben anderer anonym bewerten) }
  * Antwort: { content: "<html aus dem Editor>", code?: "Python" } – mit codeEditor gibt es eine Python-Werkbank,
  * deren Code mit der Abgabe zur Lehrkraft geht.
  */
@@ -53,6 +54,7 @@ public class PracticeHandler implements TaskHandler {
         view.put("codeEditor", Cfg.bool(spec.config(), "codeEditor"));
         view.put("starterCode", Cfg.string(spec.config(), "starterCode", ""));
         view.put("codeRequired", Cfg.bool(spec.config(), "codeRequired"));
+        view.put("peerReview", Cfg.bool(spec.config(), "peerReview"));
         return CodeHandler.withVisualizer(view, spec.config());
     }
 

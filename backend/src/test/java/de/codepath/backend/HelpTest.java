@@ -141,6 +141,14 @@ class HelpTest extends IntegrationTestBase {
         JsonNode recent = body(getAs(teacher(), "/api/admin/help")).get("recent");
         assertEquals("SELF_SOLVED", recent.get(0).get("resolution").asString());
 
+        // Lernanalyse: Hilfe-Rufe je Aufgabe
+        long taskId = contentService.publishedTask("programmierung", "p1").taskId();
+        JsonNode stats = body(getAs(teacher(), "/api/admin/help/statistics").andExpect(status().isOk()));
+        assertEquals(taskId, stats.get(0).get("taskId").asLong());
+        assertEquals(1, stats.get(0).get("calls").asInt());
+        assertEquals(1, stats.get(0).get("selfSolved").asInt());
+        getAs(as(lena), "/api/admin/help/statistics").andExpect(status().isForbidden());
+
         courseService.endCourse(course.getId());
         assertEquals(0, jdbc.queryForObject("select count(*) from help_requests", Integer.class));
     }

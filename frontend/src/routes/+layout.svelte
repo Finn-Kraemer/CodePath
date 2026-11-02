@@ -10,6 +10,7 @@
 	import { auth } from '$lib/auth.svelte';
 	import { realtime } from '$lib/realtime.svelte';
 	import HelpBadge from '$lib/help/HelpBadge.svelte';
+	import QuizBanner from '$lib/quiz/QuizBanner.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { siteNavigation } from '$lib/site/navigation.svelte';
@@ -420,6 +421,10 @@
 				</div>
 			{/if}
 		</nav>
+	{/if}
+
+	{#if auth.isAuthenticated && auth.user?.role !== 'ADMIN' && !isProjector}
+		<QuizBanner />
 	{/if}
 
 	<!-- Global Announcement Banner -->

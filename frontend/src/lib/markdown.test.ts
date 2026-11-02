@@ -11,6 +11,11 @@ describe('renderMarkdown', () => {
 		expect(html).toContain('<td>1</td>');
 	});
 
+	it('markiert Visualizer-Bausteine (schritte) für den Code-Visualizer', () => {
+		const html = renderMarkdown('~~~schritte\nx = 1\nprint(x)\n~~~');
+		expect(html).toContain('<code class="language-schritte">x = 1');
+	});
+
 	it('entfernt Skripte und Event-Handler', () => {
 		const html = renderMarkdown(
 			'<img src=x onerror="alert(1)"><script>alert(2)</script>[x](javascript:alert(3))'

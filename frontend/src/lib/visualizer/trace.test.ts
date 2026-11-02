@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
 	aliases,
+	findBreakpoint,
+	variableAt,
 	changedItems,
 	changedVariables,
 	describeStep,
@@ -128,5 +130,25 @@ describe('stopNotice', () => {
 			'Nach 1000 Schritten angehalten – läuft deine Schleife endlos?'
 		);
 		expect(stopNotice({ ...trace, stopped: null }, 1000)).toBeNull();
+	});
+});
+
+describe('Haltepunkt (Vorhersage-Aufgaben)', () => {
+	it('findet das n-te Erreichen einer Zeile und liest Variablen', () => {
+		// tausch: Zeile 6 (i += 1) wird zweimal erreicht
+		const first = findBreakpoint(swap.steps, { line: 6 });
+		const second = findBreakpoint(swap.steps, { line: 6, hit: 2 });
+		expect(first).toBe(5);
+		expect(second).toBe(7);
+		expect(variableAt(swap.steps[second], 'i')).toBe('1');
+		expect(variableAt(swap.steps[second], 'liste')).toBe('[1, 3]');
+		expect(variableAt(swap.steps[second], 'gibtsnicht')).toBeUndefined();
+		expect(findBreakpoint(swap.steps, { line: 6, hit: 3 })).toBe(-1);
+	});
+
+	it('sucht Variablen vom innersten Aufruf nach außen', () => {
+		const deepest = recursion.steps.find((s) => s.stack.length === 4)!;
+		expect(variableAt(deepest, 'n')).toBe('1');
+		expect(variableAt(deepest, 'zahlen')).toBe('[3, 1, 2]');
 	});
 });

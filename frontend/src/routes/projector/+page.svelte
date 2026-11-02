@@ -3,6 +3,8 @@
 	import { onMount } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
 	import { realtime } from '$lib/realtime.svelte';
+	import { api, type QuizState, type QuizView } from '$lib/api';
+	import QuizStage from '$lib/quiz/QuizStage.svelte';
 
 	interface Entry {
 		username: string;
@@ -15,6 +17,25 @@
 	let announcement = $state<string | null>(null);
 	let loading = $state(true);
 	let now = $state(new Date());
+	/** Laufende Quiz-Runde: überdeckt die Rangliste, solange sie läuft */
+	let quiz = $state<QuizView | null>(null);
+
+	async function loadQuiz() {
+		try {
+			quiz = (await api<QuizState>('/api/admin/quiz/current')).quiz ?? null;
+		} catch {
+			quiz = null;
+		}
+	}
+
+	async function quizAction(step: 'next' | 'reveal' | 'finish') {
+		const state = await api<QuizState>(`/api/admin/quiz/current/${step}`, { method: 'POST' });
+		quiz = state.quiz ?? null;
+	}
+
+	$effect(() => {
+		if (realtime.quizTrigger >= 0) loadQuiz();
+	});
 
 	async function fetchData() {
 		try {
@@ -80,6 +101,18 @@
 <svelte:head>
 	<title>CodePath | Live Dashboard</title>
 </svelte:head>
+
+{#if quiz}
+	<div class="fixed inset-0 z-[110] overflow-auto bg-slate-950 p-16" data-testid="projector-quiz">
+		<QuizStage
+			{quiz}
+			dark
+			onnext={() => quizAction('next')}
+			onreveal={() => quizAction('reveal')}
+			onfinish={() => quizAction('finish')}
+		/>
+	</div>
+{/if}
 
 <!-- Full screen container, escaping layout padding if any remained -->
 <div class="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-slate-950 font-sans text-white">

@@ -30,6 +30,10 @@
 	>
 	<VisualizerOptions bind:config />
 {/if}
+<label class="mt-4 flex items-center gap-2 text-sm"
+	><input type="checkbox" bind:checked={config.peerReview} /> Peer-Review: Nach der Abgabe bewertet jede
+	Person zwei Abgaben anderer anonym nach der Rubrik (ohne Punkte)</label
+>
 <p class="ed-label mt-4">Rubrik</p>
 <div class="mt-2 space-y-2">
 	{#each config.rubric ?? [] as criterion, i (criterion.id)}

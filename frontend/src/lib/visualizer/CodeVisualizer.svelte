@@ -10,6 +10,8 @@
 		formatValue,
 		objectNumbers,
 		stopNotice,
+		findBreakpoint,
+		type Breakpoint,
 		type HeapObject,
 		type Trace,
 		type Value
@@ -24,6 +26,7 @@
 		code,
 		stdin = '',
 		maxSteps = DEFAULT_MAX_STEPS,
+		breakpoint,
 		title = 'Schritt für Schritt',
 		onclose
 	}: {
@@ -31,6 +34,8 @@
 		code: string;
 		stdin?: string;
 		maxSteps?: number;
+		/** Haltepunkt (Vorhersage-Aufgaben): dorthin springen und die Zeile markieren */
+		breakpoint?: Breakpoint;
 		title?: string;
 		onclose?: () => void;
 	} = $props();
@@ -96,7 +101,8 @@
 			showIntro = true;
 		}
 		trace = await runner.trace(code, stdin, { maxSteps });
-		index = 0;
+		const stop = breakpoint ? findBreakpoint(trace.steps, breakpoint) : -1;
+		index = Math.max(0, stop);
 		container?.focus();
 	});
 
@@ -207,6 +213,7 @@
 					{#each lines as text, i (i)}
 						{@const current = step?.line === i + 1}
 						{@const last = !current && prev?.line === i + 1}
+						{@const halt = breakpoint?.line === i + 1}
 						<li
 							class="flex px-2 whitespace-pre {current
 								? 'bg-yellow-300 text-slate-900'
@@ -218,6 +225,11 @@
 						>
 							<span class="w-5 shrink-0 text-center" aria-hidden="true"
 								>{current ? '▶' : last ? '·' : ''}</span
+							>
+							<span
+								class="w-4 shrink-0 text-center text-rose-500"
+								title={halt ? 'Haltepunkt' : undefined}
+								aria-label={halt ? 'Haltepunkt' : undefined}>{halt ? '●' : ''}</span
 							>
 							<span class="w-8 shrink-0 pr-3 text-right opacity-50">{i + 1}</span>
 							<span>{text || ' '}</span>

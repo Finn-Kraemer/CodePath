@@ -1,14 +1,28 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { api, type TaskStatistic } from '$lib/api';
+	import { api, type HelpStatistic, type TaskStatistic } from '$lib/api';
 	import { TYPE_LABELS } from '$lib/tasks/labels';
 
 	let stats = $state<TaskStatistic[]>([]);
 	let error = $state('');
+	/** Hilfe-Rufe „Ich hänge fest“ je Aufgabe */
+	let help = $state<Record<number, HelpStatistic>>({});
+	let sortByHelp = $state(false);
+
+	const rows = $derived(
+		sortByHelp
+			? [...stats].sort((a, b) => (help[b.taskId]?.calls ?? 0) - (help[a.taskId]?.calls ?? 0))
+			: stats
+	);
 
 	onMount(async () => {
 		try {
-			stats = await api<TaskStatistic[]>('/api/admin/statistics/tasks');
+			const [tasks, calls] = await Promise.all([
+				api<TaskStatistic[]>('/api/admin/statistics/tasks'),
+				api<HelpStatistic[]>('/api/admin/help/statistics').catch(() => [] as HelpStatistic[])
+			]);
+			stats = tasks;
+			help = Object.fromEntries(calls.map((c) => [c.taskId, c]));
 		} catch (e) {
 			error = (e as Error).message;
 		}
@@ -37,7 +51,11 @@
 		</h1>
 		<p class="mt-4 text-slate-500">
 			Aufgaben mit vielen Fehlversuchen oben – sie sind vielleicht zu schwer oder missverständlich.
+			Die Spalte <em>Hilfe-Rufe</em> zählt, wie oft dort „Ich hänge fest“ geklickt wurde (bis zum Kursende).
 		</p>
+		<label class="mt-4 flex items-center gap-2 text-sm text-slate-600">
+			<input type="checkbox" bind:checked={sortByHelp} /> Nach Hilfe-Rufen sortieren
+		</label>
 	</header>
 	{#if error}<div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
 			{error}
@@ -52,11 +70,11 @@
 						class="p-3 text-right">Schüler</th
 					><th class="p-3 text-right">Versuche</th><th class="p-3 text-right">Fehlversuche</th><th
 						class="p-3 text-right">Gelöst</th
-					><th class="p-3 text-right">Ø Zeit</th></tr
+					><th class="p-3 text-right">Ø Zeit</th><th class="p-3 text-right">Hilfe-Rufe</th></tr
 				>
 			</thead>
 			<tbody>
-				{#each stats as s (s.taskId)}
+				{#each rows as s (s.taskId)}
 					<tr class="border-b border-slate-100">
 						<td class="p-3 text-slate-500">{s.moduleTitle}</td>
 						<td class="p-3 font-medium">{s.title}</td>
@@ -70,6 +88,15 @@
 						>
 						<td class="p-3 text-right font-mono">{rate(s)} %</td>
 						<td class="p-3 text-right font-mono">{minutes(s.averageSeconds)}</td>
+						<td
+							class="p-3 text-right font-mono {(help[s.taskId]?.calls ?? 0) >= 3
+								? 'font-bold text-amber-700'
+								: ''}"
+							title={help[s.taskId]
+								? `${help[s.taskId].selfSolved} davon selbst gelöst`
+								: 'Keine Hilfe-Rufe'}
+							data-testid="help-calls">{help[s.taskId]?.calls ?? 0}</td
+						>
 					</tr>
 				{/each}
 			</tbody>

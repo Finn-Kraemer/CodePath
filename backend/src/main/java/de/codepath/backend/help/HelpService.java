@@ -80,6 +80,10 @@ public class HelpService {
     public record Queue(List<QueueEntry> open, List<QueueEntry> recent) {
     }
 
+    /** Wie oft wurde bei einer Aufgabe Hilfe gerufen? Zeigt zu schwere oder missverständliche Aufgaben. */
+    public record HelpStatistic(Long taskId, long calls, long selfSolved, long averageWaitSeconds) {
+    }
+
     // ---------------------------------------------------------------- Schüler
 
     @Transactional(readOnly = true)
@@ -148,6 +152,15 @@ public class HelpService {
                         LocalDateTime.now().minus(RECENT)).stream()
                 .map(r -> entry(r, courseNames)).toList();
         return new Queue(open, recent);
+    }
+
+    @Transactional(readOnly = true)
+    public List<HelpStatistic> statistics() {
+        return repository.statisticsByTask().stream()
+                .map(row -> new HelpStatistic(((Number) row[0]).longValue(), ((Number) row[1]).longValue(),
+                        ((Number) row[2]).longValue(), Math.round(((Number) row[3]).doubleValue())))
+                .sorted(Comparator.comparingLong(HelpStatistic::calls).reversed())
+                .toList();
     }
 
     /** „Ich komme“ – andere Lehrkräfte sehen, wer sich kümmert. */

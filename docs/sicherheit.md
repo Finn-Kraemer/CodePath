@@ -11,11 +11,15 @@ CodePath verarbeitet Daten von Minderjährigen. Die Plattform ist deshalb so geb
 | Fortschritt, Versuche mit Antworten, Punkte | Bewertung, Rückmeldung, Lernanalyse | beim Beenden des Kurses |
 | Praxisabgaben, Rubrik-Bewertung, Kommentar der Lehrkraft | Bewertung offener Aufgaben | beim Beenden des Kurses |
 | Feedback der Klasse | Rückmeldung zum Kurs | beim Beenden des Kurses |
+| Quiz-Antworten (gewählte Option je Frage) | Anonyme Verteilung am Beamer | beim Beenden des Kurses (mit dem Konto) |
+| Peer-Bewertungen (Punkte je Kriterium, Kommentar, wer wen bewertet hat) | Rückmeldung unter Mitschülern, Hilfe für die Lehrkraft | beim Beenden des Kurses (mit dem Konto) |
 | Hilfe-Rufe „Ich hänge fest“: Aufgabe, Zeitpunkte, Kategorie, Notiz, Nachricht der Lehrkraft, mitgeschickter Entwurf und letzte Ausgabe (je höchstens 20 KB) | Lehrkraft weiß, wer wobei Hilfe braucht | Entwurf und Ausgabe 24 Stunden nach dem Erledigen, alles beim Beenden des Kurses |
 | Sitzung (Session) | angemeldet bleiben | nach 12 Stunden Inaktivität oder beim Abmelden |
 | Audit-Log (wer hat was wann getan, ohne Inhalte) | Nachvollziehbarkeit von Lehrkraft-Aktionen | bleibt bestehen |
 
 **Hilfe-Rufe** sehen nur Lehrkräfte – nicht Mitschüler, nicht die Rangliste, nicht der Beamer. Live-Updates dazu gehen nur an Verbindungen von Lehrkräften und an die betroffene Person (die nur ihren eigenen Ruf und die Zahl der Rufe vor ihr sieht). Gerufen werden kann nur für sichtbare Aufgaben des eigenen Kurses, höchstens alle 30 Sekunden. Der Entwurf wird nur beim Klick auf „Hilfe rufen“ bzw. „Stand senden“ übertragen, nie automatisch, und zählt nicht als Versuch.
+
+**Quiz-Runden** zeigen am Beamer und den Schülern nur Zahlen je Antwort, nie Namen; Lösung und Verteilung bekommen Schüler erst bei der Auflösung. **Peer-Review** ist anonym: Wer bewertet und wer bewertet wird, sieht nur die Lehrkraft. Zugeteilt werden nur Abgaben aus dem eigenen Kurs, und erst nach der eigenen Abgabe.
 
 Der **Code-Visualizer** („Schritt für Schritt“) läuft vollständig im Browser; Aufzeichnungen verlassen das Gerät nicht.
 

@@ -1213,6 +1213,27 @@
         "tags" : [ "help-controller" ]
       }
     },
+    "/api/admin/help/statistics" : {
+      "get" : {
+        "operationId" : "statistics_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/HelpStatistic"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "help-controller" ]
+      }
+    },
     "/api/admin/help/{id}/claim" : {
       "post" : {
         "operationId" : "claim",
@@ -1318,7 +1339,7 @@
         "tags" : [ "homepage-controller" ]
       },
       "get" : {
-        "operationId" : "state",
+        "operationId" : "state_1",
         "responses" : {
           "200" : {
             "content" : {
@@ -2008,6 +2029,127 @@
         "tags" : [ "page-controller" ]
       }
     },
+    "/api/admin/quiz" : {
+      "post" : {
+        "operationId" : "start",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StartRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QuizState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "quiz-controller" ]
+      }
+    },
+    "/api/admin/quiz/candidates" : {
+      "get" : {
+        "operationId" : "candidates",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Candidate"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "quiz-controller" ]
+      }
+    },
+    "/api/admin/quiz/current" : {
+      "get" : {
+        "operationId" : "teacherView",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QuizState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "quiz-controller" ]
+      }
+    },
+    "/api/admin/quiz/current/finish" : {
+      "post" : {
+        "operationId" : "finish",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QuizState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "quiz-controller" ]
+      }
+    },
+    "/api/admin/quiz/current/next" : {
+      "post" : {
+        "operationId" : "next",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QuizState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "quiz-controller" ]
+      }
+    },
+    "/api/admin/quiz/current/reveal" : {
+      "post" : {
+        "operationId" : "reveal_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QuizState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "quiz-controller" ]
+      }
+    },
     "/api/admin/sessions/logout-students" : {
       "post" : {
         "operationId" : "logoutAllStudents",
@@ -2645,6 +2787,36 @@
           }
         },
         "tags" : [ "review-controller" ]
+      }
+    },
+    "/api/admin/submissions/{id}/peer-reviews" : {
+      "get" : {
+        "operationId" : "forSubmission",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TeacherPeerReview"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "peer-review-controller" ]
       }
     },
     "/api/admin/submissions/{id}/reject" : {
@@ -3502,7 +3674,7 @@
     },
     "/api/learning/next" : {
       "get" : {
-        "operationId" : "next",
+        "operationId" : "next_1",
         "responses" : {
           "200" : {
             "content" : {
@@ -3668,7 +3840,7 @@
     },
     "/api/modules/{moduleSlug}/{taskSlug}/submit" : {
       "post" : {
-        "operationId" : "submit",
+        "operationId" : "submit_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "moduleSlug",
@@ -3734,6 +3906,109 @@
           }
         },
         "tags" : [ "student-controller" ]
+      }
+    },
+    "/api/peer-reviews/assignments/{id}" : {
+      "put" : {
+        "operationId" : "submit",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ScoreRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PeerState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "peer-review-controller" ]
+      }
+    },
+    "/api/peer-reviews/{moduleSlug}/{taskSlug}" : {
+      "get" : {
+        "operationId" : "state",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "moduleSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "taskSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PeerState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "peer-review-controller" ]
+      }
+    },
+    "/api/peer-reviews/{moduleSlug}/{taskSlug}/assign" : {
+      "post" : {
+        "operationId" : "assign",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "moduleSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "taskSlug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PeerState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "peer-review-controller" ]
       }
     },
     "/api/public/homepage" : {
@@ -3802,6 +4077,52 @@
           }
         },
         "tags" : [ "page-controller" ]
+      }
+    },
+    "/api/quiz/current" : {
+      "get" : {
+        "operationId" : "current",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QuizState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "quiz-controller" ]
+      }
+    },
+    "/api/quiz/current/answer" : {
+      "post" : {
+        "operationId" : "answer",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AnswerRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QuizState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "quiz-controller" ]
       }
     },
     "/api/reports/my-report" : {
@@ -3901,6 +4222,21 @@
   },
   "components" : {
     "schemas" : {
+      "AnswerRequest" : {
+        "type" : "object",
+        "properties" : {
+          "index" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "selected" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
       "ApproveRequest" : {
         "type" : "object",
         "properties" : {
@@ -4020,6 +4356,35 @@
         },
         "required" : [ "body", "icon", "moduleSlug", "published", "slug", "title" ]
       },
+      "Assignment" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "comment" : {
+            "type" : "string"
+          },
+          "content" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "scores" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "submitted" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "code", "comment", "content", "id", "scores", "submitted" ]
+      },
       "AttemptView" : {
         "type" : "object",
         "properties" : {
@@ -4135,6 +4500,28 @@
           }
         },
         "required" : [ "edgeKey", "fromId", "fromLabel", "matchedCount", "pathSlug", "pathTitle", "rule", "toId", "toLabel", "totalEvaluated" ]
+      },
+      "Candidate" : {
+        "type" : "object",
+        "properties" : {
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "question" : {
+            "type" : "string"
+          },
+          "taskId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "moduleSlug", "moduleTitle", "question", "taskId", "title" ]
       },
       "CheckResult" : {
         "type" : "object",
@@ -4394,7 +4781,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS", "PREDICT" ]
           }
         }
       },
@@ -4674,6 +5061,28 @@
           }
         },
         "required" : [ "request" ]
+      },
+      "HelpStatistic" : {
+        "type" : "object",
+        "properties" : {
+          "averageWaitSeconds" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "calls" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "selfSolved" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "taskId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "averageWaitSeconds", "calls", "selfSolved", "taskId" ]
       },
       "HintResult" : {
         "type" : "object",
@@ -5286,6 +5695,21 @@
         },
         "required" : [ "moduleSlug", "potentialPoints", "taskSlug", "title" ]
       },
+      "Option" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "text" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "label", "text" ]
+      },
       "PageDetail" : {
         "type" : "object",
         "properties" : {
@@ -5582,6 +6006,43 @@
         },
         "required" : [ "description", "edges", "enforce", "hideOverview", "nodes", "recommendation", "slug", "stations", "stationsDone", "title" ]
       },
+      "PeerState" : {
+        "type" : "object",
+        "properties" : {
+          "assignments" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Assignment"
+            }
+          },
+          "canReview" : {
+            "type" : "boolean"
+          },
+          "enabled" : {
+            "type" : "boolean"
+          },
+          "maxPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "reason" : {
+            "type" : "string"
+          },
+          "received" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Received"
+            }
+          },
+          "rubric" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Criterion"
+            }
+          }
+        },
+        "required" : [ "assignments", "canReview", "enabled", "maxPoints", "reason", "received", "rubric" ]
+      },
       "Profile" : {
         "type" : "object",
         "properties" : {
@@ -5626,6 +6087,27 @@
           }
         },
         "required" : [ "content", "slug", "title" ]
+      },
+      "QuestionResult" : {
+        "type" : "object",
+        "properties" : {
+          "answered" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "correct" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "index" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "question" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "answered", "correct", "index", "question" ]
       },
       "Queue" : {
         "type" : "object",
@@ -5740,6 +6222,115 @@
         },
         "required" : [ "category", "claimedAt", "claimedBy", "courseName", "createdAt", "displayName", "draft", "failedAttempts", "hintsUsed", "id", "lastFeedback", "lastOutcome", "lastOutput", "moduleSlug", "moduleTitle", "note", "resolution", "resolvedAt", "status", "taskSlug", "taskTitle", "taskType", "teacherMessage", "updatedAt", "username", "waitingSeconds" ]
       },
+      "QuizState" : {
+        "type" : "object",
+        "properties" : {
+          "quiz" : {
+            "$ref" : "#/components/schemas/QuizView"
+          }
+        },
+        "required" : [ "quiz" ]
+      },
+      "QuizView" : {
+        "type" : "object",
+        "properties" : {
+          "answered" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "correct" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "distribution" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "index" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "multiple" : {
+            "type" : "boolean"
+          },
+          "myAnswer" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "myAnswerCorrect" : {
+            "type" : "boolean"
+          },
+          "myScore" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Option"
+            }
+          },
+          "participants" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "phase" : {
+            "type" : "string",
+            "enum" : [ "LOBBY", "QUESTION", "REVEAL", "FINISHED" ]
+          },
+          "question" : {
+            "type" : "string"
+          },
+          "results" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/QuestionResult"
+            }
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "answered", "correct", "courseName", "distribution", "id", "index", "multiple", "myAnswer", "myAnswerCorrect", "myScore", "options", "participants", "phase", "question", "results", "title", "total" ]
+      },
+      "Received" : {
+        "type" : "object",
+        "properties" : {
+          "comment" : {
+            "type" : "string"
+          },
+          "scores" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "comment", "scores", "total" ]
+      },
       "Recommendation" : {
         "type" : "object",
         "properties" : {
@@ -5814,6 +6405,21 @@
           }
         }
       },
+      "ScoreRequest" : {
+        "type" : "object",
+        "properties" : {
+          "comment" : {
+            "type" : "string"
+          },
+          "scores" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          }
+        }
+      },
       "SearchHit" : {
         "type" : "object",
         "properties" : {
@@ -5868,6 +6474,25 @@
           }
         },
         "required" : [ "timeout" ]
+      },
+      "StartRequest" : {
+        "type" : "object",
+        "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "taskIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          },
+          "title" : {
+            "type" : "string"
+          }
+        }
       },
       "StudentBranchEntry" : {
         "type" : "object",
@@ -6404,7 +7029,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS", "PREDICT" ]
           },
           "versions" : {
             "type" : "array",
@@ -6467,7 +7092,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS", "PREDICT" ]
           }
         },
         "required" : [ "assignment", "config", "difficulty", "explanation", "hints", "knowledgeArticle", "learningGoal", "points", "rules", "slug", "sortOrder", "story", "title", "type" ]
@@ -6535,7 +7160,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS" ]
+            "enum" : [ "MULTIPLE_CHOICE", "FILL_BLANK", "FILL_CODE", "CODE", "SORTING", "SQL", "TERMINAL", "PRACTICE", "MATCHING", "PARSONS", "NUMBER_CONVERT", "HOTSPOT", "IMAGE_HOTSPOT", "LOGIC_CIRCUIT", "DEVTOOLS", "PREDICT" ]
           }
         },
         "required" : [ "archived", "currentVersion", "hasDraft", "id", "points", "slug", "sortOrder", "title", "type" ]
@@ -6623,6 +7248,33 @@
           }
         },
         "required" : [ "blockedReason", "difficulty", "id", "isBlocked", "isCompleted", "isLocked", "points", "pointsEarned", "slug", "status", "title", "type" ]
+      },
+      "TeacherPeerReview" : {
+        "type" : "object",
+        "properties" : {
+          "comment" : {
+            "type" : "string"
+          },
+          "reviewer" : {
+            "type" : "string"
+          },
+          "scores" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "submittedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "comment", "reviewer", "scores", "submittedAt", "total" ]
       },
       "TestOutput" : {
         "type" : "object",

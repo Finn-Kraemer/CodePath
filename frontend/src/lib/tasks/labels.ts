@@ -13,7 +13,8 @@ export const TYPE_LABELS: Record<string, string> = {
 	HOTSPOT: 'Markieren',
 	IMAGE_HOTSPOT: 'Im Bild markieren',
 	LOGIC_CIRCUIT: 'Logikgatter',
-	DEVTOOLS: 'Browser-Labor'
+	DEVTOOLS: 'Browser-Labor',
+	PREDICT: 'Vorhersage'
 };
 
 export const DIFFICULTY_LABELS: Record<string, string> = {

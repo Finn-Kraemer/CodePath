@@ -15,5 +15,6 @@ public enum TaskType {
     HOTSPOT,
     IMAGE_HOTSPOT,
     LOGIC_CIRCUIT,
-    DEVTOOLS
+    DEVTOOLS,
+    PREDICT
 }

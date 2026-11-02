@@ -21,6 +21,7 @@ CodePath kennt 15 Aufgabentypen. Alle werden **auf dem Server** bewertet: Der Br
 | `IMAGE_HOTSPOT` | Im Bild markieren | klickt Stellen in einem Bild an | getroffene Ziele minus Klicks daneben; höchstens Ziele + 2 Markierungen |
 | `LOGIC_CIRCUIT` | Logikgatter | baut eine Schaltung aus Gattern, mit Schaltplan und Live-Wahrheitstabelle | jede Schaltung mit der richtigen Wahrheitstabelle zählt; Teilpunkte erst über der Hälfte der Zeilen |
 | `DEVTOOLS` | Browser-Labor | untersucht eine Übungsseite im eigenen Tab mit Konsole, Inspektor, Netzwerk und Web-Speicher | Code aus mehreren Teilen, je Person verschieden; Teilpunkte je Teil ([mehr](browser-labor.md)) |
+| `PREDICT` | Vorhersage | sieht ein Programm mit Haltepunkt (●) und sagt voraus, welche Werte Variablen dort haben; nach dem Lösen Auflösung im Code-Visualizer | wie Lückentext, Teilpunkte je Variable |
 
 ## ◼ Standardregeln
 
@@ -28,7 +29,7 @@ Jeder Typ hat Standardregeln für Versuche, Hinweise und Bonus. Im Editor lassen
 
 | Typen | Versuche | Abzug je Hinweis | Bonus 1. Versuch | Lösung aufdecken |
 |---|---|---|---|---|
-| Auswahl, Lückentext, Sortieren, Zuordnen, Markieren, Im Bild markieren | 3 | 25 % | 20 % | ja |
+| Auswahl, Lückentext, Sortieren, Zuordnen, Markieren, Im Bild markieren, Vorhersage | 3 | 25 % | 20 % | ja |
 | Zahlensysteme, Code-Puzzle | 5 | 25 % | 20 % | ja |
 | Browser-Labor | 10 | 25 % | 20 % | ja |
 | Programmieren, Code-Lücken, SQL, Terminal, Logikgatter | unbegrenzt | 25 % | 20 % | ja |
@@ -67,7 +68,15 @@ Nach dem Lösen lässt sich auch die Musterlösung Schritt für Schritt ansehen 
 
 - **Grenzen:** nach 1.000 Schritten (bzw. 5 s) hält die Aufzeichnung an – „läuft deine Schleife endlos?“. Je Aufgabe einstellbar mit `visualizerMaxSteps` (höchstens 5.000).
 - **Abschalten:** `visualizer: false` in der Konfiguration (im Editor: „Schritt für Schritt“ → Aus). Ohne Angabe ist er an, im Modul `abschlusstest` aus.
-- **Aufgabenidee:** „Sag voraus, welchen Wert `summe` nach dem 3. Durchlauf hat“ als Lückentext – danach mit dem Visualizer nachprüfen.
+- **Vorhersage-Aufgaben (`PREDICT`):** „Welchen Wert hat `summe`, wenn Zeile 4 zum 3. Mal drankommt?“ Angehalten wird *bevor* die Zeile ausgeführt wird – genau wie beim gelben Balken. Im Editor trägt „Werte aus dem Programm ermitteln“ die richtigen Antworten ein. Nach dem Lösen springt „Auflösung Schritt für Schritt“ direkt zum Haltepunkt.
+- **Baustein in Texten:** Ein Code-Block mit der Sprache `schritte` wird in Wissensartikeln, eigenen Seiten und Aufgabentexten zu einem Beispiel mit „Schritt für Schritt ansehen“ – gut zum Vorführen am Beamer:
+
+  ````markdown
+  ```schritte
+  liste = [5, 3, 8, 1]
+  liste[0], liste[1] = liste[1], liste[0]
+  ```
+  ````
 
 ## ◼ Terminal und Git
 

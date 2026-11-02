@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { api, type SubmissionDetail } from '$lib/api';
+	import { api, type SubmissionDetail, type TeacherPeerReview } from '$lib/api';
 	import PracticeReview from '$lib/components/editor/PracticeReview.svelte';
 	import PythonWorkbench from '$lib/components/PythonWorkbench.svelte';
 	import Markdown from '$lib/Markdown.svelte';
@@ -14,6 +14,8 @@
 	let lockTask = $state(false);
 	let error = $state('');
 	let busy = $state(false);
+	/** Anonyme Bewertungen durch Mitschüler (Peer-Review) – nur als Hilfe */
+	let peers = $state<TeacherPeerReview[]>([]);
 
 	const total = $derived(Object.values(scores).reduce((a, b) => a + (Number(b) || 0), 0));
 
@@ -22,6 +24,9 @@
 			submission = await api<SubmissionDetail>(`/api/admin/submissions/${id}`);
 			comment = submission.comment ?? '';
 			for (const c of submission.rubric) scores[c.id] = submission.scores?.[c.id] ?? c.points;
+			peers = await api<TeacherPeerReview[]>(`/api/admin/submissions/${id}/peer-reviews`).catch(
+				() => []
+			);
 		} catch (e) {
 			error = (e as Error).message;
 		}
@@ -138,6 +143,29 @@
 						{total} / {submission.maxPoints} Punkte
 					</p>
 				</div>
+				{#if peers.length}
+					<div
+						class="border border-amber-200 bg-amber-50/60 p-6 text-sm"
+						data-testid="peer-reviews"
+					>
+						<h2
+							class="mb-3 font-mono text-[10px] font-black tracking-widest text-amber-800 uppercase"
+						>
+							Peer-Review ({peers.length}) – Ø {Math.round(
+								peers.reduce((a, p) => a + p.total, 0) / peers.length
+							)} / {submission.maxPoints}
+						</h2>
+						<ul class="space-y-2">
+							{#each peers as review, i (i)}
+								<li>
+									<span class="font-bold">{review.reviewer}</span>:
+									<span class="font-mono">{review.total}</span>
+									{#if review.comment}– „{review.comment}“{/if}
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
 				<label class="block text-sm">
 					<span class="font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
 						>Kommentar für die Schülerin, den Schüler</span

@@ -1,0 +1,37 @@
+{
+  "slug": "p16",
+  "type": "PREDICT",
+  "title": "Wer ist die Größte?",
+  "difficulty": "MEDIUM",
+  "points": 10,
+  "sortOrder": 16,
+  "learningGoal": "Du kannst vorhersagen, welche Werte Variablen in einer Schleife haben.",
+  "story": "Das Backend sucht in einer Liste den größten Messwert. Bevor du ihm vertraust, spielst du das Programm im Kopf durch – wie ein Debugger.",
+  "assignment": "Das Programm hält an, bevor Zeile 4 zum **3. Mal** ausgeführt wird. Welche Werte haben `z` und `groesste` in diesem Moment?",
+  "hints": [
+    "Schreib dir eine kleine Tabelle: Durchlauf, z, groesste. Im 1. Durchlauf ist z = 4.",
+    "Im 2. Durchlauf ist 7 > 4 – also wird groesste zu 7, bevor die Schleife weiterläuft."
+  ],
+  "explanation": "Im 3. Durchlauf ist `z = 1`. `groesste` wurde im 2. Durchlauf auf 7 gesetzt. Mit „Auflösung Schritt für Schritt“ siehst du jede Zeile.",
+  "config": {
+    "code": "zahlen = [4, 7, 1, 9]\ngroesste = zahlen[0]\nfor z in zahlen:\n    if z > groesste:\n        groesste = z\nprint(groesste)",
+    "breakpoint": {
+      "line": 4,
+      "hit": 3
+    },
+    "questions": [
+      {
+        "variable": "z",
+        "answers": [
+          "1"
+        ]
+      },
+      {
+        "variable": "groesste",
+        "answers": [
+          "7"
+        ]
+      }
+    ]
+  }
+}
