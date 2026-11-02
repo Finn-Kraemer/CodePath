@@ -111,16 +111,9 @@ Alle Actions sind auf einen Commit-Hash festgelegt (Versionsnummer als Kommentar
 
 ### Branch-Schutz
 
-`main` ist nur über Pull Requests änderbar: kein direkter Push, kein Force-Push, kein Löschen. Ein PR lässt sich erst mergen, wenn **CI erfolgreich** grün ist, der Branch auf dem Stand von `main` ist, alle Review-Kommentare aufgelöst sind und CodeQL keine neuen Funde ab *hoch* meldet. Release-Tags `v*` dürfen nur Admins anlegen; verschieben oder löschen kann sie niemand.
+`main` ist nur über Pull Requests änderbar: kein direkter Push, kein Force-Push, kein Löschen. Ein PR lässt sich erst mergen, wenn **CI erfolgreich** grün ist, der Branch auf dem Stand von `main` ist, alle Review-Kommentare aufgelöst sind und CodeQL keine neuen Funde ab *hoch* meldet. Release-Tags `v*` dürfen nur Admins anlegen, verschieben oder löschen.
 
-Die Regeln liegen als Rulesets in `.github/rulesets/` und werden einmalig eingespielt – im Browser unter *Settings → Rules → Rulesets → New ruleset → Import a ruleset* oder mit der GitHub-CLI:
-
-```bash
-gh api -X POST repos/Finn-Kraemer/CodePath/rulesets --input .github/rulesets/main.json
-gh api -X POST repos/Finn-Kraemer/CodePath/rulesets --input .github/rulesets/release-tags.json
-```
-
-Sobald weitere Personen mitarbeiten, `required_approving_review_count` auf `1` und `require_code_owner_review` auf `true` setzen (`.github/CODEOWNERS`).
+Die Regeln liegen als Rulesets in `.github/rulesets/`. Wie sie eingespielt und geändert werden, steht in der [Projektpflege](projektpflege.md#4-branch-schutz-rulesets); den Ablauf für Mitwirkende beschreibt [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## ◼ Frontend
 
@@ -178,4 +171,4 @@ Die mitgelieferten Inhalte liegen als Content-Pakete in `content/` und kommen be
 
 Der Tag startet `.github/workflows/release.yml`. Der Workflow bricht ab, wenn der Tag nicht auf `main` liegt oder `CHANGELOG.md` keinen Abschnitt zur Version hat. Danach läuft die komplette CI; erst wenn sie grün ist, werden `ghcr.io/finn-kraemer/codepath` und `ghcr.io/finn-kraemer/codepath-runner` für `amd64` und `arm64` gebaut – mit SBOM und signiertem Herkunftsnachweis (`gh attestation verify oci://ghcr.io/finn-kraemer/codepath:v2.2.0 -R Finn-Kraemer/CodePath`). Tags: `v2.2.0`, `2.2.0`, `2.2`, `2` und `latest`. Zum Schluss entsteht ein GitHub-Release mit dem Text aus dem Änderungsprotokoll.
 
-Vorabversionen wie `v2.2.0-rc.1` bekommen nur ihren eigenen Tag, kein `latest`, und erscheinen als Pre-Release.
+Vorabversionen wie `v2.2.0-rc.1` bekommen nur ihren eigenen Tag, kein `latest`, und erscheinen als Pre-Release. Was tun, wenn ein Release fehlschlägt: [Projektpflege](projektpflege.md#-release-veröffentlichen).

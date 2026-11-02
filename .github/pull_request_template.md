@@ -1,3 +1,5 @@
+<!-- Ablauf und Prüfungen: siehe CONTRIBUTING.md -->
+
 ## Worum geht es?
 
 <!-- Was ändert dieser PR und warum? Verweis auf ein Issue mit "Closes #…" -->

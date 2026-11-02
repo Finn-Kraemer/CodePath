@@ -13,6 +13,8 @@ Die Dokumentation ist nach Zielgruppen geordnet. Wer CodePath zum ersten Mal ein
 | [Betriebshandbuch](betrieb.md) | IT-Betreuung | Installation, Konfiguration, HTTPS, Backup und Wiederherstellung, Update, Code-Runner, Fehlersuche |
 | [Sicherheit und Datenschutz](sicherheit.md) | Schulleitung, Datenschutz, IT | Welche Daten anfallen, wie sie geschützt und gelöscht werden, Sicherheitsmodell |
 | [Entwicklerhandbuch](entwicklung.md) | Entwicklung | Architektur, lokale Umgebung, Tests, neue Aufgabentypen und Szenarien |
+| [Mitwirken](../CONTRIBUTING.md) | Mitwirkende | Issues, Branches, Prüfungen vor dem PR, was im Pull Request passiert |
+| [Projektpflege](projektpflege.md) | Projektleitung | Repository-Einstellungen, Branch-Schutz einspielen, PRs mergen, Dependabot, Sicherheitsmeldungen, Releases |
 
 ## ◼ Vertiefung
 

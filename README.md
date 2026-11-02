@@ -102,3 +102,5 @@ cd frontend && pnpm install && pnpm dev                             # http://loc
 ```
 
 Vor einem Pull Request laufen dieselben Prüfungen wie in der CI: `./mvnw verify` im Backend, `pnpm lint && pnpm check && pnpm test` im Frontend, `python content/validate.py` für Inhalte. Mehr im [Entwicklerhandbuch](docs/entwicklung.md).
+
+Wie ein Beitrag von der Idee bis in `main` kommt (Issues, Branches, Pull Requests, Checks), steht in [CONTRIBUTING.md](CONTRIBUTING.md). Repository-Einstellungen, Branch-Schutz und Releases für die Projektleitung: [Projektpflege](docs/projektpflege.md).
