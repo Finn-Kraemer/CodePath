@@ -17,17 +17,12 @@ export const HELP_CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
 /** Höchstens so viele Zeichen gehen mit (wie im Backend) */
 export const MAX_DRAFT = 20_000;
 
+/** HTML der Praxisabgabe als reiner Text – über den DOM-Parser des Browsers, nicht per Regex. */
 function stripHtml(html: string): string {
-	return html
-		.replace(/<\/(p|div|li|h\d)>/gi, '\n')
-		.replace(/<br\s*\/?>/gi, '\n')
-		.replace(/<[^>]*>/g, '')
-		.replace(/&nbsp;/g, ' ')
-		.replace(/&lt;/g, '<')
-		.replace(/&gt;/g, '>')
-		.replace(/&amp;/g, '&')
-		.replace(/\n{3,}/g, '\n\n')
-		.trim();
+	const doc = new DOMParser().parseFromString(html, 'text/html');
+	doc.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+	doc.querySelectorAll('p, div, li, h1, h2, h3, h4, h5, h6').forEach((block) => block.append('\n'));
+	return (doc.body.textContent ?? '').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 /** Stand einer Antwort als lesbarer Text für die Lehrkraft (Code, SQL, Lücken, Text). */

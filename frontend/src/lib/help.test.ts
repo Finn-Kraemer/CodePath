@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 import { draftText, waitingTime } from './help';
 
@@ -10,7 +11,8 @@ describe('draftText', () => {
 		expect(draftText({ answers: ['a'] })).toBe('Lücke 1: a');
 	});
 
-	it('macht aus HTML der Praxisabgabe Text', () => {
+	it('macht aus HTML der Praxisabgabe Text, ohne Tags zu übernehmen', () => {
+		expect(draftText('<p>a<scr<script>ipt>alert(1)</script></p>')).not.toContain('<script');
 		expect(draftText('<p>Erst <strong>einlesen</strong></p><p>dann &lt;b&gt;</p>')).toBe(
 			'Erst einlesen\ndann <b>'
 		);
