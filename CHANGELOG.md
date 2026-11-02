@@ -6,6 +6,9 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 
 ## Unveröffentlicht
 
+### Behoben
+- **CodePath-Editor nutzt die volle Bildschirmbreite**: Statt im 1400px breiten Seitenrahmen mit breitem Rand liegt der Editor jetzt über die ganze Breite; auf sehr breiten Bildschirmen werden auch Bausteinleiste und Einstellungen etwas breiter.
+
 ## 2.1.0
 
 ### Neu

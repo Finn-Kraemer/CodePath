@@ -838,7 +838,7 @@
 	{#if saved}
 		<div
 			bind:this={shell}
-			class="relative grid grid-cols-1 gap-3 lg:h-(--shell-h) lg:grid-cols-[15rem_minmax(0,1fr)_19rem]"
+			class="relative grid grid-cols-1 gap-3 lg:h-(--shell-h) lg:grid-cols-[15rem_minmax(0,1fr)_19rem] 2xl:grid-cols-[17rem_minmax(0,1fr)_22rem]"
 			style="--shell-h: {shellHeight}px"
 		>
 			<!-- Bausteine -->

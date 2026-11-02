@@ -57,6 +57,20 @@ textarea {
 	}
 }
 
+/* Arbeitsflächen wie der CodePath-Editor: volle Breite, nur ein schmaler Rand */
+.container-workspace {
+	width: 100%;
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+@media (min-width: 1024px) {
+	.container-workspace {
+		padding-left: 1.5rem;
+		padding-right: 1.5rem;
+	}
+}
+
 /* Gerendertes Markdown (Aufgabentexte, Hinweise, Erklärungen) – auch außerhalb von .prose lesbar */
 .markdown ul {
 	list-style: disc;
