@@ -4,7 +4,7 @@ Alle nennenswerten Änderungen an CodePath. Versionen folgen [Semantic Versionin
 
 Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter **Update** lesen.
 
-## Unveröffentlicht
+## 2.2.0
 
 ### Neu
 - **Meilenstein-Gates und Boss-Aufgaben in CodePaths** (#29): Stationen können als Meilenstein-Gate oder Boss-Aufgabe mit Punkte-Schwelle konfiguriert werden (`minPercent` von 1–100 %). Die Station bleibt gesperrt, bis alle Pflicht-Vorgänger abgeschlossen sind und die Punkteschwelle im Prüfbereich erreicht wurde (`TOTAL` für Gesamtpunkte oder `EACH` für jede Aufgabe einzeln; Grundpunkte werden auf 100 % gedeckelt, Stützaufgaben, gesperrte und übersprungene Aufgaben fließen nicht ein). Rechnerisch unerreichbare Schwellen greifen auf konfigurierbare Rückfall-Regeln (`fallback`: `TEACHER` für Freischaltung durch Lehrkraft, `OPEN` für Freischaltung nach Bearbeitung aller Aufgaben oder `REMEDIAL` zur Aktivierung einer Stützaufgabe). Einmal freigeschaltete Tore bleiben dauerhaft geöffnet. Schüler sehen den Fortschrittsbalken, erreichbare Punkte und Direktlinks zu offenen Aufgaben („Hier noch Punkte holen“). Lehrkräfte überwachen wartende Schüler im Kurs über eine neue Gate-Statistik im CodePath-Editor und können Tore in der Schülerakte manuell verwalten oder zurücksetzen.
