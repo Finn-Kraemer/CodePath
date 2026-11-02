@@ -1,6 +1,6 @@
 # Ein Image für die ganze Anwendung: Spring Boot liefert API und das statisch gebaute Frontend aus.
 
-FROM node:22-alpine AS frontend
+FROM node:26-alpine AS frontend
 WORKDIR /build/frontend
 RUN corepack enable
 COPY frontend/package.json frontend/pnpm-lock.yaml frontend/pnpm-workspace.yaml frontend/.npmrc ./
