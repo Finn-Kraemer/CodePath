@@ -53,8 +53,8 @@ public final class PathGraph {
 
     /** Prüft die Form; ob Module und Aufgaben existieren, prüft der Service. */
     static void validate(Graph graph) {
-        if (graph.nodes().size() > MAX_NODES) throw ApiException.badRequest("Höchstens " + MAX_NODES + " Stationen je Lernpfad.");
-        if (graph.edges().size() > MAX_EDGES) throw ApiException.badRequest("Höchstens " + MAX_EDGES + " Verbindungen je Lernpfad.");
+        if (graph.nodes().size() > MAX_NODES) throw ApiException.badRequest("Höchstens " + MAX_NODES + " Stationen je CodePath.");
+        if (graph.edges().size() > MAX_EDGES) throw ApiException.badRequest("Höchstens " + MAX_EDGES + " Verbindungen je CodePath.");
         Set<String> ids = new HashSet<>();
         for (Node node : graph.nodes()) {
             if (node == null || node.id() == null || !node.id().matches("[A-Za-z0-9_-]{1,40}")) {
@@ -90,7 +90,7 @@ public final class PathGraph {
             if (!seen.add(edge.from() + "→" + edge.to())) throw ApiException.badRequest("Eine Verbindung kommt doppelt vor.");
         }
         if (order(graph).size() != graph.nodes().size()) {
-            throw ApiException.badRequest("Die Verbindungen bilden einen Kreis – ein Lernpfad muss irgendwo anfangen und enden.");
+            throw ApiException.badRequest("Die Verbindungen bilden einen Kreis – ein CodePath muss irgendwo anfangen und enden.");
         }
     }
 

@@ -166,7 +166,7 @@ public class ReleaseService {
                 changes.add(module.getTitle() + ": einzelne Aufgaben-Freigaben aufgehoben");
             }
         }
-        if (!changes.isEmpty()) auditService.log("LEARNING_PATH_APPLIED", "course:" + courseId, Map.of("changes", changes.size()));
+        if (!changes.isEmpty()) auditService.log("CODEPATH_APPLIED", "course:" + courseId, Map.of("changes", changes.size()));
         return changes;
     }
 }

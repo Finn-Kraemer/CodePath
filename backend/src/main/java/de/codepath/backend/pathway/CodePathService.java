@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class LearningPathService {
+public class CodePathService {
 
     /**
      * Stand einer Station aus Sicht der Person: DONE erledigt, AVAILABLE als Nächstes dran (alle Vorgänger
@@ -81,7 +81,7 @@ public class LearningPathService {
                                  String reason, String pathSlug, String pathTitle) {
     }
 
-    private final LearningPathRepository repository;
+    private final CodePathRepository repository;
     private final ContentService contentService;
     private final AccessPolicy accessPolicy;
     private final ReleaseService releaseService;
@@ -106,19 +106,19 @@ public class LearningPathService {
     /** Neuer Lernpfad, vorbelegt mit allen Modulen in ihrer Reihenfolge als Kette – zum Umbauen. */
     @Transactional
     public PathAdmin create(String title, String slug) {
-        LearningPath path = new LearningPath();
+        CodePath path = new CodePath();
         path.setTitle(title(title));
         path.setSlug(uniqueSlug(slug(slug), null));
         path.setGraph(write(starter()));
-        path.setPosition(repository.findAllByOrderByPositionAscIdAsc().stream().mapToInt(LearningPath::getPosition).max().orElse(-1) + 1);
+        path.setPosition(repository.findAllByOrderByPositionAscIdAsc().stream().mapToInt(CodePath::getPosition).max().orElse(-1) + 1);
         repository.save(path);
-        auditService.log("LEARNING_PATH_CREATED", path.getSlug(), Map.of());
+        auditService.log("CODEPATH_CREATED", path.getSlug(), Map.of());
         return admin(path, List.of());
     }
 
     @Transactional
     public PathAdmin update(Long id, PathUpdate update) {
-        LearningPath path = find(id);
+        CodePath path = find(id);
         if (update.title() != null) path.setTitle(title(update.title()));
         if (update.slug() != null) path.setSlug(uniqueSlug(slug(update.slug()), path.getId()));
         if (update.description() != null) path.setDescription(description(update.description()));
@@ -127,12 +127,12 @@ public class LearningPathService {
         if (update.courseId() != null) path.setCourseId(update.courseId() <= 0 ? null : courseService.get(update.courseId()).getId());
         if (update.lockOthers() != null) path.setLockOthers(update.lockOthers());
         path.setUpdatedAt(LocalDateTime.now());
-        auditService.log("LEARNING_PATH_UPDATED", path.getSlug(), Map.of());
+        auditService.log("CODEPATH_UPDATED", path.getSlug(), Map.of());
         return admin(path, applyToCourse(path));
     }
 
     /** Veröffentlichter Kurs-Lernpfad → Modul-Steuerung des Kurses; sonst ändert sich an den Freigaben nichts. */
-    private List<String> applyToCourse(LearningPath path) {
+    private List<String> applyToCourse(CodePath path) {
         if (!path.isPublished() || path.getCourseId() == null) return List.of();
         return releaseService.applyPlan(path.getCourseId(), plan(read(path.getGraph())), path.isLockOthers());
     }
@@ -157,18 +157,18 @@ public class LearningPathService {
 
     @Transactional
     public void delete(Long id) {
-        LearningPath path = find(id);
+        CodePath path = find(id);
         repository.delete(path);
-        auditService.log("LEARNING_PATH_DELETED", path.getSlug(), Map.of());
+        auditService.log("CODEPATH_DELETED", path.getSlug(), Map.of());
     }
 
     /** Reihenfolge der Liste; der erste veröffentlichte Lernpfad bestimmt die Empfehlung. */
     @Transactional
     public void reorder(List<Long> ids) {
-        Map<Long, LearningPath> paths = repository.findAll().stream().collect(Collectors.toMap(LearningPath::getId, Function.identity()));
+        Map<Long, CodePath> paths = repository.findAll().stream().collect(Collectors.toMap(CodePath::getId, Function.identity()));
         int position = 0;
         for (Long id : ids) {
-            LearningPath path = paths.get(id);
+            CodePath path = paths.get(id);
             if (path != null) path.setPosition(position++);
         }
     }
@@ -218,21 +218,21 @@ public class LearningPathService {
         return publishedFor(user).stream().map(p -> new PathLink(p.getSlug(), p.getTitle(), p.getDescription())).toList();
     }
 
-    private List<LearningPath> publishedFor(User user) {
+    private List<CodePath> publishedFor(User user) {
         Long courseId = user.isTeacher() ? null : userService.courseOf(user.getId()).map(Course::getId).orElse(null);
         return repository.findAllByOrderByPositionAscIdAsc().stream()
-                .filter(LearningPath::isPublished)
+                .filter(CodePath::isPublished)
                 .filter(p -> user.isTeacher() || p.getCourseId() == null || p.getCourseId().equals(courseId))
-                .sorted(Comparator.comparing((LearningPath p) -> p.getCourseId() == null))
+                .sorted(Comparator.comparing((CodePath p) -> p.getCourseId() == null))
                 .toList();
     }
 
     /** Karte mit Stand; nicht veröffentlichte Lernpfade und die anderer Kurse sieht nur die Lehrkraft (Vorschau). */
     @Transactional(readOnly = true)
     public PathView view(User user, String slug) {
-        LearningPath path = repository.findBySlug(slug)
+        CodePath path = repository.findBySlug(slug)
                 .filter(p -> user.isTeacher() || publishedFor(user).stream().anyMatch(q -> q.getId().equals(p.getId())))
-                .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+                .orElseThrow(() -> ApiException.notFound("CodePath nicht gefunden."));
         return evaluate(path, new Situation(user));
     }
 
@@ -246,7 +246,7 @@ public class LearningPathService {
                 .orElseGet(() -> fallback(situation));
     }
 
-    private PathView evaluate(LearningPath path, Situation s) {
+    private PathView evaluate(CodePath path, Situation s) {
         PathGraph.Graph graph = read(path.getGraph());
         // Stationen, deren Modul oder Aufgabe es nicht mehr gibt, fallen weg
         List<PathGraph.Node> nodes = graph.nodes().stream().filter(s::exists).toList();
@@ -281,8 +281,8 @@ public class LearningPathService {
             recommendedId = node.id();
             PublishedTask task = station.next();
             String reason = node.kind() == PathGraph.NodeKind.TASK
-                    ? "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“."
-                    : "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“: Modul „" + task.module().getTitle() + "“.";
+                    ? "Nächste Station auf dem CodePath „" + path.getTitle() + "“."
+                    : "Nächste Station auf dem CodePath „" + path.getTitle() + "“: Modul „" + task.module().getTitle() + "“.";
             recommendation = recommendation(task, reason, path);
             break;
         }
@@ -325,7 +325,7 @@ public class LearningPathService {
         return null;
     }
 
-    private static Recommendation recommendation(PublishedTask task, String reason, LearningPath path) {
+    private static Recommendation recommendation(PublishedTask task, String reason, CodePath path) {
         return new Recommendation(task.module().getSlug(), task.module().getTitle(), task.module().getIcon(), task.task().getSlug(),
                 task.version().getTitle(), reason, path == null ? null : path.getSlug(), path == null ? null : path.getTitle());
     }
@@ -420,8 +420,8 @@ public class LearningPathService {
 
     // ---------------------------------------------------------------- Hilfen
 
-    LearningPath find(Long id) {
-        return repository.findById(id).orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+    CodePath find(Long id) {
+        return repository.findById(id).orElseThrow(() -> ApiException.notFound("CodePath nicht gefunden."));
     }
 
     PathGraph.Graph read(String json) {
@@ -462,17 +462,17 @@ public class LearningPathService {
         return value;
     }
 
-    private PathSummary summary(LearningPath p) {
+    private PathSummary summary(CodePath p) {
         return new PathSummary(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(), read(p.getGraph()).nodes().size(),
                 p.getCourseId(), courseName(p), p.getUpdatedAt());
     }
 
-    private PathAdmin admin(LearningPath p, List<String> applied) {
+    private PathAdmin admin(CodePath p, List<String> applied) {
         return new PathAdmin(p.getId(), p.getSlug(), p.getTitle(), p.getDescription(), p.isPublished(), read(p.getGraph()),
                 p.getCourseId(), courseName(p), p.isLockOthers(), applied, p.getUpdatedAt());
     }
 
-    private String courseName(LearningPath p) {
+    private String courseName(CodePath p) {
         return p.getCourseId() == null ? null : courseService.get(p.getCourseId()).getName();
     }
 }
