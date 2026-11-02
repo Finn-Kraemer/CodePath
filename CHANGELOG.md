@@ -4,7 +4,7 @@ Alle nennenswerten Änderungen an CodePath. Versionen folgen [Semantic Versionin
 
 Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter **Update** lesen.
 
-## Unveröffentlicht
+## 2.3.0
 
 ### Neu
 - **Code-Visualizer „Schritt für Schritt“** (#37): In Code-Aufgaben, Code-Lücken und der Python-Werkbank geht man mit Vor/Zurück, Abspielen, Schieberegler oder ←/→ durch das eigene Programm und sieht Zeile für Zeile, wie sich Variablen und Listen ändern, welche Funktionsaufrufe gerade laufen (Rekursion als Stapel) und was zurückgegeben wird. Zeigen zwei Variablen auf dieselbe Liste, ist das sichtbar; Änderungen stehen zusätzlich als Text da. Nach dem Lösen lässt sich auch die Musterlösung so ansehen. Läuft alles im Browser (offline), nichts wird bewertet oder gespeichert; Endlosschleifen halten nach 1.000 Schritten an. Je Aufgabe abschaltbar (`visualizer: false`), im Abschlusstest standardmäßig aus.
