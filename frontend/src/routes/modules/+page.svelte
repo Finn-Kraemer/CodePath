@@ -19,7 +19,7 @@
 	let paths = $state<PathLink[]>([]);
 	let pathSlug = $state('');
 	let path = $state<PathView | null>(null);
-	/** Lernpfad-Karte oder Liste; die Wahl merkt sich der Browser */
+	/** CodePath-Karte oder Liste; die Wahl merkt sich der Browser */
 	let view = $state<'map' | 'list'>('map');
 
 	// Update now every second for countdowns
@@ -39,7 +39,7 @@
 			[modules, next, paths] = await Promise.all([
 				api<ModuleSummary[]>('/api/modules'),
 				api<Recommendation | undefined>('/api/learning/next').then((r) => r ?? null),
-				api<PathLink[]>('/api/learning-paths')
+				api<PathLink[]>('/api/codepaths')
 			]);
 			if (paths.length) await showPath(paths[0].slug);
 		} catch (e) {
@@ -51,7 +51,7 @@
 
 	async function showPath(slug: string) {
 		pathSlug = slug;
-		path = await api<PathView>(`/api/learning-paths/${slug}`);
+		path = await api<PathView>(`/api/codepaths/${slug}`);
 	}
 
 	function setView(value: 'map' | 'list') {
@@ -89,7 +89,7 @@
 		<div class="mt-4 flex flex-wrap items-end justify-between gap-4">
 			<p class="text-slate-500">
 				{paths.length
-					? 'Folge deinem Lernpfad oder wähle selbst ein Modul.'
+					? 'Folge deinem CodePath oder wähle selbst ein Modul.'
 					: 'Wähle ein Modul aus, um mit den Aufgaben zu beginnen.'}
 			</p>
 			{#if paths.length && modules.length}
@@ -99,7 +99,7 @@
 							? 'bg-institutional-navy text-white'
 							: 'text-slate-500'}"
 						aria-pressed={view === 'map'}
-						onclick={() => setView('map')}>Lernpfad</button
+						onclick={() => setView('map')}>CodePath</button
 					>
 					<button
 						class="px-4 py-2 text-[10px] font-black tracking-[2px] uppercase {view === 'list'
@@ -130,7 +130,7 @@
 			</p>
 		</div>
 	{:else if view === 'map' && path}
-		<section class="flex flex-col gap-4" aria-label="Lernpfad">
+		<section class="flex flex-col gap-4" aria-label="CodePath">
 			<div class="flex flex-wrap items-center justify-between gap-4">
 				<div>
 					<h2 class="text-xl font-bold text-institutional-navy">{path.title}</h2>
@@ -140,7 +140,7 @@
 					{#if paths.length > 1}
 						<select
 							class="border border-slate-200 bg-white px-3 py-2 text-sm"
-							aria-label="Lernpfad wählen"
+							aria-label="CodePath wählen"
 							value={pathSlug}
 							onchange={(e) => showPath((e.currentTarget as HTMLSelectElement).value)}
 						>

@@ -50,7 +50,7 @@
 			Import &amp; Export
 		</h1>
 		<p class="mt-4 max-w-3xl text-slate-500">
-			Einstellungen, Startseite, Seiten, Wissensdatenbank, Lernpfade sowie Module und Aufgaben in
+			Einstellungen, Startseite, Seiten, Wissensdatenbank, CodePaths sowie Module und Aufgaben in
 			eine Datei sichern oder auf eine andere CodePath-Installation übertragen. Der Import erkennt
 			die Datei selbst und zeigt danach, was angelegt, überarbeitet oder unverändert gelassen wurde
 			– und wo ein Fehler aufgetreten ist. Schülerdaten werden nie exportiert.
@@ -91,7 +91,7 @@
 				aria-disabled={!selected.length}>Exportieren (ZIP)</a
 			>
 			<p class="text-xs text-slate-400">
-				Verwendete Bilder werden mitgepackt. Einzelne Seiten, Artikel oder Lernpfade lassen sich
+				Verwendete Bilder werden mitgepackt. Einzelne Seiten, Artikel oder CodePaths lassen sich
 				auch direkt in ihren Editoren exportieren.
 			</p>
 		</section>

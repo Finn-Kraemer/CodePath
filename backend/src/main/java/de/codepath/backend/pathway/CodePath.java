@@ -8,9 +8,9 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "learning_paths")
+@Table(name = "codepaths")
 @Getter @Setter @NoArgsConstructor
-public class LearningPath {
+public class CodePath {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

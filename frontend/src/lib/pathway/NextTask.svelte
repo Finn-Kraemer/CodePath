@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Recommendation } from '$lib/api';
+	import PathIcon from './PathIcon.svelte';
 
 	/** reload: von einer Aufgabenseite aus, die ihre Adresse nur beim Laden liest, neu laden */
 	let {
@@ -17,7 +18,16 @@
 	data-testid="next-task"
 	data-sveltekit-reload={reload ? '' : undefined}
 >
-	<span class="text-3xl">{next.moduleIcon}</span>
+	<span
+		class="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-institutional-gold/60 bg-white text-institutional-navy"
+	>
+		<PathIcon
+			emoji={next.moduleIcon}
+			name={next.moduleIcon ? null : 'task'}
+			title={next.taskTitle}
+			size={24}
+		/>
+	</span>
 	<span class="flex min-w-0 flex-1 flex-col gap-1">
 		<span class="font-mono text-[9px] font-black tracking-[3px] text-institutional-gold uppercase"
 			>Empfohlen als Nächstes</span

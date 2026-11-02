@@ -18,24 +18,24 @@ import java.util.Set;
 /** Lernpfade im zentralen Export; Module und Aufgaben, auf die sie zeigen, müssen nach dem Import existieren. */
 @Component
 @RequiredArgsConstructor
-public class LearningPathTransfer implements TransferSection {
+public class CodePathTransfer implements TransferSection {
 
     public record PathExport(String slug, String title, String description, Boolean published, PathGraph.Graph graph) {
     }
 
-    private final LearningPathRepository repository;
-    private final LearningPathService service;
+    private final CodePathRepository repository;
+    private final CodePathService service;
     private final ItemRunner runner;
     private final ObjectMapper objectMapper;
 
     @Override
     public String key() {
-        return "learningPaths";
+        return "codepaths";
     }
 
     @Override
     public String label() {
-        return "Lernpfade";
+        return "CodePaths";
     }
 
     @Override
@@ -55,7 +55,7 @@ public class LearningPathTransfer implements TransferSection {
 
     @Override
     public List<TransferItem> importData(JsonNode data, Long actorId) {
-        if (!data.isArray()) return List.of(TransferItem.error(label(), "-", "Erwartet wird eine Liste von Lernpfaden."));
+        if (!data.isArray()) return List.of(TransferItem.error(label(), "-", "Erwartet wird eine Liste von CodePaths."));
         List<TransferItem> items = new ArrayList<>();
         for (JsonNode node : data) {
             String name = node.path("slug").asString("?");
@@ -65,20 +65,20 @@ public class LearningPathTransfer implements TransferSection {
     }
 
     private TransferItem.Action importPath(PathExport in) {
-        String slug = LearningPathService.slug(in.slug());
-        String title = LearningPathService.title(in.title());
-        String description = LearningPathService.description(in.description());
+        String slug = CodePathService.slug(in.slug());
+        String title = CodePathService.title(in.title());
+        String description = CodePathService.description(in.description());
         String graph = service.write(service.checked(in.graph() == null ? PathGraph.Graph.empty() : in.graph()));
         boolean published = Boolean.TRUE.equals(in.published());
-        Optional<LearningPath> existing = repository.findBySlug(slug);
-        LearningPath path = existing.orElseGet(LearningPath::new);
+        Optional<CodePath> existing = repository.findBySlug(slug);
+        CodePath path = existing.orElseGet(CodePath::new);
         if (existing.isPresent() && title.equals(path.getTitle()) && description.equals(path.getDescription())
                 && published == path.isPublished() && service.read(path.getGraph()).equals(service.read(graph))) {
             return TransferItem.Action.UNCHANGED;
         }
         if (existing.isEmpty()) {
             path.setSlug(slug);
-            path.setPosition(repository.findAllByOrderByPositionAscIdAsc().stream().mapToInt(LearningPath::getPosition).max().orElse(-1) + 1);
+            path.setPosition(repository.findAllByOrderByPositionAscIdAsc().stream().mapToInt(CodePath::getPosition).max().orElse(-1) + 1);
         }
         path.setTitle(title);
         path.setDescription(description);

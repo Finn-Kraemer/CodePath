@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PathView } from '$lib/api';
 	import { canvasSize, edgePath, NODE_H, NODE_W } from './geometry';
+	import PathIcon from './PathIcon.svelte';
 
 	let { path }: { path: PathView } = $props();
 
@@ -83,7 +84,11 @@
 						: 'border-dashed border-slate-300 bg-white'}"
 					{style}
 				>
-					<span class="text-lg">{node.state === 'DONE' ? '🏆' : '🏁'}</span>
+					<PathIcon
+						name={node.state === 'DONE' ? 'trophy' : 'milestone'}
+						size={20}
+						class={node.state === 'DONE' ? 'text-institutional-gold' : 'text-slate-400'}
+					/>
 					<span class="text-xs font-black tracking-wide text-institutional-navy uppercase"
 						>{node.label}</span
 					>
@@ -101,7 +106,19 @@
 					aria-label="{node.label}: {STATE_LABELS[node.state]}"
 				>
 					<div class="flex items-start gap-2">
-						<span class="text-xl leading-none">{node.state === 'LOCKED' ? '🔒' : node.icon}</span>
+						{#if node.state === 'LOCKED'}
+							<PathIcon name="lock" size={20} class="text-slate-400" />
+						{:else if node.state === 'DONE'}
+							<PathIcon name="check" size={20} class="text-emerald-600" />
+						{:else}
+							<PathIcon
+								emoji={node.icon}
+								name={node.kind === 'TASK' && !node.icon ? 'task' : null}
+								title={node.label}
+								size={20}
+								class="text-institutional-navy"
+							/>
+						{/if}
 						<span class="line-clamp-2 text-sm leading-tight font-bold text-institutional-navy"
 							>{node.label}</span
 						>
@@ -114,7 +131,11 @@
 									? 'text-emerald-700'
 									: 'text-slate-400'}"
 						>
-							{node.recommended ? '★ Empfohlen' : STATE_LABELS[node.state]}
+							{#if node.recommended}<PathIcon
+									name="star"
+									size={10}
+									class="mr-1 inline align-[-1px]"
+								/>Empfohlen{:else}{STATE_LABELS[node.state]}{/if}
 						</span>
 						{#if node.kind === 'MODULE' && node.total > 0}
 							<span class="font-mono text-[9px] text-slate-400">{node.done}/{node.total}</span>

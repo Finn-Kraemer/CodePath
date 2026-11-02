@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { canvasSize, edgePath, layered, NODE_H, NODE_W, snap } from './geometry';
 
-describe('Lernpfad-Karte', () => {
+describe('CodePath-Karte', () => {
 	it('macht die Fläche groß genug für alle Stationen', () => {
 		expect(canvasSize([{ x: 100, y: 300 }])).toEqual({
 			width: 100 + NODE_W + 40,
