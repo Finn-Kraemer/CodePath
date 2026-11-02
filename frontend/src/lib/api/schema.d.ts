@@ -20,6 +20,54 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/codepaths': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['all_2'];
+		put?: never;
+		post: operations['create_2'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/codepaths/order': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['reorder_3'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/codepaths/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['get'];
+		put: operations['update_1'];
+		post?: never;
+		delete: operations['delete_2'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/content': {
 		parameters: {
 			query?: never;
@@ -124,7 +172,7 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
-		put: operations['reorder_3'];
+		put: operations['reorder_2'];
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -507,54 +555,6 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['all_2'];
-		put?: never;
-		post: operations['create_2'];
-		delete?: never;
-		options?: never;
-		head?: never;
-		patch?: never;
-		trace?: never;
-	};
-	'/api/admin/knowledge/order': {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		get?: never;
-		put: operations['reorder_2'];
-		post?: never;
-		delete?: never;
-		options?: never;
-		head?: never;
-		patch?: never;
-		trace?: never;
-	};
-	'/api/admin/knowledge/{id}': {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		get?: never;
-		put: operations['update_1'];
-		post?: never;
-		delete: operations['delete_2'];
-		options?: never;
-		head?: never;
-		patch?: never;
-		trace?: never;
-	};
-	'/api/admin/codepaths': {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
 		get: operations['all_1'];
 		put?: never;
 		post: operations['create_1'];
@@ -564,7 +564,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/admin/codepaths/order': {
+	'/api/admin/knowledge/order': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -580,14 +580,14 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/admin/codepaths/{id}': {
+	'/api/admin/knowledge/{id}': {
 		parameters: {
 			query?: never;
 			header?: never;
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['get'];
+		get?: never;
 		put: operations['update'];
 		post?: never;
 		delete: operations['delete_1'];
@@ -1188,6 +1188,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/codepaths': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['published'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/codepaths/{slug}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['view'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/common/announcement': {
 		parameters: {
 			query?: never;
@@ -1372,38 +1404,6 @@ export interface paths {
 			cookie?: never;
 		};
 		get: operations['leaderboard'];
-		put?: never;
-		post?: never;
-		delete?: never;
-		options?: never;
-		head?: never;
-		patch?: never;
-		trace?: never;
-	};
-	'/api/codepaths': {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		get: operations['published'];
-		put?: never;
-		post?: never;
-		delete?: never;
-		options?: never;
-		head?: never;
-		patch?: never;
-		trace?: never;
-	};
-	'/api/codepaths/{slug}': {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		get: operations['view'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -2516,6 +2516,142 @@ export interface operations {
 			};
 		};
 	};
+	all_2: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PathSummary'][];
+				};
+			};
+		};
+	};
+	create_2: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': {
+					[key: string]: string;
+				};
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PathAdmin'];
+				};
+			};
+		};
+	};
+	reorder_3: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': number[];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	get: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PathAdmin'];
+				};
+			};
+		};
+	};
+	update_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['PathUpdate'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PathAdmin'];
+				};
+			};
+		};
+	};
+	delete_2: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
 	overview: {
 		parameters: {
 			query?: never;
@@ -2653,7 +2789,7 @@ export interface operations {
 			};
 		};
 	};
-	reorder_3: {
+	reorder_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -3294,120 +3430,6 @@ export interface operations {
 			};
 		};
 	};
-	all_2: {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		requestBody?: never;
-		responses: {
-			/** @description OK */
-			200: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'*/*': components['schemas']['ArticleAdmin'][];
-				};
-			};
-		};
-	};
-	create_2: {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		requestBody: {
-			content: {
-				'application/json': {
-					[key: string]: string;
-				};
-			};
-		};
-		responses: {
-			/** @description OK */
-			200: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'*/*': components['schemas']['ArticleAdmin'];
-				};
-			};
-		};
-	};
-	reorder_2: {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		requestBody: {
-			content: {
-				'application/json': number[];
-			};
-		};
-		responses: {
-			/** @description OK */
-			200: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content?: never;
-			};
-		};
-	};
-	update_1: {
-		parameters: {
-			query?: never;
-			header?: never;
-			path: {
-				id: number;
-			};
-			cookie?: never;
-		};
-		requestBody: {
-			content: {
-				'application/json': components['schemas']['ArticleUpdate'];
-			};
-		};
-		responses: {
-			/** @description OK */
-			200: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'*/*': components['schemas']['ArticleAdmin'];
-				};
-			};
-		};
-	};
-	delete_2: {
-		parameters: {
-			query?: never;
-			header?: never;
-			path: {
-				id: number;
-			};
-			cookie?: never;
-		};
-		requestBody?: never;
-		responses: {
-			/** @description OK */
-			200: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content?: never;
-			};
-		};
-	};
 	all_1: {
 		parameters: {
 			query?: never;
@@ -3423,7 +3445,7 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					'*/*': components['schemas']['PathSummary'][];
+					'*/*': components['schemas']['ArticleAdmin'][];
 				};
 			};
 		};
@@ -3449,7 +3471,7 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					'*/*': components['schemas']['PathAdmin'];
+					'*/*': components['schemas']['ArticleAdmin'];
 				};
 			};
 		};
@@ -3476,28 +3498,6 @@ export interface operations {
 			};
 		};
 	};
-	get: {
-		parameters: {
-			query?: never;
-			header?: never;
-			path: {
-				id: number;
-			};
-			cookie?: never;
-		};
-		requestBody?: never;
-		responses: {
-			/** @description OK */
-			200: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'*/*': components['schemas']['PathAdmin'];
-				};
-			};
-		};
-	};
 	update: {
 		parameters: {
 			query?: never;
@@ -3509,7 +3509,7 @@ export interface operations {
 		};
 		requestBody: {
 			content: {
-				'application/json': components['schemas']['PathUpdate'];
+				'application/json': components['schemas']['ArticleUpdate'];
 			};
 		};
 		responses: {
@@ -3519,7 +3519,7 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content: {
-					'*/*': components['schemas']['PathAdmin'];
+					'*/*': components['schemas']['ArticleAdmin'];
 				};
 			};
 		};
@@ -4514,6 +4514,48 @@ export interface operations {
 			};
 		};
 	};
+	published: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PathLink'][];
+				};
+			};
+		};
+	};
+	view: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PathView'];
+				};
+			};
+		};
+	};
 	announcement_1: {
 		parameters: {
 			query?: never;
@@ -5004,48 +5046,6 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['Leaderboard'];
-				};
-			};
-		};
-	};
-	published: {
-		parameters: {
-			query?: never;
-			header?: never;
-			path?: never;
-			cookie?: never;
-		};
-		requestBody?: never;
-		responses: {
-			/** @description OK */
-			200: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'*/*': components['schemas']['PathLink'][];
-				};
-			};
-		};
-	};
-	view: {
-		parameters: {
-			query?: never;
-			header?: never;
-			path: {
-				slug: string;
-			};
-			cookie?: never;
-		};
-		requestBody?: never;
-		responses: {
-			/** @description OK */
-			200: {
-				headers: {
-					[name: string]: unknown;
-				};
-				content: {
-					'*/*': components['schemas']['PathView'];
 				};
 			};
 		};
