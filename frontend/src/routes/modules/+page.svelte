@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PathIcon from '$lib/pathway/PathIcon.svelte';
 	import { onMount } from 'svelte';
 	import {
 		api,
@@ -9,6 +10,9 @@
 	} from '$lib/api';
 	import NextTask from '$lib/pathway/NextTask.svelte';
 	import PathMap from '$lib/pathway/PathMap.svelte';
+	import { pathFocus } from '$lib/pathway/focus.svelte';
+	import { auth } from '$lib/auth.svelte';
+	import { realtime } from '$lib/realtime.svelte';
 
 	const VIEW_KEY = 'codepath.modules.view';
 
@@ -21,6 +25,29 @@
 	let path = $state<PathView | null>(null);
 	/** CodePath-Karte oder Liste; die Wahl merkt sich der Browser */
 	let view = $state<'map' | 'list'>('map');
+	let lastTrigger = 0;
+
+	const isFocus = $derived(
+		!!(path?.hideOverview || paths.some((p) => p.hideOverview)) && auth.user?.role !== 'ADMIN'
+	);
+	const teacherNotice = $derived(
+		!!(path?.hideOverview || paths.some((p) => p.hideOverview)) && auth.user?.role === 'ADMIN'
+	);
+
+	$effect(() => {
+		pathFocus.set(isFocus);
+		if (isFocus) {
+			view = 'map';
+		}
+	});
+
+	$effect(() => {
+		const trigger = realtime.leaderboardUpdateTrigger;
+		if (trigger > lastTrigger) {
+			lastTrigger = trigger;
+			fetchModules();
+		}
+	});
 
 	// Update now every second for countdowns
 	onMount(() => {
@@ -82,17 +109,35 @@
 </script>
 
 <div class="flex flex-col gap-12">
+	{#if teacherNotice}
+		<div
+			class="flex items-center gap-3 border-l-4 border-sky-600 bg-sky-50 px-5 py-4 text-sm text-sky-900"
+			role="status"
+		>
+			<PathIcon name="target" size={22} />
+			<div>
+				<p class="font-bold">Fokus-Modus aktiv</p>
+				<p class="mt-0.5 text-xs text-sky-800">
+					Schülerinnen und Schüler sehen in diesem Kurs nur den CodePath – die Gesamtübersicht der
+					Module und die Pfadauswahl sind für sie ausgeblendet.
+				</p>
+			</div>
+		</div>
+	{/if}
+
 	<header class="border-b border-slate-200 pb-8">
 		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			Lernmodule
+			{isFocus ? 'CodePath' : 'Lernmodule'}
 		</h1>
 		<div class="mt-4 flex flex-wrap items-end justify-between gap-4">
 			<p class="text-slate-500">
-				{paths.length
-					? 'Folge deinem CodePath oder wähle selbst ein Modul.'
-					: 'Wähle ein Modul aus, um mit den Aufgaben zu beginnen.'}
+				{isFocus
+					? 'Folge deinem CodePath, um alle Stationen abzuschließen.'
+					: paths.length
+						? 'Folge deinem CodePath oder wähle selbst ein Modul.'
+						: 'Wähle ein Modul aus, um mit den Aufgaben zu beginnen.'}
 			</p>
-			{#if paths.length && modules.length}
+			{#if !isFocus && paths.length && modules.length}
 				<div class="flex border border-slate-200 bg-white" role="group" aria-label="Ansicht">
 					<button
 						class="px-4 py-2 text-[10px] font-black tracking-[2px] uppercase {view === 'map'
@@ -113,6 +158,22 @@
 		</div>
 	</header>
 
+	{#if realtime.lastPathNotice && realtime.lastPathNotice.username === auth.user?.username}
+		<div
+			class="flex items-center justify-between gap-4 border-l-4 border-institutional-navy bg-slate-50 px-5 py-4 text-sm text-institutional-navy"
+			role="status"
+		>
+			<span>{realtime.lastPathNotice.message}</span>
+			<button
+				type="button"
+				class="text-xs font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+				onclick={() => realtime.clearPathNotice()}
+			>
+				Ausblenden
+			</button>
+		</div>
+	{/if}
+
 	{#if next}
 		<NextTask {next} />
 	{/if}
@@ -123,13 +184,13 @@
 				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
 			></div>
 		</div>
-	{:else if modules.length === 0}
+	{:else if modules.length === 0 && !path}
 		<div class="rounded-none border border-dashed border-slate-200 bg-white p-24 text-center">
 			<p class="font-serif text-sm text-slate-400 italic">
 				Aktuell sind keine Module zur Bearbeitung freigeschaltet.
 			</p>
 		</div>
-	{:else if view === 'map' && path}
+	{:else if (view === 'map' || isFocus) && path}
 		<section class="flex flex-col gap-4" aria-label="CodePath">
 			<div class="flex flex-wrap items-center justify-between gap-4">
 				<div>
@@ -137,7 +198,7 @@
 					{#if path.description}<p class="text-sm text-slate-500">{path.description}</p>{/if}
 				</div>
 				<div class="flex items-center gap-4">
-					{#if paths.length > 1}
+					{#if paths.length > 1 && !isFocus}
 						<select
 							class="border border-slate-200 bg-white px-3 py-2 text-sm"
 							aria-label="CodePath wählen"
@@ -152,7 +213,13 @@
 					>
 				</div>
 			</div>
-			<PathMap {path} />
+			<PathMap
+				{path}
+				onupdate={(updated) => {
+					path = updated;
+					fetchModules();
+				}}
+			/>
 		</section>
 	{:else}
 		<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">

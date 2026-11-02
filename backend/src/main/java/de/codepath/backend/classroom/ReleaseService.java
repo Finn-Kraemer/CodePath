@@ -119,7 +119,7 @@ public class ReleaseService {
     }
 
     /**
-     * Übernimmt einen Lernpfad in die Modul-Steuerung eines Kurses. Jedes Modul im Plan wird freigegeben;
+     * Übernimmt einen CodePath in die Modul-Steuerung eines Kurses. Jedes Modul im Plan wird freigegeben;
      * mit Aufgabenauswahl werden die übrigen Aufgaben des Moduls einzeln gesperrt, ohne Auswahl folgen alle
      * Aufgaben wieder dem Modul. Fristen bleiben unangetastet.
      *

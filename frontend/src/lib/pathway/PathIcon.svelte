@@ -35,7 +35,16 @@
 		| 'eye'
 		| 'search'
 		| 'chevron'
-		| 'arrange';
+		| 'arrange'
+		| 'crown'
+		| 'door'
+		| 'split'
+		| 'puzzle'
+		| 'lifebuoy'
+		| 'map'
+		| 'list'
+		| 'target'
+		| 'gate';
 
 	const EMOJI: Record<string, IconName> = {
 		'🏁': 'milestone',
@@ -55,7 +64,13 @@
 		'💻': 'code',
 		'🖥': 'terminal',
 		'⌨': 'terminal',
-		'🌐': 'globe'
+		'🌐': 'globe',
+		'⭐': 'star',
+		'👑': 'crown',
+		'🚪': 'door',
+		'🔀': 'split',
+		'🧩': 'puzzle',
+		'🛟': 'lifebuoy'
 	};
 
 	/** Linien-Icon zu einem Modul-Emoji, sonst null */
@@ -212,6 +227,34 @@
 				height="4"
 				rx="1"
 			/><rect x="15" y="17" width="6" height="4" rx="1" /><path d="M12 7v5M6 17v-2.5h12V17" />
+		{:else if resolved === 'crown'}
+			<path d="M4 8l4 4 4-7 4 7 4-4-1.5 10h-13L4 8Z" /><path d="M5.5 21h13" />
+		{:else if resolved === 'door'}
+			<path d="M6 21V4h12v17" /><path d="M3 21h18" /><path d="M14.5 12.5h.01" />
+		{:else if resolved === 'split'}
+			<path d="M12 21v-7" /><path d="M12 14 6 8V4" /><path d="m12 14 6-6V4" /><path
+				d="m4 6 2-2 2 2M16 6l2-2 2 2"
+			/>
+		{:else if resolved === 'puzzle'}
+			<path
+				d="M5 8h3.5a2 2 0 1 1 4 0H16v3.5a2 2 0 1 1 0 4V19h-3.5a2 2 0 1 0-4 0H5v-3.5a2 2 0 1 0 0-4V8Z"
+			/>
+		{:else if resolved === 'lifebuoy'}
+			<circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3.5" /><path
+				d="m5.6 5.6 3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"
+			/>
+		{:else if resolved === 'map'}
+			<path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5L9 4Z" /><path d="M9 4v13.5M15 6.5V20" />
+		{:else if resolved === 'list'}
+			<path d="M9 6h11M9 12h11M9 18h11" /><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
+		{:else if resolved === 'target'}
+			<circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="4" /><path d="M12 12h.01" />
+		{:else if resolved === 'gate'}
+			<path d="M6 3v5c0 3.5 6 3.5 6 7v6" /><path d="M18 3v5c0 3.5-6 3.5-6 7" /><circle
+				cx="12"
+				cy="15"
+				r="1.5"
+			/>
 		{/if}
 	</svg>
 {:else}

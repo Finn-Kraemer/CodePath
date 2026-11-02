@@ -32,13 +32,29 @@ public class CodePath {
     @Column(nullable = false)
     private boolean published;
 
-    /** Kurs, für den der Lernpfad gilt; null für alle Kurse (ändert dann keine Freigaben) */
+    /** Verbindlicher CodePath: Pflicht-Vorgänger müssen erledigt sein, bevor eine Station frei wird */
+    @Column(nullable = false)
+    private boolean enforce;
+
+    /** Kurs, für den der CodePath gilt; null für alle Kurse (ändert dann keine Freigaben) */
     @Column(name = "course_id")
     private Long courseId;
 
-    /** Beim Übernehmen in die Modul-Steuerung Module sperren, die im Lernpfad nicht vorkommen */
+    /** Beim Übernehmen in die Modul-Steuerung Module sperren, die im CodePath nicht vorkommen */
     @Column(name = "lock_others", nullable = false)
     private boolean lockOthers;
+
+    /** Station-ID, ab deren Erreichen alle Module und Aufgaben außerhalb des CodePaths frei werden */
+    @Column(name = "unlock_rest_after")
+    private String unlockRestAfter;
+
+    /** Nur als wiederverwendbarer Baustein für andere CodePaths gedacht (erscheint nicht einzeln in der Schüler-Auswahl) */
+    @Column(name = "template_only", nullable = false)
+    private boolean templateOnly;
+
+    /** Fokus-Modus: Schüler sehen nur den CodePath; Modul-Kacheln und Liste sind ausgeblendet */
+    @Column(name = "hide_overview", nullable = false)
+    private boolean hideOverview;
 
     @Column(nullable = false)
     private int position;

@@ -227,6 +227,17 @@ public class KnowledgeService implements MediaUsage {
         return repository.findAllByOrderByPositionAscIdAsc().stream().mapToInt(KnowledgeArticle::getPosition).max().orElse(-1) + 1;
     }
 
+    @Transactional(readOnly = true)
+    public boolean exists(String slug) {
+        return repository.existsBySlug(slug);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<ArticleView> findBySlug(String slug) {
+        return repository.findBySlug(slug)
+                .map(a -> new ArticleView(a.getSlug(), a.getTitle(), a.getIcon(), a.getBody(), a.getModuleSlug(), a.isPublished()));
+    }
+
     private List<KnowledgeArticle> visibleArticles(User user) {
         List<KnowledgeArticle> articles = repository.findAllByOrderByPositionAscIdAsc();
         if (user.isTeacher()) return articles;
@@ -236,7 +247,9 @@ public class KnowledgeService implements MediaUsage {
                 .filter(KnowledgeArticle::isPublished)
                 .filter(a -> a.getModuleSlug() == null || moduleVisible.computeIfAbsent(a.getModuleSlug(), slug -> {
                     Optional<Module> module = contentService.modules().stream().filter(m -> m.getSlug().equals(slug)).findFirst();
-                    return module.isPresent() && releases.moduleAccess(module.get(), contentService.publishedTasks(module.get())).visible();
+                    if (module.isEmpty()) return false;
+                    AccessPolicy.ModuleAccess access = releases.moduleAccess(module.get(), contentService.publishedTasks(module.get()));
+                    return access.visible() && !access.blocked();
                 }))
                 .toList();
     }

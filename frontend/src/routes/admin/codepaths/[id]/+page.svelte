@@ -5,14 +5,20 @@
 	import {
 		api,
 		type CourseSummary,
+		type EdgeCondition,
+		type GateStudentStat,
 		type PathAdmin,
 		type PathNode,
+		type PathSummary,
 		type PathView,
-		type Schemas
+		type Schemas,
+		type StudentOverview
 	} from '$lib/api';
 	import {
 		canvasSize,
+		choiceBranches,
 		edgePath,
+		incomingSlot,
 		layered,
 		NODE_H,
 		NODE_W,
@@ -25,11 +31,12 @@
 
 	type ModuleRow = Schemas['ModuleRow'];
 	type Edge = Schemas['Edge'];
-	/** BLOCK: frisch hineingezogener Baustein, dessen Art noch festgelegt wird (wird nie gespeichert) */
+	type ChoiceNodeStats = Schemas['ChoiceNodeStats'];
+	/** BLOCK: frisch hineingezogener leerer Block, dessen Art noch festgelegt wird (wird nie gespeichert) */
 	type EditorKind = PathNode['kind'] | 'BLOCK';
 	type EditorNode = Omit<PathNode, 'kind'> & { kind: EditorKind };
-	/** Wie eine Station genutzt wird – die Auswahl im Baustein */
-	type Variant = 'MODULE' | 'PART' | 'TASK' | 'MILESTONE';
+	/** Wie ein Block genutzt wird – die Auswahl rechts */
+	type Variant = Exclude<PathNode['kind'], 'MODULE'> | 'MODULE' | 'PART';
 
 	const MAX_COORDINATE = 4000;
 	const GAP_Y = NODE_H + 70;
@@ -43,9 +50,20 @@
 		description: '',
 		published: false,
 		courseId: 0,
-		lockOthers: false
+		enforce: false,
+		templateOnly: false,
+		hideOverview: false,
+		lockOthers: false,
+		unlockRestAfter: ''
 	});
 	let courses = $state<CourseSummary[]>([]);
+	/** Alle CodePaths – für eingebundene CodePath-Bausteine */
+	let allPaths = $state<PathSummary[]>([]);
+	let students = $state<StudentOverview[]>([]);
+	let previewStudent = $state('');
+	let choiceStats = $state<ChoiceNodeStats[]>([]);
+	let gateStats = $state<GateStudentStat[]>([]);
+	let resetCourseProgress = $state<Record<string, boolean>>({});
 	/** Was das letzte Speichern in die Modul-Steuerung übernommen hat */
 	let applied = $state<string[] | null>(null);
 	let nodes = $state<EditorNode[]>([]);
@@ -64,6 +82,15 @@
 	const selected = $derived(nodes.find((n) => n.id === selectedId) ?? null);
 	const byId = $derived(new Map(nodes.map((n) => [n.id, n])));
 	const modulesBySlug = $derived(new Map(catalog.map((m) => [m.module.slug, m])));
+	const pathsBySlug = $derived(new Map(allPaths.map((p) => [p.slug, p])));
+	const availableSubpaths = $derived(allPaths.filter((p) => p.id !== id));
+	const filteredStudents = $derived(
+		form.courseId ? students.filter((s) => s.courseId === form.courseId) : students
+	);
+	/** Was mit allem passiert, das nicht im CodePath vorkommt */
+	const outsideMode = $derived(
+		form.unlockRestAfter ? 'AFTER' : form.lockOthers ? 'LOCKED' : 'FREE'
+	);
 	const current = $derived(JSON.stringify({ ...form, graph: { nodes, edges } }));
 	const savedState = $derived(
 		saved
@@ -73,7 +100,11 @@
 					description: saved.description,
 					published: saved.published,
 					courseId: saved.courseId ?? 0,
+					enforce: saved.enforce ?? false,
+					templateOnly: saved.templateOnly ?? false,
+					hideOverview: saved.hideOverview ?? false,
 					lockOthers: saved.lockOthers,
+					unlockRestAfter: saved.unlockRestAfter ?? '',
 					graph: saved.graph
 				})
 			: ''
@@ -82,22 +113,73 @@
 	const incompleteCount = $derived(nodes.filter(incomplete).length);
 	const courseName = $derived(courses.find((c) => c.id === form.courseId)?.name);
 
-	onMount(async () => {
+	onMount(() => loadEditor(id));
+
+	// Wechsel zu einem anderen CodePath (z. B. „Baustein bearbeiten“) lädt den Editor neu
+	$effect(() => {
+		const targetId = id;
+		if (saved && saved.id !== targetId) loadEditor(targetId);
+	});
+
+	async function loadEditor(targetId: number) {
 		try {
-			const [path, modules, courseList] = await Promise.all([
-				api<PathAdmin>(`/api/admin/codepaths/${id}`),
+			const [path, pathList, modules, courseList, studentList] = await Promise.all([
+				api<PathAdmin>(`/api/admin/codepaths/${targetId}`),
+				api<PathSummary[]>('/api/admin/codepaths'),
 				api<ModuleRow[]>('/api/admin/content'),
-				api<CourseSummary[]>('/api/admin/courses')
+				api<CourseSummary[]>('/api/admin/courses'),
+				api<StudentOverview[]>('/api/admin/students').catch(() => [])
 			]);
 			catalog = modules;
 			courses = courseList;
+			allPaths = pathList;
+			students = studentList;
+			selectedId = null;
+			selectedEdge = null;
+			preview = null;
 			apply(path);
+			await refreshStats();
 			await tick();
 			fitHeight();
 		} catch (e) {
 			error = (e as Error).message;
 		}
-	});
+	}
+
+	/** Weichen- und Punkte-Tor-Übersicht für den Kurs */
+	async function refreshStats() {
+		const query = form.courseId ? `?courseId=${form.courseId}` : '';
+		const [c, g] = await Promise.all([
+			api<ChoiceNodeStats[]>(`/api/admin/codepaths/${id}/choice-stats${query}`).catch(() => []),
+			api<GateStudentStat[]>(`/api/admin/codepaths/${id}/gate-stats${query}`).catch(() => [])
+		]);
+		choiceStats = c;
+		gateStats = g;
+	}
+
+	async function runCourseAction(body: {
+		action: 'RESET_CHOICE' | 'SET_CHOICE' | 'UNLOCK_BRANCH' | 'UNLOCK_NODE';
+		pathSlug?: string;
+		nodeId: string;
+		to?: string;
+		resetProgress?: boolean;
+	}) {
+		error = '';
+		busy = true;
+		try {
+			const res = await api<{ affected: number }>(`/api/admin/codepaths/${id}/course-actions`, {
+				method: 'POST',
+				body: { ...body, courseId: form.courseId || undefined }
+			});
+			await refreshStats();
+			if (preview) await showPreview();
+			flash(`Für ${res.affected} Schüler/innen ausgeführt`);
+		} catch (e) {
+			error = (e as Error).message;
+		} finally {
+			busy = false;
+		}
+	}
 
 	beforeNavigate((navigation) => {
 		if (dirty && !confirm('Ungespeicherte Änderungen verwerfen?')) navigation.cancel();
@@ -107,7 +189,7 @@
 		// Gleiche Schlüsselreihenfolge wie beim Vergleich, damit "ungespeichert" stimmt
 		const graph = {
 			nodes: path.graph.nodes.map((n) => normalize(n) as PathNode),
-			edges: path.graph.edges.map((e) => ({ from: e.from, to: e.to }))
+			edges: path.graph.edges.map(normalizeEdge)
 		};
 		saved = { ...path, graph };
 		form = {
@@ -116,7 +198,11 @@
 			description: path.description ?? '',
 			published: path.published,
 			courseId: path.courseId ?? 0,
-			lockOthers: path.lockOthers
+			enforce: path.enforce ?? false,
+			templateOnly: path.templateOnly ?? false,
+			hideOverview: path.hideOverview ?? false,
+			lockOthers: path.lockOthers,
+			unlockRestAfter: path.unlockRestAfter ?? ''
 		};
 		nodes = structuredClone(graph.nodes);
 		edges = structuredClone(graph.edges);
@@ -128,9 +214,45 @@
 		if (n.task) node.task = n.task;
 		if (n.kind === 'MODULE' && n.tasks?.length) node.tasks = n.tasks;
 		if (n.label) node.label = n.label;
+		if (n.kind === 'PATH' && n.path) node.path = n.path;
+		if (n.kind === 'OR') node.min = Math.max(1, n.min ?? 1);
+		if (n.kind === 'BONUS') node.points = Math.max(1, Math.min(1000, n.points ?? 10));
+		if (n.kind === 'REMEDIAL' && n.knowledgeArticle?.trim())
+			node.knowledgeArticle = n.knowledgeArticle.trim();
+		if (n.boss) node.boss = true;
+		if (n.requirement) node.requirement = n.requirement;
 		node.x = n.x;
 		node.y = n.y;
 		return node as unknown as EditorNode;
+	}
+
+	function normalizeEdge(e: Partial<Edge> & { from: string; to: string }): Edge {
+		const edge: Record<string, unknown> = { from: e.from, to: e.to, required: !!e.required };
+		if (e.label?.trim()) edge.label = e.label.trim();
+		if (e.hint?.trim()) edge.hint = e.hint.trim();
+		if (e.condition?.rule) {
+			edge.condition = {
+				rule: e.condition.rule,
+				task: e.condition.task?.trim() || undefined,
+				scoreThreshold: e.condition.scoreThreshold,
+				failedAttemptsThreshold: e.condition.failedAttemptsThreshold,
+				hintsThreshold: e.condition.hintsThreshold
+			};
+		}
+		return edge as unknown as Edge;
+	}
+
+	/** Verbindlich: Pflicht-Vorgänger müssen erledigt sein; beim Einschalten werden alle Verbindungen Pflicht */
+	function toggleEnforce(checked: boolean) {
+		form.enforce = checked;
+		if (!checked) form.hideOverview = false;
+		if (checked && edges.length && edges.every((e) => !e.required))
+			edges = edges.map((e) => ({ ...e, required: true }));
+	}
+
+	function setOutsideMode(mode: string) {
+		form.lockOthers = mode !== 'FREE';
+		form.unlockRestAfter = mode === 'AFTER' ? (nodes[nodes.length - 1]?.id ?? '') : '';
 	}
 
 	function flash(text: string) {
@@ -151,11 +273,15 @@
 		try {
 			const updated = await api<PathAdmin>(`/api/admin/codepaths/${id}`, {
 				method: 'PUT',
-				body: { ...form, graph: { nodes: nodes.map(normalize), edges } }
+				body: {
+					...form,
+					graph: { nodes: nodes.map(normalize), edges: edges.map(normalizeEdge) }
+				}
 			});
 			apply(updated);
 			applied = form.courseId && form.published ? updated.applied : null;
 			flash('Gespeichert');
+			await refreshStats();
 			if (preview) await showPreview();
 		} catch (e) {
 			error = (e as Error).message;
@@ -178,7 +304,8 @@
 	async function showPreview() {
 		if (!saved) return;
 		try {
-			preview = await api<PathView>(`/api/codepaths/${saved.slug}`);
+			const query = previewStudent ? `?student=${encodeURIComponent(previewStudent)}` : '';
+			preview = await api<PathView>(`/api/codepaths/${saved.slug}${query}`);
 		} catch (e) {
 			error = (e as Error).message;
 		}
@@ -192,9 +319,15 @@
 
 	function label(n: EditorNode): string {
 		if (n.label) return n.label;
-		if (n.kind === 'BLOCK') return 'Neuer Baustein';
+		if (n.kind === 'BLOCK') return 'Neuer Block';
 		if (n.kind === 'MILESTONE') return 'Meilenstein';
-		if (!n.module) return n.kind === 'TASK' ? 'Aufgabe wählen' : 'Modul wählen';
+		if (n.kind === 'CHOICE') return 'Weiche';
+		if (n.kind === 'BONUS') return 'Bonus';
+		if (n.kind === 'AND') return 'UND-Block';
+		if (n.kind === 'OR') return (n.min ?? 1) > 1 ? `ODER-Block (mind. ${n.min})` : 'ODER-Block';
+		if (n.kind === 'PATH')
+			return n.path ? (pathsBySlug.get(n.path)?.title ?? `${n.path} (fehlt)`) : 'CodePath wählen';
+		if (!n.module) return n.kind === 'MODULE' ? 'Modul wählen' : 'Aufgabe wählen';
 		const module = modulesBySlug.get(n.module);
 		if (n.kind === 'MODULE') {
 			if (!module) return `${n.module} (fehlt)`;
@@ -210,18 +343,21 @@
 	/** Fehlt noch etwas, damit die Station gespeichert werden kann? */
 	function incomplete(n: EditorNode): boolean {
 		if (n.kind === 'BLOCK') return true;
-		if (n.kind === 'MILESTONE') return !n.label?.trim();
+		if (n.kind === 'MILESTONE' || n.kind === 'BONUS') return !n.label?.trim();
+		if (n.kind === 'PATH') return !n.path;
+		if (n.kind === 'CHOICE' || n.kind === 'AND' || n.kind === 'OR') return false;
 		if (!n.module) return true;
-		return n.kind === 'TASK' && !n.task;
+		return (n.kind === 'TASK' || n.kind === 'REMEDIAL') && !n.task;
 	}
 
 	/** Verweist die Station auf ein Modul oder eine Aufgabe, die es nicht (mehr) gibt? */
 	function missing(n: EditorNode): boolean {
-		if (n.kind !== 'MODULE' && n.kind !== 'TASK') return false;
+		if (n.kind === 'PATH') return !!n.path && !pathsBySlug.has(n.path);
+		if (n.kind !== 'MODULE' && n.kind !== 'TASK' && n.kind !== 'REMEDIAL') return false;
 		if (!n.module) return false;
 		const module = modulesBySlug.get(n.module);
 		if (!module) return true;
-		return n.kind === 'TASK' && !!n.task && !module.tasks.some((t) => t.slug === n.task);
+		return n.kind !== 'MODULE' && !!n.task && !module.tasks.some((t) => t.slug === n.task);
 	}
 
 	function variant(n: EditorNode): Variant | null {
@@ -230,7 +366,9 @@
 		return n.kind;
 	}
 
-	const VARIANTS: { value: Variant; label: string; hint: string; icon: IconName }[] = [
+	type VariantInfo = { value: Variant; label: string; hint: string; icon: IconName };
+	/** Inhalte: was Schüler bearbeiten */
+	const CONTENT_VARIANTS: VariantInfo[] = [
 		{ value: 'MODULE', label: 'Ganzes Modul', hint: 'Alle Aufgaben eines Moduls', icon: 'module' },
 		{
 			value: 'PART',
@@ -240,22 +378,67 @@
 		},
 		{ value: 'TASK', label: 'Einzelne Aufgabe', hint: 'Genau eine Aufgabe', icon: 'task' },
 		{
+			value: 'REMEDIAL',
+			label: 'Stütz-Knoten',
+			hint: 'Hilfe-Aufgabe, nur bei Schwierigkeiten (Bedingung „Schwierigkeiten“)',
+			icon: 'lifebuoy'
+		},
+		{
+			value: 'PATH',
+			label: 'CodePath-Baustein',
+			hint: 'Bindet einen anderen CodePath als Ganzes ein',
+			icon: 'puzzle'
+		}
+	];
+	/** Steuerung: wie der Weg verläuft */
+	const FLOW_VARIANTS: VariantInfo[] = [
+		{
 			value: 'MILESTONE',
 			label: 'Meilenstein',
 			hint: 'Zwischenziel mit Beschriftung',
 			icon: 'milestone'
+		},
+		{ value: 'BONUS', label: 'Bonus', hint: 'Bringt Extrapunkte beim Erreichen', icon: 'star' },
+		{
+			value: 'CHOICE',
+			label: 'Weiche',
+			hint: 'Schüler wählen einen von mehreren Wegen; die anderen werden gesperrt',
+			icon: 'split'
+		},
+		{
+			value: 'AND',
+			label: 'UND',
+			hint: 'Geht erst weiter, wenn alle eingehenden Wege erledigt sind',
+			icon: 'gate'
+		},
+		{
+			value: 'OR',
+			label: 'ODER',
+			hint: 'Geht weiter, sobald eine Mindestzahl eingehender Wege erledigt ist',
+			icon: 'gate'
 		}
 	];
+	const VARIANTS = [...CONTENT_VARIANTS, ...FLOW_VARIANTS];
+	const usesModule = (v: Variant | null) =>
+		v === 'MODULE' || v === 'PART' || v === 'TASK' || v === 'REMEDIAL';
 
 	function variantLabel(n: EditorNode): string {
 		const v = variant(n);
-		return v ? VARIANTS.find((x) => x.value === v)!.label : 'Baustein';
+		return v ? VARIANTS.find((x) => x.value === v)!.label : 'Leerer Block';
 	}
 
 	function nodeIcon(n: EditorNode): { name: IconName | null; emoji: string | null } {
 		if (n.kind === 'BLOCK') return { name: 'block', emoji: null };
-		if (n.kind === 'MILESTONE') return { name: 'milestone', emoji: null };
+		if (n.kind === 'MILESTONE') return { name: n.requirement ? 'door' : 'milestone', emoji: null };
 		if (missing(n)) return { name: 'warning', emoji: null };
+		if (n.boss) return { name: 'crown', emoji: null };
+		const fixed: Partial<Record<EditorKind, IconName>> = {
+			CHOICE: 'split',
+			PATH: 'puzzle',
+			BONUS: 'star',
+			REMEDIAL: 'lifebuoy'
+		};
+		if (fixed[n.kind]) return { name: fixed[n.kind]!, emoji: null };
 		const emoji = modulesBySlug.get(n.module)?.module.icon ?? null;
 		if (!n.module || !emoji) return { name: n.kind === 'TASK' ? 'task' : 'module', emoji: null };
 		return { name: null, emoji };
@@ -303,17 +486,27 @@
 	/** Art eines Bausteins festlegen oder wechseln; passende Angaben bleiben erhalten */
 	function setVariant(node: EditorNode, v: Variant) {
 		error = '';
-		const keepLabel = node.kind === 'MILESTONE' || v === 'MILESTONE' ? '' : (node.label ?? '');
-		const base = { label: v === 'MILESTONE' ? (node.label ?? '') : keepLabel };
+		// Beschriftungen von Meilenstein/Bonus sind Pflicht und nur dort sinnvoll
+		const labelled = (k: EditorKind | Variant) => k === 'MILESTONE' || k === 'BONUS';
+		const keepLabel = labelled(node.kind) !== labelled(v) ? '' : (node.label ?? '');
+		const base = { label: keepLabel, boss: false, requirement: undefined, path: '' };
 		pendingPart = { ...pendingPart, [node.id]: v === 'PART' };
-		if (v === 'MILESTONE') {
-			updateNode(node.id, { ...base, kind: 'MILESTONE', module: '', task: '', tasks: [] });
-		} else if (v === 'TASK') {
+		if (!usesModule(v)) {
 			updateNode(node.id, {
 				...base,
-				kind: 'TASK',
+				kind: v as EditorKind,
+				module: '',
+				task: '',
 				tasks: [],
-				task: node.kind === 'TASK' ? node.task : ''
+				path: v === 'PATH' ? (node.path ?? '') : '',
+				label: v === 'MILESTONE' && !keepLabel ? 'Geschafft!' : keepLabel
+			});
+		} else if (v === 'TASK' || v === 'REMEDIAL') {
+			updateNode(node.id, {
+				...base,
+				kind: v,
+				tasks: [],
+				task: node.kind === 'TASK' || node.kind === 'REMEDIAL' ? node.task : ''
 			});
 		} else {
 			const withModule = { ...node, kind: 'MODULE' as const };
@@ -367,6 +560,7 @@
 		nodes = nodes.filter((n) => n.id !== nodeId);
 		edges = edges.filter((e) => e.from !== nodeId && e.to !== nodeId);
 		if (selectedId === nodeId) selectedId = null;
+		if (form.unlockRestAfter === nodeId) form.unlockRestAfter = '';
 	}
 
 	function select(nodeId: string | null) {
@@ -383,6 +577,9 @@
 		task?: string;
 		tasks?: string[];
 		label?: string;
+		path?: string;
+		points?: number;
+		min?: number;
 		part?: boolean;
 	};
 
@@ -412,19 +609,24 @@
 			task: template.task ?? '',
 			tasks: template.tasks ?? [],
 			label: template.label ?? '',
+			path: template.path ?? '',
+			points: template.points,
+			min: template.min,
 			...freeSpot(clampX(at.x), clampY(at.y))
-		});
+		} as EditorNode);
 		nodes = [...nodes, node];
 		if (template.part) pendingPart = { ...pendingPart, [node.id]: true };
 		if (target.between) {
 			const { from, to } = target.between;
+			const old = edges.find((e) => e.from === from && e.to === to)!;
 			edges = [
-				...edges.filter((e) => !(e.from === from && e.to === to)),
-				{ from, to: node.id },
-				{ from: node.id, to }
+				...edges.filter((e) => e !== old),
+				// Beschriftung/Bedingung eines Wegs bleiben am ersten Abschnitt
+				normalizeEdge({ ...old, to: node.id }),
+				newEdge(node.id, to)
 			];
 		} else if (target.after) {
-			edges = [...edges, { from: target.after, to: node.id }];
+			edges = [...edges, newEdge(target.after, node.id)];
 		}
 		select(node.id);
 		reveal(node);
@@ -549,8 +751,58 @@
 			error = 'Diese Verbindung würde einen Kreis bilden.';
 			return;
 		}
-		edges = [...edges, { from, to }];
+		edges = [...edges, newEdge(from, to)];
 	}
+
+	/** Neue Verbindung: Pflicht bei verbindlichen CodePaths und ab Weichen, dort mit Weg-Beschriftung */
+	function newEdge(from: string, to: string): Edge {
+		const fromNode = byId.get(from);
+		const toNode = byId.get(to);
+		return normalizeEdge({
+			from,
+			to,
+			required: form.enforce || fromNode?.kind === 'CHOICE',
+			label: fromNode?.kind === 'CHOICE' && toNode ? label(toNode) : undefined
+		});
+	}
+
+	function updateEdge(key: string, change: Partial<Edge>) {
+		edges = edges.map((e) => (edgeKey(e) === key ? normalizeEdge({ ...e, ...change }) : e));
+	}
+
+	/** Bedingung einer Verbindung setzen; Vorgabe für die Bezugsaufgabe ist die Aufgabe der Station */
+	function setCondition(key: string, rule: string, from: EditorNode | undefined) {
+		const task = from?.task || from?.tasks?.[0] || '';
+		const conditions: Record<string, Partial<EdgeCondition> | undefined> = {
+			NONE: undefined,
+			DEFAULT: { rule: 'DEFAULT' },
+			PERFECT_FIRST_TRY: { rule: 'PERFECT_FIRST_TRY', task },
+			STRUGGLED: { rule: 'STRUGGLED', task, failedAttemptsThreshold: 3, hintsThreshold: 2 },
+			SCORE_AT_LEAST: { rule: 'SCORE_AT_LEAST', task, scoreThreshold: 80 }
+		};
+		updateEdge(key, { condition: conditions[rule] as EdgeCondition | undefined });
+	}
+
+	const BRANCH_PALETTE = [
+		'border-sky-400 bg-sky-50/70',
+		'border-violet-400 bg-violet-50/70',
+		'border-teal-400 bg-teal-50/70',
+		'border-amber-400 bg-amber-50/70'
+	];
+
+	/** Zweige hinter Weichen farbig absetzen (bis zum Zusammenführungspunkt) */
+	const branchStyles = $derived.by(() => {
+		const map: Record<string, string> = {};
+		let colorIdx = 0;
+		for (const n of nodes) {
+			if (n.kind !== 'CHOICE') continue;
+			for (const [, exclusiveIds] of choiceBranches(edges, n.id)) {
+				const style = BRANCH_PALETTE[colorIdx++ % BRANCH_PALETTE.length];
+				for (const nodeId of exclusiveIds) map[nodeId] = style;
+			}
+		}
+		return map;
+	});
 
 	function removeEdge(key: string) {
 		edges = edges.filter((e) => edgeKey(e) !== key);
@@ -743,10 +995,11 @@
 		return nodes.filter((n) => n.module === slug).length;
 	}
 
-	const BLOCKS: { template: Template; label: string; hint: string; icon: IconName }[] = [
+	type Block = { template: Template; label: string; hint: string; icon: IconName };
+	const BLOCKS: Block[] = [
 		{
 			template: { kind: 'BLOCK' },
-			label: 'Baustein',
+			label: 'Leerer Block',
 			hint: 'Art erst danach festlegen',
 			icon: 'block'
 		},
@@ -765,6 +1018,43 @@
 			icon: 'milestone'
 		}
 	];
+	/** Steuerung des Weges – in der Seitenleiste eingeklappt, damit sie kurz bleibt */
+	const FLOW_BLOCKS: Block[] = [
+		{
+			template: { kind: 'CHOICE', label: 'Wähle deinen Weg' },
+			label: 'Weiche',
+			hint: 'Entweder-oder',
+			icon: 'split'
+		},
+		{ template: { kind: 'AND' }, label: 'UND', hint: 'Alle Wege nötig', icon: 'gate' },
+		{ template: { kind: 'OR', min: 1 }, label: 'ODER', hint: 'Mindestzahl Wege', icon: 'gate' },
+		{
+			template: { kind: 'BONUS', label: 'Bonus', points: 10 },
+			label: 'Bonus',
+			hint: 'Extrapunkte',
+			icon: 'star'
+		},
+		{
+			template: { kind: 'REMEDIAL' },
+			label: 'Stütz-Knoten',
+			hint: 'Hilfe bei Problemen',
+			icon: 'lifebuoy'
+		},
+		{
+			template: { kind: 'PATH' },
+			label: 'CodePath-Baustein',
+			hint: 'Anderen CodePath einbinden',
+			icon: 'puzzle'
+		}
+	];
+	let showFlow = $state(true);
+
+	const CONDITION_LABELS: Record<string, string> = {
+		DEFAULT: 'Normalweg',
+		PERFECT_FIRST_TRY: '1. Versuch 100 %',
+		STRUGGLED: 'Schwierigkeiten',
+		SCORE_AT_LEAST: 'Mindestpunkte'
+	};
 </script>
 
 <svelte:window
@@ -876,6 +1166,40 @@
 							</li>
 						{/each}
 					</ul>
+					<button
+						type="button"
+						class="mt-3 flex w-full items-center gap-1 text-left"
+						aria-expanded={showFlow}
+						onclick={() => (showFlow = !showFlow)}
+						><PathIcon
+							name="chevron"
+							size={12}
+							class="text-slate-400 transition-transform {showFlow ? 'rotate-90' : ''}"
+						/><span class="ed-label">Steuerung</span></button
+					>
+					{#if showFlow}
+						<ul class="mt-1.5 grid grid-cols-2 gap-1.5">
+							{#each FLOW_BLOCKS as block (block.label)}
+								<li>
+									<button
+										type="button"
+										draggable="true"
+										class="flex w-full cursor-grab items-center gap-1.5 border border-slate-200 bg-slate-50 px-2 py-1.5 text-left hover:border-institutional-navy hover:bg-white active:cursor-grabbing"
+										title="{block.label}: {block.hint} – ziehen oder anklicken"
+										ondragstart={(e) => paletteDragStart(e, block.template)}
+										ondragend={paletteDragEnd}
+										onclick={() => addFromPalette(block.template)}
+									>
+										<PathIcon name={block.icon} size={15} class="text-institutional-navy" />
+										<span
+											class="truncate text-[12px] leading-tight font-bold text-institutional-navy"
+											>{block.label}</span
+										>
+									</button>
+								</li>
+							{/each}
+						</ul>
+					{/if}
 				</div>
 				<div class="flex min-h-0 flex-1 flex-col p-3">
 					<h2 class="ed-label">Module</h2>
@@ -1073,11 +1397,16 @@
 									{@const from = byId.get(edge.from)}
 									{@const to = byId.get(edge.to)}
 									{#if from && to}
-										{@const d = edgePath(from, to)}
+										{@const gateTarget = to.kind === 'AND' || to.kind === 'OR'}
+										{@const slot = gateTarget
+											? incomingSlot(edges, byId as Map<string, PathNode>, edge)
+											: { index: 0, count: 1 }}
+										{@const d = edgePath(from, to, slot.index, slot.count)}
 										{@const key = edgeKey(edge)}
 										<path
 											{d}
 											fill="none"
+											stroke-dasharray={edge.required ? undefined : '6 5'}
 											stroke-width={dropHint?.edge === key ? 4 : 2.5}
 											class={selectedEdge === key
 												? 'stroke-rose-500'
@@ -1120,6 +1449,34 @@
 								{/if}
 							</svg>
 
+							<!-- Beschriftung von Weichen-Wegen und Bedingungen an der Linie -->
+							{#each edges as edge (edgeKey(edge))}
+								{@const from = byId.get(edge.from)}
+								{@const to = byId.get(edge.to)}
+								{@const text = edge.condition?.rule
+									? CONDITION_LABELS[edge.condition.rule]
+									: from?.kind === 'CHOICE'
+										? edge.label
+										: ''}
+								{#if from && to && text}
+									<button
+										type="button"
+										class="absolute max-w-36 -translate-x-1/2 -translate-y-1/2 truncate border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase {edge
+											.condition?.rule
+											? 'border-sky-300 bg-sky-50 text-sky-800'
+											: 'border-slate-300 bg-white text-slate-600'}"
+										style="left: {(from.x + to.x) / 2 + NODE_W / 2}px; top: {(from.y +
+											NODE_H +
+											to.y) /
+											2}px"
+										onclick={() => {
+											selectedEdge = edgeKey(edge);
+											selectedId = null;
+										}}>{text}</button
+									>
+								{/if}
+							{/each}
+
 							{#if dropHint && !dropHint.node && !dropHint.edge}
 								<div
 									class="pointer-events-none absolute border-2 border-dashed border-institutional-navy/40 bg-white/50"
@@ -1130,6 +1487,7 @@
 							{#each nodes as node (node.id)}
 								{@const open = incomplete(node)}
 								{@const icon = nodeIcon(node)}
+								{@const isGate = node.kind === 'AND' || node.kind === 'OR'}
 								<div
 									data-node-id={node.id}
 									class="group absolute flex cursor-grab touch-none flex-col justify-between border-2 bg-white p-3 select-none active:cursor-grabbing {node.kind ===
@@ -1137,7 +1495,16 @@
 										? 'rounded-full border-institutional-gold text-center'
 										: open || missing(node)
 											? 'border-dashed border-amber-400 bg-amber-50/60'
-											: 'border-slate-300'} {selectedId === node.id
+											: node.kind === 'CHOICE'
+												? 'border-institutional-navy bg-amber-50/70'
+												: isGate
+													? 'border-institutional-navy bg-slate-50'
+													: node.kind === 'PATH'
+														? (branchStyles[node.id] ?? 'border-violet-400 bg-violet-50/50')
+														: node.kind === 'BONUS'
+															? (branchStyles[node.id] ?? 'border-amber-400 bg-amber-50/80')
+															: (branchStyles[node.id] ?? 'border-slate-300')} {selectedId ===
+									node.id
 										? 'ring-4 ring-institutional-navy/30'
 										: ''} {dropHint?.node === node.id || link?.over === node.id
 										? 'ring-4 ring-institutional-gold/60'
@@ -1156,17 +1523,24 @@
 											? 'justify-center'
 											: ''}"
 									>
-										<PathIcon
-											name={icon.name}
-											emoji={icon.emoji}
-											title={label(node)}
-											size={18}
-											class={open || missing(node)
-												? 'text-amber-600'
-												: node.kind === 'MILESTONE'
-													? 'text-institutional-gold'
-													: 'text-institutional-navy'}
-										/>
+										{#if isGate}
+											<span
+												class="flex h-6 min-w-6 shrink-0 items-center justify-center border-2 border-institutional-navy bg-white px-1 font-mono text-[11px] font-black text-institutional-navy"
+												>{node.kind === 'AND' ? '&' : `≥${node.min ?? 1}`}</span
+											>
+										{:else}
+											<PathIcon
+												name={icon.name}
+												emoji={icon.emoji}
+												title={label(node)}
+												size={18}
+												class={open || missing(node)
+													? 'text-amber-600'
+													: node.kind === 'MILESTONE' || node.boss
+														? 'text-institutional-gold'
+														: 'text-institutional-navy'}
+											/>
+										{/if}
 										<span
 											class="line-clamp-2 text-sm leading-tight font-bold {open
 												? 'text-slate-500 italic'
@@ -1177,7 +1551,17 @@
 										class="font-mono text-[9px] font-bold tracking-widest uppercase {open
 											? 'text-amber-700'
 											: 'text-slate-400'}"
-										>{open ? `${variantLabel(node)} · einrichten` : variantLabel(node)}</span
+										>{open
+											? `${variantLabel(node)} · einrichten`
+											: node.kind === 'BONUS'
+												? `Bonus · +${node.points ?? 10} P.`
+												: node.kind === 'PATH' && pathsBySlug.get(node.path ?? '')
+													? `Baustein · ${pathsBySlug.get(node.path ?? '')!.stations} Stationen`
+													: node.requirement
+														? `${variantLabel(node)} · ab ${node.requirement.minPercent ?? 80} %`
+														: node.boss
+															? `${variantLabel(node)} · Boss`
+															: variantLabel(node)}</span
 									>
 									<!-- Anschlusspunkt: von hier zur nächsten Station ziehen -->
 									<span
@@ -1233,12 +1617,184 @@
 				{#if selectedEdge}
 					{@const edge = edges.find((e) => edgeKey(e) === selectedEdge)}
 					{#if edge}
-						<section class="flex flex-col gap-3 p-4">
-							<h2 class="ed-label">Verbindung</h2>
+						{@const key = selectedEdge}
+						{@const fromNode = byId.get(edge.from)}
+						<section class="flex flex-col gap-3 p-4" aria-label="Verbindung bearbeiten">
+							<div class="flex items-center justify-between gap-2">
+								<h2 class="ed-label">Verbindung</h2>
+								<button
+									class="text-slate-400 hover:text-institutional-navy"
+									aria-label="Auswahl aufheben"
+									onclick={() => (selectedEdge = null)}><PathIcon name="close" size={16} /></button
+								>
+							</div>
 							<p class="text-sm">
-								{label(byId.get(edge.from)!)} → {label(byId.get(edge.to)!)}
+								{label(fromNode!)} → {label(byId.get(edge.to)!)}
 							</p>
-							<button class="ed-button text-rose-700" onclick={() => removeEdge(selectedEdge!)}
+							{#if fromNode?.kind === 'CHOICE'}
+								<label class="ed-label"
+									>Beschriftung des Wegs (Pflicht)
+									<input
+										class="ed-input"
+										maxlength="80"
+										value={edge.label ?? ''}
+										oninput={(e) =>
+											updateEdge(key, { label: (e.currentTarget as HTMLInputElement).value })}
+									/>
+								</label>
+								<label class="ed-label"
+									>Kurzbeschreibung (optional)
+									<input
+										class="ed-input"
+										maxlength="200"
+										placeholder="z. B. schwieriger – dafür +50 Punkte"
+										value={edge.hint ?? ''}
+										oninput={(e) =>
+											updateEdge(key, { hint: (e.currentTarget as HTMLInputElement).value })}
+									/>
+								</label>
+							{/if}
+							<fieldset class="flex flex-col gap-1 text-sm">
+								<legend class="ed-label mb-1">Art der Verbindung</legend>
+								<label class="flex items-center gap-2"
+									><input
+										type="radio"
+										name="edge-required"
+										checked={!!edge.required}
+										onchange={() => updateEdge(key, { required: true })}
+									/> Pflicht (durchgezogen)</label
+								>
+								<label class="flex items-center gap-2"
+									><input
+										type="radio"
+										name="edge-required"
+										checked={!edge.required}
+										onchange={() => updateEdge(key, { required: false })}
+									/> Empfehlung (gestrichelt)</label
+								>
+							</fieldset>
+							<fieldset class="flex flex-col gap-2 border-t border-slate-100 pt-3 text-sm">
+								<legend class="ed-label mb-1">Bedingung</legend>
+								<select
+									class="ed-input"
+									value={edge.condition?.rule ?? 'NONE'}
+									onchange={(e) =>
+										setCondition(key, (e.currentTarget as HTMLSelectElement).value, fromNode)}
+								>
+									<option value="NONE">Keine Bedingung (immer aktiv)</option>
+									<option value="DEFAULT">Normalweg</option>
+									<option value="PERFECT_FIRST_TRY">100 % im 1. Versuch (Fast-Track)</option>
+									<option value="STRUGGLED">Schwierigkeiten (zum Stütz-Knoten)</option>
+									<option value="SCORE_AT_LEAST">Mindest-Punktzahl</option>
+								</select>
+								{#if edge.condition && edge.condition.rule !== 'DEFAULT'}
+									{@const condition = edge.condition}
+									{@const candidates =
+										fromNode?.kind === 'TASK' || fromNode?.kind === 'REMEDIAL'
+											? moduleTasks(fromNode.module).filter((t) => t.slug === fromNode.task)
+											: fromNode?.kind === 'MODULE'
+												? moduleTasks(fromNode.module).filter(
+														(t) => !fromNode.tasks?.length || fromNode.tasks.includes(t.slug)
+													)
+												: []}
+									<label class="ed-label"
+										>Bezugsaufgabe
+										{#if candidates.length}
+											<select
+												class="ed-input"
+												value={condition.task ?? ''}
+												onchange={(e) =>
+													updateEdge(key, {
+														condition: {
+															...condition,
+															task: (e.currentTarget as HTMLSelectElement).value
+														}
+													})}
+											>
+												{#each candidates as t (t.slug)}
+													<option value={t.slug}>{t.title}</option>
+												{/each}
+											</select>
+										{:else}
+											<input
+												class="ed-input"
+												placeholder="z. B. modul/aufgabe"
+												value={condition.task ?? ''}
+												oninput={(e) =>
+													updateEdge(key, {
+														condition: {
+															...condition,
+															task: (e.currentTarget as HTMLInputElement).value
+														}
+													})}
+											/>
+										{/if}
+									</label>
+									{#if condition.rule === 'STRUGGLED'}
+										<div class="grid grid-cols-2 gap-2">
+											<label class="ed-label"
+												>Fehlversuche
+												<input
+													type="number"
+													min="1"
+													max="20"
+													class="ed-input"
+													value={condition.failedAttemptsThreshold ?? 3}
+													oninput={(e) =>
+														updateEdge(key, {
+															condition: {
+																...condition,
+																failedAttemptsThreshold:
+																	Number((e.currentTarget as HTMLInputElement).value) || 3
+															}
+														})}
+												/>
+											</label>
+											<label class="ed-label"
+												>Tipps genutzt
+												<input
+													type="number"
+													min="1"
+													max="20"
+													class="ed-input"
+													value={condition.hintsThreshold ?? 2}
+													oninput={(e) =>
+														updateEdge(key, {
+															condition: {
+																...condition,
+																hintsThreshold:
+																	Number((e.currentTarget as HTMLInputElement).value) || 2
+															}
+														})}
+												/>
+											</label>
+										</div>
+									{:else if condition.rule === 'SCORE_AT_LEAST'}
+										<label class="ed-label"
+											>Mindestpunktzahl (%)
+											<input
+												type="number"
+												min="0"
+												max="100"
+												class="ed-input"
+												value={condition.scoreThreshold ?? 80}
+												oninput={(e) =>
+													updateEdge(key, {
+														condition: {
+															...condition,
+															scoreThreshold:
+																Number((e.currentTarget as HTMLInputElement).value) || 0
+														}
+													})}
+											/>
+										</label>
+									{/if}
+								{/if}
+								<p class="text-xs text-slate-500">
+									Hat eine Station bedingte Wege, braucht sie genau einen Normalweg.
+								</p>
+							</fieldset>
+							<button class="ed-button text-rose-700" onclick={() => removeEdge(key)}
 								>Verbindung löschen</button
 							>
 						</section>
@@ -1246,6 +1802,7 @@
 				{:else if selected}
 					{@const node = selected}
 					{@const v = variant(node)}
+					{@const incomingCount = edges.filter((e) => e.to === node.id).length}
 					<section class="flex flex-col gap-4 p-4" aria-label="Station bearbeiten">
 						<div class="flex items-center justify-between gap-2">
 							<h2 class="ed-label">Station</h2>
@@ -1258,24 +1815,31 @@
 
 						<fieldset class="flex flex-col gap-1.5">
 							<legend class="ed-label mb-1.5">Art</legend>
-							<div class="grid grid-cols-2 gap-1.5">
-								{#each VARIANTS as option (option.value)}
-									<button
-										type="button"
-										class="flex flex-col items-start gap-1 border px-2.5 py-2 text-left {v ===
-										option.value
-											? 'border-institutional-navy bg-institutional-navy text-white'
-											: 'border-slate-200 text-institutional-navy hover:border-institutional-navy'}"
-										aria-pressed={v === option.value}
-										onclick={() => setVariant(node, option.value)}
-									>
-										<PathIcon name={option.icon} size={16} />
-										<span class="text-[12px] leading-tight font-bold">{option.label}</span>
-									</button>
-								{/each}
-							</div>
+							{#each [{ title: 'Inhalt', list: CONTENT_VARIANTS }, { title: 'Steuerung', list: FLOW_VARIANTS }] as group (group.title)}
+								<span
+									class="mt-1 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+									>{group.title}</span
+								>
+								<div class="grid grid-cols-2 gap-1.5">
+									{#each group.list as option (option.value)}
+										<button
+											type="button"
+											class="flex items-center gap-1.5 border px-2 py-1.5 text-left {v ===
+											option.value
+												? 'border-institutional-navy bg-institutional-navy text-white'
+												: 'border-slate-200 text-institutional-navy hover:border-institutional-navy'}"
+											aria-pressed={v === option.value}
+											title={option.hint}
+											onclick={() => setVariant(node, option.value)}
+										>
+											<PathIcon name={option.icon} size={15} />
+											<span class="text-[12px] leading-tight font-bold">{option.label}</span>
+										</button>
+									{/each}
+								</div>
+							{/each}
 							{#if !v}
-								<p class="text-xs text-amber-700">Wähle, wofür dieser Baustein steht.</p>
+								<p class="text-xs text-amber-700">Wähle, wofür dieser Block steht.</p>
 							{:else}
 								<p class="text-xs text-slate-500">
 									{VARIANTS.find((o) => o.value === v)?.hint}
@@ -1283,7 +1847,7 @@
 							{/if}
 						</fieldset>
 
-						{#if v && v !== 'MILESTONE'}
+						{#if usesModule(v)}
 							<label class="ed-label"
 								>Modul
 								<select
@@ -1302,9 +1866,9 @@
 							</label>
 						{/if}
 
-						{#if v === 'TASK' && node.module}
+						{#if (v === 'TASK' || v === 'REMEDIAL') && node.module}
 							<label class="ed-label"
-								>Aufgabe
+								>{v === 'REMEDIAL' ? 'Stützaufgabe' : 'Aufgabe'}
 								<select
 									class="ed-input"
 									value={node.task ?? ''}
@@ -1317,6 +1881,25 @@
 									{/each}
 								</select>
 							</label>
+						{/if}
+
+						{#if v === 'REMEDIAL'}
+							<label class="ed-label"
+								>Wissensartikel (optional)
+								<input
+									class="ed-input"
+									placeholder="Slug, z. B. datenbank-grundlagen"
+									value={node.knowledgeArticle ?? ''}
+									oninput={(e) =>
+										updateNode(node.id, {
+											knowledgeArticle: (e.currentTarget as HTMLInputElement).value
+										})}
+								/>
+							</label>
+							<p class="text-xs text-slate-500">
+								Ein Stütz-Knoten braucht genau eine eingehende Verbindung mit der Bedingung
+								„Schwierigkeiten“.
+							</p>
 						{/if}
 
 						{#if v === 'PART' && node.module}
@@ -1353,18 +1936,250 @@
 							</fieldset>
 						{/if}
 
+						{#if v === 'PATH'}
+							{@const target = pathsBySlug.get(node.path ?? '')}
+							<label class="ed-label"
+								>Eingebundener CodePath
+								<select
+									class="ed-input"
+									value={node.path ?? ''}
+									onchange={(e) =>
+										updateNode(node.id, { path: (e.currentTarget as HTMLSelectElement).value })}
+								>
+									<option value="">CodePath wählen …</option>
+									{#each availableSubpaths as p (p.slug)}
+										<option value={p.slug}>{p.title} ({p.stations} Stationen)</option>
+									{/each}
+								</select>
+							</label>
+							{#if target}
+								<a class="ed-button text-center" href="/admin/codepaths/{target.id}"
+									>Baustein bearbeiten →</a
+								>
+							{/if}
+						{/if}
+
+						{#if v === 'AND' || v === 'OR'}
+							<p class="text-xs text-slate-600">
+								{incomingCount} eingehende Verbindung{incomingCount === 1 ? '' : 'en'}
+								{#if incomingCount < 2}
+									<span class="font-bold text-amber-700">(mindestens 2 nötig)</span>
+								{/if}
+							</p>
+						{/if}
+						{#if v === 'OR'}
+							<label class="ed-label"
+								>Mindestens erfüllte Eingänge
+								<input
+									type="number"
+									class="ed-input"
+									min="1"
+									max={Math.max(2, incomingCount)}
+									value={node.min ?? 1}
+									oninput={(e) =>
+										updateNode(node.id, {
+											min: Math.max(1, Number((e.currentTarget as HTMLInputElement).value) || 1)
+										})}
+								/>
+							</label>
+						{/if}
+						{#if v === 'BONUS'}
+							<label class="ed-label"
+								>Bonuspunkte (1–1000)
+								<input
+									type="number"
+									class="ed-input"
+									min="1"
+									max="1000"
+									value={node.points ?? 10}
+									oninput={(e) =>
+										updateNode(node.id, {
+											points: Number((e.currentTarget as HTMLInputElement).value) || 10
+										})}
+								/>
+							</label>
+						{/if}
+
 						{#if v}
 							<label class="ed-label"
-								>{v === 'MILESTONE' ? 'Beschriftung' : 'Eigene Beschriftung (optional)'}
+								>{v === 'MILESTONE' || v === 'BONUS'
+									? 'Beschriftung'
+									: 'Eigene Beschriftung (optional)'}
 								<input
 									class="ed-input"
 									value={node.label ?? ''}
 									maxlength="80"
-									placeholder={v === 'MILESTONE' ? 'z. B. Grundlagen geschafft!' : ''}
+									placeholder={v === 'MILESTONE'
+										? 'z. B. Grundlagen geschafft!'
+										: v === 'BONUS'
+											? 'z. B. Fleißaufgabe gelöst!'
+											: v === 'CHOICE'
+												? 'z. B. Cloud oder Web?'
+												: ''}
 									oninput={(e) =>
 										updateNode(node.id, { label: (e.currentTarget as HTMLInputElement).value })}
 								/></label
 							>
+						{/if}
+
+						{#if v === 'MODULE' || v === 'PART' || v === 'TASK'}
+							<label class="flex items-center gap-2 text-sm text-institutional-navy"
+								><input
+									type="checkbox"
+									checked={!!node.boss}
+									onchange={(e) =>
+										updateNode(node.id, { boss: (e.currentTarget as HTMLInputElement).checked })}
+								/>
+								<PathIcon name="crown" size={14} class="text-institutional-gold" /> Boss-Aufgabe (auf
+								der Karte hervorgehoben)</label
+							>
+						{/if}
+
+						{#if v === 'MODULE' || v === 'PART' || v === 'TASK' || v === 'MILESTONE'}
+							{@const req = node.requirement}
+							<fieldset class="flex flex-col gap-2 border border-slate-200 bg-slate-50/60 p-3">
+								<legend class="ed-label px-1">Punkte-Tor</legend>
+								<label class="flex items-center gap-2 text-xs text-slate-800"
+									><input
+										type="checkbox"
+										checked={!!req}
+										onchange={(e) =>
+											updateNode(node.id, {
+												requirement: (e.currentTarget as HTMLInputElement).checked
+													? {
+															minPercent: 80,
+															mode: 'TOTAL',
+															fallback: 'TEACHER',
+															fallbackRemedialNode: '',
+															scope: []
+														}
+													: undefined
+											})}
+									/> Erst ab einer Mindest-Punktzahl freischalten</label
+								>
+								{#if req}
+									{@const scopeCandidates = nodes.filter(
+										(n) => n.id !== node.id && (n.kind === 'TASK' || n.kind === 'MODULE')
+									)}
+									<label class="ed-label"
+										>Schwelle (1–100 %)
+										<input
+											type="number"
+											class="ed-input"
+											min="1"
+											max="100"
+											value={req.minPercent ?? 80}
+											oninput={(e) =>
+												updateNode(node.id, {
+													requirement: {
+														...req,
+														minPercent: Math.max(
+															1,
+															Math.min(
+																100,
+																Number((e.currentTarget as HTMLInputElement).value) || 80
+															)
+														)
+													}
+												})}
+										/>
+									</label>
+									{#if incomingCount >= 2}
+										<label class="ed-label"
+											>Berechnung
+											<select
+												class="ed-input"
+												value={req.mode ?? 'TOTAL'}
+												onchange={(e) =>
+													updateNode(node.id, {
+														requirement: {
+															...req,
+															mode: (e.currentTarget as HTMLSelectElement).value as 'TOTAL' | 'EACH'
+														}
+													})}
+											>
+												<option value="TOTAL">Gesamtpunkte aller Vorgänger</option>
+												<option value="EACH">Jeder eingehende Weg einzeln</option>
+											</select>
+										</label>
+									{/if}
+									<label class="ed-label"
+										>Wenn die Schwelle nicht mehr erreichbar ist
+										<select
+											class="ed-input"
+											value={req.fallback ?? 'TEACHER'}
+											onchange={(e) =>
+												updateNode(node.id, {
+													requirement: {
+														...req,
+														fallback: (e.currentTarget as HTMLSelectElement).value as
+															| 'TEACHER'
+															| 'OPEN'
+															| 'REMEDIAL'
+													}
+												})}
+										>
+											<option value="TEACHER">Gesperrt lassen – Lehrkraft schaltet frei</option>
+											<option value="OPEN">Trotzdem öffnen</option>
+											<option value="REMEDIAL">Über einen Stütz-Knoten freischalten</option>
+										</select>
+									</label>
+									{#if req.fallback === 'REMEDIAL'}
+										<label class="ed-label"
+											>Stütz-Knoten
+											<select
+												class="ed-input"
+												value={req.fallbackRemedialNode ?? ''}
+												onchange={(e) =>
+													updateNode(node.id, {
+														requirement: {
+															...req,
+															fallbackRemedialNode: (e.currentTarget as HTMLSelectElement).value
+														}
+													})}
+											>
+												<option value="">Stütz-Knoten wählen …</option>
+												{#each nodes.filter((n) => n.kind === 'REMEDIAL') as rn (rn.id)}
+													<option value={rn.id}>{label(rn)}</option>
+												{/each}
+											</select>
+										</label>
+									{/if}
+									{#if scopeCandidates.length}
+										<details class="text-xs">
+											<summary class="cursor-pointer font-bold text-slate-600"
+												>Welche Stationen zählen? ({req.scope?.length
+													? `${req.scope.length} gewählt`
+													: 'alle Vorgänger'})</summary
+											>
+											<div
+												class="mt-1.5 flex max-h-36 flex-col gap-1 overflow-y-auto border border-slate-200 bg-white p-2"
+											>
+												{#each scopeCandidates as cand (cand.id)}
+													<label class="flex items-center gap-2"
+														><input
+															type="checkbox"
+															checked={(req.scope ?? []).includes(cand.id)}
+															onchange={(e) => {
+																const scope = req.scope ?? [];
+																updateNode(node.id, {
+																	requirement: {
+																		...req,
+																		scope: (e.currentTarget as HTMLInputElement).checked
+																			? [...scope, cand.id]
+																			: scope.filter((x) => x !== cand.id)
+																	}
+																});
+															}}
+														/>
+														{label(cand)}</label
+													>
+												{/each}
+											</div>
+										</details>
+									{/if}
+								{/if}
+							</fieldset>
 						{/if}
 
 						<div class="flex flex-col gap-1">
@@ -1388,19 +2203,43 @@
 						</div>
 
 						<div class="flex flex-col gap-1">
-							<span class="ed-label">Danach kommt</span>
+							<span class="ed-label">{v === 'CHOICE' ? 'Wege' : 'Danach kommt'}</span>
 							{#each edges.filter((e) => e.from === node.id) as edge (edgeKey(edge))}
-								<span class="flex items-center justify-between gap-2 text-sm">
-									<button class="truncate text-left hover:underline" onclick={() => select(edge.to)}
-										>→ {label(byId.get(edge.to)!)}</button
-									>
-									<button
-										class="text-slate-400 hover:text-rose-700"
-										onclick={() => removeEdge(edgeKey(edge))}
-										aria-label="Verbindung zu {label(byId.get(edge.to)!)} löschen"
-										><PathIcon name="close" size={14} /></button
-									>
-								</span>
+								<div class="flex flex-col gap-1">
+									<span class="flex items-center justify-between gap-2 text-sm">
+										<button
+											class="truncate text-left hover:underline"
+											onclick={() => {
+												selectedEdge = edgeKey(edge);
+												selectedId = null;
+											}}
+											title="Verbindung bearbeiten"
+											>→ {label(byId.get(edge.to)!)}{#if edge.condition?.rule}<span
+													class="ml-1 font-mono text-[10px] text-sky-700 uppercase"
+													>· {CONDITION_LABELS[edge.condition.rule]}</span
+												>{/if}</button
+										>
+										<button
+											class="text-slate-400 hover:text-rose-700"
+											onclick={() => removeEdge(edgeKey(edge))}
+											aria-label="Verbindung zu {label(byId.get(edge.to)!)} löschen"
+											><PathIcon name="close" size={14} /></button
+										>
+									</span>
+									{#if v === 'CHOICE'}
+										<input
+											class="ed-input mt-0 text-xs"
+											placeholder="Beschriftung des Wegs (Pflicht)"
+											aria-label="Weg-Beschriftung nach {label(byId.get(edge.to)!)}"
+											maxlength="80"
+											value={edge.label ?? ''}
+											oninput={(e) =>
+												updateEdge(edgeKey(edge), {
+													label: (e.currentTarget as HTMLInputElement).value
+												})}
+										/>
+									{/if}
+								</div>
 							{/each}
 							<select
 								class="ed-input"
@@ -1419,13 +2258,42 @@
 							</select>
 						</div>
 
-						<button class="ed-button text-rose-700" onclick={() => removeNode(node.id)}
-							>Station entfernen</button
-						>
+						<div class="flex flex-col gap-2 border-t border-slate-100 pt-3">
+							{#if v && v !== 'CHOICE' && saved?.published}
+								<button
+									type="button"
+									class="ed-button"
+									disabled={busy}
+									title="Für alle Schüler/innen des Kurses freischalten, auch wenn die Vorgänger fehlen"
+									onclick={() =>
+										runCourseAction({
+											action: 'UNLOCK_NODE',
+											pathSlug: saved?.slug,
+											nodeId: node.id
+										})}>Für ganzen Kurs freischalten</button
+								>
+							{/if}
+							<button class="ed-button text-rose-700" onclick={() => removeNode(node.id)}
+								>Station entfernen</button
+							>
+						</div>
 					</section>
 				{:else}
 					<section class="flex flex-col gap-3 p-4" aria-label="CodePath-Einstellungen">
 						<h2 class="ed-label">CodePath</h2>
+						{#if saved.warnings?.length}
+							<div
+								class="border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900"
+								role="status"
+							>
+								<p class="flex items-center gap-1 font-bold">
+									<PathIcon name="warning" size={13} /> Hinweise
+								</p>
+								<ul class="mt-1 list-disc pl-4">
+									{#each saved.warnings as w, i (i)}<li>{w}</li>{/each}
+								</ul>
+							</div>
+						{/if}
 						<label class="ed-label">Titel<input class="ed-input" bind:value={form.title} /></label>
 						<label class="ed-label"
 							>Adresse<input
@@ -1444,7 +2312,7 @@
 						>
 						<label class="ed-label"
 							>Gilt für
-							<select class="ed-input" bind:value={form.courseId}>
+							<select class="ed-input" bind:value={form.courseId} onchange={() => refreshStats()}>
 								<option value={0}>Alle Kurse (ändert keine Freigaben)</option>
 								{#each courses as course (course.id)}
 									<option value={course.id}
@@ -1453,19 +2321,67 @@
 								{/each}
 							</select>
 						</label>
-						{#if form.courseId}
-							<label class="flex items-start gap-2 text-sm text-institutional-navy"
-								><input type="checkbox" class="mt-0.5" bind:checked={form.lockOthers} /> Module, die nicht
-								im CodePath vorkommen, für den Kurs sperren</label
+						<label class="ed-label"
+							>Alles außerhalb des CodePaths
+							<select
+								class="ed-input"
+								value={outsideMode}
+								onchange={(e) => setOutsideMode((e.currentTarget as HTMLSelectElement).value)}
 							>
+								<option value="FREE">Frei (folgt der Modul-Steuerung)</option>
+								<option value="LOCKED">Gesperrt (nur der CodePath)</option>
+								<option value="AFTER">Frei ab Station …</option>
+							</select>
+						</label>
+						{#if outsideMode === 'AFTER'}
+							<select
+								class="ed-input mt-0"
+								aria-label="Frei ab Station"
+								bind:value={form.unlockRestAfter}
+							>
+								{#each nodes as n (n.id)}
+									<option value={n.id}>ab „{label(n)}“</option>
+								{/each}
+							</select>
+						{/if}
+						{#if form.courseId}
 							<p class="text-xs text-slate-500">
 								Veröffentlicht übernimmt jedes Speichern die Module und Aufgaben dieses CodePaths in
 								die <a href="/admin/modules" class="underline">Modul-Steuerung</a> des Kurses.
 							</p>
 						{/if}
-						<label class="flex items-center gap-2 text-sm"
-							><input type="checkbox" bind:checked={form.published} /> Veröffentlicht (für Schüler sichtbar)</label
-						>
+						<div class="flex flex-col gap-1.5 border-t border-slate-100 pt-3">
+							<label class="flex items-start gap-2 text-sm"
+								><input
+									type="checkbox"
+									class="mt-0.5"
+									checked={form.enforce}
+									onchange={(e) => toggleEnforce((e.currentTarget as HTMLInputElement).checked)}
+								/> Verbindlich (Pflicht-Vorgänger müssen erledigt sein)</label
+							>
+							<label class="flex items-start gap-2 text-sm {form.enforce ? '' : 'text-slate-400'}"
+								><input
+									type="checkbox"
+									class="mt-0.5"
+									bind:checked={form.hideOverview}
+									disabled={!form.enforce}
+								/> Fokus-Modus: Gesamtübersicht für Schüler ausblenden</label
+							>
+							<label class="flex items-start gap-2 text-sm"
+								><input type="checkbox" class="mt-0.5" bind:checked={form.templateOnly} /> Nur als Baustein
+								(nicht einzeln für Schüler)</label
+							>
+							<label class="flex items-start gap-2 text-sm"
+								><input type="checkbox" class="mt-0.5" bind:checked={form.published} /> Veröffentlicht
+								(für Schüler sichtbar)</label
+							>
+						</div>
+						{#if saved.usedIn?.length}
+							<p class="flex items-start gap-1 text-xs text-slate-500">
+								<PathIcon name="puzzle" size={13} class="mt-0.5" />
+								<span>Eingebunden in: <strong>{saved.usedIn.join(', ')}</strong></span>
+							</p>
+						{/if}
 
 						{#if applied}
 							<div
@@ -1483,6 +2399,131 @@
 							</div>
 						{/if}
 
+						{#if choiceStats.length}
+							<section class="flex flex-col gap-2 border-t border-slate-100 pt-3">
+								<h3 class="ed-label">Weichen im Kurs</h3>
+								{#each choiceStats as stat (`${stat.pathSlug}:${stat.nodeId}`)}
+									{@const statKey = `${stat.pathSlug}:${stat.nodeId}`}
+									<div
+										class="flex flex-col gap-1.5 border border-slate-200 bg-slate-50/60 p-2.5 text-xs"
+									>
+										<span class="flex items-center gap-1 font-bold text-institutional-navy"
+											><PathIcon name="split" size={13} />{stat.nodeLabel}{#if stat.subpath}<span
+													class="ml-1 font-mono text-[9px] text-violet-700 uppercase"
+													>· {stat.pathTitle}</span
+												>{/if}</span
+										>
+										{#each stat.branches ?? [] as b (b.to)}
+											<div
+												class="flex items-center justify-between gap-2 border border-slate-200 bg-white px-2 py-1"
+											>
+												<span class="truncate">{b.label} ({b.count}/{stat.totalStudents})</span>
+												<span class="flex shrink-0 gap-1">
+													<button
+														type="button"
+														disabled={busy}
+														class="border border-slate-200 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase hover:border-institutional-navy"
+														onclick={() =>
+															runCourseAction({
+																action: 'SET_CHOICE',
+																pathSlug: stat.pathSlug,
+																nodeId: stat.nodeId,
+																to: b.to
+															})}>Wählen</button
+													>
+													<button
+														type="button"
+														disabled={busy}
+														class="border border-slate-200 px-1.5 py-0.5 font-mono text-[9px] font-bold text-sky-700 uppercase hover:border-sky-500"
+														onclick={() =>
+															runCourseAction({
+																action: 'UNLOCK_BRANCH',
+																pathSlug: stat.pathSlug,
+																nodeId: stat.nodeId,
+																to: b.to
+															})}>+ Frei</button
+													>
+												</span>
+											</div>
+										{/each}
+										<span class="text-slate-500">{stat.openCount}× noch offen</span>
+										<div class="flex items-center justify-between gap-2">
+											<label class="flex items-center gap-1.5 text-[11px] text-slate-600"
+												><input
+													type="checkbox"
+													checked={!!resetCourseProgress[statKey]}
+													onchange={(e) =>
+														(resetCourseProgress[statKey] = (
+															e.currentTarget as HTMLInputElement
+														).checked)}
+												/> Fortschritt zurücksetzen</label
+											>
+											<button
+												type="button"
+												disabled={busy}
+												class="border border-rose-200 bg-white px-2 py-0.5 font-mono text-[9px] font-bold text-rose-700 uppercase hover:bg-rose-50"
+												onclick={() =>
+													runCourseAction({
+														action: 'RESET_CHOICE',
+														pathSlug: stat.pathSlug,
+														nodeId: stat.nodeId,
+														resetProgress: !!resetCourseProgress[statKey]
+													})}>Wahlen zurücksetzen</button
+											>
+										</div>
+									</div>
+								{/each}
+							</section>
+						{/if}
+
+						{#if gateStats.length}
+							{@const gateIds = Array.from(new Set(gateStats.map((s) => s.nodeId)))}
+							<section class="flex flex-col gap-2 border-t border-slate-100 pt-3">
+								<h3 class="ed-label">Punkte-Tore im Kurs</h3>
+								{#each gateIds as gateId (gateId)}
+									{@const stats = gateStats.filter((s) => s.nodeId === gateId)}
+									{@const stuck = stats.filter((s) => s.unreachable && !s.open).length}
+									<details class="border border-slate-200 bg-slate-50/60 p-2.5 text-xs">
+										<summary class="cursor-pointer">
+											<span class="font-bold text-institutional-navy"
+												>{stats[0]?.nodeLabel ?? gateId}</span
+											>
+											<span class="ml-1 font-mono text-[10px] text-slate-500"
+												>≥ {stats[0]?.minPercent ?? 80} % · {stats.filter((s) => s.open)
+													.length}/{stats.length}
+												offen{#if stuck}<span class="text-rose-700">
+														· {stuck} stecken fest</span
+													>{/if}</span
+											>
+										</summary>
+										<ul class="mt-1.5 flex flex-col gap-1">
+											{#each stats as st (st.username)}
+												<li
+													class="flex items-center justify-between gap-2 border border-slate-200 bg-white px-2 py-1"
+												>
+													<a href="/admin/students/{st.username}" class="truncate hover:underline"
+														>{st.displayName} ({st.percent} %)</a
+													>
+													<span
+														class="shrink-0 font-mono text-[9px] font-bold uppercase {st.open
+															? 'text-emerald-700'
+															: st.unreachable
+																? 'text-rose-700'
+																: 'text-amber-700'}"
+														>{st.open
+															? 'Offen'
+															: st.unreachable
+																? 'Unerreichbar'
+																: `Noch ${st.missingPoints} P.`}</span
+													>
+												</li>
+											{/each}
+										</ul>
+									</details>
+								{/each}
+							</section>
+						{/if}
+
 						<div class="mt-2 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
 							<a class="ed-button" href={exportUrl(['codepaths'], [saved.slug])} download
 								>Exportieren</a
@@ -1490,8 +2531,8 @@
 							<button class="ed-button text-rose-700" onclick={remove}>CodePath löschen</button>
 						</div>
 						<p class="mt-2 text-xs text-slate-400">
-							Eine Station anklicken, um sie zu bearbeiten. Pfeiltasten verschieben die gewählte
-							Station, Entf entfernt sie.
+							Eine Station oder Linie anklicken, um sie zu bearbeiten. Pfeiltasten verschieben die
+							gewählte Station, Entf entfernt sie.
 						</p>
 					</section>
 				{/if}
@@ -1503,17 +2544,31 @@
 					role="dialog"
 					aria-label="Vorschau"
 				>
-					<div class="flex items-center gap-3 border-b border-slate-200 px-4 py-2">
+					<div class="flex flex-wrap items-center gap-3 border-b border-slate-200 px-4 py-2">
 						<h2 class="ed-label">Vorschau</h2>
-						<span class="text-xs text-slate-500"
-							>Mit deinem eigenen Stand (gespeicherte Fassung). Schüler sehen gesperrte Module als
-							gesperrt.</span
-						>
+						<span class="text-xs text-slate-500">Gespeicherte Fassung.</span>
+						<label class="flex items-center gap-2 text-xs font-bold text-institutional-navy"
+							>Ansehen als
+							<select
+								class="border border-slate-200 bg-white px-2 py-1 text-xs font-normal"
+								bind:value={previewStudent}
+								onchange={showPreview}
+							>
+								<option value="">Eigener Stand (Lehrkraft)</option>
+								{#each filteredStudents as s (s.username)}
+									<option value={s.username}
+										>{s.displayName} ({s.username}){s.courseName
+											? ` · ${s.courseName}`
+											: ''}</option
+									>
+								{/each}
+							</select>
+						</label>
 						<span class="flex-1"></span>
 						<button class="ed-button" onclick={() => (preview = null)}>Schließen</button>
 					</div>
 					<div class="min-h-0 flex-1 overflow-auto p-4">
-						<PathMap path={preview} />
+						<PathMap path={preview} student={previewStudent || undefined} />
 					</div>
 				</div>
 			{/if}

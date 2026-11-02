@@ -64,9 +64,12 @@ public class StudentTaskService {
         List<TaskViews.TaskSummary> summaries = tasks.stream().map(t -> {
             Progress p = progress.get(t.taskId());
             ProgressStatus status = p != null ? p.getStatus() : ProgressStatus.OPEN;
+            AccessPolicy.ModuleAccess taskAccess = releases.taskAccess(t);
+            boolean blocked = taskAccess.blocked();
             return new TaskViews.TaskSummary(t.taskId(), t.task().getSlug(), t.version().getTitle(), t.type().name(),
                     t.version().getDifficulty().name(), t.version().getPoints(), status.name(),
                     status == ProgressStatus.SOLVED, p != null && (p.isLocked() || status == ProgressStatus.FAILED),
+                    blocked, blocked ? taskAccess.reason() : null,
                     points.getOrDefault(t.taskId(), 0L));
         }).toList();
         return new TaskViews.ModuleDetail(summary(module, access, tasks, progress, points), summaries);

@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * Ein Bereich, der sich exportieren und wieder importieren lässt (Einstellungen, Startseite, Seiten,
- * Wissensdatenbank, Lernpfade, Module). Jedes Fachpaket stellt seine Bereiche als Bean bereit; der
+ * Wissensdatenbank, CodePaths, Module). Jedes Fachpaket stellt seine Bereiche als Bean bereit; der
  * zentrale Export/Import im Paket {@code transfer} sammelt sie ein, ohne die Pakete selbst zu kennen.
  */
 public interface TransferSection {

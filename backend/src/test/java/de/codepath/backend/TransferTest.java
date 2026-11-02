@@ -64,16 +64,57 @@ class TransferTest extends IntegrationTestBase {
         putAs(teacher(), "/api/admin/pages/" + page + "/published", PagesTest.blocks(Map.of("id", "i", "type", "image", "media", key)))
                 .andExpect(status().isNoContent());
         long article = body(postAs(teacher(), "/api/admin/knowledge", Map.of("title", "Transfer", "slug", "transfer-test"))).get("id").asLong();
-        postAs(teacher(), "/api/admin/codepaths", Map.of("title", "Standard", "slug", "standard")).andExpect(status().isOk());
+        long blockId = body(postAs(teacher(), "/api/admin/codepaths", Map.of("title", "Baustein DB", "slug", "db-baustein")).andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/codepaths/" + blockId, Map.of(
+                "templateOnly", true,
+                "graph", Map.of(
+                        "nodes", List.of(CodePathTest.node("b1", "MODULE", "datenbanken", null, null, 0)),
+                        "edges", List.of()))).andExpect(status().isOk());
+        long pathId = body(postAs(teacher(), "/api/admin/codepaths", Map.of("title", "Standard", "slug", "standard")).andExpect(status().isOk())).get("id").asLong();
+        Map<String, Object> orGate = new java.util.HashMap<>(CodePathTest.node("or1", "OR", null, null, "Wahl", 100));
+        orGate.put("min", 2);
+        putAs(teacher(), "/api/admin/codepaths/" + pathId, Map.of(
+                "enforce", true,
+                "hideOverview", true,
+                "unlockRestAfter", "m3",
+                "graph", Map.of(
+                        "nodes", List.of(
+                                CodePathTest.node("c1", "CHOICE", null, null, "Weiche", 0),
+                                CodePathTest.node("m1", "MODULE", "git", null, null, 50),
+                                CodePathTest.pathNode("m2", "db-baustein", 50),
+                                orGate,
+                                CodePathTest.bossNode("m3", "TASK", "git", "g3", "Ziel-Boss", 200, 80, "TOTAL", null, "TEACHER", null)),
+                        "edges", List.of(
+                                Map.of("from", "c1", "to", "m1", "required", true, "label", "Git-Weg", "hint", "Tipp A"),
+                                Map.of("from", "c1", "to", "m2", "required", true, "label", "DB-Weg"),
+                                CodePathTest.requiredEdge("m1", "or1"),
+                                CodePathTest.requiredEdge("m2", "or1"),
+                                CodePathTest.requiredEdge("or1", "m3"))))).andExpect(status().isOk());
 
         byte[] zip = export("");
         Map<String, byte[]> files = unzip(zip);
         assertTrue(files.containsKey("media/" + key), "Verwendete Bilder werden mitgepackt");
         JsonNode manifest = json.readTree(files.get("codepath-export.json"));
         assertEquals("codepath-export", manifest.get("format").asString());
-        for (String section : List.of("settings", "modules", "homepage", "pages", "knowledge", "codepaths")) {
+        for (String section : List.of("settings", "modules", "homepage", "pages", "knowledge", "codePaths")) {
             assertTrue(manifest.at("/sections").has(section), section);
         }
+        assertEquals("db-baustein", manifest.at("/sections/codePaths/0/slug").asString());
+        assertTrue(manifest.at("/sections/codePaths/0/templateOnly").asBoolean());
+        assertTrue(manifest.at("/sections/codePaths/1/enforce").asBoolean());
+        assertTrue(manifest.at("/sections/codePaths/1/hideOverview").asBoolean());
+        assertEquals("m3", manifest.at("/sections/codePaths/1/unlockRestAfter").asString());
+        assertEquals("CHOICE", manifest.at("/sections/codePaths/1/graph/nodes/0/kind").asString());
+        assertEquals("PATH", manifest.at("/sections/codePaths/1/graph/nodes/2/kind").asString());
+        assertEquals("db-baustein", manifest.at("/sections/codePaths/1/graph/nodes/2/path").asString());
+        assertEquals("OR", manifest.at("/sections/codePaths/1/graph/nodes/3/kind").asString());
+        assertEquals(2, manifest.at("/sections/codePaths/1/graph/nodes/3/min").asInt());
+        assertTrue(manifest.at("/sections/codePaths/1/graph/nodes/4/boss").asBoolean());
+        assertEquals(80, manifest.at("/sections/codePaths/1/graph/nodes/4/requirement/minPercent").asInt());
+        assertEquals("TOTAL", manifest.at("/sections/codePaths/1/graph/nodes/4/requirement/mode").asString());
+        assertTrue(manifest.at("/sections/codePaths/1/graph/edges/0/required").asBoolean());
+        assertEquals("Git-Weg", manifest.at("/sections/codePaths/1/graph/edges/0/label").asString());
+        assertEquals("Tipp A", manifest.at("/sections/codePaths/1/graph/edges/0/hint").asString());
 
         // Seite und CodePath weg, Artikel geändert → angelegt, überarbeitet, Rest unverändert
         mvc.perform(delete("/api/admin/pages/" + page).with(teacher()).with(csrf())).andExpect(status().isNoContent());
@@ -83,7 +124,11 @@ class TransferTest extends IntegrationTestBase {
         JsonNode report = importFile("export.zip", zip, 200);
         assertEquals("CodePath-Export (ZIP)", report.get("detected").asString());
         assertEquals(List.of("anfahrt:CREATED"), actions(report, "Seiten"));
-        assertEquals(List.of("standard:CREATED"), actions(report, "CodePaths"));
+        assertEquals(List.of("db-baustein:CREATED", "standard:CREATED"), actions(report, "CodePaths"));
+        assertTrue(jdbc.queryForObject("select hide_overview from codepaths where slug = 'standard'", Boolean.class));
+        String importedGraph = jdbc.queryForObject("select graph from codepaths where slug = 'standard'", String.class);
+        assertTrue(importedGraph.contains("\"boss\":true"));
+        assertTrue(importedGraph.contains("\"minPercent\":80"));
         assertTrue(actions(report, "Wissensdatenbank").contains("transfer-test:UPDATED"));
         assertTrue(actions(report, "Module").stream().allMatch(a -> a.endsWith(":UNCHANGED")));
         assertTrue(actions(report, "Aufgaben").stream().allMatch(a -> a.endsWith(":UNCHANGED")));
