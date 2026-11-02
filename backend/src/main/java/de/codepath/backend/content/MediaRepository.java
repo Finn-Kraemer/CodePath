@@ -32,4 +32,24 @@ public interface MediaRepository extends JpaRepository<MediaFile, String> {
             + "or coalesce(explanation, '') like concat('%', :key, '%') or hints::text like concat('%', :key, '%')",
             nativeQuery = true)
     long countReferences(String key);
+
+    /** Verwendung in Aufgaben – je Bild und Aufgabe eine Zeile; latest = auch in der aktuellen Version. */
+    interface TaskReference {
+        String getKey();
+        Long getTaskId();
+        String getTitle();
+        String getModuleTitle();
+        Boolean getLatest();
+    }
+
+    @Query(value = "select r.media_key as key, r.task_id as taskId, r.latest as latest, mo.title as moduleTitle, "
+            + "(select x.title from task_versions x where x.task_id = r.task_id order by x.version desc limit 1) as title "
+            + "from (select m.media_key, v.task_id, bool_or(v.id = t.current_version_id) as latest "
+            + "from media m join task_versions v on (v.config::text like concat('%', m.media_key, '%') "
+            + "or coalesce(v.story, '') like concat('%', m.media_key, '%') or coalesce(v.assignment, '') like concat('%', m.media_key, '%') "
+            + "or coalesce(v.explanation, '') like concat('%', m.media_key, '%') or v.hints::text like concat('%', m.media_key, '%')) "
+            + "join tasks t on t.id = v.task_id group by m.media_key, v.task_id) r "
+            + "join tasks t on t.id = r.task_id join modules mo on mo.id = t.module_id order by mo.title, title",
+            nativeQuery = true)
+    List<TaskReference> taskReferences();
 }

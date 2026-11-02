@@ -19,3 +19,18 @@ export async function uploadMedia(file: File): Promise<MediaInfo> {
 	if (!res.ok) throw new ApiError(data?.message ?? `Fehler ${res.status}`, res.status);
 	return data as MediaInfo;
 }
+
+/** Arten von Stellen, an denen ein Bild verwendet werden kann (siehe MediaReference.kind). */
+export const mediaKinds = {
+	TASK: 'Aufgaben',
+	HOMEPAGE: 'Startseite',
+	PAGE: 'Seiten',
+	KNOWLEDGE: 'Wissensdatenbank'
+} as const;
+
+export function formatBytes(bytes: number): string {
+	if (bytes < 1024) return `${bytes} B`;
+	if (bytes < 1024 * 1024)
+		return `${(bytes / 1024).toLocaleString('de-DE', { maximumFractionDigits: 0 })} KB`;
+	return `${(bytes / 1024 / 1024).toLocaleString('de-DE', { maximumFractionDigits: 1 })} MB`;
+}

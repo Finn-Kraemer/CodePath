@@ -11,6 +11,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -81,6 +83,55 @@ class MediaTest extends IntegrationTestBase {
         String used = jdbc.queryForObject("select config->>'image' from task_versions v join tasks t on t.current_version_id = v.id "
                 + "where t.slug = 's15'", String.class);
         mvc.perform(delete("/api/admin/media/" + used).with(teacher()).with(csrf())).andExpect(status().isConflict());
+    }
+
+    JsonNode libraryItem(String key) throws Exception {
+        JsonNode library = body(getAs(teacher(), "/api/admin/media/library").andExpect(status().isOk()));
+        for (JsonNode item : library) if (item.get("key").asString().equals(key)) return item;
+        return null;
+    }
+
+    @Test
+    void libraryShowsUsagesRenamesAndCleansUp() throws Exception {
+        jdbc.update("delete from pages");
+        String onPage = upload(png(6, 6, 0x101010), "seite.png", 200).get("key").asString();
+        String unused = upload(png(7, 7, 0x202020), "frei.png", 200).get("key").asString();
+        String task = jdbc.queryForObject("select config->>'image' from task_versions v join tasks t on t.current_version_id = v.id "
+                + "where t.slug = 's15'", String.class);
+
+        long page = body(postAs(teacher(), "/api/admin/pages", Map.of("title", "Galerie", "slug", "galerie"))
+                .andExpect(status().isOk())).get("id").asLong();
+        putAs(teacher(), "/api/admin/pages/" + page + "/draft",
+                Map.of("blocks", List.of(Map.of("id", "i", "type", "image", "media", onPage)))).andExpect(status().isNoContent());
+
+        JsonNode pageItem = libraryItem(onPage);
+        assertEquals(1, pageItem.get("usages").size(), pageItem.toString());
+        assertEquals("PAGE", pageItem.get("usages").get(0).get("kind").asString());
+        assertEquals("/admin/pages/" + page, pageItem.get("usages").get(0).get("href").asString());
+        assertNotNull(pageItem.get("createdAt").asString());
+        assertEquals(0, libraryItem(unused).get("usages").size());
+        JsonNode taskUsage = libraryItem(task).get("usages").get(0);
+        assertEquals("TASK", taskUsage.get("kind").asString());
+        assertTrue(taskUsage.get("href").asString().startsWith("/admin/content/"));
+
+        // Umbenennen ändert nur den Namen, nicht den Schlüssel
+        mvc.perform(patch("/api/admin/media/" + unused).with(teacher()).with(csrf())
+                        .contentType("application/json").content("{\"originalName\":\"  Neuer/Name.png \"}"))
+                .andExpect(status().isOk());
+        assertEquals("Name.png", libraryItem(unused).get("originalName").asString());
+        mvc.perform(patch("/api/admin/media/" + unused).with(teacher()).with(csrf())
+                .contentType("application/json").content("{\"originalName\":\" \"}")).andExpect(status().isBadRequest());
+
+        // Nur die Lehrkraft verwaltet Bilder
+        User student = student("mia", course("9c"));
+        getAs(as(student), "/api/admin/media/library").andExpect(status().isForbidden());
+        postAs(as(student), "/api/admin/media/delete-unused", null).andExpect(status().isForbidden());
+
+        JsonNode cleanup = body(postAs(teacher(), "/api/admin/media/delete-unused", null).andExpect(status().isOk()));
+        assertTrue(cleanup.get("deleted").asInt() >= 1, cleanup.toString());
+        assertNull(libraryItem(unused), "Unbenutztes Bild ist weg");
+        assertNotNull(libraryItem(onPage), "Bild im Seitenentwurf bleibt");
+        assertNotNull(libraryItem(task), "Bild der Aufgabe bleibt");
     }
 
     @Test

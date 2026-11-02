@@ -286,7 +286,7 @@ export interface paths {
 		get: operations['task_1'];
 		put?: never;
 		post?: never;
-		delete: operations['delete_3'];
+		delete: operations['delete_4'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -756,6 +756,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/media/delete-unused': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['deleteUnused'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/media/library': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['library'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/media/{key}': {
 		parameters: {
 			query?: never;
@@ -766,10 +798,10 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post?: never;
-		delete: operations['delete_4'];
+		delete: operations['delete_3'];
 		options?: never;
 		head?: never;
-		patch?: never;
+		patch: operations['rename'];
 		trace?: never;
 	};
 	'/api/admin/modules': {
@@ -2272,6 +2304,12 @@ export interface components {
 			nodeId?: string;
 			resetProgress?: boolean;
 		};
+		CleanupResult: {
+			/** Format: int32 */
+			deleted: number;
+			/** Format: int64 */
+			freedBytes: number;
+		};
 		Compass: {
 			entries: components['schemas']['CompassEntry'][];
 			top: components['schemas']['CompassEntry'][];
@@ -2526,6 +2564,21 @@ export interface components {
 			rank: number;
 			username: string;
 		};
+		LibraryItem: {
+			contentType: string;
+			/** Format: date-time */
+			createdAt: string;
+			/** Format: int32 */
+			height: number;
+			key: string;
+			originalName: string;
+			/** Format: int32 */
+			size: number;
+			url: string;
+			usages: components['schemas']['MediaReference'][];
+			/** Format: int32 */
+			width: number;
+		};
 		Link: {
 			title: string;
 			url: string;
@@ -2541,6 +2594,12 @@ export interface components {
 			url: string;
 			/** Format: int32 */
 			width: number;
+		};
+		MediaReference: {
+			href: string;
+			key: string;
+			kind: string;
+			label: string;
 		};
 		ModuleDetail: {
 			module: components['schemas']['ModuleSummary'];
@@ -2953,6 +3012,9 @@ export interface components {
 		RejectRequest: {
 			comment?: string;
 			lockTask?: boolean;
+		};
+		Rename: {
+			originalName: string;
 		};
 		ReorderRequest: {
 			taskIds?: number[];
@@ -3897,7 +3959,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_3: {
+	delete_4: {
 		parameters: {
 			query: {
 				confirm: string;
@@ -4713,7 +4775,47 @@ export interface operations {
 			};
 		};
 	};
-	delete_4: {
+	deleteUnused: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['CleanupResult'];
+				};
+			};
+		};
+	};
+	library: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LibraryItem'][];
+				};
+			};
+		};
+	};
+	delete_3: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4730,6 +4832,32 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content?: never;
+			};
+		};
+	};
+	rename: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				key: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['Rename'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['MediaInfo'];
+				};
 			};
 		};
 	};

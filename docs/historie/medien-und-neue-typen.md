@@ -11,6 +11,7 @@ Nachtrag zu Phase 5: Die beiden Typen, die einen Medien-Upload brauchten. Entsch
 | Prüfung | PNG, JPEG, GIF, WebP – erkannt an den ersten Bytes, nicht an Endung oder Browser-Angabe; PNG/JPEG/GIF müssen sich als Bild lesen lassen; höchstens 2 MB und 4096 Pixel pro Seite. SVG und alles andere wird abgelehnt. Dateinamen werden bereinigt. |
 | Ausliefern | `GET /api/media/{schlüssel}` nur für angemeldete Nutzer, mit `Content-Security-Policy: default-src 'none'; sandbox`, `nosniff` und einem Jahr Cache (der Inhalt zu einem Schlüssel ändert sich nie). |
 | Löschen | Nur wenn keine Aufgabenversion – auch keine frühere – das Bild verwendet. |
+| Verwalten | **Admin → Medien** (`/admin/media`): alle Bilder mit Verwendungsort (Aufgabe, Startseite, Seite, Wissensartikel) und Link zum Editor, Suche, Filter, Umbenennen, Löschen einzeln oder aller unbenutzten. API: `GET /api/admin/media/library`, `PATCH /api/admin/media/{schlüssel}`, `POST /api/admin/media/delete-unused`. |
 | Markdown | Bilder nur aus `/api/media/`; fremde Bildquellen entfernt der Sanitizer (offline, kein Tracking). |
 | Content-Pakete | Bilder unter `<modul>/media/<schlüssel>`. Export legt jedes verwendete Bild zum Modul; Import prüft, dass Name und Inhalt zusammenpassen, und lehnt Aufgaben mit fehlenden Bildern ab. `content/validate.py` prüft dasselbe in der CI, `content/tools/add_media.py` legt Bilder richtig benannt ab. Pakete dürfen jetzt bis 20 MB groß sein. |
 

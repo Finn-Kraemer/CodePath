@@ -50,6 +50,23 @@ public class MediaController {
         return mediaService.list();
     }
 
+    /** Medienverwaltung: alle Bilder mit Aufnahmedatum und den Stellen, an denen sie verwendet werden. */
+    @GetMapping("/api/admin/media/library")
+    public List<MediaService.LibraryItem> library() {
+        return mediaService.library();
+    }
+
+    @PatchMapping("/api/admin/media/{key}")
+    public MediaService.MediaInfo rename(@PathVariable("key") String key, @RequestBody MediaService.Rename rename) {
+        return mediaService.rename(key, rename.originalName());
+    }
+
+    /** Räumt auf: löscht alle Bilder, die nirgends verwendet werden. */
+    @PostMapping("/api/admin/media/delete-unused")
+    public MediaService.CleanupResult deleteUnused() {
+        return mediaService.deleteUnused();
+    }
+
     @PostMapping(path = "/api/admin/media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public MediaService.MediaInfo upload(@RequestParam("file") MultipartFile file) throws IOException {
         return mediaService.store(file.getBytes(), file.getOriginalFilename(), userService.currentUser().getId());

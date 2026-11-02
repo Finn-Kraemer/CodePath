@@ -4,6 +4,11 @@ Alle nennenswerten Änderungen an CodePath. Versionen folgen [Semantic Versionin
 
 Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter **Update** lesen.
 
+## Unveröffentlicht
+
+### Neu
+- **Medienverwaltung** (*Leitstand → Website → Medien*): Alle hochgeladenen Bilder auf einen Blick – mit Vorschau, Größe, Maßen und Datum und der Angabe, wo jedes Bild verwendet wird (Aufgaben, auch frühere Versionen, Startseite, eigene Seiten, Wissensartikel), jeweils mit Link zum Editor. Suchen, nach Verwendung filtern, sortieren; mehrere Bilder auf einmal hochladen (auch per Drag & Drop), Bilder umbenennen, Markdown oder Adresse kopieren, unbenutzte Bilder einzeln oder alle auf einmal löschen. Die Bildauswahl in den Editoren verlinkt auf die Verwaltung.
+
 ## 2.3.0
 
 ### Neu

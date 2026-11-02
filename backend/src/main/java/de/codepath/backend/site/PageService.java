@@ -3,6 +3,7 @@ package de.codepath.backend.site;
 import de.codepath.backend.engine.MediaKeys;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.media.MediaReference;
 import de.codepath.backend.platform.media.MediaUsage;
 import de.codepath.backend.platform.settings.BlockContent;
 import lombok.RequiredArgsConstructor;
@@ -168,6 +169,20 @@ public class PageService implements MediaUsage {
                         || (p.getPublished() != null && MediaKeys.find(p.getPublished()).contains(key)))
                 .findFirst()
                 .map(p -> "auf der Seite „" + p.getTitle() + "“");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MediaReference> references() {
+        List<MediaReference> references = new java.util.ArrayList<>();
+        for (Page p : repository.findAllByOrderByPositionAscIdAsc()) {
+            java.util.Set<String> keys = new java.util.LinkedHashSet<>(MediaKeys.find(p.getDraft()));
+            if (p.getPublished() != null) keys.addAll(MediaKeys.find(p.getPublished()));
+            for (String key : keys) {
+                references.add(new MediaReference(key, "PAGE", "Seite „" + p.getTitle() + "“", "/admin/pages/" + p.getId()));
+            }
+        }
+        return references;
     }
 
     private Page get(Long id) {
