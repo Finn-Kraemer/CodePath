@@ -122,6 +122,17 @@ public class SubmissionService {
             }
         }
         progressRepository.save(progress);
+        if (progress.isFinished()) {
+            events.publishEvent(new ProgressCompletedEvent(
+                    user.getId(),
+                    task.taskId(),
+                    progress.getStatus(),
+                    progress.getBestScore().doubleValue(),
+                    progress.getFailedAttempts(),
+                    progress.getHintsUsed(),
+                    progress.isSolutionRevealed()
+            ));
+        }
         return result(evaluation, awarded, progress, rules, feedback);
     }
 

@@ -32,6 +32,7 @@ public class RealtimeUpdateService {
 
     public static final String ANNOUNCEMENT = "announcement";
     public static final String LEADERBOARD = "leaderboard";
+    public static final String CODEPATH = "codepath";
 
     // Ohne Timeout; Verbindungsabbrüche räumen die Callbacks unten auf
     private static final long NO_TIMEOUT = 0L;
@@ -86,6 +87,15 @@ public class RealtimeUpdateService {
                 broadcast(LEADERBOARD, Map.of("timestamp", System.currentTimeMillis()));
             });
         });
+    }
+
+    public void publishCodePathUpdate(String username, String message) {
+        Map<String, Object> payload = Map.of(
+                "username", username == null ? "" : username,
+                "message", message == null ? "" : message,
+                "timestamp", System.currentTimeMillis());
+        afterCommit(() -> enqueue(() -> broadcast(CODEPATH, payload)));
+        publishLeaderboardUpdate();
     }
 
     /**

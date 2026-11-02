@@ -5,6 +5,7 @@ import de.codepath.backend.content.PublishedTask;
 import de.codepath.backend.identity.UserService;
 import de.codepath.backend.platform.audit.AuditService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +23,20 @@ public class ProgressService {
     private final ContentService contentService;
     private final UserService userService;
     private final AuditService auditService;
+    private final ApplicationEventPublisher events;
 
     public record AttemptView(Long id, Long userId, Long taskId, Long taskVersionId, Map<String, Object> answer,
                               String outcome, double score, String feedback, LocalDateTime createdAt) {
         static AttemptView of(Attempt a) {
             return new AttemptView(a.getId(), a.getUserId(), a.getTaskId(), a.getTaskVersionId(), a.getAnswer(),
                     a.getOutcome().name(), a.getScore().doubleValue(), a.getFeedback(), a.getCreatedAt());
+        }
+    }
+
+    public record TaskProgressView(Long userId, Long taskId, ProgressStatus status, double bestScore,
+                                   int failedAttempts, int hintsUsed, boolean solutionRevealed, boolean finished) {
+        public boolean perfectFirstTry() {
+            return status == ProgressStatus.SOLVED && failedAttempts == 0 && hintsUsed == 0 && !solutionRevealed && bestScore >= 1.0;
         }
     }
 
@@ -62,6 +71,15 @@ public class ProgressService {
         progress.setReviewComment(comment);
         progress.setBestScore(java.math.BigDecimal.ONE);
         progressRepository.save(progress);
+        events.publishEvent(new ProgressCompletedEvent(
+                userId,
+                taskId,
+                ProgressStatus.SOLVED,
+                1.0,
+                progress.getFailedAttempts(),
+                progress.getHintsUsed(),
+                progress.isSolutionRevealed()
+        ));
         return points;
     }
 
@@ -83,6 +101,23 @@ public class ProgressService {
         return result;
     }
 
+    /** Detaillierter Fortschritt je Aufgabe für die Auswertung von Bedingungen in CodePaths. */
+    public Map<Long, TaskProgressView> taskProgressByTask(Long userId) {
+        Map<Long, TaskProgressView> result = new HashMap<>();
+        if (userId == null) return result;
+        progressRepository.findByUserId(userId).forEach(p -> result.put(p.getTaskId(), new TaskProgressView(
+                p.getUserId(),
+                p.getTaskId(),
+                p.getStatus(),
+                p.getBestScore() != null ? p.getBestScore().doubleValue() : 0.0,
+                p.getFailedAttempts(),
+                p.getHintsUsed(),
+                p.isSolutionRevealed(),
+                p.isFinished()
+        )));
+        return result;
+    }
+
     /** Letzte Abgabe zu einer Aufgabe, z. B. für den eigenen Code im Mitnehm-Paket. */
     public Optional<AttemptView> latestAttempt(Long userId, Long taskId) {
         return attemptRepository.findFirstByUserIdAndTaskIdOrderByCreatedAtDesc(userId, taskId).map(AttemptView::of);
@@ -99,5 +134,26 @@ public class ProgressService {
 
     public Map<Long, Long> totals(Collection<Long> userIds) {
         return pointsService.totals(userIds);
+    }
+
+    /**
+     * Setzt den Fortschritt der angegebenen Aufgaben für einen Schüler zurück und bucht bereits
+     * erhaltene Punkte per Korrekturbuchung ({@link PointsService#correct}) gegen, damit das
+     * Punkte-Journal lückenlos nachvollziehbar bleibt.
+     */
+    @Transactional
+    public void resetTasks(Long userId, Collection<Long> taskIds, String note, Long actorId) {
+        if (taskIds == null || taskIds.isEmpty()) return;
+        userService.lockForUpdate(userId);
+        List<Progress> existing = progressRepository.findByUserIdAndTaskIdIn(userId, taskIds);
+        if (!existing.isEmpty()) {
+            progressRepository.deleteAll(existing);
+        }
+        for (Long taskId : taskIds) {
+            long current = pointsService.forTask(userId, taskId);
+            if (current != 0) {
+                pointsService.correct(userId, taskId, (int) -current, note, actorId);
+            }
+        }
     }
 }
