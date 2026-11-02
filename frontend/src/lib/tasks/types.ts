@@ -1,4 +1,5 @@
 import type { SubmitResult, TaskDetail } from '$lib/api';
+import { DEFAULT_MAX_STEPS } from '$lib/visualizer/trace';
 
 export type Answer = Record<string, unknown>;
 
@@ -22,4 +23,19 @@ export function solution<T>(task: TaskDetail): T | null {
 
 export function draftKey(task: TaskDetail) {
 	return `${task.moduleSlug}/${task.slug}`;
+}
+
+/**
+ * Code-Visualizer („Schritt für Schritt“) für diese Aufgabe? Abschaltbar mit `config.visualizer: false`,
+ * im Abschlusstest standardmäßig aus. `visualizerMaxSteps` setzt das Schrittlimit.
+ */
+export function visualizerSettings(task: TaskDetail): { enabled: boolean; maxSteps: number } {
+	const cfg = config<{ visualizer?: boolean; visualizerMaxSteps?: number }>(task);
+	const enabled =
+		typeof cfg.visualizer === 'boolean' ? cfg.visualizer : task.moduleSlug !== 'abschlusstest';
+	const maxSteps =
+		typeof cfg.visualizerMaxSteps === 'number' && cfg.visualizerMaxSteps > 0
+			? Math.min(cfg.visualizerMaxSteps, 5000)
+			: DEFAULT_MAX_STEPS;
+	return { enabled, maxSteps };
 }

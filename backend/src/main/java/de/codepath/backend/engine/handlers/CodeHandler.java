@@ -3,6 +3,7 @@ package de.codepath.backend.engine.handlers;
 import de.codepath.backend.engine.*;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,10 +39,23 @@ public class CodeHandler implements TaskHandler {
 
     @Override
     public Map<String, Object> publicView(TaskSpec spec, TaskContext context) {
-        return Map.of(
-                "starterCode", Cfg.string(spec.config(), "starterCode", ""),
-                "graded", runner.available(),
-                "examples", visibleExamples(spec.config()));
+        Map<String, Object> view = new LinkedHashMap<>();
+        view.put("starterCode", Cfg.string(spec.config(), "starterCode", ""));
+        view.put("graded", runner.available());
+        view.put("examples", visibleExamples(spec.config()));
+        return withVisualizer(view, spec.config());
+    }
+
+    /**
+     * Einstellungen des Code-Visualizers („Schritt für Schritt“, reines Lernwerkzeug im Browser):
+     * {@code visualizer: false} schaltet ihn für die Aufgabe ab, {@code visualizerMaxSteps} setzt das Schrittlimit.
+     * Fehlt {@code visualizer}, entscheidet das Frontend (an, außer im Abschlusstest).
+     */
+    static Map<String, Object> withVisualizer(Map<String, Object> view, Map<String, Object> config) {
+        if (config != null && config.get("visualizer") instanceof Boolean enabled) view.put("visualizer", enabled);
+        Integer maxSteps = Cfg.integer(config, "visualizerMaxSteps");
+        if (maxSteps != null && maxSteps > 0) view.put("visualizerMaxSteps", Math.min(maxSteps, 5000));
+        return view;
     }
 
     /** Nicht versteckte Testfälle dienen als Beispiele; versteckte prüfen, ob die Lösung allgemein ist. */

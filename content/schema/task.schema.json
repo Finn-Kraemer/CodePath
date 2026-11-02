@@ -263,6 +263,16 @@
               },
               "tests": {
                 "$ref": "#/$defs/tests"
+              },
+              "visualizer": {
+                "type": "boolean",
+                "description": "Code-Visualizer (Schritt für Schritt) anbieten; ohne Angabe an, im Abschlusstest aus"
+              },
+              "visualizerMaxSteps": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5000,
+                "description": "Schrittlimit des Code-Visualizers (Standard 1000)"
               }
             }
           }
@@ -298,6 +308,16 @@
                   }
                 ],
                 "minItems": 1
+              },
+              "visualizer": {
+                "type": "boolean",
+                "description": "Code-Visualizer (Schritt für Schritt) anbieten; ohne Angabe an, im Abschlusstest aus"
+              },
+              "visualizerMaxSteps": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5000,
+                "description": "Schrittlimit des Code-Visualizers (Standard 1000)"
               }
             }
           }
@@ -634,6 +654,16 @@
               "codeRequired": {
                 "type": "boolean",
                 "description": "Abgabe nur mit Code"
+              },
+              "visualizer": {
+                "type": "boolean",
+                "description": "Code-Visualizer (Schritt für Schritt) anbieten; ohne Angabe an, im Abschlusstest aus"
+              },
+              "visualizerMaxSteps": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5000,
+                "description": "Schrittlimit des Code-Visualizers (Standard 1000)"
               }
             }
           }

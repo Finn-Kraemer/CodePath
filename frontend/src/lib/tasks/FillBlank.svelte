@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
 	import SubmitButton from './SubmitButton.svelte';
-	import { config, draftKey, solution, type TaskProps } from './types';
+	import { config, draftKey, solution, visualizerSettings, type TaskProps } from './types';
+	import CodeVisualizer from '$lib/visualizer/CodeVisualizer.svelte';
 	import { loadDraft, saveDraft } from '$lib/drafts';
 	import { PythonRunner } from '$lib/python.svelte';
 	import CodeOutput from './CodeOutput.svelte';
@@ -25,11 +26,22 @@
 	let output = $state('');
 	let runError = $state('');
 
+	const visualizer = $derived(visualizerSettings(task));
+	let visualized = $state<{ code: string; title: string; key: number } | null>(null);
+
+	function assemble(fill: string[]) {
+		let program = parts[0];
+		for (let i = 1; i < parts.length; i++) program += (fill[i - 1] ?? '') + parts[i];
+		return program;
+	}
+
+	function visualize(fill: string[], title: string) {
+		visualized = { code: assemble(fill), title, key: (visualized?.key ?? 0) + 1 };
+	}
+
 	// Bei Code-Lücken lässt sich das Programm im Browser ausprobieren
 	async function tryOut() {
-		let program = parts[0];
-		for (let i = 1; i < parts.length; i++) program += (answers[i - 1] ?? '') + parts[i];
-		const res = await runner.run(program);
+		const res = await runner.run(assemble(answers));
 		output = res.stdout;
 		runError = res.error ?? '';
 	}
@@ -95,13 +107,40 @@
 	{/if}
 	{#if code}
 		<div class="mb-6"><CodeOutput {output} error={runError} /></div>
-		<button
-			onclick={tryOut}
-			disabled={!runner.ready}
-			class="mb-4 w-full border-2 border-institutional-navy py-4 text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
-		>
-			{runner.ready ? 'Ausprobieren' : 'Python lädt …'}
-		</button>
+		{#if visualized}
+			{#key visualized.key}
+				<div class="mb-6">
+					<CodeVisualizer
+						{runner}
+						code={visualized.code}
+						title={visualized.title}
+						maxSteps={visualizer.maxSteps}
+						onclose={() => (visualized = null)}
+					/>
+				</div>
+			{/key}
+		{/if}
+		<div class="mb-4 grid grid-cols-1 gap-4 {visualizer.enabled ? 'md:grid-cols-2' : ''}">
+			<button
+				onclick={tryOut}
+				disabled={!runner.ready}
+				class="w-full border-2 border-institutional-navy py-4 text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+			>
+				{runner.ready ? 'Ausprobieren' : 'Python lädt …'}
+			</button>
+			{#if visualizer.enabled}
+				<button
+					onclick={() =>
+						sol
+							? visualize(sol.answers, 'Lösung Schritt für Schritt')
+							: visualize(answers, 'Dein Programm Schritt für Schritt')}
+					disabled={!runner.ready}
+					class="w-full border-2 border-institutional-navy py-4 text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+				>
+					{sol ? 'Lösung Schritt für Schritt' : 'Schritt für Schritt'}
+				</button>
+			{/if}
+		</div>
 	{/if}
 	<SubmitButton
 		{busy}
