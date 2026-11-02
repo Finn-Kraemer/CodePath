@@ -5,6 +5,16 @@ services:
   postgres:
     image: postgres:17
     restart: unless-stopped
+    # Etwas mehr Cache als der Standard (128 MB) für mehrere Klassen gleichzeitig; auf schwachen Rechnern
+    # über POSTGRES_SHARED_BUFFERS verkleinern. Platz für den Verbindungspool der App (DB_POOL_SIZE).
+    command:
+      - postgres
+      - -c
+      - shared_buffers=${POSTGRES_SHARED_BUFFERS:-256MB}
+      - -c
+      - max_connections=${POSTGRES_MAX_CONNECTIONS:-100}
+    # Postgres sauber beenden lassen (Checkpoint), statt nach 10 s hart abzubrechen
+    stop_grace_period: 30s
     environment:
       POSTGRES_DB: codepath
       POSTGRES_USER: codepath
@@ -34,7 +44,11 @@ services:
       # Mit Code-Runner: in .env COMPOSE_PROFILES=runner, CODEPATH_RUNNER_URL und RUNNER_TOKEN setzen
       CODEPATH_RUNNER_URL: ${CODEPATH_RUNNER_URL:-}
       CODEPATH_RUNNER_TOKEN: ${RUNNER_TOKEN:-}
+      # Datenbankverbindungen der App (Standard 20); bei sehr vielen Klassen gleichzeitig erhöhen
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-20}
     networks: [default, runner]
+    # Laufende Abgaben beim Update noch fertig bearbeiten (server.shutdown=graceful, 20 s)
+    stop_grace_period: 30s
     depends_on:
       postgres:
         condition: service_healthy

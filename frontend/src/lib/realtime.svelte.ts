@@ -8,6 +8,17 @@ export interface Announcement {
 
 /** So lange darf die Live-Verbindung weg sein, bevor der Ladebildschirm erscheint. */
 const LOST_AFTER_MS = 5000;
+/**
+ * Ranglisten-Updates kommen bei allen Browsern eines Kurses gleichzeitig an. Jeder lädt darum erst nach
+ * einer zufälligen kurzen Pause neu – so verteilen sich 30 Klassen-Browser über gut eine Sekunde, statt
+ * den Server im selben Augenblick zu treffen. Was in der Pause noch ankommt, ist damit gleich mit erledigt.
+ */
+const LEADERBOARD_SPREAD_MS = 1500;
+
+/** Pause vor einem neuen Verbindungsversuch: gestreut, damit nach einem Neustart nicht alle auf einmal kommen. */
+function retryDelay() {
+	return 2000 + Math.random() * 4000;
+}
 
 /**
  * Live-Updates per Server-Sent Events (/api/events). Nutzt die normale Login-Session;
@@ -18,6 +29,7 @@ class RealtimeStore {
 	private source: EventSource | null = null;
 	private lostTimer: ReturnType<typeof setTimeout> | undefined;
 	private retryTimer: ReturnType<typeof setTimeout> | undefined;
+	private leaderboardTimer: ReturnType<typeof setTimeout> | undefined;
 	isConnected = $state(false);
 	/** Bestand schon eine Verbindung und ist seit einigen Sekunden weg? */
 	isLost = $state(false);
@@ -49,7 +61,11 @@ class RealtimeStore {
 			this.lastAnnouncement = JSON.parse((event as MessageEvent).data);
 		});
 		this.source.addEventListener('leaderboard', () => {
-			this.leaderboardUpdateTrigger++;
+			if (this.leaderboardTimer) return;
+			this.leaderboardTimer = setTimeout(() => {
+				this.leaderboardTimer = undefined;
+				this.leaderboardUpdateTrigger++;
+			}, Math.random() * LEADERBOARD_SPREAD_MS);
 		});
 		this.source.addEventListener('help', (event) => {
 			try {
@@ -85,7 +101,7 @@ class RealtimeStore {
 			this.isConnected = false;
 			if (this.source?.readyState === EventSource.CLOSED) {
 				this.source = null;
-				this.retryTimer = setTimeout(() => this.connect(), 3000);
+				this.retryTimer = setTimeout(() => this.connect(), retryDelay());
 			}
 		};
 	}
@@ -93,7 +109,9 @@ class RealtimeStore {
 	disconnect() {
 		clearTimeout(this.lostTimer);
 		clearTimeout(this.retryTimer);
+		clearTimeout(this.leaderboardTimer);
 		this.lostTimer = undefined;
+		this.leaderboardTimer = undefined;
 		this.source?.close();
 		this.source = null;
 		this.isConnected = false;

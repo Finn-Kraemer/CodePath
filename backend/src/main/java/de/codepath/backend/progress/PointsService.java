@@ -1,12 +1,16 @@
 package de.codepath.backend.progress;
 
+import de.codepath.backend.identity.UserService;
 import de.codepath.backend.platform.audit.AuditService;
 import de.codepath.backend.platform.events.RealtimeUpdateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /** Punkte-Journal: jede Änderung ist eine eigene Buchung, der Stand ist die Summe. */
 @Service
@@ -16,6 +20,7 @@ public class PointsService {
     private final PointsEntryRepository repository;
     private final AuditService auditService;
     private final RealtimeUpdateService realtime;
+    private final UserService userService;
 
     /** Bucht Punkte für das Lösen einer Aufgabe – höchstens einmal je Schüler und Aufgabe. */
     @Transactional
@@ -23,7 +28,7 @@ public class PointsService {
         boolean booked = repository.insertOnce(userId, taskId, amount, reason.name(), note, actorId) == 1;
         if (booked) {
             auditService.log("POINTS_" + reason.name(), "user:" + userId, Map.of("task", taskId, "amount", amount));
-            realtime.publishLeaderboardUpdate();
+            leaderboardChanged(userId);
         }
         return booked;
     }
@@ -34,7 +39,7 @@ public class PointsService {
         if (delta == 0) return;
         repository.insertCorrection(userId, taskId, delta, note, actorId);
         auditService.log("POINTS_CORRECTION", "user:" + userId, Map.of("task", taskId == null ? "-" : taskId, "amount", delta, "note", note == null ? "" : note));
-        realtime.publishLeaderboardUpdate();
+        leaderboardChanged(userId);
     }
 
     /**
@@ -48,7 +53,7 @@ public class PointsService {
         if (booked) {
             auditService.log("POINTS_PATH_BONUS", "user:" + userId,
                     Map.of("path", pathId, "node", nodeId, "amount", amount, "note", note == null ? "" : note));
-            realtime.publishLeaderboardUpdate();
+            leaderboardChanged(userId);
         }
         return booked;
     }
@@ -79,7 +84,30 @@ public class PointsService {
         repository.insertBonusCancellation(userId, pathId, nodeId, delta, cancelNote, actorId);
         auditService.log("POINTS_BONUS_CANCELLED", "user:" + userId,
                 Map.of("path", pathId, "node", nodeId, "amount", delta, "note", cancelNote));
-        realtime.publishLeaderboardUpdate();
+        leaderboardChanged(userId);
+    }
+
+    // Zählt jede bestätigte Punkteänderung; zwischengespeicherte Ranglisten verfallen damit
+    private final AtomicLong generation = new AtomicLong();
+
+    /** Stand des Punkte-Journals für Caches: ändert sich nach jedem Commit, der Punkte bucht. */
+    public long generation() {
+        return generation.get();
+    }
+
+    /** Nur der Kurs der Person muss neu laden (und die Lehrkräfte). */
+    private void leaderboardChanged(Long userId) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    generation.incrementAndGet();
+                }
+            });
+        } else {
+            generation.incrementAndGet();
+        }
+        realtime.publishLeaderboardUpdate(userService.courseIdOf(userId));
     }
 
     public boolean hasAward(Long userId, Long taskId) {

@@ -16,6 +16,12 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - **Hilfe-Rufe in der Lernanalyse**: Neue Spalte, wie oft bei einer Aufgabe „Ich hänge fest“ geklickt wurde (mit Anteil selbst gelöster), umschaltbar als Sortierung.
 
 ### Verbessert
+- **Mehrere Klassen gleichzeitig: weniger Last, kürzere Antwortzeiten, ausfallsicherer** (Details: [Betriebshandbuch](docs/betrieb.md#last-mehrere-klassen-gleichzeitig)):
+  - Abgaben werden vor der Datenbank-Transaktion bewertet; Code-Runner und SQL-Sandbox halten keine Verbindung und keine Sperre mehr.
+  - Module und veröffentlichte Aufgaben liegen im Speicher und werden bei jeder Änderung im Editor oder per Import neu geladen.
+  - Ranglisten-Updates gehen nur noch an den betroffenen Kurs (und Lehrkräfte), höchstens alle 2 s, und die Browser laden gestreut neu; die Rangliste lädt ihre Mitglieder in einer Abfrage statt einer je Schüler und wird je Kurs nur einmal berechnet. CodePath-Hinweise gehen nur an die betroffene Person und Lehrkräfte.
+  - Jede Live-Verbindung hat eine eigene Warteschlange: Ein hängender Client hält andere nicht mehr auf und wird bei Überlauf getrennt; Neuverbindungen nach einem Neustart sind zeitlich gestreut.
+  - Virtuelle Threads, Kompression der Antworten, sanftes Herunterfahren, Neustart bei Speichermangel, kompakte Objekt-Header (Java 25), Hibernate-Batching; einstellbar über `DB_POOL_SIZE`, `POSTGRES_SHARED_BUFFERS`, `POSTGRES_MAX_CONNECTIONS` und `CODEPATH_LEADERBOARD_INTERVAL`.
 - Live-Updates verbinden sich jetzt auch direkt nach der Anmeldung, ohne dass die Seite neu geladen werden muss.
 - **Mehr Platz im CodePath-Editor:** Der Editor nutzt die volle Bildschirmbreite, und ein neuer CodePath startet mit einer leeren Fläche statt mit allen Modulen als vorgefertigter Kette.
 - **Aufgeräumte Administration:** Die Startseite des Leitstands ist nach Bereichen gegliedert (Unterricht, Inhalte, Website, Einstellungen & System); jede Kachel erklärt kurz, wofür sie da ist, und Schalter wie die Teilnahmebestätigungen zeigen ihren Zustand deutlich an.

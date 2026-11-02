@@ -2,6 +2,9 @@ package de.codepath.backend.platform.events;
 
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -12,21 +15,29 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
  * Live-Updates per Server-Sent Events (ADR-2). Ersetzt MQTT über RabbitMQ: kein Broker,
  * keine Zugangsdaten im Browser, derselbe Login wie die übrige API.
  *
- * <p>Gesendet wird auf einem eigenen Thread: Ein langsamer oder hängender Client (schwaches WLAN,
- * eingeschlafenes Tablet) hält damit nie eine Abgabe oder einen anderen Request auf. Ein einziger
- * Sende-Thread hält die Reihenfolge der Ereignisse ein. Ranglisten-Updates werden zusammengefasst:
- * Geben 30 Schüler gleichzeitig ab, geht trotzdem nur ein „neu laden“ an alle.
+ * <p>Jede Verbindung hat eine eigene kleine Warteschlange, die ein virtueller Thread abarbeitet:
+ * Ein langsamer oder hängender Client (schwaches WLAN, eingeschlafenes Tablet) hält damit weder eine
+ * Abgabe noch die anderen Clients auf. Die Reihenfolge der Ereignisse bleibt je Verbindung erhalten.
+ * Läuft die Warteschlange einer Verbindung über, wird sie geschlossen; der Browser verbindet sich neu.
+ *
+ * <p>Ranglisten-Updates sind das häufigste Ereignis und lösen im Browser Neuladen aus. Sie werden darum
+ * <ul>
+ *   <li>gedrosselt: höchstens eins je {@code codepath.live.leaderboard-interval} (Standard 2 s), das erste sofort,</li>
+ *   <li>je Verbindung zusammengefasst: Wartet dort schon eins, kommt kein zweites dazu,</li>
+ *   <li>auf den Kurs beschränkt: Punkte in Kurs A laden nicht die Seiten von Kurs B neu (Lehrkräfte sehen alle).</li>
+ * </ul>
+ * So bleibt die Last auch mit mehreren Klassen gleichzeitig begrenzt.
  */
 @Service
 @Slf4j
@@ -40,23 +51,116 @@ public class RealtimeUpdateService {
 
     // Ohne Timeout; Verbindungsabbrüche räumen die Callbacks unten auf
     private static final long NO_TIMEOUT = 0L;
-    // Genug für Ankündigungen und Pings; Ranglisten-Updates belegen dank Zusammenfassen höchstens einen Platz
-    private static final int QUEUE_CAPACITY = 1000;
+    /** Mehr unversandte Ereignisse für eine Verbindung = Client hängt; sie wird geschlossen. */
+    static final int MAILBOX_CAPACITY = 64;
+    static final Duration DEFAULT_LEADERBOARD_INTERVAL = Duration.ofSeconds(2);
+
+    private record Outgoing(Supplier<SseEmitter.SseEventBuilder> event, boolean leaderboard) {
+    }
 
     /** Verbindung mit dem Konto, das sie geöffnet hat – für Ereignisse, die nicht alle sehen dürfen. */
-    private record Client(SseEmitter emitter, String username, boolean teacher) {
+    private final class Client {
+        final SseEmitter emitter;
+        final String username;
+        final boolean teacher;
+        final Queue<Outgoing> queue = new ConcurrentLinkedQueue<>();
+        final AtomicInteger queued = new AtomicInteger();
+        final AtomicBoolean draining = new AtomicBoolean();
+        final AtomicBoolean leaderboardQueued = new AtomicBoolean();
+        volatile boolean closed;
+
+        Client(SseEmitter emitter, String username, boolean teacher) {
+            this.emitter = emitter;
+            this.username = username;
+            this.teacher = teacher;
+        }
+
+        void offer(Outgoing outgoing) {
+            if (closed) return;
+            // Steht schon ein Ranglisten-Update für diese Verbindung an, deckt es dieses mit ab
+            if (outgoing.leaderboard() && !leaderboardQueued.compareAndSet(false, true)) return;
+            if (queued.incrementAndGet() > MAILBOX_CAPACITY) {
+                log.debug("Live-Verbindung von {} hängt – wird geschlossen", username);
+                close(true);
+                return;
+            }
+            queue.add(outgoing);
+            startDrain();
+        }
+
+        private void startDrain() {
+            if (!draining.compareAndSet(false, true)) return;
+            try {
+                senders.execute(this::drain);
+            } catch (RejectedExecutionException e) {
+                draining.set(false);
+                log.debug("Live-Update nach dem Herunterfahren verworfen");
+            }
+        }
+
+        private void drain() {
+            while (true) {
+                Outgoing next;
+                while (!closed && (next = queue.poll()) != null) {
+                    queued.decrementAndGet();
+                    if (next.leaderboard()) leaderboardQueued.set(false);
+                    if (!trySend(this, next.event())) return;
+                }
+                draining.set(false);
+                // Ist während des Abschaltens noch etwas hinzugekommen, weiterarbeiten
+                if (closed || queue.isEmpty() || !draining.compareAndSet(false, true)) return;
+            }
+        }
+
+        boolean idle() {
+            return closed || (queue.isEmpty() && !draining.get());
+        }
+
+        void close(boolean completeEmitter) {
+            closed = true;
+            clients.remove(this);
+            queue.clear();
+            if (completeEmitter) {
+                try {
+                    emitter.complete();
+                } catch (RuntimeException ignored) {
+                    // Verbindung ist ohnehin weg
+                }
+            }
+        }
     }
 
     private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<>();
-    private final AtomicBoolean leaderboardPending = new AtomicBoolean();
-    private final ExecutorService sender = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(QUEUE_CAPACITY),
-            runnable -> {
-                Thread thread = new Thread(runnable, "codepath-live-updates");
-                thread.setDaemon(true);
-                return thread;
-            },
-            (task, executor) -> log.warn("Live-Update verworfen: Warteschlange voll"));
+    private final ExecutorService senders = Executors.newThreadPerTaskExecutor(
+            Thread.ofVirtual().name("codepath-live-updates-", 0).factory());
+    private final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "codepath-live-updates-timer");
+        thread.setDaemon(true);
+        return thread;
+    });
+
+    private final ObjectProvider<LeaderboardAudience> audience;
+    private final long leaderboardIntervalNanos;
+    private final AtomicBoolean leaderboardForAll = new AtomicBoolean();
+    private final Set<Long> leaderboardCourses = ConcurrentHashMap.newKeySet();
+    private final AtomicBoolean leaderboardScheduled = new AtomicBoolean();
+    private volatile long lastLeaderboardNanos = System.nanoTime() - Duration.ofHours(1).toNanos();
+
+    @Autowired
+    public RealtimeUpdateService(ObjectProvider<LeaderboardAudience> audience,
+                                 @Value("${codepath.live.leaderboard-interval:2s}") Duration leaderboardInterval) {
+        this.audience = audience;
+        this.leaderboardIntervalNanos = Math.max(0, leaderboardInterval.toNanos());
+    }
+
+    /** Für Tests: ohne Kurs-Auflösung (Ranglisten-Updates gehen an alle). */
+    RealtimeUpdateService() {
+        this((LeaderboardAudience) null, DEFAULT_LEADERBOARD_INTERVAL);
+    }
+
+    RealtimeUpdateService(LeaderboardAudience audience, Duration leaderboardInterval) {
+        this(new StaticProvider(audience), leaderboardInterval);
+    }
 
     /**
      * @param username angemeldetes Konto (für Ereignisse an einzelne Personen)
@@ -74,12 +178,18 @@ public class RealtimeUpdateService {
 
     SseEmitter register(SseEmitter emitter, String username, boolean teacher) {
         Client client = new Client(emitter, username, teacher);
-        clients.add(client);
-        emitter.onCompletion(() -> clients.remove(client));
-        emitter.onTimeout(() -> clients.remove(client));
-        emitter.onError(e -> clients.remove(client));
+        emitter.onCompletion(() -> client.close(false));
+        emitter.onTimeout(() -> client.close(false));
+        emitter.onError(e -> client.close(false));
         // Die Begrüßung geht nur an den neuen Client und darf direkt gesendet werden
-        send(emitter, "connected", Map.of("timestamp", System.currentTimeMillis()));
+        // Gestreute Wartezeit für das automatische Neuverbinden des Browsers: Nach einem Neustart des
+        // Servers kommen so nicht alle Klassen im selben Augenblick zurück
+        long retryMillis = 2000 + ThreadLocalRandom.current().nextLong(4000);
+        Supplier<SseEmitter.SseEventBuilder> hello = () -> SseEmitter.event().name("connected").reconnectTime(retryMillis)
+                .data(Map.of("timestamp", System.currentTimeMillis()), MediaType.APPLICATION_JSON);
+        if (trySend(client, hello)) {
+            clients.add(client);
+        }
         return emitter;
     }
 
@@ -92,44 +202,52 @@ public class RealtimeUpdateService {
                 "content", content,
                 "displayMode", displayMode,
                 "updatedAt", LocalDateTime.now().toString());
-        afterCommit(() -> enqueue(() -> broadcast(ANNOUNCEMENT, payload)));
+        afterCommit(() -> fanOut(c -> true, ANNOUNCEMENT, payload));
     }
 
+    /** Rangliste aller Kurse hat sich geändert. */
     public void publishLeaderboardUpdate() {
+        publishLeaderboardUpdate(null);
+    }
+
+    /**
+     * Rangliste eines Kurses hat sich geändert: Das Update geht nur an dessen Mitglieder und an Lehrkräfte.
+     *
+     * @param courseId Kurs oder null für alle
+     */
+    public void publishLeaderboardUpdate(Long courseId) {
         afterCommit(() -> {
-            // Steht schon ein Ranglisten-Update in der Warteschlange, deckt es dieses mit ab
-            if (!leaderboardPending.compareAndSet(false, true)) return;
-            enqueue(() -> {
-                leaderboardPending.set(false);
-                broadcast(LEADERBOARD, Map.of("timestamp", System.currentTimeMillis()));
-            });
+            if (courseId == null) leaderboardForAll.set(true);
+            else leaderboardCourses.add(courseId);
+            scheduleLeaderboard();
         });
     }
 
+    /** Hinweis zum CodePath an eine Person (und die Lehrkräfte); die Rangliste kann sich dadurch ändern. */
     public void publishCodePathUpdate(String username, String message) {
         Map<String, Object> payload = Map.of(
                 "username", username == null ? "" : username,
                 "message", message == null ? "" : message,
                 "timestamp", System.currentTimeMillis());
-        afterCommit(() -> enqueue(() -> broadcast(CODEPATH, payload)));
+        afterCommit(() -> fanOut(c -> c.teacher || (username != null && username.equals(c.username)), CODEPATH, payload));
         publishLeaderboardUpdate();
     }
 
     /** An alle Verbindungen (nichts Vertrauliches im Inhalt!). */
     public void publishToAll(String event, Map<String, Object> payload) {
-        afterCommit(() -> enqueue(() -> broadcast(event, payload)));
+        afterCommit(() -> fanOut(c -> true, event, payload));
     }
 
     /** Nur an Verbindungen von Lehrkräften, nie an Schüler (z. B. Hilfe-Rufe). */
     public void publishToTeachers(String event, Map<String, Object> payload) {
-        afterCommit(() -> enqueue(() -> sendWhere(Client::teacher, event, payload)));
+        afterCommit(() -> fanOut(c -> c.teacher, event, payload));
     }
 
     /** Nur an die Verbindungen dieser Konten. */
     public void publishToUsers(Collection<String> usernames, String event, Map<String, Object> payload) {
         if (usernames.isEmpty()) return;
         Set<String> recipients = Set.copyOf(usernames);
-        afterCommit(() -> enqueue(() -> sendWhere(c -> c.username() != null && recipients.contains(c.username()), event, payload)));
+        afterCommit(() -> fanOut(c -> c.username != null && recipients.contains(c.username), event, payload));
     }
 
     /**
@@ -149,66 +267,117 @@ public class RealtimeUpdateService {
         }
     }
 
-    private void enqueue(Runnable task) {
+    private void scheduleLeaderboard() {
+        if (!leaderboardScheduled.compareAndSet(false, true)) return;
+        long delay = Math.max(0, lastLeaderboardNanos + leaderboardIntervalNanos - System.nanoTime());
         try {
-            sender.execute(task);
+            timer.schedule(this::flushLeaderboard, delay, TimeUnit.NANOSECONDS);
         } catch (RejectedExecutionException e) {
-            log.debug("Live-Update nach dem Herunterfahren verworfen");
+            leaderboardScheduled.set(false);
+            log.debug("Ranglisten-Update nach dem Herunterfahren verworfen");
         }
     }
 
-    // Hält Verbindungen über Proxys hinweg offen und entdeckt abgebrochene Clients
+    private void flushLeaderboard() {
+        lastLeaderboardNanos = System.nanoTime();
+        leaderboardScheduled.set(false);
+        boolean all = leaderboardForAll.getAndSet(false);
+        Set<Long> courses = new HashSet<>();
+        for (Iterator<Long> it = leaderboardCourses.iterator(); it.hasNext(); ) {
+            courses.add(it.next());
+            it.remove();
+        }
+        if (!all && courses.isEmpty()) return;
+        Predicate<Client> recipients = c -> true;
+        if (!all) {
+            Set<String> members = members(courses);
+            if (members != null) recipients = c -> c.teacher || c.username == null || members.contains(c.username);
+        }
+        Map<String, Object> payload = Map.of("timestamp", System.currentTimeMillis());
+        fanOut(recipients, LEADERBOARD, payload, true);
+    }
+
+    /** null = nicht auflösbar, dann an alle */
+    private Set<String> members(Set<Long> courses) {
+        LeaderboardAudience resolver = audience == null ? null : audience.getIfAvailable();
+        if (resolver == null) return null;
+        try {
+            return resolver.members(courses);
+        } catch (RuntimeException e) {
+            log.debug("Kursmitglieder für Ranglisten-Update nicht ermittelbar: {}", e.toString());
+            return null;
+        }
+    }
+
+    // Hält Verbindungen über Proxys hinweg offen und entdeckt abgebrochene oder hängende Clients
     @Scheduled(fixedRate = 25_000)
     void heartbeat() {
-        enqueue(() -> {
-            for (Client client : clients) {
-                trySend(client, () -> SseEmitter.event().comment("ping"));
-            }
-        });
+        Outgoing ping = new Outgoing(() -> SseEmitter.event().comment("ping"), false);
+        fanOut(c -> true, ping);
     }
 
-    private void broadcast(String event, Object payload) {
-        sendWhere(c -> true, event, payload);
+    private void fanOut(Predicate<Client> recipients, String event, Object payload) {
+        fanOut(recipients, event, payload, false);
     }
 
-    private void sendWhere(java.util.function.Predicate<Client> recipients, String event, Object payload) {
-        log.debug("Sende Live-Update '{}' an {} Clients", event, clients.size());
+    private void fanOut(Predicate<Client> recipients, String event, Object payload, boolean leaderboard) {
+        log.debug("Sende Live-Update '{}'", event);
+        fanOut(recipients, new Outgoing(event(event, payload), leaderboard));
+    }
+
+    // Synchronisiert, damit alle Verbindungen die Ereignisse in derselben Reihenfolge bekommen
+    private synchronized void fanOut(Predicate<Client> recipients, Outgoing outgoing) {
         for (Client client : clients) {
-            if (recipients.test(client)) send(client, event, payload);
+            if (recipients.test(client)) client.offer(outgoing);
         }
     }
 
-    private void send(SseEmitter emitter, String event, Object payload) {
-        trySend(new Client(emitter, null, false), () -> SseEmitter.event().name(event).data(payload, MediaType.APPLICATION_JSON));
+    private static Supplier<SseEmitter.SseEventBuilder> event(String event, Object payload) {
+        return () -> SseEmitter.event().name(event).data(payload, MediaType.APPLICATION_JSON);
     }
 
-    private void send(Client client, String event, Object payload) {
-        trySend(client, () -> SseEmitter.event().name(event).data(payload, MediaType.APPLICATION_JSON));
-    }
-
-    private void trySend(Client client, Supplier<SseEmitter.SseEventBuilder> event) {
+    /** @return false, wenn die Verbindung weg ist (sie wird dann entfernt) */
+    private boolean trySend(Client client, Supplier<SseEmitter.SseEventBuilder> event) {
         try {
-            client.emitter().send(event.get());
+            client.emitter.send(event.get());
+            return true;
         } catch (IOException | IllegalStateException e) {
-            remove(client.emitter());
+            client.close(false);
         } catch (RuntimeException e) {
-            // Ein einzelner kaputter Client darf den Sende-Thread nicht beenden
-            remove(client.emitter());
+            // Ein einzelner kaputter Client darf das Senden an andere nicht stören
+            client.close(false);
             log.debug("Live-Update an einen Client fehlgeschlagen: {}", e.toString());
         }
+        return false;
     }
 
-    private void remove(SseEmitter emitter) {
-        clients.removeIf(c -> c.emitter() == emitter);
-    }
-
-    /** Für Tests: wartet, bis alles bisher Eingereihte gesendet ist. */
+    /** Für Tests: wartet, bis alles bisher Eingereihte (auch gedrosselte Ranglisten-Updates) gesendet ist. */
     void awaitIdle(Duration timeout) throws Exception {
-        sender.submit(() -> { }).get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        long deadline = System.nanoTime() + timeout.toNanos();
+        while (System.nanoTime() < deadline) {
+            boolean pending = leaderboardScheduled.get() || leaderboardForAll.get() || !leaderboardCourses.isEmpty();
+            if (!pending && clients.stream().allMatch(Client::idle)) return;
+            Thread.sleep(10);
+        }
+        throw new TimeoutException("Live-Updates nach " + timeout + " noch nicht versandt");
     }
 
     @PreDestroy
     void shutdown() {
-        sender.shutdownNow();
+        timer.shutdownNow();
+        senders.shutdownNow();
+    }
+
+    /** Minimaler ObjectProvider für die Test-Konstruktoren. */
+    private record StaticProvider(LeaderboardAudience value) implements ObjectProvider<LeaderboardAudience> {
+        @Override
+        public LeaderboardAudience getObject() {
+            return value;
+        }
+
+        @Override
+        public LeaderboardAudience getIfAvailable() {
+            return value;
+        }
     }
 }

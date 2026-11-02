@@ -18,6 +18,7 @@ import java.util.Map;
  * Version, damit spätere Korrekturen keine Ergebnisse verfälschen. Ohne publishedAt ist sie ein Entwurf.
  */
 @Entity
+@EntityListeners(ContentChanges.class)
 @Table(name = "task_versions")
 @Getter @Setter @NoArgsConstructor
 public class TaskVersion {

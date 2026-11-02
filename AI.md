@@ -82,7 +82,14 @@ Jedes Fachpaket stellt `TransferSection`-Beans bereit (`settings`, `modules`, `h
 
 ## Live-Updates
 
-Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, `codepath`, `help`, `quiz` (Phase an alle, Antwortzahl nur an Lehrkräfte), gesendet erst nach dem Commit. Jede Verbindung kennt ihr Konto und ob es eine Lehrkraft ist: `help` geht nur an Lehrkräfte (`publishToTeachers`) und betroffene Schüler (`publishToUsers`), nie an alle. Die Beamer-Ansicht `/projector` nutzt dasselbe. Gesendet wird auf einem eigenen Thread (`codepath-live-updates`), damit ein langsamer Client keine Abgabe aufhält; Ranglisten-Updates, die sich in der Warteschlange stauen, werden zu einem zusammengefasst.
+Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, `codepath`, `help`, `quiz` (Phase an alle, Antwortzahl nur an Lehrkräfte), gesendet erst nach dem Commit. Jede Verbindung kennt ihr Konto und ob es eine Lehrkraft ist: `help` geht nur an Lehrkräfte (`publishToTeachers`) und betroffene Schüler (`publishToUsers`), nie an alle. Die Beamer-Ansicht `/projector` nutzt dasselbe. Jede Verbindung hat eine eigene Warteschlange (höchstens 64 Ereignisse, sonst wird sie geschlossen), abgearbeitet von einem virtuellen Thread, damit ein langsamer Client weder eine Abgabe noch andere Clients aufhält. Ranglisten-Updates: kursbezogen (`publishLeaderboardUpdate(courseId)`, Empfänger über `LeaderboardAudience` aus identity, Lehrkräfte immer), gedrosselt (`codepath.live.leaderboard-interval`, Standard 2 s, das erste sofort) und je Verbindung zusammengefasst; das Frontend lädt danach mit zufälliger Verzögerung bis 1,5 s. `codepath`-Hinweise gehen nur an die Person und Lehrkräfte.
+
+## Last und Caches
+
+- `ContentService` hält Module und veröffentlichte Aufgaben als Schnappschuss im Speicher (eigene Lese-Transaktion, losgelöste Entitäten, nur lesen!). `ContentChanges` ist JPA-Listener an `Module`, `Task`, `TaskVersion` und macht ihn bei jeder Änderung ungültig; Änderungen per SQL an JPA vorbei müssen `ContentChanges.changed()` aufrufen. Eine Transaktion, die selbst Inhalte geändert hat, liest am Cache vorbei.
+- `LeaderboardService` speichert die Rangfolge je Kurs bis zur nächsten Punktebuchung (`PointsService.generation()`), höchstens 5 s.
+- `SubmissionService.submit`: kurze Transaktion für Zugriff und Vorprüfung, Bewertung ohne Transaktion, dann Buchung unter Sperre mit erneuter Prüfung.
+- Konfiguration: virtuelle Threads, Hikari `DB_POOL_SIZE` (20), Kompression, `server.shutdown=graceful`, Hibernate-Batching (`application.properties`).
 
 ## Betrieb
 

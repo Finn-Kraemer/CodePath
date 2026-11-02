@@ -143,4 +143,67 @@ class RealtimeUpdateServiceTest {
         service.awaitIdle(Duration.ofSeconds(10));
         assertEquals(1, client.count("leaderboard"));
     }
+
+    @Test
+    void leaderboardUpdatesOfACourseReachOnlyItsMembersAndTeachers() throws Exception {
+        RealtimeUpdateService scoped = new RealtimeUpdateService((LeaderboardAudience) courses -> courses.contains(7L) ? java.util.Set.of("lena") : java.util.Set.of(), Duration.ZERO);
+        try {
+            Client teacher = new Client();
+            Client lena = new Client();
+            Client tom = new Client();
+            scoped.register(teacher, "admin", true);
+            scoped.register(lena, "lena", false);
+            scoped.register(tom, "tom", false);
+
+            scoped.publishLeaderboardUpdate(7L);
+            scoped.awaitIdle(Duration.ofSeconds(10));
+            assertEquals(1, teacher.count("leaderboard"));
+            assertEquals(1, lena.count("leaderboard"));
+            assertEquals(0, tom.count("leaderboard"), "Andere Kurse laden nicht neu");
+
+            scoped.publishLeaderboardUpdate();
+            scoped.awaitIdle(Duration.ofSeconds(10));
+            assertEquals(1, tom.count("leaderboard"), "Ohne Kurs geht das Update an alle");
+        } finally {
+            scoped.shutdown();
+        }
+    }
+
+    @Test
+    void leaderboardUpdatesAreThrottled() throws Exception {
+        RealtimeUpdateService throttled = new RealtimeUpdateService((LeaderboardAudience) null, Duration.ofMillis(400));
+        try {
+            Client client = new Client();
+            throttled.register(client);
+
+            long start = System.nanoTime();
+            throttled.publishLeaderboardUpdate();
+            throttled.awaitIdle(Duration.ofSeconds(10));
+            assertEquals(1, client.count("leaderboard"), "Das erste Update geht sofort raus");
+
+            for (int i = 0; i < 20; i++) throttled.publishLeaderboardUpdate();
+            throttled.awaitIdle(Duration.ofSeconds(10));
+            long millis = Duration.ofNanos(System.nanoTime() - start).toMillis();
+            assertEquals(2, client.count("leaderboard"), "20 Abgaben kurz hintereinander, ein weiteres Neuladen");
+            assertTrue(millis >= 350, "Zweites Update erst nach der Pause, kam nach " + millis + " ms");
+        } finally {
+            throttled.shutdown();
+        }
+    }
+
+    @Test
+    void stuckClientIsDisconnectedOthersStillReceive() throws Exception {
+        Client stuck = new Client();
+        stuck.gate = new CountDownLatch(1);
+        Client healthy = new Client();
+        service.register(stuck);
+        service.register(healthy);
+
+        for (int i = 0; i <= RealtimeUpdateService.MAILBOX_CAPACITY + 1; i++) service.publishAnnouncement("Nr. " + i, "BANNER");
+        stuck.gate.countDown();
+        service.awaitIdle(Duration.ofSeconds(10));
+
+        assertEquals(1, service.connectionCount(), "Die hängende Verbindung wurde geschlossen");
+        assertEquals(RealtimeUpdateService.MAILBOX_CAPACITY + 2, healthy.count("announcement"));
+    }
 }

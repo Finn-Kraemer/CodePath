@@ -28,4 +28,6 @@ USER codepath
 EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=5s --start-period=60s --retries=5 \
     CMD curl -fs http://localhost:8080/actuator/health/readiness || exit 1
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
+# Kompakte Objekt-Header (Java 25) sparen spürbar Speicher; bei OutOfMemory beenden statt halb kaputt
+# weiterzulaufen – Docker startet den Container dann neu (restart: unless-stopped)
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-XX:+UseCompactObjectHeaders", "-XX:+ExitOnOutOfMemoryError", "-jar", "app.jar"]

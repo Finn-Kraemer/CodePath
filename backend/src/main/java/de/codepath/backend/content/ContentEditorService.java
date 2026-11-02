@@ -315,6 +315,7 @@ public class ContentEditorService {
         jdbc.update("insert into deleted_tasks (module_slug, task_slug, deleted_by) values (?, ?, ?) on conflict do nothing",
                 moduleSlug, task.getSlug(), actorId);
         jdbc.update("delete from tasks where id = ?", taskId);
+        ContentChanges.changed();
         auditService.log("TASK_DELETED", moduleSlug + "/" + task.getSlug(), Map.of("attempts", impact.attempts(),
                 "students", impact.students(), "points", impact.points()));
         if (impact.points() > 0) realtime.publishLeaderboardUpdate();

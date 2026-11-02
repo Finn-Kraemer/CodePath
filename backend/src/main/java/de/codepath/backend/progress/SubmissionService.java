@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,41 +41,67 @@ public class SubmissionService {
     private final UserService userService;
     private final AuditService auditService;
     private final ApplicationEventPublisher events;
+    private final TransactionTemplate transactions;
 
-    @Transactional
+    /**
+     * Die Bewertung läuft vor der Transaktion: Code-Runner (bis 5 s) und SQL-Sandbox (bis 2 s) halten so
+     * weder eine Datenbankverbindung noch die Sperre auf das Konto. Danach wird in einer kurzen Transaktion
+     * unter Sperre noch einmal geprüft (parallele Abgaben, Versuche) und gebucht.
+     */
     public SubmitResult submit(User user, String moduleSlug, String taskSlug, Map<String, Object> answer) {
         PublishedTask task = contentService.publishedTask(moduleSlug, taskSlug);
-        accessPolicy.requireTaskOpen(user, task);
-        if (answer == null) throw ApiException.badRequest("Keine Antwort übermittelt.");
-        if (answer.toString().length() > MAX_ANSWER_CHARS) throw ApiException.badRequest("Die Antwort ist zu groß.");
-
-        // Serialisiert gleichzeitige Abgaben derselben Person (Doppelklick, zwei Tabs)
-        userService.lockForUpdate(user.getId());
-        Progress progress = progressFor(user.getId(), task.taskId());
         AttemptRules rules = task.rules();
+        // Kurze erste Transaktion: Zugriff prüfen (CodePath-Auswertung kann Ergebnisse speichern) und
+        // ohne Sperre vorprüfen, damit Abgaben, die ohnehin abgelehnt würden, gar nicht erst bewertet werden
+        Progress before = transactions.execute(status -> {
+            accessPolicy.requireTaskOpen(user, task);
+            if (answer == null) throw ApiException.badRequest("Keine Antwort übermittelt.");
+            if (answer.toString().length() > MAX_ANSWER_CHARS) throw ApiException.badRequest("Die Antwort ist zu groß.");
+            Progress current = progressRepository.findById(new Progress.Key(user.getId(), task.taskId())).orElse(null);
+            if (current != null) requireSubmittable(current, rules);
+            return current;
+        });
 
+        TaskHandler handler = registry.get(task.type());
+        Evaluation evaluation = handler.evaluate(task.spec(), answer, TaskContext.of(user.getId(), task.taskId()));
+
+        // Nochmal prüfen ist erlaubt, bringt aber keine Punkte; ungültige Abgaben zählen nicht – beides ändert nichts
+        if (before != null && (before.getStatus() == ProgressStatus.SOLVED || evaluation.outcome() == Evaluation.Outcome.INVALID)) {
+            return unchanged(evaluation, before, rules);
+        }
+        return transactions.execute(status -> record(user, task, rules, answer, evaluation));
+    }
+
+    private static void requireSubmittable(Progress progress, AttemptRules rules) {
         if (progress.isLocked()) throw ApiException.conflict("Diese Aufgabe wurde von der Lehrkraft gesperrt.");
         if (progress.getStatus() == ProgressStatus.PENDING_REVIEW) {
             throw ApiException.conflict("Deine Abgabe wird gerade von der Lehrkraft geprüft.");
         }
-
-        TaskHandler handler = registry.get(task.type());
-        TaskSpec spec = task.spec();
-        TaskContext context = TaskContext.of(user.getId(), task.taskId());
-
-        if (progress.getStatus() == ProgressStatus.SOLVED) {
-            // Nochmal prüfen ist erlaubt, bringt aber keine Punkte
-            Evaluation again = handler.evaluate(spec, answer, context);
-            return result(again, 0, progress, rules, again.isCorrect() ? "Richtig – diese Aufgabe hast du bereits gelöst." : again.feedback());
-        }
+        if (progress.getStatus() == ProgressStatus.SOLVED) return;
         if (progress.getStatus() == ProgressStatus.FAILED || attemptsExhausted(progress, rules)) {
             throw ApiException.conflict("Für diese Aufgabe sind keine Versuche mehr übrig.");
         }
+    }
 
-        Evaluation evaluation = handler.evaluate(spec, answer, context);
-        if (evaluation.outcome() == Evaluation.Outcome.INVALID) {
-            return result(evaluation, 0, progress, rules, evaluation.feedback());
+    private static SubmitResult unchanged(Evaluation evaluation, Progress progress, AttemptRules rules) {
+        if (progress.getStatus() == ProgressStatus.SOLVED) {
+            return result(evaluation, 0, progress, rules,
+                    evaluation.isCorrect() ? "Richtig – diese Aufgabe hast du bereits gelöst." : evaluation.feedback());
         }
+        return result(evaluation, 0, progress, rules, evaluation.feedback());
+    }
+
+    /** Bucht eine bewertete Abgabe: Versuch, Fortschritt und Punkte genau einmal. */
+    private SubmitResult record(User user, PublishedTask task, AttemptRules rules, Map<String, Object> answer, Evaluation evaluation) {
+        // Serialisiert gleichzeitige Abgaben derselben Person (Doppelklick, zwei Tabs)
+        userService.lockForUpdate(user.getId());
+        Progress progress = progressFor(user.getId(), task.taskId());
+        // Stand unter Sperre neu prüfen: Eine parallele Abgabe kann ihn inzwischen geändert haben
+        requireSubmittable(progress, rules);
+        if (progress.getStatus() == ProgressStatus.SOLVED || evaluation.outcome() == Evaluation.Outcome.INVALID) {
+            return unchanged(evaluation, progress, rules);
+        }
+        TaskSpec spec = task.spec();
 
         Attempt attempt = new Attempt();
         attempt.setUserId(user.getId());

@@ -71,6 +71,10 @@ Alle Einstellungen stehen in `.env` neben der `docker-compose.yml`.
 | `COMPOSE_PROFILES` | – | `runner` schaltet den Code-Runner ein; mehrere Profile mit Komma |
 | `CODEPATH_RUNNER_URL` | mit Runner | `http://runner:8000` |
 | `RUNNER_TOKEN` | mit Runner | gemeinsames Geheimnis von App und Runner, mindestens 16 Zeichen: `openssl rand -hex 32` |
+| `DB_POOL_SIZE` | – | Datenbankverbindungen der App, Standard `20` (siehe [Last und Skalierung](#-mehrere-schulen-und-skalierung)) |
+| `POSTGRES_SHARED_BUFFERS` | – | Cache von PostgreSQL, Standard `256MB`; auf Rechnern mit wenig Speicher z. B. `128MB` |
+| `POSTGRES_MAX_CONNECTIONS` | – | höchstens so viele Verbindungen nimmt PostgreSQL an, Standard `100`; muss über `DB_POOL_SIZE` liegen |
+| `CODEPATH_LEADERBOARD_INTERVAL` | – | höchstens so oft laden die Browser eines Kurses Rangliste und Übersicht neu, Standard `2s` |
 
 Nach einer Änderung: `docker compose up -d`.
 
@@ -184,5 +188,19 @@ docker compose exec -T postgres psql -U codepath codepath \
 ```
 
 ## ◼ Mehrere Schulen und Skalierung
+
+### Last: mehrere Klassen gleichzeitig
+
+Eine Instanz trägt mehrere Klassen gleichzeitig. Was dafür sorgt:
+
+- **Abgaben halten keine Datenbankverbindung, während sie bewertet werden.** Code-Runner (bis 5 s je Testlauf) und SQL-Sandbox laufen vor der Transaktion; gebucht wird danach in wenigen Millisekunden. Eine Klasse, die gleichzeitig Python abgibt, blockiert damit nicht die übrigen.
+- **Inhalte liegen im Speicher.** Module und veröffentlichte Aufgaben ändern sich nur im Editor und werden nicht mehr bei jeder Anfrage aus der Datenbank geladen. Jede Änderung im Editor oder per Import macht den Cache sofort ungültig.
+- **Live-Updates sind gebündelt und auf den Kurs beschränkt.** Punkte in Kurs A laden nicht die Seiten von Kurs B neu; Ranglisten-Updates gehen höchstens alle `CODEPATH_LEADERBOARD_INTERVAL` raus, und jeder Browser wartet zufällig bis zu 1,5 s, bevor er neu lädt. Die Rangliste selbst wird je Kurs nur einmal berechnet und mit jeder Punktebuchung erneuert.
+- **Ein hängendes Tablet stört niemanden.** Jede Live-Verbindung hat ihre eigene Warteschlange; läuft sie über, wird nur diese Verbindung geschlossen, der Browser verbindet sich neu – nach einem Neustart gestreut über einige Sekunden, damit nicht alle Klassen im selben Moment zurückkommen.
+- **Virtuelle Threads, Kompression, sanftes Herunterfahren.** Viele gleichzeitige Anfragen brauchen keinen großen Thread-Pool; JSON, Frontend, Monaco und Pyodide gehen komprimiert über das Schul-WLAN; bei Update oder Neustart werden laufende Abgaben noch fertig bearbeitet (bis 20 s). Läuft der Speicher voll, beendet sich die App und Docker startet sie neu.
+
+**Stellschrauben:** Bei sehr vielen Klassen auf einem kräftigen Server `DB_POOL_SIZE` (z. B. `40`) und den Speicher des Containers erhöhen; die App nutzt 75 % des ihr zugeteilten Speichers. Für viele gleichzeitige Code-Abgaben den Runner mit `RUNNER_PARALLEL` (Standard `4`) und mehr CPUs (`cpus` in `docker-compose.yml`) ausstatten – Abgaben darüber hinaus warten im Runner bis zu 10 s auf einen freien Platz.
+
+### Mehrere Schulen
 
 Eine Instanz ist für eine Schule gedacht: Es gibt eine Lehrkräfte-Rolle, und sie sieht alle Kurse. Für mehrere Schulen empfiehlt sich je Schule eine eigene Instanz mit eigener Datenbank. Mehrere Anwendungs-Container hinter einem Load Balancer werden derzeit **nicht** unterstützt: Live-Updates, Login-Bremse und Start-Import gehen von einer Instanz aus.

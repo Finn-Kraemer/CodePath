@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +51,15 @@ public class UserService {
 
     public Optional<Course> courseOf(Long userId) {
         return membershipRepository.findById(userId).map(Membership::getCourse);
+    }
+
+    /** Kurs der Person ohne den Kurs selbst zu laden (null = in keinem Kurs). */
+    public Long courseIdOf(Long userId) {
+        return userId == null ? null : membershipRepository.findCourseIdByUserId(userId).orElse(null);
+    }
+
+    public List<User> byIds(Collection<Long> ids) {
+        return ids.isEmpty() ? List.of() : userRepository.findAllById(ids);
     }
 
     public List<Long> memberIds(Long courseId) {

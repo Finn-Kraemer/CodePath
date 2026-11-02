@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
+@EntityListeners(ContentChanges.class)
 @Table(name = "modules")
 @Getter @Setter @NoArgsConstructor
 public class Module {

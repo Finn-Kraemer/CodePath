@@ -2582,8 +2582,10 @@ public class CodePathService implements PathGate {
             this.user = user;
             this.releases = releases;
             this.allowBonusAward = allowBonusAward;
-            this.status = progressService.statusByTask(user.getId());
+            // Eine Abfrage für beides: der Stand je Aufgabe steckt im detaillierten Fortschritt
             this.taskProgress = progressService.taskProgressByTask(user.getId());
+            this.status = new HashMap<>();
+            taskProgress.forEach((taskId, p) -> status.put(taskId, p.status()));
             this.points = user.getId() != null ? pointsService.byTask(user.getId()) : Map.of();
             contentService.modules().forEach(m -> modules.put(m.getSlug(), m));
             repository.findAllByOrderByPositionAscIdAsc().forEach(p -> pathsBySlug.put(p.getSlug(), p));

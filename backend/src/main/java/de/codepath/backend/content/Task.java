@@ -11,6 +11,7 @@ import lombok.Setter;
  * Schüler sehen immer die aktuelle veröffentlichte Version.
  */
 @Entity
+@EntityListeners(ContentChanges.class)
 @Table(name = "tasks")
 @Getter @Setter @NoArgsConstructor
 public class Task {
