@@ -10,7 +10,7 @@
 
 	let modules = $state<Module[]>([]);
 	let paths = $state<PathSummary[]>([]);
-	/** Lernpfade, die für den gewählten Kurs gelten – sie schreiben ihre Auswahl hierher */
+	/** CodePaths, die für den gewählten Kurs gelten – sie schreiben ihre Auswahl hierher */
 	const coursePaths = $derived(paths.filter((p) => p.courseId === courseSelection.selectedId));
 	let loading = $state(true);
 	let processingIds = new SvelteSet<number>();
@@ -105,7 +105,7 @@
 		<div class="mt-6"><CourseSelect onchange={fetchModules} /></div>
 		{#each coursePaths as path (path.id)}
 			<p class="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-				Für diesen Kurs gilt der Lernpfad
+				Für diesen Kurs gilt der CodePath
 				<a href="/admin/learning-paths/{path.id}" class="font-bold underline">{path.title}</a
 				>{path.published ? '' : ' (Entwurf)'}. Beim Speichern übernimmt er seine Module und Aufgaben
 				hierher; Änderungen hier bleiben bis dahin bestehen.

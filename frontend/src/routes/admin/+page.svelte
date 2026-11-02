@@ -412,7 +412,7 @@
 			</div>
 			<span
 				class="font-sans text-[11px] font-black tracking-[3px] text-institutional-navy uppercase"
-				>Lernpfade</span
+				>CodePaths</span
 			>
 		</a>
 

@@ -75,7 +75,7 @@ class TransferTest extends IntegrationTestBase {
             assertTrue(manifest.at("/sections").has(section), section);
         }
 
-        // Seite und Lernpfad weg, Artikel geändert → angelegt, überarbeitet, Rest unverändert
+        // Seite und CodePath weg, Artikel geändert → angelegt, überarbeitet, Rest unverändert
         mvc.perform(delete("/api/admin/pages/" + page).with(teacher()).with(csrf())).andExpect(status().isNoContent());
         jdbc.update("delete from learning_paths");
         putAs(teacher(), "/api/admin/knowledge/" + article, Map.of("body", "geändert")).andExpect(status().isOk());
@@ -83,7 +83,7 @@ class TransferTest extends IntegrationTestBase {
         JsonNode report = importFile("export.zip", zip, 200);
         assertEquals("CodePath-Export (ZIP)", report.get("detected").asString());
         assertEquals(List.of("anfahrt:CREATED"), actions(report, "Seiten"));
-        assertEquals(List.of("standard:CREATED"), actions(report, "Lernpfade"));
+        assertEquals(List.of("standard:CREATED"), actions(report, "CodePaths"));
         assertTrue(actions(report, "Wissensdatenbank").contains("transfer-test:UPDATED"));
         assertTrue(actions(report, "Module").stream().allMatch(a -> a.endsWith(":UNCHANGED")));
         assertTrue(actions(report, "Aufgaben").stream().allMatch(a -> a.endsWith(":UNCHANGED")));

@@ -232,7 +232,7 @@ public class LearningPathService {
     public PathView view(User user, String slug) {
         LearningPath path = repository.findBySlug(slug)
                 .filter(p -> user.isTeacher() || publishedFor(user).stream().anyMatch(q -> q.getId().equals(p.getId())))
-                .orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+                .orElseThrow(() -> ApiException.notFound("CodePath nicht gefunden."));
         return evaluate(path, new Situation(user));
     }
 
@@ -281,8 +281,8 @@ public class LearningPathService {
             recommendedId = node.id();
             PublishedTask task = station.next();
             String reason = node.kind() == PathGraph.NodeKind.TASK
-                    ? "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“."
-                    : "Nächste Station auf dem Lernpfad „" + path.getTitle() + "“: Modul „" + task.module().getTitle() + "“.";
+                    ? "Nächste Station auf dem CodePath „" + path.getTitle() + "“."
+                    : "Nächste Station auf dem CodePath „" + path.getTitle() + "“: Modul „" + task.module().getTitle() + "“.";
             recommendation = recommendation(task, reason, path);
             break;
         }
@@ -421,7 +421,7 @@ public class LearningPathService {
     // ---------------------------------------------------------------- Hilfen
 
     LearningPath find(Long id) {
-        return repository.findById(id).orElseThrow(() -> ApiException.notFound("Lernpfad nicht gefunden."));
+        return repository.findById(id).orElseThrow(() -> ApiException.notFound("CodePath nicht gefunden."));
     }
 
     PathGraph.Graph read(String json) {

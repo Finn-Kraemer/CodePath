@@ -53,20 +53,20 @@ Code-Aufgaben laufen im Browser mit; das Browser-Labor braucht die **Entwicklerw
 
 Jede Aufgabe hat eine kurze Geschichte, einen Auftrag und ein Lernziel. Pro Aufgabe gibt es bis zu drei **gestufte Hinweise**; jeder kostet 25 % der Punkte (höchstens 75 %). Wer im ersten Versuch ohne Hinweis löst, bekommt **20 % Bonus**. Die Lösung lässt sich aufdecken – danach gibt es keine Punkte mehr. Wie viele Versuche ein Typ erlaubt, steht in der [Übersicht der Aufgabentypen](aufgabentypen.md#-standardregeln).
 
-### Lernpfad und empfohlene nächste Aufgabe
+### CodePath und empfohlene nächste Aufgabe
 
-In der Modulübersicht steht oben die **empfohlene nächste Aufgabe**. Sie kommt aus dem ersten veröffentlichten Lernpfad; ohne Lernpfad empfiehlt CodePath die nächste offene Aufgabe – bevorzugt in einem Modul, das schon begonnen ist. Nach dem Lösen einer Aufgabe erscheint die Empfehlung auch auf der Aufgabenseite.
+In der Modulübersicht steht oben die **empfohlene nächste Aufgabe**. Sie kommt aus dem ersten veröffentlichten CodePath; gibt es keinen, empfiehlt die Plattform die nächste offene Aufgabe – bevorzugt in einem Modul, das schon begonnen ist. Nach dem Lösen einer Aufgabe erscheint die Empfehlung auch auf der Aufgabenseite.
 
-**Leitstand → Lernpfade** legt Lernpfade an. Ein neuer Lernpfad startet mit allen Modulen als Kette. Der Editor passt auf einen Bildschirm: links die **Bausteine**, in der Mitte die Fläche, rechts die Eigenschaften der gewählten Station (ohne Auswahl: die Einstellungen des Lernpfads).
+**Leitstand → CodePaths** legt CodePaths an. Ein neuer CodePath startet mit allen Modulen als Kette. Der Editor passt auf einen Bildschirm: links die **Bausteine**, in der Mitte die Fläche, rechts die Eigenschaften der gewählten Station (ohne Auswahl: die Einstellungen des CodePaths).
 
 - **Bausteine hineinziehen**: *Baustein* (Art erst danach festlegen), *Ganzes Modul*, *Teil eines Moduls*, *Einzelne Aufgabe* oder *Meilenstein* auf die Fläche ziehen. Darunter stehen alle Module; ein Modul oder – aufgeklappt – eine einzelne Aufgabe lässt sich direkt hineinziehen. Anklicken statt Ziehen hängt den Baustein unter die gewählte Station.
 - **Wo man loslässt, zählt**: auf einer Station → wird darunter angehängt und verbunden; auf einer Linie → wird zwischen die beiden Stationen eingefügt; auf freier Fläche → steht für sich.
 - **Art wechseln**: Rechts lässt sich jede Station jederzeit umstellen – ganzes Modul, Teil eines Moduls, einzelne Aufgabe oder Meilenstein. Noch nicht fertig eingerichtete Bausteine sind gelb gestrichelt; gespeichert wird erst, wenn alle eingerichtet sind.
 - **Verbinden**: am Punkt unten an einer Station ziehen und auf der Station loslassen, die danach kommt. Linien anklicken löscht sie, Kreise sind nicht möglich. Rechts unter *Davor* / *Danach kommt* geht es auch per Auswahl.
-- Stationen **ziehen** (oder mit den Pfeiltasten verschieben, Entf entfernt). **Anordnen** legt die Stationen ordentlich in Reihen, **Zoom** und **Alles zeigen** holen große Lernpfade auf den Bildschirm, **Vorschau** zeigt die Karte mit dem eigenen Stand.
+- Stationen **ziehen** (oder mit den Pfeiltasten verschieben, Entf entfernt). **Anordnen** legt die Stationen ordentlich in Reihen, **Zoom** und **Alles zeigen** holen große CodePaths auf den Bildschirm, **Vorschau** zeigt die Karte mit dem eigenen Stand.
 - **Teil eines Moduls**: Eine Modul-Station kann alle oder nur ausgewählte Aufgaben des Moduls nutzen. **Restliche Aufgaben als neue Station** hängt den Rest als zweite Station an – so entsteht z. B. *Programmierung 1 → Web 1 → Programmierung 2*.
-- **Gilt für**: alle Kurse oder ein Kurs (Gruppe). Ein veröffentlichter Lernpfad für einen Kurs überträgt bei jedem Speichern seine Module in die **Modul-Steuerung** des Kurses: Die Module werden freigegeben, nicht genutzte Aufgaben darin einzeln gesperrt. Optional werden Module, die nicht im Lernpfad vorkommen, für den Kurs gesperrt. Was sich geändert hat, zeigt der Editor nach dem Speichern; Fristen bleiben unverändert.
-- **Veröffentlicht** ankreuzen und speichern – dann sieht die Klasse den Lernpfad als Karte (umschaltbar auf die Liste). Ein Kurs sieht die Lernpfade für ihn und die für alle Kurse; die Empfehlung kommt aus dem obersten Lernpfad des eigenen Kurses, sonst aus dem obersten für alle Kurse.
+- **Gilt für**: alle Kurse oder ein Kurs (Gruppe). Ein veröffentlichter CodePath für einen Kurs überträgt bei jedem Speichern seine Module in die **Modul-Steuerung** des Kurses: Die Module werden freigegeben, nicht genutzte Aufgaben darin einzeln gesperrt. Optional werden Module, die nicht im CodePath vorkommen, für den Kurs gesperrt. Was sich geändert hat, zeigt der Editor nach dem Speichern; Fristen bleiben unverändert.
+- **Veröffentlicht** ankreuzen und speichern – dann sieht die Klasse den CodePath als Karte (umschaltbar auf die Liste). Ein Kurs sieht die CodePaths für ihn und die für alle Kurse; die Empfehlung kommt aus dem obersten CodePath des eigenen Kurses, sonst aus dem obersten für alle Kurse.
 
 Auf der Karte ist jede Station *erledigt*, *jetzt dran*, *später*, *Zeit abgelaufen* oder *gesperrt*. Gesperrte (nicht freigegebene) Module halten niemanden auf.
 
@@ -172,7 +172,7 @@ Gelöschte mitgelieferte Aufgaben kommen auch bei Updates nicht wieder – auße
 
 ### Austausch und Sicherung
 
-**Leitstand → Import & Export** sichert Einstellungen, Startseite, Seiten, Wissensdatenbank, Lernpfade sowie Module und Aufgaben (mit Bildern) in **einer** ZIP-Datei – alles oder nur ausgewählte Bereiche. Einzelne Bereiche und einzelne Lernpfade lassen sich auch in ihren Editoren exportieren. Schülerdaten sind nie enthalten.
+**Leitstand → Import & Export** sichert Einstellungen, Startseite, Seiten, Wissensdatenbank, CodePaths sowie Module und Aufgaben (mit Bildern) in **einer** ZIP-Datei – alles oder nur ausgewählte Bereiche. Einzelne Bereiche und einzelne CodePaths lassen sich auch in ihren Editoren exportieren. Schülerdaten sind nie enthalten.
 
 Der **zentrale Import** erkennt die Datei selbst (CodePath-Export als ZIP oder JSON, oder ein Content-Paket) und zeigt danach für jeden Eintrag, ob er **angelegt**, **überarbeitet** (gab es schon) oder **unverändert** gelassen wurde – oder warum ein **Fehler** auftrat. Ein fehlerhafter Eintrag hält die übrigen nicht auf. Gleiche Adresse (Slug) heißt „derselbe Eintrag“; gelöscht wird nichts.
 

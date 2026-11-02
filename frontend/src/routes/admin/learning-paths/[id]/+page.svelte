@@ -165,7 +165,7 @@
 	}
 
 	async function remove() {
-		if (!saved || !confirm(`Lernpfad „${saved.title}“ löschen?`)) return;
+		if (!saved || !confirm(`CodePath „${saved.title}“ löschen?`)) return;
 		try {
 			await api(`/api/admin/learning-paths/${id}`, { method: 'DELETE' });
 			saved = null;
@@ -274,7 +274,7 @@
 		);
 	}
 
-	/** Aufgaben des Moduls, die schon eine andere Station dieses Lernpfads nutzt */
+	/** Aufgaben des Moduls, die schon eine andere Station dieses CodePaths nutzt */
 	function usedElsewhere(node: EditorNode): string[] {
 		return nodes
 			.filter((n) => n.id !== node.id && n.module && n.module === node.module)
@@ -774,7 +774,7 @@
 	onresize={fitHeight}
 />
 
-<svelte:head><title>Lernpfad bearbeiten | CodePath</title></svelte:head>
+<svelte:head><title>CodePath bearbeiten | CodePath</title></svelte:head>
 
 <div class="flex flex-col gap-3">
 	<!-- Kopfzeile: alles Wichtige in einer Zeile -->
@@ -782,12 +782,12 @@
 		<a
 			href="/admin/learning-paths"
 			class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Lernpfade</a
+			>← CodePaths</a
 		>
 		<h1
 			class="min-w-0 truncate font-sans text-xl font-extrabold tracking-tight text-institutional-navy uppercase"
 		>
-			{form.title || 'Lernpfad'}
+			{form.title || 'CodePath'}
 		</h1>
 		{#if saved}
 			<span
@@ -931,7 +931,7 @@
 										>
 										{#if count}<span
 												class="font-mono text-[10px] text-slate-400"
-												title="{count}× im Lernpfad">{count}×</span
+												title="{count}× im CodePath">{count}×</span
 											>{/if}
 									</button>
 								</div>
@@ -1037,7 +1037,7 @@
 							class="relative origin-top-left"
 							style="width: {size.width}px; height: {size.height}px; transform: scale({scale})"
 							role="application"
-							aria-label="Lernpfad-Fläche"
+							aria-label="CodePath-Fläche"
 							onpointermove={pointerMove}
 							onpointerup={pointerUp}
 							ondragover={canvasDragOver}
@@ -1424,8 +1424,8 @@
 						>
 					</section>
 				{:else}
-					<section class="flex flex-col gap-3 p-4" aria-label="Lernpfad-Einstellungen">
-						<h2 class="ed-label">Lernpfad</h2>
+					<section class="flex flex-col gap-3 p-4" aria-label="CodePath-Einstellungen">
+						<h2 class="ed-label">CodePath</h2>
 						<label class="ed-label">Titel<input class="ed-input" bind:value={form.title} /></label>
 						<label class="ed-label"
 							>Adresse<input
@@ -1456,10 +1456,10 @@
 						{#if form.courseId}
 							<label class="flex items-start gap-2 text-sm text-institutional-navy"
 								><input type="checkbox" class="mt-0.5" bind:checked={form.lockOthers} /> Module, die nicht
-								im Lernpfad vorkommen, für den Kurs sperren</label
+								im CodePath vorkommen, für den Kurs sperren</label
 							>
 							<p class="text-xs text-slate-500">
-								Veröffentlicht übernimmt jedes Speichern die Module und Aufgaben dieses Lernpfads in
+								Veröffentlicht übernimmt jedes Speichern die Module und Aufgaben dieses CodePaths in
 								die <a href="/admin/modules" class="underline">Modul-Steuerung</a> des Kurses.
 							</p>
 						{/if}
@@ -1478,7 +1478,7 @@
 										{#each applied as line, i (i)}<li>{line}</li>{/each}
 									</ul>
 								{:else}
-									<p>Die Modul-Steuerung des Kurses entsprach schon diesem Lernpfad.</p>
+									<p>Die Modul-Steuerung des Kurses entsprach schon diesem CodePath.</p>
 								{/if}
 							</div>
 						{/if}
@@ -1487,7 +1487,7 @@
 							<a class="ed-button" href={exportUrl(['learningPaths'], [saved.slug])} download
 								>Exportieren</a
 							>
-							<button class="ed-button text-rose-700" onclick={remove}>Lernpfad löschen</button>
+							<button class="ed-button text-rose-700" onclick={remove}>CodePath löschen</button>
 						</div>
 						<p class="mt-2 text-xs text-slate-400">
 							Eine Station anklicken, um sie zu bearbeiten. Pfeiltasten verschieben die gewählte

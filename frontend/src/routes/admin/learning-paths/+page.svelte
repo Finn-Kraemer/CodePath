@@ -50,7 +50,7 @@
 	const firstPublished = $derived(paths.find((p) => p.published)?.id);
 </script>
 
-<svelte:head><title>Lernpfade | CodePath</title></svelte:head>
+<svelte:head><title>CodePaths | CodePath</title></svelte:head>
 
 <div class="flex flex-col gap-8 pb-24">
 	<header class="border-b border-slate-200 pb-8">
@@ -60,15 +60,15 @@
 			>← Zurück zur Administration</a
 		>
 		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			Lernpfade
+			CodePaths
 		</h1>
 		<p class="mt-4 max-w-3xl text-slate-500">
-			Zeichne eine Lernpfad-Karte aus Modulen, einzelnen Aufgaben und Meilensteinen. Schülerinnen
+			Zeichne eine CodePath-Karte aus Modulen, einzelnen Aufgaben und Meilensteinen. Schülerinnen
 			und Schüler sehen sie in der Modulübersicht mit ihrem Stand. Der erste veröffentlichte
-			Lernpfad bestimmt die <strong>empfohlene nächste Aufgabe</strong> (ein Lernpfad des eigenen Kurses
-			vor einem für alle Kurse); ohne Lernpfad empfiehlt CodePath die nächste offene Aufgabe in der Reihenfolge
-			der Module. Ein Lernpfad für einen Kurs überträgt seine Module und Aufgaben in die Modul-Steuerung
-			des Kurses.
+			CodePath bestimmt die <strong>empfohlene nächste Aufgabe</strong> (ein CodePath des eigenen Kurses
+			vor einem für alle Kurse); gibt es keinen, empfiehlt die Plattform die nächste offene Aufgabe in
+			der Reihenfolge der Module. Ein CodePath für einen Kurs überträgt seine Module und Aufgaben in die
+			Modul-Steuerung des Kurses.
 		</p>
 		<div class="mt-6 flex flex-wrap gap-3">
 			<a class="ed-button" href={exportUrl(['learningPaths'])} download>Alle exportieren</a>
@@ -87,7 +87,7 @@
 	{:else}
 		{#if paths.length === 0}
 			<p class="border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-				Noch kein Lernpfad. Ein neuer Lernpfad startet mit allen Modulen als Kette – zum Umbauen.
+				Noch kein CodePath. Ein neuer CodePath startet mit allen Modulen als Kette – zum Umbauen.
 			</p>
 		{:else}
 			<ol class="flex flex-col border border-slate-200 bg-white">
@@ -132,8 +132,8 @@
 		<form class="flex max-w-xl gap-2" onsubmit={create}>
 			<input
 				class="ed-input mt-0"
-				placeholder="Titel des neuen Lernpfads"
-				aria-label="Titel des neuen Lernpfads"
+				placeholder="Titel des neuen CodePaths"
+				aria-label="Titel des neuen CodePaths"
 				bind:value={newTitle}
 				required
 			/>

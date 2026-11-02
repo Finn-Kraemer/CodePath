@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	/**
-	 * Schlichte Linien-Icons für Lernpfade statt Emojis. Module speichern ihr Icon weiterhin als Emoji
+	 * Schlichte Linien-Icons für CodePaths statt Emojis. Module speichern ihr Icon weiterhin als Emoji
 	 * (Content-Pakete); `iconFor` übersetzt die bekannten in ein Linien-Icon, alles andere wird zum
 	 * Anfangsbuchstaben des Titels.
 	 */

@@ -35,7 +35,7 @@ public class LearningPathTransfer implements TransferSection {
 
     @Override
     public String label() {
-        return "Lernpfade";
+        return "CodePaths";
     }
 
     @Override
@@ -55,7 +55,7 @@ public class LearningPathTransfer implements TransferSection {
 
     @Override
     public List<TransferItem> importData(JsonNode data, Long actorId) {
-        if (!data.isArray()) return List.of(TransferItem.error(label(), "-", "Erwartet wird eine Liste von Lernpfaden."));
+        if (!data.isArray()) return List.of(TransferItem.error(label(), "-", "Erwartet wird eine Liste von CodePaths."));
         List<TransferItem> items = new ArrayList<>();
         for (JsonNode node : data) {
             String name = node.path("slug").asString("?");
