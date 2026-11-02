@@ -31,6 +31,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Neue Dokumentation: Handbücher für Lehrkräfte, Betrieb, Sicherheit und Entwicklung, Übersicht der Aufgabentypen.
 
 ### Verbessert
+- **CI/CD und Branch-Schutz**: Actions auf Commit-Hashes festgelegt, minimale Rechte und Zeitlimits je Job, ein zusammenfassender Pflicht-Check *CI erfolgreich*, `actionlint`, Abhängigkeitsprüfung auf PRs, CodeQL und Dependabot. Releases laufen nur von Tags auf `main`, erst nach grüner CI, mit SBOM, signiertem Herkunftsnachweis, zusätzlichen Image-Tags (`2.2.0`, `2.2`, `2`) und GitHub-Release aus dem Änderungsprotokoll. `main` und Release-Tags sind per Ruleset geschützt (`.github/rulesets/`, siehe [Entwicklerhandbuch](docs/entwicklung.md#-release)).
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update

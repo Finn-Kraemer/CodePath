@@ -4,24 +4,69 @@ on:
   pull_request:
   push:
     branches: [main]
+  merge_group:
+  workflow_dispatch:
+  # Der Release-Workflow ruft die CI auf, bevor er Images veröffentlicht
+  workflow_call:
+
+# Standard: nur lesen. Jobs, die mehr brauchen, fordern es selbst an.
+permissions:
+  contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # github.workflow ist bei Aufruf aus dem Release "Release" – beide brechen sich nicht gegenseitig ab
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  # Auf main jeder Lauf zu Ende, in PRs gewinnt der neueste Push
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  JAVA_VERSION: '25'
+  NODE_VERSION: '22'
+  PYTHON_VERSION: '3.12'
+  # Nur für die CI: Token des Code-Runners auf dem CI-Rechner, kein echtes Geheimnis
+  CI_RUNNER_TOKEN: ci-runner-token-123456
 
 jobs:
+  workflows:
+    name: Workflows prüfen (actionlint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: actionlint
+        run: |
+          docker run --rm -v "$PWD:/repo" --workdir /repo rhysd/actionlint:1.7.12 -color
+
+  dependency-review:
+    name: Abhängigkeiten prüfen
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+
   backend:
     name: Backend (Tests gegen PostgreSQL)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: ${{ env.JAVA_VERSION }}
           cache: maven
       # Code-Runner direkt auf dem CI-Rechner, damit auch die Code-Aufgaben im Probelauf wirklich laufen.
       # Ubuntu 24.04 sperrt user namespaces für unprivilegierte Prozesse; bubblewrap braucht sie.
@@ -31,33 +76,46 @@ jobs:
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           sudo apt-get install -y --no-install-recommends bubblewrap
           # sudo reicht Umgebungsvariablen nicht weiter (-E ist abgeschaltet), daher über env
-          sudo env RUNNER_TOKEN=ci-runner-token-123456 RUNNER_PORT=8765 python3 -I runner.py &
+          sudo env RUNNER_TOKEN="$CI_RUNNER_TOKEN" RUNNER_PORT=8765 python3 -I runner.py &
           timeout 30 bash -c 'until curl -sf localhost:8765/health; do sleep 1; done'
       # Testcontainers startet PostgreSQL über den Docker-Daemon des Runners
       - name: Tests
         env:
           CODEPATH_RUNNER_URL: http://localhost:8765
-          CODEPATH_RUNNER_TOKEN: ci-runner-token-123456
-        run: ./mvnw -B verify
+          CODEPATH_RUNNER_TOKEN: ${{ env.CI_RUNNER_TOKEN }}
+        run: ./mvnw -B -ntp verify
       # OpenApiExportTest schreibt die API-Beschreibung neu; sie muss eingecheckt sein
       - name: API-Beschreibung aktuell
         run: git diff --exit-code ../frontend/src/lib/api/openapi.json
+      - name: Testberichte hochladen
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-testberichte
+          path: |
+            backend/target/surefire-reports/
+            backend/target/failsafe-reports/
+          retention-days: 7
+          if-no-files-found: ignore
 
   frontend:
     name: Frontend (Lint, Typcheck, Tests, Build)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       # Version kommt aus "packageManager" in package.json
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           package_json_file: frontend/package.json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
@@ -75,11 +133,14 @@ jobs:
   content:
     name: Content-Pakete prüfen
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          python-version: '3.12'
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
       - run: pip install jsonschema==4.23.0
       - name: Schema-Validierung
         run: python content/validate.py
@@ -87,14 +148,17 @@ jobs:
   runner:
     name: Code-Runner (Angriffe auf die Sandbox)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Image bauen
         run: docker build -t codepath-runner:ci runner
       - name: Sandbox-Tests im gehärteten Container
         run: |
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-          docker run --rm -e RUNNER_TOKEN=ci-runner-token-123456 --read-only --tmpfs /tmp \
+          docker run --rm -e RUNNER_TOKEN="$CI_RUNNER_TOKEN" --read-only --tmpfs /tmp \
             --cap-drop ALL --cap-add SETUID --cap-add SETGID --cap-add KILL \
             --security-opt no-new-privileges:true --security-opt seccomp=unconfined --security-opt apparmor=unconfined \
             --pids-limit 256 --network none codepath-runner:ci python -m unittest -v test_runner
@@ -102,21 +166,24 @@ jobs:
   e2e:
     name: Docker-Image + End-to-End-Test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [backend, frontend, runner]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Stack mit frisch gebautem Image starten
         run: |
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           printf 'POSTGRES_PASSWORD=ci-postgres\nADMIN_SEED_PASSWORD=ci-admin-passwort\n' > .env
-          printf 'COMPOSE_PROFILES=runner\nCODEPATH_RUNNER_URL=http://runner:8000\nRUNNER_TOKEN=ci-runner-token-123456\n' >> .env
+          printf 'COMPOSE_PROFILES=runner\nCODEPATH_RUNNER_URL=http://runner:8000\nRUNNER_TOKEN=%s\n' "$CI_RUNNER_TOKEN" >> .env
           docker compose up -d --build --wait
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           package_json_file: frontend/package.json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
       - name: Playwright
@@ -131,3 +198,34 @@ jobs:
       - name: Logs bei Fehler
         if: failure()
         run: docker compose logs app runner
+      - name: Playwright-Traces hochladen
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-traces
+          path: frontend/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Stack beenden
+        if: always()
+        run: docker compose down -v
+
+  # Ein einziger Pflicht-Check für den Branch-Schutz: neue Jobs müssen nur hier unter "needs" ergänzt werden.
+  ci-ok:
+    name: CI erfolgreich
+    if: always()
+    needs: [workflows, dependency-review, backend, frontend, content, runner, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ergebnisse aller Jobs prüfen
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Ergebnisse: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in
+              success|skipped) ;;
+              *) echo "::error::Mindestens ein Job ist fehlgeschlagen oder wurde abgebrochen."; exit 1 ;;
+            esac
+          done

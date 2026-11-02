@@ -1,0 +1,8 @@
+# Wer Änderungen an diesen Pfaden prüft. GitHub fragt die Personen bei jedem PR automatisch an.
+*                    @Finn-Kraemer
+
+# Workflows, Branch-Schutz und Sandbox sind sicherheitsrelevant
+/.github/            @Finn-Kraemer
+/runner/             @Finn-Kraemer
+/Dockerfile          @Finn-Kraemer
+/docker-compose.yml  @Finn-Kraemer
