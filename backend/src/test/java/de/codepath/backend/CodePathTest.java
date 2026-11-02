@@ -184,6 +184,54 @@ class CodePathTest extends IntegrationTestBase {
                 .andExpect(status().isBadRequest());
     }
 
+    /** Was der CodePath freigibt, sehen Schüler des Kurses – und nur das; andere Kurse bleiben unberührt. */
+    @Test
+    void studentsOfTheCourseSeeExactlyWhatTheCodePathUses() throws Exception {
+        Course course = course("10a");
+        Course other = course("10b");
+        unlock(course, "programmierung");
+        unlock(other, "programmierung");
+        User lena = student("lena", course);
+        User tom = student("tom", other);
+        long id = create("Projektwoche 10a", "projektwoche-10a");
+        // Ganzes Modul Datenbanken, dazu eine einzelne Git-Aufgabe
+        var graph = Map.of(
+                "nodes", List.of(node("db", "MODULE", "datenbanken", null, null, 0),
+                        node("g", "TASK", "git", "g3", null, 200)),
+                "edges", List.of(edge("db", "g")));
+        Map<String, Object> update = new java.util.HashMap<>(Map.of("graph", graph, "courseId", course.getId(),
+                "lockOthers", true, "published", true));
+        putAs(teacher(), "/api/admin/codepaths/" + id, update).andExpect(status().isOk());
+
+        JsonNode modules = body(getAs(as(lena), "/api/modules"));
+        assertEquals(List.of("datenbanken", "git"), slugs(modules).stream().sorted().toList(), "Nur die Module aus dem CodePath");
+        assertEquals(1, body(getAs(as(lena), "/api/modules/git")).get("tasks").size(), "Nur die eine Git-Aufgabe");
+        getAs(as(lena), "/api/modules/git/g3").andExpect(status().isOk());
+        getAs(as(lena), "/api/modules/git/g1").andExpect(status().isForbidden());
+        getAs(as(lena), "/api/modules/programmierung").andExpect(status().isForbidden());
+        assertEquals(List.of("programmierung"), slugs(body(getAs(as(tom), "/api/modules"))), "Anderer Kurs unverändert");
+
+        // Datenbanken fliegt aus dem CodePath → wird gesperrt; Git bekommt alle Aufgaben
+        update.put("graph", Map.of("nodes", List.of(node("git", "MODULE", "git", null, null, 0)), "edges", List.of()));
+        JsonNode saved = body(putAs(teacher(), "/api/admin/codepaths/" + id, update).andExpect(status().isOk()));
+        assertTrue(saved.get("applied").toString().contains("gesperrt"));
+        assertEquals(List.of("git"), slugs(body(getAs(as(lena), "/api/modules"))));
+        getAs(as(lena), "/api/modules/git/g1").andExpect(status().isOk());
+
+        // Ohne „andere sperren“ bleiben übrige Freigaben stehen
+        unlock(course, "programmierung");
+        update.put("lockOthers", false);
+        putAs(teacher(), "/api/admin/codepaths/" + id, update).andExpect(status().isOk());
+        assertEquals(List.of("git", "programmierung"),
+                slugs(body(getAs(as(lena), "/api/modules"))).stream().sorted().toList());
+    }
+
+    static List<String> slugs(JsonNode modules) {
+        List<String> slugs = new java.util.ArrayList<>();
+        for (JsonNode m : modules) slugs.add(m.get("slug").asString());
+        return slugs;
+    }
+
     static JsonNode module(JsonNode modules, String slug) {
         for (JsonNode m : modules) if (m.get("slug").asString().equals(slug)) return m;
         throw new AssertionError("Modul " + slug + " fehlt");
