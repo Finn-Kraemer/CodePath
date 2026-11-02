@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Config } from '../types';
 	import TestsForm from './TestsForm.svelte';
+	import VisualizerOptions from './VisualizerOptions.svelte';
 
 	let { config = $bindable() }: { config: Config } = $props();
 </script>
@@ -17,3 +18,4 @@
 	></textarea></label
 >
 <div class="mt-3"><TestsForm bind:config solution={config.solution} /></div>
+<VisualizerOptions bind:config />

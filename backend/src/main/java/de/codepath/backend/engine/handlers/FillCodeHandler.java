@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -34,7 +35,10 @@ public class FillCodeHandler implements TaskHandler {
 
     @Override
     public Map<String, Object> publicView(TaskSpec spec, TaskContext context) {
-        return Map.of("template", Cfg.string(spec.config(), "template", ""), "blanks", FillBlankHandler.publicBlanks(spec, context));
+        Map<String, Object> view = new LinkedHashMap<>();
+        view.put("template", Cfg.string(spec.config(), "template", ""));
+        view.put("blanks", FillBlankHandler.publicBlanks(spec, context));
+        return CodeHandler.withVisualizer(view, spec.config());
     }
 
     @Override

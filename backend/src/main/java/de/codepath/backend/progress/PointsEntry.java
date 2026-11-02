@@ -25,6 +25,15 @@ public class PointsEntry {
     @Column(name = "task_id")
     private Long taskId;
 
+    @Column(name = "path_id")
+    private Long pathId;
+
+    @Column(name = "node_id")
+    private String nodeId;
+
+    @Column(nullable = false)
+    private boolean cancelled;
+
     @Column(nullable = false)
     private int amount;
 

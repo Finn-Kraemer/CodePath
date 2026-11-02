@@ -167,12 +167,21 @@ jobs:
             echo '```'
           } >> notes.md
           cat notes.md
-      - name: Release anlegen
+      - name: Release anlegen oder aktualisieren
         env:
           GH_TOKEN: ${{ github.token }}
           PRERELEASE: ${{ needs.verify.outputs.prerelease }}
         run: |
-          args=(--title "CodePath $GITHUB_REF_NAME" --notes-file notes.md --verify-tag)
-          # Vorabversionen: Liste der PRs seit dem letzten Release statt Änderungsprotokoll
-          if [[ "$PRERELEASE" == "true" ]]; then args+=(--prerelease --generate-notes); else args+=(--latest); fi
-          gh release create "$GITHUB_REF_NAME" "${args[@]}"
+          title="CodePath $GITHUB_REF_NAME"
+          # Wurde der Tag im Browser über "Draft a new release" angelegt, gibt es das Release schon:
+          # dann Text, Titel und Status übernehmen statt neu anlegen.
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            args=(--title "$title" --notes-file notes.md --draft=false)
+            if [[ "$PRERELEASE" == "true" ]]; then args+=(--prerelease); else args+=(--prerelease=false --latest); fi
+            gh release edit "$GITHUB_REF_NAME" "${args[@]}"
+          else
+            args=(--title "$title" --notes-file notes.md --verify-tag)
+            # Vorabversionen: Liste der PRs seit dem letzten Release statt Änderungsprotokoll
+            if [[ "$PRERELEASE" == "true" ]]; then args+=(--prerelease --generate-notes); else args+=(--latest); fi
+            gh release create "$GITHUB_REF_NAME" "${args[@]}"
+          fi

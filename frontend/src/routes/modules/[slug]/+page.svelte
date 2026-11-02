@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PathIcon from '$lib/pathway/PathIcon.svelte';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
@@ -24,9 +25,10 @@
 		HARD: 'border-rose-200 text-rose-700 bg-rose-50'
 	};
 
-	function tone(status?: string, locked?: boolean) {
+	function tone(status?: string, locked?: boolean, blocked?: boolean) {
 		if (status === 'SOLVED') return 'border-green-200 bg-green-50/30';
 		if (status === 'PENDING_REVIEW') return 'border-blue-200 bg-blue-50/30';
+		if (blocked) return 'border-amber-200 bg-amber-50/30 opacity-80';
 		if (locked) return 'border-red-200 bg-red-50/30';
 		return 'border-slate-200 bg-white shadow-sm hover:border-institutional-navy';
 	}
@@ -67,11 +69,13 @@
 		<ol class="space-y-4">
 			{#each detail.tasks ?? [] as task, i (task.slug)}
 				<li>
-					<a
-						href={`/modules/${slug}/${task.slug}`}
+					<svelte:element
+						this={task.isBlocked ? 'div' : 'a'}
+						href={task.isBlocked ? undefined : `/modules/${slug}/${task.slug}`}
 						class="group flex items-center justify-between rounded-none border p-6 transition-all {tone(
 							task.status,
-							task.isLocked
+							task.isLocked,
+							task.isBlocked
 						)}"
 					>
 						<div class="flex items-center gap-6">
@@ -79,9 +83,14 @@
 								class="flex h-12 w-12 items-center justify-center font-mono text-[11px] font-black {task.status ===
 								'SOLVED'
 									? 'bg-green-600 text-white'
-									: 'bg-slate-100 text-slate-500 group-hover:bg-institutional-navy group-hover:text-white'}"
+									: task.isBlocked
+										? 'bg-amber-100 text-amber-800'
+										: 'bg-slate-100 text-slate-500 group-hover:bg-institutional-navy group-hover:text-white'}"
 							>
-								{task.status === 'SOLVED' ? '✓' : i + 1}
+								{#if task.status === 'SOLVED'}✓{:else if task.isBlocked}<PathIcon
+										name="lock"
+										size={14}
+									/>{:else}{i + 1}{/if}
 							</div>
 							<div>
 								<h2
@@ -106,13 +115,21 @@
 						</div>
 						<div class="text-right font-mono text-[10px] font-black tracking-widest uppercase">
 							<div class="text-slate-500">{task.pointsEarned}/{task.points} P.</div>
-							<div class="mt-1 {task.status === 'SOLVED' ? 'text-green-600' : 'text-slate-400'}">
-								{task.isLocked && task.status !== 'FAILED'
-									? 'Gesperrt'
-									: STATUS_LABELS[task.status ?? 'OPEN']}
+							<div
+								class="mt-1 {task.status === 'SOLVED'
+									? 'text-green-600'
+									: task.isBlocked
+										? 'text-amber-700'
+										: 'text-slate-400'}"
+							>
+								{task.isBlocked
+									? (task.blockedReason ?? 'Erst Vorgänger abschließen')
+									: task.isLocked && task.status !== 'FAILED'
+										? 'Gesperrt'
+										: STATUS_LABELS[task.status ?? 'OPEN']}
 							</div>
 						</div>
-					</a>
+					</svelte:element>
 				</li>
 			{/each}
 		</ol>

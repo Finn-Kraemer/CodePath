@@ -1,7 +1,7 @@
 <script lang="ts">
+	import PathIcon from '$lib/pathway/PathIcon.svelte';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
 	import {
 		api,
 		ApiError,
@@ -12,6 +12,8 @@
 		type TaskDetail
 	} from '$lib/api';
 	import NextTask from '$lib/pathway/NextTask.svelte';
+	import HelpButton from '$lib/help/HelpButton.svelte';
+	import { auth } from '$lib/auth.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import TaskRenderer from '$lib/tasks/TaskRenderer.svelte';
 	import type { Answer } from '$lib/tasks/types';
@@ -24,6 +26,7 @@
 	let task = $state<TaskDetail | null>(null);
 	let result = $state<SubmitResult | null>(null);
 	let error = $state('');
+	let blockedReason = $state('');
 	let busy = $state(false);
 	// Erzwingt ein Neuzeichnen der Aufgabe, wenn sich Lösung oder Status ändern
 	let renderKey = $state(0);
@@ -57,7 +60,7 @@
 			renderKey++;
 			await loadNext();
 		} catch (e) {
-			if (e instanceof ApiError && e.status === 403) goto('/modules');
+			if (e instanceof ApiError && e.status === 403) blockedReason = e.message;
 			else error = (e as Error).message;
 		}
 	}
@@ -199,7 +202,24 @@
 		</div>
 	{/if}
 
-	{#if !task}
+	{#if blockedReason}
+		<div
+			class="mx-auto max-w-xl border-2 border-amber-300 bg-amber-50/60 p-10 text-center"
+			role="alert"
+			data-testid="task-blocked"
+		>
+			<PathIcon name="lock" size={40} class="mx-auto mb-4 text-slate-400" />
+			<h2 class="font-sans text-xl font-extrabold text-institutional-navy uppercase">
+				Noch nicht freigeschaltet
+			</h2>
+			<p class="mt-3 text-sm text-slate-700">{blockedReason}</p>
+			<a
+				href="/modules"
+				class="mt-6 inline-block bg-institutional-navy px-6 py-3 font-mono text-[10px] font-black tracking-[3px] text-white uppercase hover:bg-slate-800"
+				>Zum CodePath →</a
+			>
+		</div>
+	{:else if !task}
 		<div class="flex justify-center py-24">
 			<div
 				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
@@ -305,6 +325,10 @@
 						</button>
 					{/if}
 				</div>
+
+				{#if auth.user && auth.user.role !== 'ADMIN'}
+					<HelpButton {task} moduleSlug={moduleSlug ?? ''} taskSlug={taskSlug ?? ''} />
+				{/if}
 
 				<div class="space-y-4 border border-slate-200 bg-white p-8 text-sm shadow-sm">
 					<div class="flex justify-between">

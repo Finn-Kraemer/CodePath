@@ -47,7 +47,7 @@
 		}
 	}
 
-	const firstPublished = $derived(paths.find((p) => p.published)?.id);
+	const firstPublished = $derived(paths.find((p) => p.published && !p.templateOnly)?.id);
 </script>
 
 <svelte:head><title>CodePaths | CodePath</title></svelte:head>
@@ -87,7 +87,8 @@
 	{:else}
 		{#if paths.length === 0}
 			<p class="border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-				Noch kein CodePath. Ein neuer CodePath startet mit allen Modulen als Kette – zum Umbauen.
+				Noch kein CodePath. Ein neuer CodePath startet mit einer leeren Karte – die Stationen ziehst
+				du im Editor selbst hinein.
 			</p>
 		{:else}
 			<ol class="flex flex-col border border-slate-200 bg-white">
@@ -98,13 +99,27 @@
 							<span class="block text-xs text-slate-400"
 								>{path.stations} Stationen · /{path.slug} · {path.courseName
 									? `Kurs ${path.courseName}`
-									: 'alle Kurse'}</span
+									: 'alle Kurse'}{path.usedIn?.length
+									? ` · genutzt in ${path.usedIn.join(', ')}`
+									: ''}</span
 							>
 						</a>
 						{#if path.id === firstPublished}
 							<span
 								class="bg-amber-100 px-2 py-1 font-mono text-[9px] font-bold text-amber-800 uppercase"
 								>bestimmt die Empfehlung</span
+							>
+						{/if}
+						{#if path.templateOnly}
+							<span
+								class="bg-violet-100 px-2 py-1 font-mono text-[9px] font-bold text-violet-800 uppercase"
+								>Baustein</span
+							>
+						{/if}
+						{#if path.enforce}
+							<span
+								class="bg-institutional-navy/10 px-2 py-1 font-mono text-[9px] font-bold text-institutional-navy uppercase"
+								>Verbindlich</span
 							>
 						{/if}
 						<span

@@ -184,6 +184,161 @@
         "tags" : [ "code-path-controller" ]
       }
     },
+    "/api/admin/codepaths/{id}/branch-stats" : {
+      "get" : {
+        "operationId" : "branchStats",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/BranchConditionStats"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/codepaths/{id}/choice-stats" : {
+      "get" : {
+        "operationId" : "choiceStats",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ChoiceNodeStats"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/codepaths/{id}/course-actions" : {
+      "post" : {
+        "operationId" : "courseAction",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CoursePathActionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int32"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/codepaths/{id}/gate-stats" : {
+      "get" : {
+        "operationId" : "gateStats",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/GateStudentStat"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
     "/api/admin/content" : {
       "get" : {
         "operationId" : "overview",
@@ -1040,6 +1195,118 @@
         "tags" : [ "classroom-admin-controller" ]
       }
     },
+    "/api/admin/help" : {
+      "get" : {
+        "operationId" : "queue",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Queue"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "help-controller" ]
+      }
+    },
+    "/api/admin/help/{id}/claim" : {
+      "post" : {
+        "operationId" : "claim",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QueueEntry"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "help-controller" ]
+      }
+    },
+    "/api/admin/help/{id}/message" : {
+      "post" : {
+        "operationId" : "message",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QueueEntry"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "help-controller" ]
+      }
+    },
+    "/api/admin/help/{id}/resolve" : {
+      "post" : {
+        "operationId" : "resolve",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QueueEntry"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "help-controller" ]
+      }
+    },
     "/api/admin/homepage" : {
       "delete" : {
         "operationId" : "reset",
@@ -1856,6 +2123,216 @@
         "tags" : [ "student-record-controller" ]
       }
     },
+    "/api/admin/students/{username}/codepath" : {
+      "get" : {
+        "operationId" : "studentPath",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "slug",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StudentPathAdminView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/codepaths/{slug}/branches/unlock" : {
+      "post" : {
+        "operationId" : "unlockBranch",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChoiceRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/codepaths/{slug}/choices/reset" : {
+      "post" : {
+        "operationId" : "resetChoice",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChoiceResetRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/codepaths/{slug}/choices/set" : {
+      "post" : {
+        "operationId" : "setChoice",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChoiceRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/codepaths/{slug}/conditions/reset" : {
+      "post" : {
+        "operationId" : "resetBranchCondition",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "edgeKey",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/codepaths/{slug}/nodes/unlock" : {
+      "post" : {
+        "operationId" : "unlockNode",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NodeUnlockRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
     "/api/admin/students/{username}/report" : {
       "get" : {
         "operationId" : "studentReport",
@@ -2461,7 +2938,50 @@
           "schema" : {
             "type" : "string"
           }
+        }, {
+          "in" : "query",
+          "name" : "student",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
         } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/codepaths/{slug}/choices" : {
+      "post" : {
+        "operationId" : "choose",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChoiceRequest"
+              }
+            }
+          },
+          "required" : true
+        },
         "responses" : {
           "200" : {
             "content" : {
@@ -2616,6 +3136,66 @@
           }
         },
         "tags" : [ "health-controller" ]
+      }
+    },
+    "/api/help" : {
+      "delete" : {
+        "operationId" : "cancel",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HelpState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "help-controller" ]
+      },
+      "get" : {
+        "operationId" : "mine",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HelpState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "help-controller" ]
+      },
+      "post" : {
+        "operationId" : "call",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/HelpCall"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HelpState"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "help-controller" ]
       }
     },
     "/api/knowledge" : {
@@ -3518,6 +4098,44 @@
         },
         "required" : [ "courseName", "displayName", "role", "username" ]
       },
+      "BranchConditionStats" : {
+        "type" : "object",
+        "properties" : {
+          "edgeKey" : {
+            "type" : "string"
+          },
+          "fromId" : {
+            "type" : "string"
+          },
+          "fromLabel" : {
+            "type" : "string"
+          },
+          "matchedCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "rule" : {
+            "type" : "string"
+          },
+          "toId" : {
+            "type" : "string"
+          },
+          "toLabel" : {
+            "type" : "string"
+          },
+          "totalEvaluated" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "edgeKey", "fromId", "fromLabel", "matchedCount", "pathSlug", "pathTitle", "rule", "toId", "toLabel", "totalEvaluated" ]
+      },
       "CheckResult" : {
         "type" : "object",
         "properties" : {
@@ -3535,6 +4153,108 @@
           }
         },
         "required" : [ "dryRun", "problems", "valid" ]
+      },
+      "ChoiceBranchStat" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "to" : {
+            "type" : "string"
+          },
+          "unlockedCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "count", "label", "to", "unlockedCount" ]
+      },
+      "ChoiceNodeStats" : {
+        "type" : "object",
+        "properties" : {
+          "branches" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChoiceBranchStat"
+            }
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "nodeLabel" : {
+            "type" : "string"
+          },
+          "openCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "subpath" : {
+            "type" : "boolean"
+          },
+          "totalStudents" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "branches", "nodeId", "nodeLabel", "openCount", "pathSlug", "pathTitle", "subpath", "totalStudents" ]
+      },
+      "ChoiceOption" : {
+        "type" : "object",
+        "properties" : {
+          "bonusPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "chosen" : {
+            "type" : "boolean"
+          },
+          "hint" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "to" : {
+            "type" : "string"
+          },
+          "unlocked" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "bonusPoints", "chosen", "hint", "label", "to", "unlocked" ]
+      },
+      "ChoiceRequest" : {
+        "type" : "object",
+        "properties" : {
+          "nodeId" : {
+            "type" : "string"
+          },
+          "to" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ChoiceResetRequest" : {
+        "type" : "object",
+        "properties" : {
+          "nodeId" : {
+            "type" : "string"
+          },
+          "resetProgress" : {
+            "type" : "boolean"
+          }
+        }
       },
       "Compass" : {
         "type" : "object",
@@ -3583,6 +4303,31 @@
           }
         },
         "required" : [ "achieved", "career", "icon", "max", "moduleSlug", "moduleTitle", "percent" ]
+      },
+      "CoursePathActionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "type" : "string",
+            "enum" : [ "RESET_CHOICE", "SET_CHOICE", "UNLOCK_BRANCH", "UNLOCK_NODE" ]
+          },
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "resetProgress" : {
+            "type" : "boolean"
+          },
+          "to" : {
+            "type" : "string"
+          }
+        }
       },
       "CourseSummary" : {
         "type" : "object",
@@ -3724,14 +4469,148 @@
       "Edge" : {
         "type" : "object",
         "properties" : {
+          "condition" : {
+            "$ref" : "#/components/schemas/EdgeCondition"
+          },
           "from" : {
             "type" : "string"
+          },
+          "hint" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "required" : {
+            "type" : "boolean"
           },
           "to" : {
             "type" : "string"
           }
         },
-        "required" : [ "from", "to" ]
+        "required" : [ "condition", "from", "hint", "label", "required", "to" ]
+      },
+      "EdgeCondition" : {
+        "type" : "object",
+        "properties" : {
+          "failedAttemptsThreshold" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "hintsThreshold" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rule" : {
+            "type" : "string",
+            "enum" : [ "PERFECT_FIRST_TRY", "SCORE_AT_LEAST", "STRUGGLED", "DEFAULT" ]
+          },
+          "scoreThreshold" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "task" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "failedAttemptsThreshold", "hintsThreshold", "rule", "scoreThreshold", "task" ]
+      },
+      "GateProgress" : {
+        "type" : "object",
+        "properties" : {
+          "earnedPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "maxPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "missingPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "openTasks" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OpenTaskView"
+            }
+          },
+          "percent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "satisfied" : {
+            "type" : "boolean"
+          },
+          "unreachable" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "earnedPoints", "maxPoints", "missingPoints", "openTasks", "percent", "satisfied", "unreachable" ]
+      },
+      "GateRequirement" : {
+        "type" : "object",
+        "properties" : {
+          "fallback" : {
+            "type" : "string",
+            "enum" : [ "TEACHER", "REMEDIAL", "OPEN" ]
+          },
+          "fallbackRemedialNode" : {
+            "type" : "string"
+          },
+          "minPercent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "mode" : {
+            "type" : "string",
+            "enum" : [ "TOTAL", "EACH" ]
+          },
+          "scope" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "fallback", "fallbackRemedialNode", "minPercent", "mode", "scope" ]
+      },
+      "GateStudentStat" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "minPercent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "missingPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "nodeLabel" : {
+            "type" : "string"
+          },
+          "open" : {
+            "type" : "boolean"
+          },
+          "percent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "unreachable" : {
+            "type" : "boolean"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "displayName", "minPercent", "missingPoints", "nodeId", "nodeLabel", "open", "percent", "unreachable", "username" ]
       },
       "GeneratedAccount" : {
         "type" : "object",
@@ -3762,6 +4641,39 @@
           }
         },
         "required" : [ "edges", "nodes" ]
+      },
+      "HelpCall" : {
+        "type" : "object",
+        "properties" : {
+          "category" : {
+            "type" : "string"
+          },
+          "draft" : {
+            "type" : "string"
+          },
+          "lastOutput" : {
+            "type" : "string"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "taskSlug" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "category", "draft", "lastOutput", "moduleSlug", "note", "taskSlug" ]
+      },
+      "HelpState" : {
+        "type" : "object",
+        "properties" : {
+          "request" : {
+            "$ref" : "#/components/schemas/MyHelpRequest"
+          }
+        },
+        "required" : [ "request" ]
       },
       "HintResult" : {
         "type" : "object",
@@ -4146,6 +5058,46 @@
         },
         "required" : [ "availableUntil", "completedTasks", "description", "icon", "id", "isOpen", "isUnlocked", "maxPoints", "pointsEarned", "slug", "title", "totalTasks" ]
       },
+      "MyHelpRequest" : {
+        "type" : "object",
+        "properties" : {
+          "ahead" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "category" : {
+            "type" : "string",
+            "enum" : [ "TASK_UNCLEAR", "ERROR_MESSAGE", "TECHNICAL", "OTHER" ]
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "OPEN", "CLAIMED", "RESOLVED", "CANCELLED" ]
+          },
+          "taskSlug" : {
+            "type" : "string"
+          },
+          "taskTitle" : {
+            "type" : "string"
+          },
+          "teacherMessage" : {
+            "type" : "string"
+          }
+        }
+      },
       "NavLink" : {
         "type" : "object",
         "properties" : {
@@ -4167,18 +5119,42 @@
       "Node" : {
         "type" : "object",
         "properties" : {
+          "boss" : {
+            "type" : "boolean"
+          },
           "id" : {
             "type" : "string"
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH", "BONUS", "REMEDIAL" ]
+          },
+          "knowledgeArticle" : {
+            "type" : "string"
           },
           "label" : {
             "type" : "string"
           },
+          "max" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "min" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "module" : {
             "type" : "string"
+          },
+          "path" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "requirement" : {
+            "$ref" : "#/components/schemas/GateRequirement"
           },
           "task" : {
             "type" : "string"
@@ -4198,14 +5174,31 @@
             "format" : "int32"
           }
         },
-        "required" : [ "id", "kind", "label", "module", "task", "tasks", "x", "y" ]
+        "required" : [ "boss", "id", "kind", "knowledgeArticle", "label", "max", "min", "module", "path", "points", "requirement", "task", "tasks", "x", "y" ]
+      },
+      "NodeUnlockRequest" : {
+        "type" : "object",
+        "properties" : {
+          "nodeId" : {
+            "type" : "string"
+          }
+        }
       },
       "NodeView" : {
         "type" : "object",
         "properties" : {
+          "boss" : {
+            "type" : "boolean"
+          },
+          "chosenTo" : {
+            "type" : "string"
+          },
           "done" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "gateProgress" : {
+            "$ref" : "#/components/schemas/GateProgress"
           },
           "href" : {
             "type" : "string"
@@ -4218,17 +5211,46 @@
           },
           "kind" : {
             "type" : "string",
-            "enum" : [ "MODULE", "TASK", "MILESTONE" ]
+            "enum" : [ "MODULE", "TASK", "MILESTONE", "AND", "OR", "CHOICE", "PATH", "BONUS", "REMEDIAL" ]
+          },
+          "knowledgeArticle" : {
+            "type" : "string"
           },
           "label" : {
+            "type" : "string"
+          },
+          "min" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChoiceOption"
+            }
+          },
+          "path" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "reason" : {
             "type" : "string"
           },
           "recommended" : {
             "type" : "boolean"
           },
+          "requirement" : {
+            "$ref" : "#/components/schemas/GateRequirement"
+          },
           "state" : {
             "type" : "string",
-            "enum" : [ "DONE", "AVAILABLE", "UPCOMING", "CLOSED", "LOCKED" ]
+            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED", "SKIPPED" ]
+          },
+          "teacherUnlocked" : {
+            "type" : "boolean"
           },
           "total" : {
             "type" : "integer",
@@ -4243,7 +5265,26 @@
             "format" : "int32"
           }
         },
-        "required" : [ "done", "href", "icon", "id", "kind", "label", "recommended", "state", "total", "x", "y" ]
+        "required" : [ "boss", "chosenTo", "done", "gateProgress", "href", "icon", "id", "kind", "knowledgeArticle", "label", "min", "options", "path", "points", "reason", "recommended", "requirement", "state", "teacherUnlocked", "total", "x", "y" ]
+      },
+      "OpenTaskView" : {
+        "type" : "object",
+        "properties" : {
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "potentialPoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taskSlug" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "moduleSlug", "potentialPoints", "taskSlug", "title" ]
       },
       "PageDetail" : {
         "type" : "object",
@@ -4337,8 +5378,14 @@
           "description" : {
             "type" : "string"
           },
+          "enforce" : {
+            "type" : "boolean"
+          },
           "graph" : {
             "$ref" : "#/components/schemas/Graph"
+          },
+          "hideOverview" : {
+            "type" : "boolean"
           },
           "id" : {
             "type" : "integer",
@@ -4353,21 +5400,42 @@
           "slug" : {
             "type" : "string"
           },
+          "templateOnly" : {
+            "type" : "boolean"
+          },
           "title" : {
+            "type" : "string"
+          },
+          "unlockRestAfter" : {
             "type" : "string"
           },
           "updatedAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "usedIn" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "warnings" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "applied", "courseId", "courseName", "description", "graph", "id", "lockOthers", "published", "slug", "title", "updatedAt" ]
+        "required" : [ "applied", "courseId", "courseName", "description", "enforce", "graph", "hideOverview", "id", "lockOthers", "published", "slug", "templateOnly", "title", "unlockRestAfter", "updatedAt", "usedIn", "warnings" ]
       },
       "PathLink" : {
         "type" : "object",
         "properties" : {
           "description" : {
             "type" : "string"
+          },
+          "hideOverview" : {
+            "type" : "boolean"
           },
           "slug" : {
             "type" : "string"
@@ -4376,7 +5444,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "slug", "title" ]
+        "required" : [ "description", "hideOverview", "slug", "title" ]
       },
       "PathSummary" : {
         "type" : "object",
@@ -4390,6 +5458,12 @@
           },
           "description" : {
             "type" : "string"
+          },
+          "enforce" : {
+            "type" : "boolean"
+          },
+          "hideOverview" : {
+            "type" : "boolean"
           },
           "id" : {
             "type" : "integer",
@@ -4405,15 +5479,24 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "templateOnly" : {
+            "type" : "boolean"
+          },
           "title" : {
             "type" : "string"
           },
           "updatedAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "usedIn" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "courseId", "courseName", "description", "id", "published", "slug", "stations", "title", "updatedAt" ]
+        "required" : [ "courseId", "courseName", "description", "enforce", "hideOverview", "id", "published", "slug", "stations", "templateOnly", "title", "updatedAt", "usedIn" ]
       },
       "PathUpdate" : {
         "type" : "object",
@@ -4425,8 +5508,14 @@
           "description" : {
             "type" : "string"
           },
+          "enforce" : {
+            "type" : "boolean"
+          },
           "graph" : {
             "$ref" : "#/components/schemas/Graph"
+          },
+          "hideOverview" : {
+            "type" : "boolean"
           },
           "lockOthers" : {
             "type" : "boolean"
@@ -4437,11 +5526,17 @@
           "slug" : {
             "type" : "string"
           },
+          "templateOnly" : {
+            "type" : "boolean"
+          },
           "title" : {
+            "type" : "string"
+          },
+          "unlockRestAfter" : {
             "type" : "string"
           }
         },
-        "required" : [ "courseId", "description", "graph", "lockOthers", "published", "slug", "title" ]
+        "required" : [ "courseId", "description", "enforce", "graph", "hideOverview", "lockOthers", "published", "slug", "templateOnly", "title", "unlockRestAfter" ]
       },
       "PathView" : {
         "type" : "object",
@@ -4454,6 +5549,12 @@
             "items" : {
               "$ref" : "#/components/schemas/Edge"
             }
+          },
+          "enforce" : {
+            "type" : "boolean"
+          },
+          "hideOverview" : {
+            "type" : "boolean"
           },
           "nodes" : {
             "type" : "array",
@@ -4479,7 +5580,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "description", "edges", "nodes", "recommendation", "slug", "stations", "stationsDone", "title" ]
+        "required" : [ "description", "edges", "enforce", "hideOverview", "nodes", "recommendation", "slug", "stations", "stationsDone", "title" ]
       },
       "Profile" : {
         "type" : "object",
@@ -4526,9 +5627,128 @@
         },
         "required" : [ "content", "slug", "title" ]
       },
+      "Queue" : {
+        "type" : "object",
+        "properties" : {
+          "open" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/QueueEntry"
+            }
+          },
+          "recent" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/QueueEntry"
+            }
+          }
+        },
+        "required" : [ "open", "recent" ]
+      },
+      "QueueEntry" : {
+        "type" : "object",
+        "properties" : {
+          "category" : {
+            "type" : "string",
+            "enum" : [ "TASK_UNCLEAR", "ERROR_MESSAGE", "TECHNICAL", "OTHER" ]
+          },
+          "claimedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "claimedBy" : {
+            "type" : "string"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "draft" : {
+            "type" : "string"
+          },
+          "failedAttempts" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "hintsUsed" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "lastFeedback" : {
+            "type" : "string"
+          },
+          "lastOutcome" : {
+            "type" : "string"
+          },
+          "lastOutput" : {
+            "type" : "string"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "resolution" : {
+            "type" : "string",
+            "enum" : [ "TEACHER", "SELF_SOLVED", "CANCELLED" ]
+          },
+          "resolvedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "OPEN", "CLAIMED", "RESOLVED", "CANCELLED" ]
+          },
+          "taskSlug" : {
+            "type" : "string"
+          },
+          "taskTitle" : {
+            "type" : "string"
+          },
+          "taskType" : {
+            "type" : "string"
+          },
+          "teacherMessage" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "username" : {
+            "type" : "string"
+          },
+          "waitingSeconds" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "category", "claimedAt", "claimedBy", "courseName", "createdAt", "displayName", "draft", "failedAttempts", "hintsUsed", "id", "lastFeedback", "lastOutcome", "lastOutput", "moduleSlug", "moduleTitle", "note", "resolution", "resolvedAt", "status", "taskSlug", "taskTitle", "taskType", "teacherMessage", "updatedAt", "username", "waitingSeconds" ]
+      },
       "Recommendation" : {
         "type" : "object",
         "properties" : {
+          "articleSlug" : {
+            "type" : "string"
+          },
+          "articleTitle" : {
+            "type" : "string"
+          },
           "moduleIcon" : {
             "type" : "string"
           },
@@ -4554,7 +5774,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "moduleIcon", "moduleSlug", "moduleTitle", "pathSlug", "pathTitle", "reason", "taskSlug", "taskTitle" ]
+        "required" : [ "articleSlug", "articleTitle", "moduleIcon", "moduleSlug", "moduleTitle", "pathSlug", "pathTitle", "reason", "taskSlug", "taskTitle" ]
       },
       "RejectRequest" : {
         "type" : "object",
@@ -4649,6 +5869,125 @@
         },
         "required" : [ "timeout" ]
       },
+      "StudentBranchEntry" : {
+        "type" : "object",
+        "properties" : {
+          "decidedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "detail" : {
+            "type" : "string"
+          },
+          "edgeKey" : {
+            "type" : "string"
+          },
+          "fromId" : {
+            "type" : "string"
+          },
+          "fromLabel" : {
+            "type" : "string"
+          },
+          "matched" : {
+            "type" : "boolean"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "rule" : {
+            "type" : "string"
+          },
+          "toId" : {
+            "type" : "string"
+          },
+          "toLabel" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "decidedAt", "detail", "edgeKey", "fromId", "fromLabel", "matched", "pathSlug", "pathTitle", "rule", "toId", "toLabel" ]
+      },
+      "StudentChoiceEntry" : {
+        "type" : "object",
+        "properties" : {
+          "chosenAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "chosenBy" : {
+            "type" : "string"
+          },
+          "chosenLabel" : {
+            "type" : "string"
+          },
+          "chosenTo" : {
+            "type" : "string"
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "nodeLabel" : {
+            "type" : "string"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChoiceOption"
+            }
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "state" : {
+            "type" : "string",
+            "enum" : [ "DONE", "AVAILABLE", "BLOCKED", "UPCOMING", "CLOSED", "LOCKED", "EXCLUDED", "SKIPPED" ]
+          },
+          "subpath" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "chosenAt", "chosenBy", "chosenLabel", "chosenTo", "nodeId", "nodeLabel", "options", "pathSlug", "pathTitle", "state", "subpath" ]
+      },
+      "StudentOverrideEntry" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "nodeId" : {
+            "type" : "string"
+          },
+          "nodeLabel" : {
+            "type" : "string"
+          },
+          "pathSlug" : {
+            "type" : "string"
+          },
+          "pathTitle" : {
+            "type" : "string"
+          },
+          "target" : {
+            "type" : "string"
+          },
+          "targetLabel" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "createdAt", "id", "kind", "nodeId", "nodeLabel", "pathSlug", "pathTitle", "target", "targetLabel" ]
+      },
       "StudentOverview" : {
         "type" : "object",
         "properties" : {
@@ -4675,6 +6014,42 @@
           }
         },
         "required" : [ "completedTasks", "courseId", "courseName", "displayName", "totalPoints", "username" ]
+      },
+      "StudentPathAdminView" : {
+        "type" : "object",
+        "properties" : {
+          "branches" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StudentBranchEntry"
+            }
+          },
+          "choices" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StudentChoiceEntry"
+            }
+          },
+          "overrides" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StudentOverrideEntry"
+            }
+          },
+          "paths" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PathLink"
+            }
+          },
+          "selectedSlug" : {
+            "type" : "string"
+          },
+          "view" : {
+            "$ref" : "#/components/schemas/PathView"
+          }
+        },
+        "required" : [ "branches", "choices", "overrides", "paths", "selectedSlug", "view" ]
       },
       "StudentTask" : {
         "type" : "object",
@@ -5207,12 +6582,18 @@
       "TaskSummary" : {
         "type" : "object",
         "properties" : {
+          "blockedReason" : {
+            "type" : "string"
+          },
           "difficulty" : {
             "type" : "string"
           },
           "id" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "isBlocked" : {
+            "type" : "boolean"
           },
           "isCompleted" : {
             "type" : "boolean"
@@ -5241,7 +6622,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "difficulty", "id", "isCompleted", "isLocked", "points", "pointsEarned", "slug", "status", "title", "type" ]
+        "required" : [ "blockedReason", "difficulty", "id", "isBlocked", "isCompleted", "isLocked", "points", "pointsEarned", "slug", "status", "title", "type" ]
       },
       "TestOutput" : {
         "type" : "object",

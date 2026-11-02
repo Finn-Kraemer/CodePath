@@ -9,9 +9,11 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { auth } from '$lib/auth.svelte';
 	import { realtime } from '$lib/realtime.svelte';
+	import HelpBadge from '$lib/help/HelpBadge.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { siteNavigation } from '$lib/site/navigation.svelte';
+	import { pathFocus } from '$lib/pathway/focus.svelte';
 
 	let { children } = $props();
 	let announcement = $state<{ content: string; updatedAt?: string; displayMode?: string } | null>(
@@ -46,6 +48,11 @@
 		siteNavigation.refresh();
 	});
 
+	// Live-Verbindung auch nach Anmeldung ohne Neuladen (Login, Registrierung)
+	$effect(() => {
+		if (auth.isAuthenticated) realtime.connect();
+	});
+
 	onMount(async () => {
 		await auth.refresh();
 		// Start-Intro aus app.html ausblenden, sobald die Anmeldung geklärt ist
@@ -53,15 +60,22 @@
 		if (auth.isAuthenticated) {
 			realtime.connect();
 			try {
-				const res = await auth.apiFetch('/api/common/announcement');
+				const [res, pathsRes] = await Promise.all([
+					auth.apiFetch('/api/common/announcement'),
+					auth.apiFetch('/api/codepaths')
+				]);
 				if (res.ok) {
 					const data = await res.json();
 					if (data.content && (data.displayMode === 'HEADER' || data.displayMode === 'BOTH')) {
 						announcement = data;
 					}
 				}
+				if (pathsRes.ok) {
+					const links: { hideOverview?: boolean }[] = await pathsRes.json();
+					pathFocus.set(links.some((l) => !!l.hideOverview));
+				}
 			} catch (e) {
-				console.error('Failed to fetch announcement', e);
+				console.error('Failed to fetch announcement or paths', e);
 			}
 		}
 	});
@@ -88,13 +102,16 @@
 		return page.url.pathname.startsWith(path);
 	}
 
-	const navLinks = [
-		{ name: 'Module', path: '/modules' },
+	const navLinks = $derived([
+		{
+			name: pathFocus.active && auth.user?.role !== 'ADMIN' ? 'CodePath' : 'Module',
+			path: '/modules'
+		},
 		{ name: 'Wissen', path: '/knowledge' },
 		{ name: 'Info', path: '/info' },
 		{ name: 'Feedback', path: '/feedback' },
 		{ name: 'Rangliste', path: '/leaderboard' }
-	];
+	]);
 
 	// Feste Menüpunkte für Angemeldete, dazu angeheftete eigene Seiten (öffentliche auch ohne Login).
 	// Alle übrigen Seiten stehen im Aufklappmenü „Seiten“ und unter /seiten.
@@ -116,6 +133,8 @@
 	// Helpers for special layouts
 	let isFrontpage = $derived(page.url.pathname === '/' || page.url.pathname.startsWith('/seiten/'));
 	let isProjector = $derived(page.url.pathname === '/projector');
+	// Der CodePath-Editor braucht Platz: volle Bildschirmbreite statt der Inhaltsspalte
+	let isWideEditor = $derived(/^\/admin\/codepaths\/[^/]+\/?$/.test(page.url.pathname));
 </script>
 
 <svelte:head>
@@ -264,6 +283,7 @@
 								</a>
 
 								{#if auth.user?.role === 'ADMIN'}
+									<HelpBadge />
 									<a
 										href="/admin"
 										class="group flex items-center gap-2 rounded-none border border-institutional-navy/10 bg-slate-50 px-4 py-2.5 text-[9px] font-black tracking-widest text-institutional-navy uppercase transition-all hover:bg-institutional-navy hover:text-white"
@@ -458,8 +478,14 @@
 	{/if}
 
 	<!-- Main Content Area -->
-	<main class="flex-grow {isFrontpage || isProjector ? '' : 'py-12'}">
-		<div class={isFrontpage || isProjector ? '' : 'container-institutional'}>
+	<main class="flex-grow {isFrontpage || isProjector ? '' : isWideEditor ? 'py-4' : 'py-12'}">
+		<div
+			class={isFrontpage || isProjector
+				? ''
+				: isWideEditor
+					? 'w-full px-4 lg:px-6'
+					: 'container-institutional'}
+		>
 			{@render children()}
 		</div>
 	</main>

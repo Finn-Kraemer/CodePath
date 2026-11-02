@@ -12,7 +12,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -32,13 +34,19 @@ public class RealtimeUpdateService {
 
     public static final String ANNOUNCEMENT = "announcement";
     public static final String LEADERBOARD = "leaderboard";
+    public static final String CODEPATH = "codepath";
+    public static final String HELP = "help";
 
     // Ohne Timeout; Verbindungsabbrüche räumen die Callbacks unten auf
     private static final long NO_TIMEOUT = 0L;
     // Genug für Ankündigungen und Pings; Ranglisten-Updates belegen dank Zusammenfassen höchstens einen Platz
     private static final int QUEUE_CAPACITY = 1000;
 
-    private final CopyOnWriteArrayList<SseEmitter> emitters = new CopyOnWriteArrayList<>();
+    /** Verbindung mit dem Konto, das sie geöffnet hat – für Ereignisse, die nicht alle sehen dürfen. */
+    private record Client(SseEmitter emitter, String username, boolean teacher) {
+    }
+
+    private final CopyOnWriteArrayList<Client> clients = new CopyOnWriteArrayList<>();
     private final AtomicBoolean leaderboardPending = new AtomicBoolean();
     private final ExecutorService sender = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(QUEUE_CAPACITY),
@@ -49,24 +57,33 @@ public class RealtimeUpdateService {
             },
             (task, executor) -> log.warn("Live-Update verworfen: Warteschlange voll"));
 
-    public SseEmitter subscribe() {
+    /**
+     * @param username angemeldetes Konto (für Ereignisse an einzelne Personen)
+     * @param teacher  Lehrkraft? Nur diese Verbindungen bekommen z. B. Hilfe-Rufe der Klasse.
+     */
+    public SseEmitter subscribe(String username, boolean teacher) {
         SseEmitter emitter = new SseEmitter(NO_TIMEOUT);
-        return register(emitter);
+        return register(emitter, username, teacher);
     }
 
-    /** Für Tests: eigenen Emitter registrieren. */
+    /** Für Tests: eigenen Emitter ohne Konto registrieren. */
     SseEmitter register(SseEmitter emitter) {
-        emitters.add(emitter);
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitter.onTimeout(() -> emitters.remove(emitter));
-        emitter.onError(e -> emitters.remove(emitter));
+        return register(emitter, null, false);
+    }
+
+    SseEmitter register(SseEmitter emitter, String username, boolean teacher) {
+        Client client = new Client(emitter, username, teacher);
+        clients.add(client);
+        emitter.onCompletion(() -> clients.remove(client));
+        emitter.onTimeout(() -> clients.remove(client));
+        emitter.onError(e -> clients.remove(client));
         // Die Begrüßung geht nur an den neuen Client und darf direkt gesendet werden
         send(emitter, "connected", Map.of("timestamp", System.currentTimeMillis()));
         return emitter;
     }
 
     public int connectionCount() {
-        return emitters.size();
+        return clients.size();
     }
 
     public void publishAnnouncement(String content, String displayMode) {
@@ -86,6 +103,27 @@ public class RealtimeUpdateService {
                 broadcast(LEADERBOARD, Map.of("timestamp", System.currentTimeMillis()));
             });
         });
+    }
+
+    public void publishCodePathUpdate(String username, String message) {
+        Map<String, Object> payload = Map.of(
+                "username", username == null ? "" : username,
+                "message", message == null ? "" : message,
+                "timestamp", System.currentTimeMillis());
+        afterCommit(() -> enqueue(() -> broadcast(CODEPATH, payload)));
+        publishLeaderboardUpdate();
+    }
+
+    /** Nur an Verbindungen von Lehrkräften, nie an Schüler (z. B. Hilfe-Rufe). */
+    public void publishToTeachers(String event, Map<String, Object> payload) {
+        afterCommit(() -> enqueue(() -> sendWhere(Client::teacher, event, payload)));
+    }
+
+    /** Nur an die Verbindungen dieser Konten. */
+    public void publishToUsers(Collection<String> usernames, String event, Map<String, Object> payload) {
+        if (usernames.isEmpty()) return;
+        Set<String> recipients = Set.copyOf(usernames);
+        afterCommit(() -> enqueue(() -> sendWhere(c -> c.username() != null && recipients.contains(c.username()), event, payload)));
     }
 
     /**
@@ -117,33 +155,45 @@ public class RealtimeUpdateService {
     @Scheduled(fixedRate = 25_000)
     void heartbeat() {
         enqueue(() -> {
-            for (SseEmitter emitter : emitters) {
-                trySend(emitter, () -> SseEmitter.event().comment("ping"));
+            for (Client client : clients) {
+                trySend(client, () -> SseEmitter.event().comment("ping"));
             }
         });
     }
 
     private void broadcast(String event, Object payload) {
-        log.debug("Sende Live-Update '{}' an {} Clients", event, emitters.size());
-        for (SseEmitter emitter : emitters) {
-            send(emitter, event, payload);
+        sendWhere(c -> true, event, payload);
+    }
+
+    private void sendWhere(java.util.function.Predicate<Client> recipients, String event, Object payload) {
+        log.debug("Sende Live-Update '{}' an {} Clients", event, clients.size());
+        for (Client client : clients) {
+            if (recipients.test(client)) send(client, event, payload);
         }
     }
 
     private void send(SseEmitter emitter, String event, Object payload) {
-        trySend(emitter, () -> SseEmitter.event().name(event).data(payload, MediaType.APPLICATION_JSON));
+        trySend(new Client(emitter, null, false), () -> SseEmitter.event().name(event).data(payload, MediaType.APPLICATION_JSON));
     }
 
-    private void trySend(SseEmitter emitter, Supplier<SseEmitter.SseEventBuilder> event) {
+    private void send(Client client, String event, Object payload) {
+        trySend(client, () -> SseEmitter.event().name(event).data(payload, MediaType.APPLICATION_JSON));
+    }
+
+    private void trySend(Client client, Supplier<SseEmitter.SseEventBuilder> event) {
         try {
-            emitter.send(event.get());
+            client.emitter().send(event.get());
         } catch (IOException | IllegalStateException e) {
-            emitters.remove(emitter);
+            remove(client.emitter());
         } catch (RuntimeException e) {
             // Ein einzelner kaputter Client darf den Sende-Thread nicht beenden
-            emitters.remove(emitter);
+            remove(client.emitter());
             log.debug("Live-Update an einen Client fehlgeschlagen: {}", e.toString());
         }
+    }
+
+    private void remove(SseEmitter emitter) {
+        clients.removeIf(c -> c.emitter() == emitter);
     }
 
     /** Für Tests: wartet, bis alles bisher Eingereihte gesendet ist. */

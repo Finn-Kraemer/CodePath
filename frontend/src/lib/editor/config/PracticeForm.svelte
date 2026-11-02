@@ -1,4 +1,5 @@
 <script lang="ts">
+	import VisualizerOptions from './VisualizerOptions.svelte';
 	import { nextId, type Config } from '../types';
 
 	let { config = $bindable(), points }: { config: Config; points: number } = $props();
@@ -27,6 +28,7 @@
 		>Startcode<textarea class="ed-input font-mono" rows="5" bind:value={config.starterCode}
 		></textarea></label
 	>
+	<VisualizerOptions bind:config />
 {/if}
 <p class="ed-label mt-4">Rubrik</p>
 <div class="mt-2 space-y-2">

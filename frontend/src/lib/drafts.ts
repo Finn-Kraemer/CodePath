@@ -28,3 +28,17 @@ export function clearDraft(key: string) {
 		// ignorieren
 	}
 }
+
+/**
+ * Letzte Ausgabe bzw. Fehlermeldung aus „Ausprobieren“ – nur im Speicher dieser Seite, damit ein
+ * Hilfe-Ruf sie mitschicken kann. Wird nie gespeichert oder automatisch übertragen.
+ */
+const outputs = new Map<string, string>();
+
+export function rememberOutput(key: string, text: string) {
+	outputs.set(key, text);
+}
+
+export function lastOutput(key: string): string {
+	return outputs.get(key) ?? '';
+}

@@ -29,3 +29,13 @@ export const STATUS_LABELS: Record<string, string> = {
 	FAILED: 'Keine Versuche mehr',
 	PRACTICED: 'Geübt'
 };
+
+/** Bewertung eines Versuchs */
+export const OUTCOME_LABELS: Record<string, string> = {
+	CORRECT: 'richtig',
+	PARTIAL: 'teilweise richtig',
+	WRONG: 'falsch',
+	MANUAL: 'bei der Lehrkraft',
+	UNGRADED: 'gespeichert',
+	INVALID: 'ungültig'
+};

@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { canvasSize, edgePath, layered, NODE_H, NODE_W, snap } from './geometry';
+import {
+	canvasSize,
+	choiceBranches,
+	edgePath,
+	gateInputOffset,
+	incomingSlot,
+	layered,
+	NODE_H,
+	NODE_W,
+	snap
+} from './geometry';
 
 describe('CodePath-Karte', () => {
 	it('macht die Fläche groß genug für alle Stationen', () => {
@@ -15,6 +25,28 @@ describe('CodePath-Karte', () => {
 		);
 		expect(edgePath({ x: 0, y: 0 }, { x: 600, y: 0 })).toMatch(
 			new RegExp(`^M ${NODE_W} ${NODE_H / 2} `)
+		);
+	});
+
+	it('verteilt mehrere Eingänge an einem Logik-Gatter auf getrennte Anschlusspunkte', () => {
+		expect(gateInputOffset(0, 1, 120)).toBe(0);
+		expect(gateInputOffset(0, 2, 120)).toBeLessThan(0);
+		expect(gateInputOffset(1, 2, 120)).toBeGreaterThan(0);
+		expect(gateInputOffset(0, 2, 120)).toBe(-gateInputOffset(1, 2, 120));
+
+		const byId = new Map([
+			['left', { x: 0, y: 0 }],
+			['right', { x: 300, y: 0 }],
+			['gate', { x: 150, y: 200 }]
+		]);
+		const edges = [
+			{ from: 'right', to: 'gate' },
+			{ from: 'left', to: 'gate' }
+		];
+		expect(incomingSlot(edges, byId, edges[1])).toEqual({ index: 0, count: 2 });
+		expect(incomingSlot(edges, byId, edges[0])).toEqual({ index: 1, count: 2 });
+		expect(edgePath(byId.get('left')!, byId.get('gate')!, 0, 2)).not.toEqual(
+			edgePath(byId.get('right')!, byId.get('gate')!, 1, 2)
 		);
 	});
 
@@ -37,5 +69,19 @@ describe('CodePath-Karte', () => {
 		expect(pos.get('b')!.y).toBe(pos.get('c')!.y);
 		expect(pos.get('b')!.x).not.toBe(pos.get('c')!.x);
 		expect(pos.get('d')!.y).toBeGreaterThan(pos.get('b')!.y);
+	});
+
+	it('trennt exklusive Zweige einer Weiche von der gemeinsamen Zusammenführung', () => {
+		const edges = [
+			{ from: 'c', to: 'a1' },
+			{ from: 'a1', to: 'a2' },
+			{ from: 'c', to: 'b1' },
+			{ from: 'a2', to: 'merge' },
+			{ from: 'b1', to: 'merge' },
+			{ from: 'merge', to: 'end' }
+		];
+		const branches = choiceBranches(edges, 'c');
+		expect([...(branches.get('a1') ?? [])]).toEqual(['a1', 'a2']);
+		expect([...(branches.get('b1') ?? [])]).toEqual(['b1']);
 	});
 });

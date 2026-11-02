@@ -4,7 +4,7 @@
 	import PythonWorkbench from '$lib/components/PythonWorkbench.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import SubmitButton from './SubmitButton.svelte';
-	import { config, draftKey, type TaskProps } from './types';
+	import { config, draftKey, visualizerSettings, type TaskProps } from './types';
 	import { clearDraft, loadDraft, saveDraft } from '$lib/drafts';
 
 	let { task, disabled, busy, submit }: TaskProps = $props();
@@ -92,6 +92,8 @@
 			</p>
 			<PythonWorkbench
 				{initialCode}
+				visualizer={visualizerSettings(task).enabled}
+				maxSteps={visualizerSettings(task).maxSteps}
 				readOnly={disabled || pending}
 				onchange={(value) => {
 					code = value;

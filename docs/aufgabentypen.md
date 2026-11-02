@@ -54,6 +54,21 @@ Jeder Typ hat Standardregeln für Versuche, Hinweise und Bonus. Im Editor lassen
 | Digitaltechnik | Zahlensysteme, Logikgatter |
 | Kreative und offene Aufgaben | Praxis |
 
+## ◼ Schritt für Schritt (Code-Visualizer)
+
+Bei `CODE`, `FILL_CODE` und in der Python-Werkbank von `PRACTICE` gibt es neben „Ausprobieren“ den Button **„Schritt für Schritt“**. Er führt das Programm im Browser aus (Pyodide, offline) und zeichnet jede Zeile auf. Mit Vor/Zurück, Abspielen, Schieberegler oder den Pfeiltasten ←/→ sehen Schülerinnen und Schüler:
+
+- die Zeile, die Python **als Nächstes** ausführt (gelb, ▶), und die Zeile davor (hell, ·),
+- die Variablen je Funktionsaufruf als Stapel – Rekursion wird sichtbar,
+- Listen, Tupel, Mengen und Dicts als Kästchenreihe mit Index; zeigen zwei Variablen auf **dieselbe** Liste, steht das dabei,
+- Rückgabewerte, die Ausgabe bis zum aktuellen Schritt und jede Änderung zusätzlich als Text („`i` ist jetzt 3“).
+
+Nach dem Lösen lässt sich auch die Musterlösung Schritt für Schritt ansehen (nur, wo sie ohnehin gezeigt wird). Der Visualizer ist ein reines Lernwerkzeug: Nichts wird bewertet, gezählt oder auf dem Server gespeichert. Eingaben für `input()` kommen aus dem ersten Beispiel bzw. dem Eingabefeld der Werkbank.
+
+- **Grenzen:** nach 1.000 Schritten (bzw. 5 s) hält die Aufzeichnung an – „läuft deine Schleife endlos?“. Je Aufgabe einstellbar mit `visualizerMaxSteps` (höchstens 5.000).
+- **Abschalten:** `visualizer: false` in der Konfiguration (im Editor: „Schritt für Schritt“ → Aus). Ohne Angabe ist er an, im Modul `abschlusstest` aus.
+- **Aufgabenidee:** „Sag voraus, welchen Wert `summe` nach dem 3. Durchlauf hat“ als Lückentext – danach mit dem Visualizer nachprüfen.
+
 ## ◼ Terminal und Git
 
 Das Terminal ist eine Simulation im Browser – es läuft nichts auf dem Server oder dem Schulrechner. Der Server spielt die Befehlsfolge bei der Abgabe selbst nach; was die Klasse im Browser sieht und was bewertet wird, kommt aus zwei gleichwertigen Modellen, die dieselben Testfälle bestehen.

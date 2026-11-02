@@ -3,6 +3,8 @@
 	import CodeOutput from '$lib/tasks/CodeOutput.svelte';
 	import { createEditor } from '$lib/monaco';
 	import { PythonRunner } from '$lib/python.svelte';
+	import CodeVisualizer from '$lib/visualizer/CodeVisualizer.svelte';
+	import { DEFAULT_MAX_STEPS } from '$lib/visualizer/trace';
 
 	/**
 	 * Python-Werkbank: Editor, Eingabe und Ausführen im Browser. Für größere Programme
@@ -11,8 +13,17 @@
 	let {
 		initialCode = '',
 		readOnly = false,
+		visualizer = true,
+		maxSteps = DEFAULT_MAX_STEPS,
 		onchange
-	}: { initialCode?: string; readOnly?: boolean; onchange?: (code: string) => void } = $props();
+	}: {
+		initialCode?: string;
+		readOnly?: boolean;
+		/** Button „Schritt für Schritt“ (Code-Visualizer) anbieten */
+		visualizer?: boolean;
+		maxSteps?: number;
+		onchange?: (code: string) => void;
+	} = $props();
 
 	let element = $state<HTMLElement | null>(null);
 	let editor: any = null;
@@ -22,6 +33,7 @@
 	let error = $state('');
 	let running = $state(false);
 	const runner = new PythonRunner();
+	let visualized = $state<{ code: string; stdin: string; key: number } | null>(null);
 
 	onMount(async () => {
 		code = initialCode;
@@ -76,12 +88,36 @@
 			<div class="mt-1"><CodeOutput {output} {error} /></div>
 		</div>
 	</div>
-	<button
-		type="button"
-		onclick={run}
-		disabled={!runner.ready || running}
-		class="w-full border-2 border-institutional-navy py-4 font-sans text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
-	>
-		{runner.ready ? (running ? 'Läuft …' : 'Programm ausführen') : 'Python lädt …'}
-	</button>
+	{#if visualized}
+		{#key visualized.key}
+			<CodeVisualizer
+				{runner}
+				code={visualized.code}
+				stdin={visualized.stdin}
+				{maxSteps}
+				title="Dein Programm Schritt für Schritt"
+				onclose={() => (visualized = null)}
+			/>
+		{/key}
+	{/if}
+	<div class="grid grid-cols-1 gap-4 {visualizer ? 'md:grid-cols-2' : ''}">
+		<button
+			type="button"
+			onclick={run}
+			disabled={!runner.ready || running}
+			class="w-full border-2 border-institutional-navy py-4 font-sans text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+		>
+			{runner.ready ? (running ? 'Läuft …' : 'Programm ausführen') : 'Python lädt …'}
+		</button>
+		{#if visualizer}
+			<button
+				type="button"
+				onclick={() => (visualized = { code, stdin, key: (visualized?.key ?? 0) + 1 })}
+				disabled={!runner.ready || running || !code.trim()}
+				class="w-full border-2 border-institutional-navy py-4 font-sans text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+			>
+				Schritt für Schritt
+			</button>
+		{/if}
+	</div>
 </div>

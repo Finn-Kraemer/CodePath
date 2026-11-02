@@ -53,7 +53,7 @@ public class PracticeHandler implements TaskHandler {
         view.put("codeEditor", Cfg.bool(spec.config(), "codeEditor"));
         view.put("starterCode", Cfg.string(spec.config(), "starterCode", ""));
         view.put("codeRequired", Cfg.bool(spec.config(), "codeRequired"));
-        return view;
+        return CodeHandler.withVisualizer(view, spec.config());
     }
 
     /** Die Rubrik ist keine Lösung: Schüler sollen wissen, worauf es ankommt. */

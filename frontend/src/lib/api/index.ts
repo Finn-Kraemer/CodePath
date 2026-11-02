@@ -36,8 +36,22 @@ export type PathSummary = Schemas['PathSummary'];
 export type PathAdmin = Schemas['PathAdmin'];
 export type PathGraph = Schemas['Graph'];
 export type PathNode = Schemas['Node'];
+export type NodeView = Schemas['NodeView'];
+export type PathEdge = Schemas['Edge'];
+export type EdgeCondition = Schemas['EdgeCondition'];
+export type GateRequirement = Schemas['GateRequirement'];
+export type GateProgress = Schemas['GateProgress'];
+export type GateStudentStat = Schemas['GateStudentStat'];
+export type OpenTaskView = Schemas['OpenTaskView'];
+export type StudentPathAdminView = Schemas['StudentPathAdminView'];
+export type StudentBranchEntry = Schemas['StudentBranchEntry'];
+export type BranchConditionStats = Schemas['BranchConditionStats'];
 export type TransferReport = Schemas['TransferReport'];
 export type SectionInfo = Schemas['SectionInfo'];
+export type HelpState = Schemas['HelpState'];
+export type MyHelpRequest = Schemas['MyHelpRequest'];
+export type HelpQueue = Schemas['Queue'];
+export type HelpQueueEntry = Schemas['QueueEntry'];
 
 export class ApiError extends Error {
 	constructor(
