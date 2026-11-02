@@ -99,7 +99,21 @@ cd runner && RUNNER_TOKEN=lokal-lokal-lokal-1 RUNNER_PORT=8765 python3 -I runner
 
 Wichtige Testklassen: `TaskReleaseTest` (Freigaben einzelner Aufgaben bis zur Bestätigung), `SecurityCatalogTest` (keine Lösung im Browser, Zugriffsregeln, Punkte genau einmal), `ContentPackagesTest` (Probelauf jeder mitgelieferten Aufgabe), `BrowserLabTest` (jedes Labor-Szenario durchgespielt), `TerminalCasesTest` (Terminal und Git im Backend gleich wie im Browser – dieselben Fälle wie `terminal.test.ts`), `LegacyMigrationTest` (Migrationen mit Altdaten).
 
-Die CI (`.github/workflows/ci.yml`) führt all das auf jedem Pull Request aus, startet dafür den echten Code-Runner und testet zum Schluss das gebaute Docker-Image mit Playwright.
+Die CI (`.github/workflows/ci.yml`) führt all das auf jedem Pull Request aus, startet dafür den echten Code-Runner und testet zum Schluss das gebaute Docker-Image mit Playwright. Dazu kommen `actionlint` für die Workflows und auf PRs eine Prüfung neuer Abhängigkeiten auf bekannte Schwachstellen. Der Job **CI erfolgreich** fasst alle Ergebnisse zusammen und ist der einzige Pflicht-Check für `main` – ein neuer Job muss nur dort unter `needs` ergänzt werden.
+
+| Workflow | Wann | Was |
+|---|---|---|
+| `ci.yml` | jeder PR, Push auf `main`, Merge-Queue, vor jedem Release | Tests, Lint, Build, Sandbox, End-to-End |
+| `codeql.yml` | jeder PR, Push auf `main`, wöchentlich | Statische Sicherheitsanalyse (Java, TypeScript, Python, Workflows) |
+| `release.yml` | Tag `vX.Y.Z` | CI, Images mit SBOM und signiertem Herkunftsnachweis, GitHub-Release |
+
+Alle Actions sind auf einen Commit-Hash festgelegt (Versionsnummer als Kommentar); Dependabot (`.github/dependabot.yml`) schlägt wöchentlich Updates für Actions, Maven, npm und Docker-Basisimages vor.
+
+### Branch-Schutz
+
+`main` ist nur über Pull Requests änderbar: kein direkter Push, kein Force-Push, kein Löschen. Ein PR lässt sich erst mergen, wenn **CI erfolgreich** grün ist, der Branch auf dem Stand von `main` ist, alle Review-Kommentare aufgelöst sind und CodeQL keine neuen Funde ab *hoch* meldet. Release-Tags `v*` dürfen nur Admins anlegen, verschieben oder löschen.
+
+Die Regeln liegen als Rulesets in `.github/rulesets/`. Wie sie eingespielt und geändert werden, steht in der [Projektpflege](projektpflege.md#4-branch-schutz-rulesets); den Ablauf für Mitwirkende beschreibt [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## ◼ Frontend
 
@@ -152,4 +166,9 @@ Die mitgelieferten Inhalte liegen als Content-Pakete in `content/` und kommen be
 
 ## ◼ Release
 
-Ein Tag `v*` (z. B. `v2.2.0`) startet `.github/workflows/docker-release.yml`: Die Images `ghcr.io/finn-kraemer/codepath` und `ghcr.io/finn-kraemer/codepath-runner` werden für `amd64` und `arm64` gebaut und mit dem Tag sowie `latest` veröffentlicht. Vorher das [Änderungsprotokoll](../CHANGELOG.md) ergänzen.
+1. Im [Änderungsprotokoll](../CHANGELOG.md) den Abschnitt **Unveröffentlicht** in `## 2.2.0` umbenennen (per PR nach `main`).
+2. Auf dem gemergten Commit in `main` taggen und pushen: `git tag v2.2.0 && git push origin v2.2.0`.
+
+Der Tag startet `.github/workflows/release.yml`. Der Workflow bricht ab, wenn der Tag nicht auf `main` liegt oder `CHANGELOG.md` keinen Abschnitt zur Version hat. Danach läuft die komplette CI; erst wenn sie grün ist, werden `ghcr.io/finn-kraemer/codepath` und `ghcr.io/finn-kraemer/codepath-runner` für `amd64` und `arm64` gebaut – mit SBOM und signiertem Herkunftsnachweis (`gh attestation verify oci://ghcr.io/finn-kraemer/codepath:v2.2.0 -R Finn-Kraemer/CodePath`). Tags: `v2.2.0`, `2.2.0`, `2.2`, `2` und `latest`. Zum Schluss entsteht ein GitHub-Release mit dem Text aus dem Änderungsprotokoll.
+
+Vorabversionen wie `v2.2.0-rc.1` bekommen nur ihren eigenen Tag, kein `latest`, und erscheinen als Pre-Release. Was tun, wenn ein Release fehlschlägt: [Projektpflege](projektpflege.md#-release-veröffentlichen).

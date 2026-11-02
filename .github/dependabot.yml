@@ -1,0 +1,50 @@
+# Abhängigkeiten aktuell halten: wöchentlich gesammelte PRs je Ökosystem.
+# Die PRs laufen durch dieselbe CI wie jeder andere PR und müssen grün sein.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: maven
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      maven-minor-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: docker
+    directories: [/, /runner]
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      docker:
+        patterns: ['*']
+    commit-message:
+      prefix: deps

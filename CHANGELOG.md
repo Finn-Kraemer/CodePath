@@ -31,6 +31,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Neue Dokumentation: Handbücher für Lehrkräfte, Betrieb, Sicherheit und Entwicklung, Übersicht der Aufgabentypen.
 
 ### Verbessert
+- **CI/CD und Branch-Schutz**: Actions auf Commit-Hashes festgelegt, minimale Rechte und Zeitlimits je Job, ein zusammenfassender Pflicht-Check *CI erfolgreich*, `actionlint`, Abhängigkeitsprüfung auf PRs, CodeQL und Dependabot. Releases laufen nur von Tags auf `main`, erst nach grüner CI, mit SBOM, signiertem Herkunftsnachweis, zusätzlichen Image-Tags (`2.2.0`, `2.2`, `2`) und GitHub-Release aus dem Änderungsprotokoll. `main` und Release-Tags sind per Ruleset geschützt (`.github/rulesets/`, siehe [Entwicklerhandbuch](docs/entwicklung.md#-release)).
 - **CodePath-Editor überarbeitet**: alles auf einem Bildschirm (Bausteine links, Fläche, Eigenschaften rechts), Bausteine und Module per Ziehen in den Pfad – auf eine Station (anhängen), auf eine Linie (einfügen) oder frei. Ein neutraler *Baustein* wird erst danach als ganzes Modul, Teil eines Moduls, einzelne Aufgabe oder Meilenstein eingerichtet; jede Station lässt sich umstellen. Verbinden per Ziehen am Anschlusspunkt, Zoom und „Alles zeigen“.
 - **Lernpfade heißen jetzt CodePaths** – in der Oberfläche, in der API (`/api/codepaths`), im Export und in der Datenbank.
 - **CodePath-Karte ohne Emojis**: Editor, Schülerkarte und Empfehlung zeigen schlichte Linien-Icons statt Emojis.
