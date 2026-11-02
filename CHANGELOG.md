@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen an CodePath. Versionen folgen [Semantic Versionin
 
 Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter **Update** lesen.
 
+## Unveröffentlicht
+
+### Verbessert
+- **Mehr Platz im CodePath-Editor:** Der Editor nutzt die volle Bildschirmbreite, und ein neuer CodePath startet mit einer leeren Fläche statt mit allen Modulen als vorgefertigter Kette.
+- **Aufgeräumte Administration:** Die Startseite des Leitstands ist nach Bereichen gegliedert (Unterricht, Inhalte, Website, Einstellungen & System); jede Kachel erklärt kurz, wofür sie da ist, und Schalter wie die Teilnahmebestätigungen zeigen ihren Zustand deutlich an.
+
 ## 2.2.0
 
 ### Neu

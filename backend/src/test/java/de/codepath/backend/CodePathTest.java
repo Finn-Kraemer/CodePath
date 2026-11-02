@@ -100,12 +100,11 @@ class CodePathTest extends IntegrationTestBase {
     }
 
     @Test
-    void newPathStartsWithAllModulesAsAChainAndGraphIsValidated() throws Exception {
+    void newPathStartsEmptyAndGraphIsValidated() throws Exception {
         long id = create("Einstieg", "einstieg");
         JsonNode path = body(getAs(teacher(), "/api/admin/codepaths/" + id));
-        int modules = contentService.modules().size();
-        assertEquals(modules, path.at("/graph/nodes").size());
-        assertEquals(modules - 1, path.at("/graph/edges").size());
+        assertEquals(0, path.at("/graph/nodes").size());
+        assertEquals(0, path.at("/graph/edges").size());
         assertFalse(path.get("published").asBoolean());
 
         var cycle = Map.of("graph", Map.of(

@@ -127,6 +127,8 @@
 	// Helpers for special layouts
 	let isFrontpage = $derived(page.url.pathname === '/' || page.url.pathname.startsWith('/seiten/'));
 	let isProjector = $derived(page.url.pathname === '/projector');
+	// Der CodePath-Editor braucht Platz: volle Bildschirmbreite statt der Inhaltsspalte
+	let isWideEditor = $derived(/^\/admin\/codepaths\/[^/]+\/?$/.test(page.url.pathname));
 </script>
 
 <svelte:head>
@@ -469,8 +471,14 @@
 	{/if}
 
 	<!-- Main Content Area -->
-	<main class="flex-grow {isFrontpage || isProjector ? '' : 'py-12'}">
-		<div class={isFrontpage || isProjector ? '' : 'container-institutional'}>
+	<main class="flex-grow {isFrontpage || isProjector ? '' : isWideEditor ? 'py-4' : 'py-12'}">
+		<div
+			class={isFrontpage || isProjector
+				? ''
+				: isWideEditor
+					? 'w-full px-4 lg:px-6'
+					: 'container-institutional'}
+		>
 			{@render children()}
 		</div>
 	</main>
