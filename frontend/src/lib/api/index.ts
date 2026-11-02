@@ -48,6 +48,10 @@ export type StudentBranchEntry = Schemas['StudentBranchEntry'];
 export type BranchConditionStats = Schemas['BranchConditionStats'];
 export type TransferReport = Schemas['TransferReport'];
 export type SectionInfo = Schemas['SectionInfo'];
+export type HelpState = Schemas['HelpState'];
+export type MyHelpRequest = Schemas['MyHelpRequest'];
+export type HelpQueue = Schemas['Queue'];
+export type HelpQueueEntry = Schemas['QueueEntry'];
 
 export class ApiError extends Error {
 	constructor(

@@ -342,6 +342,23 @@ class HandlersTest {
             assertFalse(new FillCodeHandler(new DisabledCodeRunner()).evaluate(fill, Map.of("answers", List.of("6*7")), CONTEXT).isCorrect());
             assertTrue(new FillCodeHandler(fakeRunner).evaluate(fill, Map.of("answers", List.of("6*7")), CONTEXT).isCorrect());
         }
+
+        @Test
+        void visualizerSettingsReachTheBrowser() {
+            CodeHandler handler = new CodeHandler(new DisabledCodeRunner());
+            assertFalse(handler.publicView(spec, CONTEXT).containsKey("visualizer"), "Ohne Angabe entscheidet das Frontend");
+            Map<String, Object> config = new HashMap<>(spec.config());
+            config.put("visualizer", false);
+            config.put("visualizerMaxSteps", 99_999);
+            Map<String, Object> view = handler.publicView(spec(TaskType.CODE, 10, config), CONTEXT);
+            assertEquals(false, view.get("visualizer"));
+            assertEquals(5000, view.get("visualizerMaxSteps"));
+            assertNoSolution(view);
+
+            TaskSpec fill = spec(TaskType.FILL_CODE, 10, Map.of(
+                    "template", "print(___)", "blanks", List.of(Map.of("answers", List.of("42"))), "visualizer", true));
+            assertEquals(true, new FillCodeHandler(new DisabledCodeRunner()).publicView(fill, CONTEXT).get("visualizer"));
+        }
     }
 
     @Nested

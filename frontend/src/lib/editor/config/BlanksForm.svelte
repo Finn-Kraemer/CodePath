@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Config } from '../types';
 	import TestsForm from './TestsForm.svelte';
+	import VisualizerOptions from './VisualizerOptions.svelte';
 
 	let { config = $bindable(), code = false }: { config: Config; code?: boolean } = $props();
 
@@ -72,4 +73,5 @@
 </div>
 {#if code}
 	<div class="mt-4"><TestsForm bind:config solution={filled} /></div>
+	<VisualizerOptions bind:config />
 {/if}

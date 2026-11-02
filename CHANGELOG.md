@@ -6,9 +6,17 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 
 ## Unveröffentlicht
 
+### Neu
+- **Code-Visualizer „Schritt für Schritt“** (#37): In Code-Aufgaben, Code-Lücken und der Python-Werkbank geht man mit Vor/Zurück, Abspielen, Schieberegler oder ←/→ durch das eigene Programm und sieht Zeile für Zeile, wie sich Variablen und Listen ändern, welche Funktionsaufrufe gerade laufen (Rekursion als Stapel) und was zurückgegeben wird. Zeigen zwei Variablen auf dieselbe Liste, ist das sichtbar; Änderungen stehen zusätzlich als Text da. Nach dem Lösen lässt sich auch die Musterlösung so ansehen. Läuft alles im Browser (offline), nichts wird bewertet oder gespeichert; Endlosschleifen halten nach 1.000 Schritten an. Je Aufgabe abschaltbar (`visualizer: false`), im Abschlusstest standardmäßig aus.
+- **Stiller Hilfe-Ruf „Ich hänge fest“** (#38): Schülerinnen und Schüler rufen auf jeder Aufgabe unauffällig Hilfe – optional mit Kategorie und Notiz, ihr aktueller Stand und die letzte Fehlermeldung gehen mit (zählt nicht als Versuch). Mitschüler und Beamer sehen davon nichts. Lehrkräfte sehen unter *Leitstand → Hilfe-Rufe* eine Live-Warteschlange mit Aufgabe, Wartezeit, Tipps, Fehlversuchen und Entwurf, dazu einen Zähler in der Kopfzeile; „Ich komme“, „Erledigt“ und kurze Nachrichten an einzelne Schüler erscheinen bei diesen sofort. Wer die Aufgabe selbst löst, verlässt die Warteschlange automatisch.
+
 ### Verbessert
+- Live-Updates verbinden sich jetzt auch direkt nach der Anmeldung, ohne dass die Seite neu geladen werden muss.
 - **Mehr Platz im CodePath-Editor:** Der Editor nutzt die volle Bildschirmbreite, und ein neuer CodePath startet mit einer leeren Fläche statt mit allen Modulen als vorgefertigter Kette.
 - **Aufgeräumte Administration:** Die Startseite des Leitstands ist nach Bereichen gegliedert (Unterricht, Inhalte, Website, Einstellungen & System); jede Kachel erklärt kurz, wofür sie da ist, und Schalter wie die Teilnahmebestätigungen zeigen ihren Zustand deutlich an.
+
+### Update
+- Migration V32 legt die Tabelle `help_requests` für Hilfe-Rufe an (wird beim Beenden eines Kurses gelöscht; Entwürfe erledigter Rufe werden nach 24 Stunden geleert).
 
 ## 2.2.0
 

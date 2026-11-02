@@ -2,10 +2,11 @@
 	import { onDestroy, onMount } from 'svelte';
 	import SubmitButton from './SubmitButton.svelte';
 	import CodeOutput from './CodeOutput.svelte';
-	import { config, draftKey, solution, type TaskProps } from './types';
+	import { config, draftKey, solution, visualizerSettings, type TaskProps } from './types';
+	import CodeVisualizer from '$lib/visualizer/CodeVisualizer.svelte';
 	import { createEditor } from '$lib/monaco';
 	import { PythonRunner } from '$lib/python.svelte';
-	import { loadDraft, saveDraft } from '$lib/drafts';
+	import { loadDraft, rememberOutput, saveDraft } from '$lib/drafts';
 
 	let { task, disabled, busy, result, submit }: TaskProps = $props();
 
@@ -25,6 +26,13 @@
 	let error = $state('');
 	let running = $state(false);
 	const runner = new PythonRunner();
+	const visualizer = $derived(visualizerSettings(task));
+	/** Was der Visualizer gerade zeigt: eigener Code oder Musterlösung (neu aufzeichnen bei jedem Öffnen) */
+	let visualized = $state<{ code: string; title: string; key: number } | null>(null);
+
+	function visualize(source: string, title: string) {
+		visualized = { code: source, title, key: (visualized?.key ?? 0) + 1 };
+	}
 
 	onMount(async () => {
 		code =
@@ -56,6 +64,7 @@
 		const res = await runner.run(code, cfg.examples?.[0]?.stdin ?? '');
 		output = res.stdout;
 		error = res.error ?? '';
+		rememberOutput(draftKey(task), [output, error].filter(Boolean).join('\n'));
 		running = false;
 	}
 </script>
@@ -106,9 +115,33 @@
 		<details class="mb-6">
 			<summary class="cursor-pointer text-xs font-bold text-green-700">Musterlösung</summary>
 			<pre class="mt-2 bg-slate-50 p-4 text-xs">{sol.code}</pre>
+			{#if visualizer.enabled}
+				<button
+					type="button"
+					onclick={() => visualize(sol.code ?? '', 'Musterlösung Schritt für Schritt')}
+					disabled={!runner.ready}
+					class="mt-2 border border-green-700 px-4 py-2 font-mono text-[10px] font-bold tracking-widest text-green-700 uppercase disabled:opacity-40"
+				>
+					Musterlösung Schritt für Schritt ansehen
+				</button>
+			{/if}
 		</details>
 	{/if}
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+	{#if visualized}
+		{#key visualized.key}
+			<div class="mb-6">
+				<CodeVisualizer
+					{runner}
+					code={visualized.code}
+					title={visualized.title}
+					stdin={cfg.examples?.[0]?.stdin ?? ''}
+					maxSteps={visualizer.maxSteps}
+					onclose={() => (visualized = null)}
+				/>
+			</div>
+		{/key}
+	{/if}
+	<div class="grid grid-cols-1 gap-4 {visualizer.enabled ? 'md:grid-cols-3' : 'md:grid-cols-2'}">
 		<button
 			onclick={tryOut}
 			disabled={!runner.ready || running}
@@ -116,6 +149,15 @@
 		>
 			{runner.ready ? (running ? 'Läuft …' : 'Ausprobieren') : 'Python lädt …'}
 		</button>
+		{#if visualizer.enabled}
+			<button
+				onclick={() => visualize(code, 'Dein Programm Schritt für Schritt')}
+				disabled={!runner.ready || running || !code.trim()}
+				class="border-2 border-institutional-navy py-5 font-sans text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+			>
+				Schritt für Schritt
+			</button>
+		{/if}
 		<SubmitButton
 			{busy}
 			disabled={disabled || !code.trim()}

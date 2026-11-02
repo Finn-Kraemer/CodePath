@@ -9,6 +9,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { auth } from '$lib/auth.svelte';
 	import { realtime } from '$lib/realtime.svelte';
+	import HelpBadge from '$lib/help/HelpBadge.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { siteNavigation } from '$lib/site/navigation.svelte';
@@ -45,6 +46,11 @@
 	$effect(() => {
 		void auth.isAuthenticated;
 		siteNavigation.refresh();
+	});
+
+	// Live-Verbindung auch nach Anmeldung ohne Neuladen (Login, Registrierung)
+	$effect(() => {
+		if (auth.isAuthenticated) realtime.connect();
 	});
 
 	onMount(async () => {
@@ -277,6 +283,7 @@
 								</a>
 
 								{#if auth.user?.role === 'ADMIN'}
+									<HelpBadge />
 									<a
 										href="/admin"
 										class="group flex items-center gap-2 rounded-none border border-institutional-navy/10 bg-slate-50 px-4 py-2.5 text-[9px] font-black tracking-widest text-institutional-navy uppercase transition-all hover:bg-institutional-navy hover:text-white"
