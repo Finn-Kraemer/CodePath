@@ -115,6 +115,12 @@ Auf jeder Aufgabe gibt es für Schülerinnen und Schüler den unauffälligen But
 
 Schüler sehen ihre Position („2 Personen vor dir“, ohne Namen) und können mit **Hat sich erledigt** selbst abbrechen oder mit **Stand senden** ihren Entwurf aktualisieren. Löst jemand die Aufgabe, schließt sich der Ruf von selbst („hat sich selbst gelöst“). Je Person gibt es höchstens einen offenen Ruf; ein neuer Ruf für eine andere Aufgabe ersetzt ihn.
 
+### Quiz-Runde am Beamer
+
+**Leitstand → Quiz-Runde**: Titel eingeben, Kurs wählen (oder alle Kurse) und Auswahl-Aufgaben in der gewünschten Reihenfolge anklicken, dann **Quiz starten**. Die Schülerinnen und Schüler sehen sofort einen Hinweis „Quiz läuft – jetzt mitmachen“ und antworten am eigenen Gerät; bis zur Auflösung lässt sich die Antwort ändern.
+
+Gesteuert wird auf der Quiz-Seite oder direkt im **Beamer-Modus** (die Runde überdeckt dort die Rangliste): **Erste Frage** → **Auflösen** (Verteilung der Antworten als Balken, richtige Antwort markiert) → **Nächste Frage** … → **Ergebnis zeigen** (Anteil richtiger Antworten je Frage). Während eine Frage offen ist, zeigt der Beamer nur, wie viele schon geantwortet haben; die Lehrkraft sieht auf ihrer Seite die Verteilung schon vorher. Alles bleibt anonym, es gibt keine Punkte und keine Versuche. Es läuft immer nur eine Runde gleichzeitig.
+
 ### Beamer-Modus
 
 **Leitstand → Beamer-Modus** öffnet eine Vollbild-Ansicht für den Projektor: Live-Rangliste, Uhrzeit und die aktuelle Mitteilung. Die Rangliste aktualisiert sich bei jeder gelösten Aufgabe von selbst.
@@ -147,7 +153,7 @@ Schüler sehen ihre Position („2 Personen vor dir“, ohne Namen) und können 
 |---|---|
 | **Teilnehmerliste** | Alle Schülerinnen und Schüler mit Punkten und Fortschritt; Klick öffnet die Akte |
 | **Schülerakte** | Reiter **Aufgaben**: Jede Aufgabe mit Status und Versuchen (als gelöst werten, sperren/entsperren, neues Passwort vergeben). Reiter **CodePath**: Karte aus Sicht der Schülerin oder des Schülers, getroffene Entscheidungen an Weichen (auch in eingebundenen Bausteinen) mit Aktionen zum **Wahl zurücksetzen** (wahlweise Fortschritt behalten oder Fortschritt und Punkte im verlassenen Weg über eine Korrekturbuchung zurücknehmen), **Wahl für Schüler setzen**, **weiteren Weg zusätzlich freischalten**, **einzelne Stationen freischalten** (hebt die Blockierung durch Pflicht-Vorgänger auf; die Station gilt als erledigt für Nachfolger), Punkte-Tore mit Status und **Tor zurücksetzen** sowie Übersicht evaluierter bedingter Verzweigungen (Fast-Track, Stütz-Knoten) mit **Neu bewerten** zum Zurücksetzen. Auch kursweit als Sammelaktion im CodePath-Editor unter *Weichen-Übersicht im Kurs* und *Punkte-Tore & Boss-Aufgaben im Kurs* verfügbar |
-| **Lernanalyse** | Je Aufgabe: wie viele es versucht haben, Fehlversuche, Lösungsquote – zeigt, wo die Klasse hängt |
+| **Lernanalyse** | Je Aufgabe: wie viele es versucht haben, Fehlversuche, Lösungsquote und **Hilfe-Rufe** („Ich hänge fest“, mit Anteil selbst gelöster) – zeigt, wo die Klasse hängt. Umschaltbar: nach Hilfe-Rufen sortieren |
 
 Mit **Alle Schüler abmelden** im Control Center endet jede laufende Sitzung, z. B. am Ende des Tages an geteilten Geräten.
 
@@ -159,6 +165,8 @@ Praxisaufgaben (Typ *Praxis*) bewertet die Lehrkraft selbst. Neue Abgaben ersche
 2. Für jedes Kriterium der **Rubrik** die Punkte wählen; die Summe ergibt die Punkte der Aufgabe.
 3. Optional einen **Kommentar** für die Schülerin oder den Schüler schreiben.
 4. **Annehmen** – oder **Zur Überarbeitung zurückgeben**: Die Antwort bleibt im Editor der Schülerin erhalten und kann verbessert werden. Mit *Aufgabe danach endgültig sperren* gibt es keine weitere Abgabe.
+
+**Peer-Review** (im Editor bei Praxisaufgaben: *Peer-Review* ankreuzen, mitgeliefert bei „Deine Stadt im Netz“): Nach der eigenen Abgabe bewertet jede Person bis zu zwei Abgaben anderer aus dem eigenen Kurs – anonym, nach derselben Rubrik, mit optionalem Kommentar. Zugeteilt werden bevorzugt Abgaben, die noch wenig Rückmeldung haben. Die bewertete Person sieht Punkte und Kommentare ohne Namen. In der Abgabe siehst du die Peer-Bewertungen mit Namen und Durchschnitt als Hilfe; Punkte vergibst weiterhin nur du.
 
 Alle anderen Typen bewertet CodePath sofort und ausschließlich auf dem Server.
 

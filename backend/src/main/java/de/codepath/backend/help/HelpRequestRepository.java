@@ -21,6 +21,14 @@ interface HelpRequestRepository extends JpaRepository<HelpRequest, Long> {
     @Query("update HelpRequest h set h.draft = null, h.lastOutput = null where h.status in :statuses and h.resolvedAt < :before and (h.draft is not null or h.lastOutput is not null)")
     int clearDrafts(Collection<HelpRequest.Status> statuses, LocalDateTime before);
 
+    /** Je Aufgabe: Zahl der Rufe, davon selbst gelöst, Summe der Wartezeit in Sekunden (nur erledigte) */
+    @Query(value = """
+            select task_id, count(*),
+                   count(*) filter (where resolution = 'SELF_SOLVED'),
+                   coalesce(avg(extract(epoch from (resolved_at - created_at))) filter (where resolution = 'TEACHER'), 0)
+            from help_requests group by task_id""", nativeQuery = true)
+    List<Object[]> statisticsByTask();
+
     @Modifying
     @Query("delete from HelpRequest h where h.courseId = :courseId or h.userId in :userIds")
     int deleteByCourseOrUsers(Long courseId, Collection<Long> userIds);

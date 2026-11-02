@@ -35,7 +35,8 @@
         "HOTSPOT",
         "IMAGE_HOTSPOT",
         "LOGIC_CIRCUIT",
-        "DEVTOOLS"
+        "DEVTOOLS",
+        "PREDICT"
       ]
     },
     "title": {
@@ -664,6 +665,10 @@
                 "minimum": 1,
                 "maximum": 5000,
                 "description": "Schrittlimit des Code-Visualizers (Standard 1000)"
+              },
+              "peerReview": {
+                "type": "boolean",
+                "description": "Nach der eigenen Abgabe zwei Abgaben anderer anonym nach der Rubrik bewerten"
               }
             }
           }
@@ -1107,6 +1112,86 @@
                   "escape"
                 ],
                 "description": "Vorlage der Übungsseite (Browser-Labor)"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "PREDICT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "config": {
+            "required": [
+              "code",
+              "breakpoint",
+              "questions"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "stdin": {
+                "type": "string"
+              },
+              "breakpoint": {
+                "type": "object",
+                "required": [
+                  "line"
+                ],
+                "properties": {
+                  "line": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "hit": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              },
+              "questions": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "variable",
+                    "answers"
+                  ],
+                  "properties": {
+                    "variable": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                    },
+                    "answers": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "caseSensitive": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "visualizer": {
+                "type": "boolean"
+              },
+              "visualizerMaxSteps": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5000
               }
             }
           }

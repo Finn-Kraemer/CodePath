@@ -580,6 +580,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/help/statistics': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['statistics_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/help/{id}/claim': {
 		parameters: {
 			query?: never;
@@ -635,7 +651,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['state'];
+		get: operations['state_1'];
 		put?: never;
 		post?: never;
 		delete: operations['reset'];
@@ -911,6 +927,102 @@ export interface paths {
 		put: operations['publish'];
 		post?: never;
 		delete: operations['unpublish'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/quiz': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['start'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/quiz/candidates': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['candidates'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/quiz/current': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['teacherView'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/quiz/current/finish': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['finish'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/quiz/current/next': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['next'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/quiz/current/reveal': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['reveal_1'];
+		delete?: never;
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -1245,6 +1357,22 @@ export interface paths {
 		};
 		get?: never;
 		put: operations['approve'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/submissions/{id}/peer-reviews': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['forSubmission'];
+		put?: never;
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -1675,7 +1803,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['next'];
+		get: operations['next_1'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -1773,7 +1901,7 @@ export interface paths {
 		};
 		get?: never;
 		put?: never;
-		post: operations['submit'];
+		post: operations['submit_1'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -1790,6 +1918,54 @@ export interface paths {
 		get: operations['module'];
 		put?: never;
 		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/peer-reviews/assignments/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['submit'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/peer-reviews/{moduleSlug}/{taskSlug}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['state'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/peer-reviews/{moduleSlug}/{taskSlug}/assign': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['assign'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -1838,6 +2014,38 @@ export interface paths {
 		get: operations['page'];
 		put?: never;
 		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/quiz/current': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['current'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/quiz/current/answer': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['answer'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -1912,6 +2120,11 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
 	schemas: {
+		AnswerRequest: {
+			/** Format: int32 */
+			index?: number;
+			selected?: string[];
+		};
 		ApproveRequest: {
 			comment?: string;
 			halfPoints?: boolean;
@@ -1953,6 +2166,17 @@ export interface components {
 			published: boolean;
 			slug: string;
 			title: string;
+		};
+		Assignment: {
+			code: string;
+			comment: string;
+			content: string;
+			/** Format: int64 */
+			id: number;
+			scores: {
+				[key: string]: number;
+			};
+			submitted: boolean;
 		};
 		AttemptView: {
 			answer: {
@@ -1997,6 +2221,14 @@ export interface components {
 			toLabel: string;
 			/** Format: int32 */
 			totalEvaluated: number;
+		};
+		Candidate: {
+			moduleSlug: string;
+			moduleTitle: string;
+			question: string;
+			/** Format: int64 */
+			taskId: number;
+			title: string;
 		};
 		CheckResult: {
 			dryRun: components['schemas']['DryRun'];
@@ -2107,7 +2339,8 @@ export interface components {
 				| 'HOTSPOT'
 				| 'IMAGE_HOTSPOT'
 				| 'LOGIC_CIRCUIT'
-				| 'DEVTOOLS';
+				| 'DEVTOOLS'
+				| 'PREDICT';
 		};
 		Criterion: {
 			id: string;
@@ -2209,6 +2442,16 @@ export interface components {
 		};
 		HelpState: {
 			request: components['schemas']['MyHelpRequest'];
+		};
+		HelpStatistic: {
+			/** Format: int64 */
+			averageWaitSeconds: number;
+			/** Format: int64 */
+			calls: number;
+			/** Format: int64 */
+			selfSolved: number;
+			/** Format: int64 */
+			taskId: number;
 		};
 		HintResult: {
 			hints: string[];
@@ -2470,6 +2713,11 @@ export interface components {
 			taskSlug: string;
 			title: string;
 		};
+		Option: {
+			id: string;
+			label: string;
+			text: string;
+		};
 		PageDetail: {
 			draft: components['schemas']['JsonNode'];
 			page: components['schemas']['PageSummary'];
@@ -2572,6 +2820,16 @@ export interface components {
 			stationsDone: number;
 			title: string;
 		};
+		PeerState: {
+			assignments: components['schemas']['Assignment'][];
+			canReview: boolean;
+			enabled: boolean;
+			/** Format: int32 */
+			maxPoints: number;
+			reason: string;
+			received: components['schemas']['Received'][];
+			rubric: components['schemas']['Criterion'][];
+		};
 		Profile: {
 			/** Format: int64 */
 			completedTasksCount: number;
@@ -2588,6 +2846,15 @@ export interface components {
 			content: components['schemas']['JsonNode'];
 			slug: string;
 			title: string;
+		};
+		QuestionResult: {
+			/** Format: int32 */
+			answered: number;
+			/** Format: int32 */
+			correct: number;
+			/** Format: int32 */
+			index: number;
+			question: string;
 		};
 		Queue: {
 			open: components['schemas']['QueueEntry'][];
@@ -2632,6 +2899,45 @@ export interface components {
 			/** Format: int64 */
 			waitingSeconds: number;
 		};
+		QuizState: {
+			quiz: components['schemas']['QuizView'];
+		};
+		QuizView: {
+			/** Format: int32 */
+			answered: number;
+			correct: string[];
+			courseName: string;
+			distribution: {
+				[key: string]: number;
+			};
+			/** Format: int64 */
+			id: number;
+			/** Format: int32 */
+			index: number;
+			multiple: boolean;
+			myAnswer: string[];
+			myAnswerCorrect: boolean;
+			/** Format: int64 */
+			myScore: number;
+			options: components['schemas']['Option'][];
+			/** Format: int32 */
+			participants: number;
+			/** @enum {string} */
+			phase: 'LOBBY' | 'QUESTION' | 'REVEAL' | 'FINISHED';
+			question: string;
+			results: components['schemas']['QuestionResult'][];
+			title: string;
+			/** Format: int32 */
+			total: number;
+		};
+		Received: {
+			comment: string;
+			scores: {
+				[key: string]: number;
+			};
+			/** Format: int32 */
+			total: number;
+		};
 		Recommendation: {
 			articleSlug: string;
 			articleTitle: string;
@@ -2657,6 +2963,12 @@ export interface components {
 				[key: string]: unknown;
 			}[];
 		};
+		ScoreRequest: {
+			comment?: string;
+			scores?: {
+				[key: string]: number;
+			};
+		};
 		SearchHit: {
 			icon: string;
 			slug: string;
@@ -2674,6 +2986,12 @@ export interface components {
 		SseEmitter: {
 			/** Format: int64 */
 			timeout: number;
+		};
+		StartRequest: {
+			/** Format: int64 */
+			courseId?: number;
+			taskIds?: number[];
+			title?: string;
 		};
 		StudentBranchEntry: {
 			/** Format: date-time */
@@ -2905,7 +3223,8 @@ export interface components {
 				| 'HOTSPOT'
 				| 'IMAGE_HOTSPOT'
 				| 'LOGIC_CIRCUIT'
-				| 'DEVTOOLS';
+				| 'DEVTOOLS'
+				| 'PREDICT';
 			versions: components['schemas']['VersionRow'][];
 		};
 		TaskFile: {
@@ -2945,7 +3264,8 @@ export interface components {
 				| 'HOTSPOT'
 				| 'IMAGE_HOTSPOT'
 				| 'LOGIC_CIRCUIT'
-				| 'DEVTOOLS';
+				| 'DEVTOOLS'
+				| 'PREDICT';
 		};
 		TaskReleaseView: {
 			/** Format: int64 */
@@ -2988,7 +3308,8 @@ export interface components {
 				| 'HOTSPOT'
 				| 'IMAGE_HOTSPOT'
 				| 'LOGIC_CIRCUIT'
-				| 'DEVTOOLS';
+				| 'DEVTOOLS'
+				| 'PREDICT';
 		};
 		TaskStatistic: {
 			/** Format: int64 */
@@ -3023,6 +3344,17 @@ export interface components {
 			status: string;
 			title: string;
 			type: string;
+		};
+		TeacherPeerReview: {
+			comment: string;
+			reviewer: string;
+			scores: {
+				[key: string]: number;
+			};
+			/** Format: date-time */
+			submittedAt: string;
+			/** Format: int32 */
+			total: number;
 		};
 		TestOutput: {
 			status: string;
@@ -4046,6 +4378,26 @@ export interface operations {
 			};
 		};
 	};
+	statistics_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['HelpStatistic'][];
+				};
+			};
+		};
+	};
 	claim: {
 		parameters: {
 			query?: never;
@@ -4118,7 +4470,7 @@ export interface operations {
 			};
 		};
 	};
-	state: {
+	state_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4711,6 +5063,130 @@ export interface operations {
 			};
 		};
 	};
+	start: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['StartRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QuizState'];
+				};
+			};
+		};
+	};
+	candidates: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['Candidate'][];
+				};
+			};
+		};
+	};
+	teacherView: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QuizState'];
+				};
+			};
+		};
+	};
+	finish: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QuizState'];
+				};
+			};
+		};
+	};
+	next: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QuizState'];
+				};
+			};
+		};
+	};
+	reveal_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QuizState'];
+				};
+			};
+		};
+	};
 	logoutAllStudents: {
 		parameters: {
 			query?: never;
@@ -5197,6 +5673,28 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['SubmissionDetail'];
+				};
+			};
+		};
+	};
+	forSubmission: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TeacherPeerReview'][];
 				};
 			};
 		};
@@ -6059,7 +6557,7 @@ export interface operations {
 			};
 		};
 	};
-	next: {
+	next_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -6192,7 +6690,7 @@ export interface operations {
 			};
 		};
 	};
-	submit: {
+	submit_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -6239,6 +6737,78 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['ModuleDetail'];
+				};
+			};
+		};
+	};
+	submit: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ScoreRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PeerState'];
+				};
+			};
+		};
+	};
+	state: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				moduleSlug: string;
+				taskSlug: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PeerState'];
+				};
+			};
+		};
+	};
+	assign: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				moduleSlug: string;
+				taskSlug: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PeerState'];
 				};
 			};
 		};
@@ -6303,6 +6873,50 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['PublicPage'];
+				};
+			};
+		};
+	};
+	current: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QuizState'];
+				};
+			};
+		};
+	};
+	answer: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['AnswerRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QuizState'];
 				};
 			};
 		};

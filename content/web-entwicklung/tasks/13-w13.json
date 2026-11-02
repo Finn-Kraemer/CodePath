@@ -44,6 +44,7 @@
         "label": "Mindestens 3 CSS-Regeln (z.B. Farbe, Schriftgröße, Hintergrund)",
         "points": 8
       }
-    ]
+    ],
+    "peerReview": true
   }
 }

@@ -19,14 +19,15 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 | `content` | Module, Aufgaben, unveränderliche Aufgabenversionen, Content-Pakete, Editor |
 | `engine` | Aufgabentypen: `TaskHandler` je Typ, `Evaluation`, `AttemptRules`, `CodeRunner` – kennt keine anderen Fachpakete |
 | `progress` | Fortschritt, Versuche, Punkte-Journal, Schüler-API, Rangliste, Lehrkraft-Statistik |
-| `review` | Praxisabgaben mit Rubrik-Bewertung |
+| `review` | Praxisabgaben mit Rubrik-Bewertung, Peer-Review (`/api/peer-reviews`) |
 | `classroom` | Modulfreigaben und Fristen je Kurs, Ankündigungen, Feedback |
 | `report` | Teilnahmebestätigungen als PDF (OpenPDF) |
 | `platform` | Fehlerbehandlung (ProblemDetail), Audit-Log, Einstellungen, Startseite, SSE, Auslieferung des Frontends |
 | `site` | Eigene Seiten (`/seiten/<slug>`) und Wissensdatenbank |
 | `pathway` | CodePaths (Karte als Graph) und empfohlene nächste Aufgabe |
 | `transfer` | Zentraler Export/Import; sammelt alle `platform.transfer.TransferSection`-Beans |
-| `help` | Stiller Hilfe-Ruf „Ich hänge fest“: Warteschlange für Lehrkräfte (`/api/help`, `/api/admin/help`) |
+| `help` | Stiller Hilfe-Ruf „Ich hänge fest“: Warteschlange für Lehrkräfte (`/api/help`, `/api/admin/help`), Statistik je Aufgabe |
+| `quiz` | Quiz-Runde am Beamer aus Auswahl-Aufgaben (`/api/quiz`, `/api/admin/quiz`), höchstens eine laufende Runde |
 
 `ArchitectureTest` erzwingt: Repositories nur im eigenen Paket, keine Zyklen, `engine` hängt von keinem Fachpaket ab.
 
@@ -43,9 +44,9 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 
 Ein Aufgabentyp besteht aus `TaskHandler` (validieren, öffentliche Sicht, bewerten, Lösungssicht, Musterlösung und Falschantwort für den Probelauf, Vorlage für den Editor), einer Svelte-Komponente unter `frontend/src/lib/tasks/` und einem Editor-Formular unter `frontend/src/lib/editor/config/`.
 
-Code-Visualizer („Schritt für Schritt“): Worker-Nachricht `trace` in `static/pyodide-worker.js` (sys.settrace, nur Dateiname `<student>`), Auswertung in `lib/visualizer/trace.ts`, Anzeige `CodeVisualizer.svelte`; Konfiguration `visualizer`/`visualizerMaxSteps` reicht `CodeHandler.withVisualizer` durch.
+Code-Visualizer („Schritt für Schritt“): Worker-Nachricht `trace` in `static/pyodide-worker.js` (sys.settrace, nur Dateiname `<student>`), Auswertung in `lib/visualizer/trace.ts`, Anzeige `CodeVisualizer.svelte`; Konfiguration `visualizer`/`visualizerMaxSteps` reicht `CodeHandler.withVisualizer` durch. In Markdown wird ein Code-Block ```` ```schritte ```` nach dem Bereinigen in `Markdown.svelte` durch `VisualizerBlock.svelte` ersetzt.
 
-Typen: `MULTIPLE_CHOICE`, `FILL_BLANK`, `FILL_CODE`, `CODE`, `SORTING`, `SQL`, `TERMINAL`, `PRACTICE` (Lehrkraft bewertet nach Rubrik), `MATCHING`, `PARSONS`, `NUMBER_CONVERT`, `HOTSPOT`, `IMAGE_HOTSPOT`, `LOGIC_CIRCUIT`, `DEVTOOLS` (Browser-Labor, `docs/browser-labor.md`). Formate: `content/README.md`.
+Typen: `MULTIPLE_CHOICE`, `FILL_BLANK`, `FILL_CODE`, `CODE`, `SORTING`, `SQL`, `TERMINAL`, `PRACTICE` (Lehrkraft bewertet nach Rubrik), `MATCHING`, `PARSONS`, `NUMBER_CONVERT`, `HOTSPOT`, `IMAGE_HOTSPOT`, `LOGIC_CIRCUIT`, `DEVTOOLS` (Browser-Labor, `docs/browser-labor.md`), `PREDICT` (Vorhersage am Haltepunkt, Auflösung im Code-Visualizer). Formate: `content/README.md`.
 
 Bewertung: CORRECT, PARTIAL (Teilpunkte), WRONG, MANUAL, UNGRADED, INVALID (zählt nicht als Versuch). `AttemptRules` je Typ, je Aufgabe überschreibbar: Versuchsgrenze, 25 % Abzug je Hinweis (höchstens 75 %), 20 % Bonus beim ersten Versuch ohne Hinweis, Lösung aufdecken = 0 Punkte. Zufällige Reihenfolgen und Zahlen hängen an einem Seed je Person und Aufgabe.
 
@@ -81,7 +82,7 @@ Jedes Fachpaket stellt `TransferSection`-Beans bereit (`settings`, `modules`, `h
 
 ## Live-Updates
 
-Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, `codepath`, `help`, gesendet erst nach dem Commit. Jede Verbindung kennt ihr Konto und ob es eine Lehrkraft ist: `help` geht nur an Lehrkräfte (`publishToTeachers`) und betroffene Schüler (`publishToUsers`), nie an alle. Die Beamer-Ansicht `/projector` nutzt dasselbe. Gesendet wird auf einem eigenen Thread (`codepath-live-updates`), damit ein langsamer Client keine Abgabe aufhält; Ranglisten-Updates, die sich in der Warteschlange stauen, werden zu einem zusammengefasst.
+Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, `codepath`, `help`, `quiz` (Phase an alle, Antwortzahl nur an Lehrkräfte), gesendet erst nach dem Commit. Jede Verbindung kennt ihr Konto und ob es eine Lehrkraft ist: `help` geht nur an Lehrkräfte (`publishToTeachers`) und betroffene Schüler (`publishToUsers`), nie an alle. Die Beamer-Ansicht `/projector` nutzt dasselbe. Gesendet wird auf einem eigenen Thread (`codepath-live-updates`), damit ein langsamer Client keine Abgabe aufhält; Ranglisten-Updates, die sich in der Warteschlange stauen, werden zu einem zusammengefasst.
 
 ## Betrieb
 

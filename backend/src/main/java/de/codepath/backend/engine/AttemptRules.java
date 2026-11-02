@@ -16,7 +16,7 @@ public record AttemptRules(Integer maxAttempts, int hintPenaltyPercent, int firs
 
     public static AttemptRules defaultsFor(TaskType type) {
         return switch (type) {
-            case MULTIPLE_CHOICE, FILL_BLANK, SORTING, MATCHING, HOTSPOT, IMAGE_HOTSPOT -> new AttemptRules(3, 25, 20, true);
+            case MULTIPLE_CHOICE, FILL_BLANK, SORTING, MATCHING, HOTSPOT, IMAGE_HOTSPOT, PREDICT -> new AttemptRules(3, 25, 20, true);
             case NUMBER_CONVERT, PARSONS -> new AttemptRules(5, 25, 20, true);
             case LOGIC_CIRCUIT -> new AttemptRules(null, 25, 20, true);
             // Codes sind je Person verschieden; die Grenze verhindert Durchprobieren

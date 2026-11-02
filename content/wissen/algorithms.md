@@ -116,6 +116,18 @@ WIEDERHOLE (Länge − 1) Durchläufe:
 
 Nach jedem Durchlauf steht ein weiteres Element hinten richtig, deshalb darf die innere Schleife jedes Mal ein Element früher aufhören. In Python tauscht man zwei Werte in einer Zeile: `a, b = b, a`.
 
+**Selbst ansehen:** Klicke auf „Schritt für Schritt ansehen“ und beobachte, wie die Kästchen der Liste getauscht werden.
+
+```schritte
+liste = [5, 3, 8, 1]
+n = len(liste)
+for durchlauf in range(n - 1):
+    for i in range(n - 1 - durchlauf):
+        if liste[i] > liste[i + 1]:
+            liste[i], liste[i + 1] = liste[i + 1], liste[i]
+print(liste)
+```
+
 - **Aufwand:** O(n²) – für große Listen zu langsam.
 - In der Praxis nutzt man schnellere Verfahren (z. B. Merge Sort, Quicksort). In Python: `sorted(liste)` oder `liste.sort()`.
 

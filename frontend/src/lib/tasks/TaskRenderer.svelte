@@ -13,6 +13,7 @@
 	import ImageHotspot from './ImageHotspot.svelte';
 	import LogicCircuit from './LogicCircuit.svelte';
 	import DevTools from './DevTools.svelte';
+	import Predict from './Predict.svelte';
 	import type { TaskProps } from './types';
 
 	let props: TaskProps = $props();
@@ -48,6 +49,8 @@
 	<LogicCircuit {...props} />
 {:else if props.task.type === 'DEVTOOLS'}
 	<DevTools {...props} />
+{:else if props.task.type === 'PREDICT'}
+	<Predict {...props} />
 {:else}
 	<p class="border border-amber-200 bg-amber-50 p-6 text-sm">
 		Dieser Aufgabentyp wird noch nicht angezeigt: {props.task.type}

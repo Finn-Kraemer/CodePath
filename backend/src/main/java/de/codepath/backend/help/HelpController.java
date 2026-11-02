@@ -37,6 +37,12 @@ public class HelpController {
         return helpService.queue();
     }
 
+    /** Hilfe-Rufe je Aufgabe für die Lernanalyse (bis zum Kursende, dann werden die Rufe gelöscht). */
+    @GetMapping("/api/admin/help/statistics")
+    public java.util.List<HelpService.HelpStatistic> statistics() {
+        return helpService.statistics();
+    }
+
     @PostMapping("/api/admin/help/{id}/claim")
     public HelpService.QueueEntry claim(@PathVariable("id") Long id) {
         return helpService.claim(userService.currentUser(), id);

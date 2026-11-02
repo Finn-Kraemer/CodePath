@@ -52,6 +52,12 @@ export type HelpState = Schemas['HelpState'];
 export type MyHelpRequest = Schemas['MyHelpRequest'];
 export type HelpQueue = Schemas['Queue'];
 export type HelpQueueEntry = Schemas['QueueEntry'];
+export type HelpStatistic = Schemas['HelpStatistic'];
+export type QuizState = Schemas['QuizState'];
+export type QuizView = Schemas['QuizView'];
+export type QuizCandidate = Schemas['Candidate'];
+export type PeerState = Schemas['PeerState'];
+export type TeacherPeerReview = Schemas['TeacherPeerReview'];
 
 export class ApiError extends Error {
 	constructor(

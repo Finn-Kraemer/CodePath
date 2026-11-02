@@ -28,6 +28,8 @@ class RealtimeStore {
 	helpTrigger = $state(0);
 	/** Zahl wartender Hilfe-Rufe – kommt nur bei Lehrkräften an */
 	helpOpen = $state<number | null>(null);
+	/** Quiz-Runde geändert (Phase für alle, Zahl der Antworten nur für Lehrkräfte) */
+	quizTrigger = $state(0);
 
 	clearPathNotice() {
 		this.lastPathNotice = null;
@@ -57,6 +59,9 @@ class RealtimeStore {
 				// ignorieren
 			}
 			this.helpTrigger++;
+		});
+		this.source.addEventListener('quiz', () => {
+			this.quizTrigger++;
 		});
 		this.source.addEventListener('codepath', (event) => {
 			try {

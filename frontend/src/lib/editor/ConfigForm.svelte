@@ -2,6 +2,7 @@
 	import MultipleChoiceForm from './config/MultipleChoiceForm.svelte';
 	import BlanksForm from './config/BlanksForm.svelte';
 	import CodeForm from './config/CodeForm.svelte';
+	import PredictForm from './config/PredictForm.svelte';
 	import SortingForm from './config/SortingForm.svelte';
 	import SqlForm from './config/SqlForm.svelte';
 	import TerminalForm from './config/TerminalForm.svelte';
@@ -61,6 +62,8 @@
 	<LogicCircuitForm bind:config />
 {:else if type === 'DEVTOOLS'}
 	<DevToolsForm bind:config />
+{:else if type === 'PREDICT'}
+	<PredictForm bind:config />
 {:else}
 	<JsonForm bind:config />
 {/if}

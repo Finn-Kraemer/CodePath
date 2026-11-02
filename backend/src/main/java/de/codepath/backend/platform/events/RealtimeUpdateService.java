@@ -36,6 +36,7 @@ public class RealtimeUpdateService {
     public static final String LEADERBOARD = "leaderboard";
     public static final String CODEPATH = "codepath";
     public static final String HELP = "help";
+    public static final String QUIZ = "quiz";
 
     // Ohne Timeout; Verbindungsabbrüche räumen die Callbacks unten auf
     private static final long NO_TIMEOUT = 0L;
@@ -112,6 +113,11 @@ public class RealtimeUpdateService {
                 "timestamp", System.currentTimeMillis());
         afterCommit(() -> enqueue(() -> broadcast(CODEPATH, payload)));
         publishLeaderboardUpdate();
+    }
+
+    /** An alle Verbindungen (nichts Vertrauliches im Inhalt!). */
+    public void publishToAll(String event, Map<String, Object> payload) {
+        afterCommit(() -> enqueue(() -> broadcast(event, payload)));
     }
 
     /** Nur an Verbindungen von Lehrkräften, nie an Schüler (z. B. Hilfe-Rufe). */

@@ -4,6 +4,7 @@
 	import PythonWorkbench from '$lib/components/PythonWorkbench.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import SubmitButton from './SubmitButton.svelte';
+	import PeerReviewPanel from '$lib/review/PeerReviewPanel.svelte';
 	import { config, draftKey, visualizerSettings, type TaskProps } from './types';
 	import { clearDraft, loadDraft, saveDraft } from '$lib/drafts';
 
@@ -18,6 +19,7 @@
 			codeEditor?: boolean;
 			starterCode?: string;
 			codeRequired?: boolean;
+			peerReview?: boolean;
 		}>(task)
 	);
 	const pending = $derived(task.status === 'PENDING_REVIEW');
@@ -109,3 +111,6 @@
 		onclick={send}
 	/>
 </div>
+{#if cfg.peerReview}
+	<PeerReviewPanel moduleSlug={task.moduleSlug ?? ''} taskSlug={task.slug ?? ''} />
+{/if}

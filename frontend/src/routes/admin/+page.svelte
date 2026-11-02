@@ -109,6 +109,12 @@
 					icon: icons.message
 				},
 				{
+					href: '/admin/quiz',
+					title: 'Quiz-Runde',
+					text: 'Live-Quiz aus Auswahl-Aufgaben, Auswertung am Beamer',
+					icon: icons.projector
+				},
+				{
 					href: '/admin/courses',
 					title: 'Kurse & Konten',
 					text: 'Kurse, Beitrittscodes und Konten verwalten',

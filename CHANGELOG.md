@@ -9,6 +9,11 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ### Neu
 - **Code-Visualizer „Schritt für Schritt“** (#37): In Code-Aufgaben, Code-Lücken und der Python-Werkbank geht man mit Vor/Zurück, Abspielen, Schieberegler oder ←/→ durch das eigene Programm und sieht Zeile für Zeile, wie sich Variablen und Listen ändern, welche Funktionsaufrufe gerade laufen (Rekursion als Stapel) und was zurückgegeben wird. Zeigen zwei Variablen auf dieselbe Liste, ist das sichtbar; Änderungen stehen zusätzlich als Text da. Nach dem Lösen lässt sich auch die Musterlösung so ansehen. Läuft alles im Browser (offline), nichts wird bewertet oder gespeichert; Endlosschleifen halten nach 1.000 Schritten an. Je Aufgabe abschaltbar (`visualizer: false`), im Abschlusstest standardmäßig aus.
 - **Stiller Hilfe-Ruf „Ich hänge fest“** (#38): Schülerinnen und Schüler rufen auf jeder Aufgabe unauffällig Hilfe – optional mit Kategorie und Notiz, ihr aktueller Stand und die letzte Fehlermeldung gehen mit (zählt nicht als Versuch). Mitschüler und Beamer sehen davon nichts. Lehrkräfte sehen unter *Leitstand → Hilfe-Rufe* eine Live-Warteschlange mit Aufgabe, Wartezeit, Tipps, Fehlversuchen und Entwurf, dazu einen Zähler in der Kopfzeile; „Ich komme“, „Erledigt“ und kurze Nachrichten an einzelne Schüler erscheinen bei diesen sofort. Wer die Aufgabe selbst löst, verlässt die Warteschlange automatisch.
+- **Quiz-Runde am Beamer**: Die Lehrkraft stellt unter *Leitstand → Quiz-Runde* eine Live-Runde aus Auswahl-Aufgaben zusammen. Die Klasse antwortet am eigenen Gerät, der Beamer zeigt zuerst nur die Zahl der Antworten, dann die anonyme Verteilung und die Auflösung, am Ende die Quote je Frage. Gesteuert wird auf der Quiz-Seite oder direkt am Beamer; keine Punkte, keine Versuche.
+- **Aufgabentyp „Vorhersage“** (`PREDICT`): Ein Programm hält an einem Haltepunkt (Zeile, beim wievielten Erreichen) – welche Werte haben die Variablen dort? Nach dem Lösen springt „Auflösung Schritt für Schritt“ im Code-Visualizer direkt zum Haltepunkt. Im Editor trägt „Werte aus dem Programm ermitteln“ die richtigen Antworten ein. Neue Aufgabe „Wer ist die Größte?“ im Modul Programmierung.
+- **Code-Visualizer in Texten**: Ein Code-Block mit der Sprache `schritte` wird in Wissensartikeln, eigenen Seiten und Aufgabentexten zum Beispiel zum Durchklicken – etwa Bubble Sort im Wissensartikel zu Algorithmen.
+- **Peer-Review für Praxisabgaben**: Mit `peerReview: true` bewertet jede Person nach der eigenen Abgabe bis zu zwei Abgaben anderer aus dem Kurs anonym nach der Rubrik. Die Rückmeldungen erscheinen bei der bewerteten Person, die Lehrkraft sieht sie mit Durchschnitt in der Abgabe. Aktiv bei „Deine Stadt im Netz“.
+- **Hilfe-Rufe in der Lernanalyse**: Neue Spalte, wie oft bei einer Aufgabe „Ich hänge fest“ geklickt wurde (mit Anteil selbst gelöster), umschaltbar als Sortierung.
 
 ### Verbessert
 - Live-Updates verbinden sich jetzt auch direkt nach der Anmeldung, ohne dass die Seite neu geladen werden muss.
@@ -17,6 +22,8 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 
 ### Update
 - Migration V32 legt die Tabelle `help_requests` für Hilfe-Rufe an (wird beim Beenden eines Kurses gelöscht; Entwürfe erledigter Rufe werden nach 24 Stunden geleert).
+- Migration V33 legt `quiz_sessions` und `quiz_answers` für Quiz-Runden an, Migration V34 `peer_reviews` für Peer-Bewertungen. Antworten und Bewertungen werden mit den Schülerkonten beim Beenden eines Kurses gelöscht.
+- Neue mitgelieferte Aufgabe `programmierung/p16` (Vorhersage); bei `web-entwicklung/w13` ist Peer-Review eingeschaltet. Der Wissensartikel zu Algorithmen enthält ein Bubble-Sort-Beispiel zum Durchklicken (unveränderte Artikel werden beim Start aktualisiert).
 
 ## 2.2.0
 

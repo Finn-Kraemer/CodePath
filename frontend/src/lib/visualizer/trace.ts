@@ -195,3 +195,27 @@ export function stopNotice(trace: Trace, maxSteps: number): string | null {
 		return 'Zeitlimit erreicht – das Programm braucht zu lange. Läuft eine Schleife endlos?';
 	return null;
 }
+
+export type Breakpoint = { line: number; hit?: number };
+
+/**
+ * Index des Schritts, an dem das Programm am Haltepunkt steht: Zeile `line` kommt zum `hit`-ten Mal
+ * als Nächstes dran (noch nicht ausgeführt). -1, wenn der Haltepunkt nie erreicht wird.
+ */
+export function findBreakpoint(steps: TraceStep[], breakpoint: Breakpoint): number {
+	let seen = 0;
+	const hit = breakpoint.hit ?? 1;
+	for (let i = 0; i < steps.length; i++) {
+		if (steps[i].event === 'line' && steps[i].line === breakpoint.line && ++seen === hit) return i;
+	}
+	return -1;
+}
+
+/** Wert einer Variablen in einem Schritt als Text – erst im aktiven Rahmen, dann nach außen. */
+export function variableAt(step: TraceStep, name: string): string | undefined {
+	for (let i = step.stack.length - 1; i >= 0; i--) {
+		const value = step.stack[i].locals[name];
+		if (value) return formatValue(value, step.heap);
+	}
+	return undefined;
+}
