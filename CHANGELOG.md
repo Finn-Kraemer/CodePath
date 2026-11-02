@@ -6,6 +6,8 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 
 ## Unveröffentlicht
 
+## 2.1.0
+
 ### Neu
 - **Modul „Die Kommandozeile“** (14 Aufgaben): Als Azubi im IT-Team der Stadtwerke orientiert man sich im Ordnerbaum, räumt auf, liest und durchsucht Logs mit `grep`, `find`, `head`/`tail` und Pipes und behebt am Ende einen Server-Notfall ohne Anleitung.
 - **Git zum Anfassen**: Das Git-Modul ist neu aufgebaut (16 Aufgaben) – Repository anlegen, committen, im Verlauf den Verursacher eines Fehlers finden, Änderungen zurückholen, `.gitignore`, Branches, Merge, Merge-Konflikt, `pull`/`push` gegen einen simulierten Server und eine Release-Mission. Ein Commit-Graph unter dem Terminal zeigt alles live.
