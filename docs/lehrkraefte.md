@@ -57,12 +57,14 @@ Jede Aufgabe hat eine kurze Geschichte, einen Auftrag und ein Lernziel. Pro Aufg
 
 In der Modulübersicht steht oben die **empfohlene nächste Aufgabe**. Sie kommt aus dem ersten veröffentlichten Lernpfad; ohne Lernpfad empfiehlt CodePath die nächste offene Aufgabe – bevorzugt in einem Modul, das schon begonnen ist. Nach dem Lösen einer Aufgabe erscheint die Empfehlung auch auf der Aufgabenseite.
 
-**Leitstand → Lernpfade** legt Lernpfade an. Ein neuer Lernpfad startet mit allen Modulen als Kette. Im Editor:
+**Leitstand → Lernpfade** legt Lernpfade an. Ein neuer Lernpfad startet mit allen Modulen als Kette. Der Editor passt auf einen Bildschirm: links die **Bausteine**, in der Mitte die Fläche, rechts die Eigenschaften der gewählten Station (ohne Auswahl: die Einstellungen des Lernpfads).
 
-- **Station hinzufügen**: ein Modul, eine einzelne Aufgabe oder ein Meilenstein (z. B. „Grundlagen geschafft!“). Ist eine Station gewählt, wird die neue darunter angehängt und verbunden.
-- Stationen **ziehen** (oder mit den Pfeiltasten verschieben), **Verbinden** zeichnet „erst das, dann das“. Linien anklicken löscht sie. Kreise sind nicht möglich.
-- **Automatisch anordnen** legt die Stationen ordentlich in Reihen, **Vorschau** zeigt die Karte mit dem eigenen Stand.
-- **Nur bestimmte Aufgaben**: Eine Modul-Station kann alle oder nur ausgewählte Aufgaben des Moduls nutzen. **Restliche Aufgaben als neue Station** hängt den Rest als zweite Station an – so entsteht z. B. *Programmierung 1 → Web 1 → Programmierung 2*.
+- **Bausteine hineinziehen**: *Baustein* (Art erst danach festlegen), *Ganzes Modul*, *Teil eines Moduls*, *Einzelne Aufgabe* oder *Meilenstein* auf die Fläche ziehen. Darunter stehen alle Module; ein Modul oder – aufgeklappt – eine einzelne Aufgabe lässt sich direkt hineinziehen. Anklicken statt Ziehen hängt den Baustein unter die gewählte Station.
+- **Wo man loslässt, zählt**: auf einer Station → wird darunter angehängt und verbunden; auf einer Linie → wird zwischen die beiden Stationen eingefügt; auf freier Fläche → steht für sich.
+- **Art wechseln**: Rechts lässt sich jede Station jederzeit umstellen – ganzes Modul, Teil eines Moduls, einzelne Aufgabe oder Meilenstein. Noch nicht fertig eingerichtete Bausteine sind gelb gestrichelt; gespeichert wird erst, wenn alle eingerichtet sind.
+- **Verbinden**: am Punkt unten an einer Station ziehen und auf der Station loslassen, die danach kommt. Linien anklicken löscht sie, Kreise sind nicht möglich. Rechts unter *Davor* / *Danach kommt* geht es auch per Auswahl.
+- Stationen **ziehen** (oder mit den Pfeiltasten verschieben, Entf entfernt). **Anordnen** legt die Stationen ordentlich in Reihen, **Zoom** und **Alles zeigen** holen große Lernpfade auf den Bildschirm, **Vorschau** zeigt die Karte mit dem eigenen Stand.
+- **Teil eines Moduls**: Eine Modul-Station kann alle oder nur ausgewählte Aufgaben des Moduls nutzen. **Restliche Aufgaben als neue Station** hängt den Rest als zweite Station an – so entsteht z. B. *Programmierung 1 → Web 1 → Programmierung 2*.
 - **Gilt für**: alle Kurse oder ein Kurs (Gruppe). Ein veröffentlichter Lernpfad für einen Kurs überträgt bei jedem Speichern seine Module in die **Modul-Steuerung** des Kurses: Die Module werden freigegeben, nicht genutzte Aufgaben darin einzeln gesperrt. Optional werden Module, die nicht im Lernpfad vorkommen, für den Kurs gesperrt. Was sich geändert hat, zeigt der Editor nach dem Speichern; Fristen bleiben unverändert.
 - **Veröffentlicht** ankreuzen und speichern – dann sieht die Klasse den Lernpfad als Karte (umschaltbar auf die Liste). Ein Kurs sieht die Lernpfade für ihn und die für alle Kurse; die Empfehlung kommt aus dem obersten Lernpfad des eigenen Kurses, sonst aus dem obersten für alle Kurse.
 

@@ -31,6 +31,8 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Neue Dokumentation: Handbücher für Lehrkräfte, Betrieb, Sicherheit und Entwicklung, Übersicht der Aufgabentypen.
 
 ### Verbessert
+- **Lernpfad-Editor überarbeitet**: alles auf einem Bildschirm (Bausteine links, Fläche, Eigenschaften rechts), Bausteine und Module per Ziehen in den Pfad – auf eine Station (anhängen), auf eine Linie (einfügen) oder frei. Ein neutraler *Baustein* wird erst danach als ganzes Modul, Teil eines Moduls, einzelne Aufgabe oder Meilenstein eingerichtet; jede Station lässt sich umstellen. Verbinden per Ziehen am Anschlusspunkt, Zoom und „Alles zeigen“.
+- **Lernpfad-Karte ohne Emojis**: Editor, Schülerkarte und Empfehlung zeigen schlichte Linien-Icons statt Emojis.
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update
