@@ -97,6 +97,8 @@ Unter **Security** landen CodeQL-Funde, Dependabot-Warnungen und vertrauliche Me
    git switch main && git pull && git tag v2.2.0 && git push origin v2.2.0
    ```
 
+   **Oder im Browser:** *Releases → Draft a new release → Choose a tag*, `v2.2.0` eintippen und *Create new tag: v2.2.0 on publish* wählen, *Target* `main`, Titel und Text leer lassen, *Publish release*. Der Workflow startet genauso und ersetzt Titel und Text durch den Abschnitt aus dem Änderungsprotokoll. (*Save draft* legt keinen Tag an und startet nichts.)
+
 3. Unter **Actions → Release** zusehen. Der Workflow prüft, dass der Tag auf `main` liegt und das Änderungsprotokoll einen Abschnitt zur Version hat, lässt die komplette CI laufen, baut die Images und legt das GitHub-Release an.
 
 **Versionsnummer** nach [Semantic Versioning](https://semver.org/lang/de/): *Patch* (`2.2.1`) für Fehlerbehebungen, *Minor* (`2.3.0`) für neue Funktionen, *Major* (`3.0.0`) wenn Schulen beim Update mehr tun müssen als `docker compose pull`.
