@@ -11,8 +11,13 @@ CodePath verarbeitet Daten von Minderjährigen. Die Plattform ist deshalb so geb
 | Fortschritt, Versuche mit Antworten, Punkte | Bewertung, Rückmeldung, Lernanalyse | beim Beenden des Kurses |
 | Praxisabgaben, Rubrik-Bewertung, Kommentar der Lehrkraft | Bewertung offener Aufgaben | beim Beenden des Kurses |
 | Feedback der Klasse | Rückmeldung zum Kurs | beim Beenden des Kurses |
+| Hilfe-Rufe „Ich hänge fest“: Aufgabe, Zeitpunkte, Kategorie, Notiz, Nachricht der Lehrkraft, mitgeschickter Entwurf und letzte Ausgabe (je höchstens 20 KB) | Lehrkraft weiß, wer wobei Hilfe braucht | Entwurf und Ausgabe 24 Stunden nach dem Erledigen, alles beim Beenden des Kurses |
 | Sitzung (Session) | angemeldet bleiben | nach 12 Stunden Inaktivität oder beim Abmelden |
 | Audit-Log (wer hat was wann getan, ohne Inhalte) | Nachvollziehbarkeit von Lehrkraft-Aktionen | bleibt bestehen |
+
+**Hilfe-Rufe** sehen nur Lehrkräfte – nicht Mitschüler, nicht die Rangliste, nicht der Beamer. Live-Updates dazu gehen nur an Verbindungen von Lehrkräften und an die betroffene Person (die nur ihren eigenen Ruf und die Zahl der Rufe vor ihr sieht). Gerufen werden kann nur für sichtbare Aufgaben des eigenen Kurses, höchstens alle 30 Sekunden. Der Entwurf wird nur beim Klick auf „Hilfe rufen“ bzw. „Stand senden“ übertragen, nie automatisch, und zählt nicht als Versuch.
+
+Der **Code-Visualizer** („Schritt für Schritt“) läuft vollständig im Browser; Aufzeichnungen verlassen das Gerät nicht.
 
 **Nicht** erhoben werden: echte Namen (der Benutzername ist frei wählbar oder wird erzeugt), E-Mail-Adressen, Geräte- oder Standortdaten, Tracking. CodePath lädt nach der Installation nichts von fremden Servern nach – auch keine Schriften, Bilder oder Skripte. Markdown in Aufgaben zeigt nur Bilder aus der eigenen Ablage.
 

@@ -108,6 +108,27 @@ class RealtimeUpdateServiceTest {
     }
 
     @Test
+    void helpEventsReachOnlyTeachersAndTheAffectedStudent() throws Exception {
+        Client teacher = new Client();
+        Client lena = new Client();
+        Client tom = new Client();
+        Client anonymous = new Client();
+        service.register(teacher, "admin", true);
+        service.register(lena, "lena", false);
+        service.register(tom, "tom", false);
+        service.register(anonymous);
+
+        service.publishToTeachers(RealtimeUpdateService.HELP, java.util.Map.of("open", 1));
+        service.publishToUsers(List.of("lena"), RealtimeUpdateService.HELP, java.util.Map.of("timestamp", 1));
+        service.awaitIdle(Duration.ofSeconds(10));
+
+        assertEquals(1, teacher.count("help"));
+        assertEquals(1, lena.count("help"));
+        assertEquals(0, tom.count("help"), "Mitschüler sehen keine Hilfe-Rufe");
+        assertEquals(0, anonymous.count("help"));
+    }
+
+    @Test
     void sendsOnlyAfterCommit() throws Exception {
         Client client = new Client();
         service.register(client);

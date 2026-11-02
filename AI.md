@@ -26,6 +26,7 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 | `site` | Eigene Seiten (`/seiten/<slug>`) und Wissensdatenbank |
 | `pathway` | CodePaths (Karte als Graph) und empfohlene nächste Aufgabe |
 | `transfer` | Zentraler Export/Import; sammelt alle `platform.transfer.TransferSection`-Beans |
+| `help` | Stiller Hilfe-Ruf „Ich hänge fest“: Warteschlange für Lehrkräfte (`/api/help`, `/api/admin/help`) |
 
 `ArchitectureTest` erzwingt: Repositories nur im eigenen Paket, keine Zyklen, `engine` hängt von keinem Fachpaket ab.
 
@@ -41,6 +42,8 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 ## Aufgaben-Engine
 
 Ein Aufgabentyp besteht aus `TaskHandler` (validieren, öffentliche Sicht, bewerten, Lösungssicht, Musterlösung und Falschantwort für den Probelauf, Vorlage für den Editor), einer Svelte-Komponente unter `frontend/src/lib/tasks/` und einem Editor-Formular unter `frontend/src/lib/editor/config/`.
+
+Code-Visualizer („Schritt für Schritt“): Worker-Nachricht `trace` in `static/pyodide-worker.js` (sys.settrace, nur Dateiname `<student>`), Auswertung in `lib/visualizer/trace.ts`, Anzeige `CodeVisualizer.svelte`; Konfiguration `visualizer`/`visualizerMaxSteps` reicht `CodeHandler.withVisualizer` durch.
 
 Typen: `MULTIPLE_CHOICE`, `FILL_BLANK`, `FILL_CODE`, `CODE`, `SORTING`, `SQL`, `TERMINAL`, `PRACTICE` (Lehrkraft bewertet nach Rubrik), `MATCHING`, `PARSONS`, `NUMBER_CONVERT`, `HOTSPOT`, `IMAGE_HOTSPOT`, `LOGIC_CIRCUIT`, `DEVTOOLS` (Browser-Labor, `docs/browser-labor.md`). Formate: `content/README.md`.
 
@@ -78,7 +81,7 @@ Jedes Fachpaket stellt `TransferSection`-Beans bereit (`settings`, `modules`, `h
 
 ## Live-Updates
 
-Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, gesendet erst nach dem Commit. Die Beamer-Ansicht `/projector` nutzt dasselbe. Gesendet wird auf einem eigenen Thread (`codepath-live-updates`), damit ein langsamer Client keine Abgabe aufhält; Ranglisten-Updates, die sich in der Warteschlange stauen, werden zu einem zusammengefasst.
+Server-Sent Events unter `/api/events` (ADR-2): `announcement`, `leaderboard`, `codepath`, `help`, gesendet erst nach dem Commit. Jede Verbindung kennt ihr Konto und ob es eine Lehrkraft ist: `help` geht nur an Lehrkräfte (`publishToTeachers`) und betroffene Schüler (`publishToUsers`), nie an alle. Die Beamer-Ansicht `/projector` nutzt dasselbe. Gesendet wird auf einem eigenen Thread (`codepath-live-updates`), damit ein langsamer Client keine Abgabe aufhält; Ranglisten-Updates, die sich in der Warteschlange stauen, werden zu einem zusammengefasst.
 
 ## Betrieb
 

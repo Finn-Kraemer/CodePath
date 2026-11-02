@@ -399,7 +399,7 @@
 				<label class="flex items-center gap-2 font-mono text-[11px] text-slate-500">
 					Tempo
 					<select
-						class="border border-slate-300 bg-white px-2 py-1 text-xs"
+						class="min-w-28 border border-slate-300 bg-white py-1 pr-8 pl-2 text-xs"
 						value={speed}
 						onchange={(e) => setSpeed(Number((e.target as HTMLSelectElement).value))}
 					>

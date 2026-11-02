@@ -103,6 +103,18 @@ Die Bausteine im Einzelnen:
 
 Auf der Karte ist jede Station *erledigt*, *jetzt dran*, *noch gesperrt* („Erst … abschließen“), *später*, *Zeit abgelaufen* oder *gesperrt*. Von der Lehrkraft gesperrte oder abgelaufene Vorgänger halten niemanden auf.
 
+### Hilfe-Rufe („Ich hänge fest“)
+
+Auf jeder Aufgabe gibt es für Schülerinnen und Schüler den unauffälligen Button **„Ich hänge fest“** – mit Schnellauswahl (*Verstehe die Aufgabe nicht*, *Fehlermeldung*, *Technisches Problem*) und optionaler Notiz. Niemand außer Lehrkräften sieht den Ruf: keine Anzeige für Mitschüler, nichts auf dem Beamer, kein Ton. Der aktuelle Stand der Antwort (Code, SQL, Lücken, Text) und die letzte Ausgabe aus „Ausprobieren“ gehen mit; bewertet oder als Versuch gezählt wird nichts.
+
+**Leitstand → Hilfe-Rufe** zeigt die Warteschlange live, nach Wartezeit sortiert: Name, Kurs, Aufgabe (Link), Wartezeit, Kategorie und Notiz, Tipps und Fehlversuche, letzte Abgabe, Entwurf mit Syntaxhervorhebung und die letzte Fehlermeldung. Wer länger als 5 Minuten wartet, ist rot markiert. Solange jemand wartet, zeigt die Kopfzeile neben *Leitstand* einen Zähler („✋ 3 warten“).
+
+- **Ich komme** – andere Lehrkräfte sehen, wer sich kümmert; der Schüler sieht „Deine Lehrkraft ist unterwegs“.
+- **Erledigt** – der Ruf verschwindet und steht 30 Minuten unter *Zuletzt erledigt*.
+- **Nachricht schicken** – kurzer Text nur an diese Person, z. B. „Schau dir Tipp 2 an“.
+
+Schüler sehen ihre Position („2 Personen vor dir“, ohne Namen) und können mit **Hat sich erledigt** selbst abbrechen oder mit **Stand senden** ihren Entwurf aktualisieren. Löst jemand die Aufgabe, schließt sich der Ruf von selbst („hat sich selbst gelöst“). Je Person gibt es höchstens einen offenen Ruf; ein neuer Ruf für eine andere Aufgabe ersetzt ihn.
+
 ### Beamer-Modus
 
 **Leitstand → Beamer-Modus** öffnet eine Vollbild-Ansicht für den Projektor: Live-Rangliste, Uhrzeit und die aktuelle Mitteilung. Die Rangliste aktualisiert sich bei jeder gelösten Aufgabe von selbst.
@@ -168,7 +180,7 @@ Der **Berufe-Kompass** ordnet jedem Modul ein Berufsfeld zu und zeigt die drei F
 
 ### Kurs beenden
 
-**Kurse & Konten → Kurs beenden** löscht **alle Schülerkonten des Kurses mit Fortschritt, Versuchen, Abgaben und Punkten**. Das ist aus Datenschutzgründen so gewollt und lässt sich nicht rückgängig machen – vorher die Bestätigungen exportieren. Der Beitrittscode ist danach ungültig.
+**Kurse & Konten → Kurs beenden** löscht **alle Schülerkonten des Kurses mit Fortschritt, Versuchen, Abgaben, Hilfe-Rufen und Punkten**. Das ist aus Datenschutzgründen so gewollt und lässt sich nicht rückgängig machen – vorher die Bestätigungen exportieren. Der Beitrittscode ist danach ungültig.
 
 ## ◼ 5. Inhalte bearbeiten
 

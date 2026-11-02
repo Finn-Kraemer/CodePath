@@ -12,6 +12,8 @@
 		type TaskDetail
 	} from '$lib/api';
 	import NextTask from '$lib/pathway/NextTask.svelte';
+	import HelpButton from '$lib/help/HelpButton.svelte';
+	import { auth } from '$lib/auth.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import TaskRenderer from '$lib/tasks/TaskRenderer.svelte';
 	import type { Answer } from '$lib/tasks/types';
@@ -323,6 +325,10 @@
 						</button>
 					{/if}
 				</div>
+
+				{#if auth.user && auth.user.role !== 'ADMIN'}
+					<HelpButton {task} moduleSlug={moduleSlug ?? ''} taskSlug={taskSlug ?? ''} />
+				{/if}
 
 				<div class="space-y-4 border border-slate-200 bg-white p-8 text-sm shadow-sm">
 					<div class="flex justify-between">

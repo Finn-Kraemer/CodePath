@@ -3,7 +3,7 @@
 	import SubmitButton from './SubmitButton.svelte';
 	import { config, draftKey, solution, visualizerSettings, type TaskProps } from './types';
 	import CodeVisualizer from '$lib/visualizer/CodeVisualizer.svelte';
-	import { loadDraft, saveDraft } from '$lib/drafts';
+	import { loadDraft, rememberOutput, saveDraft } from '$lib/drafts';
 	import { PythonRunner } from '$lib/python.svelte';
 	import CodeOutput from './CodeOutput.svelte';
 
@@ -44,6 +44,7 @@
 		const res = await runner.run(assemble(answers));
 		output = res.stdout;
 		runError = res.error ?? '';
+		rememberOutput(draftKey(task), [output, runError].filter(Boolean).join('\n'));
 	}
 
 	onMount(() => {

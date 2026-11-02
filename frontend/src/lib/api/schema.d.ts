@@ -564,6 +564,70 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/help': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['queue'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/help/{id}/claim': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['claim'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/help/{id}/message': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['message'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/help/{id}/resolve': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['resolve'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/homepage': {
 		parameters: {
 			query?: never;
@@ -1508,6 +1572,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/help': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['mine'];
+		put?: never;
+		post: operations['call'];
+		delete: operations['cancel'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/knowledge': {
 		parameters: {
 			query?: never;
@@ -2119,6 +2199,17 @@ export interface components {
 			edges: components['schemas']['Edge'][];
 			nodes: components['schemas']['Node'][];
 		};
+		HelpCall: {
+			category: string;
+			draft: string;
+			lastOutput: string;
+			moduleSlug: string;
+			note: string;
+			taskSlug: string;
+		};
+		HelpState: {
+			request: components['schemas']['MyHelpRequest'];
+		};
 		HintResult: {
 			hints: string[];
 			/** Format: int32 */
@@ -2264,6 +2355,23 @@ export interface components {
 			title: string;
 			/** Format: int32 */
 			totalTasks: number;
+		};
+		MyHelpRequest: {
+			/** Format: int32 */
+			ahead?: number;
+			/** @enum {string} */
+			category?: 'TASK_UNCLEAR' | 'ERROR_MESSAGE' | 'TECHNICAL' | 'OTHER';
+			/** Format: date-time */
+			createdAt?: string;
+			/** Format: int64 */
+			id?: number;
+			moduleSlug?: string;
+			note?: string;
+			/** @enum {string} */
+			status?: 'OPEN' | 'CLAIMED' | 'RESOLVED' | 'CANCELLED';
+			taskSlug?: string;
+			taskTitle?: string;
+			teacherMessage?: string;
 		};
 		NavLink: {
 			description: string;
@@ -2480,6 +2588,49 @@ export interface components {
 			content: components['schemas']['JsonNode'];
 			slug: string;
 			title: string;
+		};
+		Queue: {
+			open: components['schemas']['QueueEntry'][];
+			recent: components['schemas']['QueueEntry'][];
+		};
+		QueueEntry: {
+			/** @enum {string} */
+			category: 'TASK_UNCLEAR' | 'ERROR_MESSAGE' | 'TECHNICAL' | 'OTHER';
+			/** Format: date-time */
+			claimedAt: string;
+			claimedBy: string;
+			courseName: string;
+			/** Format: date-time */
+			createdAt: string;
+			displayName: string;
+			draft: string;
+			/** Format: int32 */
+			failedAttempts: number;
+			/** Format: int32 */
+			hintsUsed: number;
+			/** Format: int64 */
+			id: number;
+			lastFeedback: string;
+			lastOutcome: string;
+			lastOutput: string;
+			moduleSlug: string;
+			moduleTitle: string;
+			note: string;
+			/** @enum {string} */
+			resolution: 'TEACHER' | 'SELF_SOLVED' | 'CANCELLED';
+			/** Format: date-time */
+			resolvedAt: string;
+			/** @enum {string} */
+			status: 'OPEN' | 'CLAIMED' | 'RESOLVED' | 'CANCELLED';
+			taskSlug: string;
+			taskTitle: string;
+			taskType: string;
+			teacherMessage: string;
+			/** Format: date-time */
+			updatedAt: string;
+			username: string;
+			/** Format: int64 */
+			waitingSeconds: number;
 		};
 		Recommendation: {
 			articleSlug: string;
@@ -3871,6 +4022,98 @@ export interface operations {
 					'*/*': {
 						[key: string]: boolean;
 					};
+				};
+			};
+		};
+	};
+	queue: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['Queue'];
+				};
+			};
+		};
+	};
+	claim: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QueueEntry'];
+				};
+			};
+		};
+	};
+	message: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': {
+					[key: string]: string;
+				};
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QueueEntry'];
+				};
+			};
+		};
+	};
+	resolve: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['QueueEntry'];
 				};
 			};
 		};
@@ -5404,6 +5647,70 @@ export interface operations {
 				};
 				content: {
 					'*/*': string;
+				};
+			};
+		};
+	};
+	mine: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['HelpState'];
+				};
+			};
+		};
+	};
+	call: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['HelpCall'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['HelpState'];
+				};
+			};
+		};
+	};
+	cancel: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['HelpState'];
 				};
 			};
 		};

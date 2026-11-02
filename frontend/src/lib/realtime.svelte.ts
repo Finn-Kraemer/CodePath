@@ -24,6 +24,10 @@ class RealtimeStore {
 	lastAnnouncement = $state<Announcement | null>(null);
 	lastPathNotice = $state<{ username: string; message: string; at: number } | null>(null);
 	leaderboardUpdateTrigger = $state(0);
+	/** Hilfe-Rufe geändert (nur Lehrkräfte und die Betroffenen bekommen das Ereignis) */
+	helpTrigger = $state(0);
+	/** Zahl wartender Hilfe-Rufe – kommt nur bei Lehrkräften an */
+	helpOpen = $state<number | null>(null);
 
 	clearPathNotice() {
 		this.lastPathNotice = null;
@@ -44,6 +48,15 @@ class RealtimeStore {
 		});
 		this.source.addEventListener('leaderboard', () => {
 			this.leaderboardUpdateTrigger++;
+		});
+		this.source.addEventListener('help', (event) => {
+			try {
+				const data = JSON.parse((event as MessageEvent).data);
+				if (typeof data?.open === 'number') this.helpOpen = data.open;
+			} catch {
+				// ignorieren
+			}
+			this.helpTrigger++;
 		});
 		this.source.addEventListener('codepath', (event) => {
 			try {

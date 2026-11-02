@@ -103,6 +103,12 @@
 			text: 'Was im laufenden Unterricht gebraucht wird.',
 			tiles: [
 				{
+					href: '/admin/help',
+					title: 'Hilfe-Rufe',
+					text: 'Wer hängt fest? Warteschlange mit Aufgabe und Entwurf',
+					icon: icons.message
+				},
+				{
 					href: '/admin/courses',
 					title: 'Kurse & Konten',
 					text: 'Kurse, Beitrittscodes und Konten verwalten',

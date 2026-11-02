@@ -6,7 +6,7 @@
 	import CodeVisualizer from '$lib/visualizer/CodeVisualizer.svelte';
 	import { createEditor } from '$lib/monaco';
 	import { PythonRunner } from '$lib/python.svelte';
-	import { loadDraft, saveDraft } from '$lib/drafts';
+	import { loadDraft, rememberOutput, saveDraft } from '$lib/drafts';
 
 	let { task, disabled, busy, result, submit }: TaskProps = $props();
 
@@ -64,6 +64,7 @@
 		const res = await runner.run(code, cfg.examples?.[0]?.stdin ?? '');
 		output = res.stdout;
 		error = res.error ?? '';
+		rememberOutput(draftKey(task), [output, error].filter(Boolean).join('\n'));
 		running = false;
 	}
 </script>
