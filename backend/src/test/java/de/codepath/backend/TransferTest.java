@@ -25,7 +25,7 @@ class TransferTest extends IntegrationTestBase {
     @BeforeEach
     void clear() {
         jdbc.update("delete from pages");
-        jdbc.update("delete from learning_paths");
+        jdbc.update("delete from codepaths");
         jdbc.update("delete from knowledge_articles where slug like 'transfer-%'");
     }
 
@@ -64,20 +64,20 @@ class TransferTest extends IntegrationTestBase {
         putAs(teacher(), "/api/admin/pages/" + page + "/published", PagesTest.blocks(Map.of("id", "i", "type", "image", "media", key)))
                 .andExpect(status().isNoContent());
         long article = body(postAs(teacher(), "/api/admin/knowledge", Map.of("title", "Transfer", "slug", "transfer-test"))).get("id").asLong();
-        postAs(teacher(), "/api/admin/learning-paths", Map.of("title", "Standard", "slug", "standard")).andExpect(status().isOk());
+        postAs(teacher(), "/api/admin/codepaths", Map.of("title", "Standard", "slug", "standard")).andExpect(status().isOk());
 
         byte[] zip = export("");
         Map<String, byte[]> files = unzip(zip);
         assertTrue(files.containsKey("media/" + key), "Verwendete Bilder werden mitgepackt");
         JsonNode manifest = json.readTree(files.get("codepath-export.json"));
         assertEquals("codepath-export", manifest.get("format").asString());
-        for (String section : List.of("settings", "modules", "homepage", "pages", "knowledge", "learningPaths")) {
+        for (String section : List.of("settings", "modules", "homepage", "pages", "knowledge", "codepaths")) {
             assertTrue(manifest.at("/sections").has(section), section);
         }
 
         // Seite und CodePath weg, Artikel geändert → angelegt, überarbeitet, Rest unverändert
         mvc.perform(delete("/api/admin/pages/" + page).with(teacher()).with(csrf())).andExpect(status().isNoContent());
-        jdbc.update("delete from learning_paths");
+        jdbc.update("delete from codepaths");
         putAs(teacher(), "/api/admin/knowledge/" + article, Map.of("body", "geändert")).andExpect(status().isOk());
 
         JsonNode report = importFile("export.zip", zip, 200);

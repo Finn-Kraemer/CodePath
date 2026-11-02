@@ -32,10 +32,12 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 
 ### Verbessert
 - **CodePath-Editor überarbeitet**: alles auf einem Bildschirm (Bausteine links, Fläche, Eigenschaften rechts), Bausteine und Module per Ziehen in den Pfad – auf eine Station (anhängen), auf eine Linie (einfügen) oder frei. Ein neutraler *Baustein* wird erst danach als ganzes Modul, Teil eines Moduls, einzelne Aufgabe oder Meilenstein eingerichtet; jede Station lässt sich umstellen. Verbinden per Ziehen am Anschlusspunkt, Zoom und „Alles zeigen“.
+- **Lernpfade heißen jetzt CodePaths** – in der Oberfläche, in der API (`/api/codepaths`), im Export und in der Datenbank.
 - **CodePath-Karte ohne Emojis**: Editor, Schülerkarte und Empfehlung zeigen schlichte Linien-Icons statt Emojis.
 - Live-Updates werden auf einem eigenen Thread gesendet; ein langsamer Client hält keine Abgabe mehr auf, gestaute Ranglisten-Updates werden zusammengefasst.
 
 ### Update
+- Migration V24 benennt die Tabelle `learning_paths` in `codepaths` um (samt Sequenz, Constraints und Audit-Einträgen). Die API liegt jetzt unter `/api/codepaths` bzw. `/api/admin/codepaths`, der Export-Bereich heißt `codepaths`; Exportdateien mit dem alten Bereich `learningPaths` werden nicht mehr erkannt.
 - Migration V23 ordnet CodePaths optional einem Kurs zu.
 - Migration V22 legt das Modul *Die Kommandozeile* an und verschiebt die Aufgabe *Projekt-Setup im Terminal* samt Versuchen und Punkten dorthin. Im Git-Modul werden die durch Terminal-Aufgaben ersetzten Fragen (g2, g4, g8–g11, g13, g14) archiviert – Versuche, Punkte und Praxisabgaben bleiben erhalten, im Editor lassen sie sich zurückholen. Die neuen Aufgaben legt der Start an; beide Module sind danach für alle Kurse gesperrt, bis die Lehrkraft sie freischaltet. Die Modulreihenfolge wird nur angepasst, wo sie noch der ausgelieferten entspricht.
 - Migration V21 ergänzt Module um Berufsfeld und Weiterlern-Links (beim Start für die mitgelieferten Module nachgetragen, wenn noch leer) und legt die Tabelle `learning_paths` an.

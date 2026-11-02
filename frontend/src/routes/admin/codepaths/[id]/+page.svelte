@@ -85,7 +85,7 @@
 	onMount(async () => {
 		try {
 			const [path, modules, courseList] = await Promise.all([
-				api<PathAdmin>(`/api/admin/learning-paths/${id}`),
+				api<PathAdmin>(`/api/admin/codepaths/${id}`),
 				api<ModuleRow[]>('/api/admin/content'),
 				api<CourseSummary[]>('/api/admin/courses')
 			]);
@@ -149,7 +149,7 @@
 		}
 		busy = true;
 		try {
-			const updated = await api<PathAdmin>(`/api/admin/learning-paths/${id}`, {
+			const updated = await api<PathAdmin>(`/api/admin/codepaths/${id}`, {
 				method: 'PUT',
 				body: { ...form, graph: { nodes: nodes.map(normalize), edges } }
 			});
@@ -167,9 +167,9 @@
 	async function remove() {
 		if (!saved || !confirm(`CodePath „${saved.title}“ löschen?`)) return;
 		try {
-			await api(`/api/admin/learning-paths/${id}`, { method: 'DELETE' });
+			await api(`/api/admin/codepaths/${id}`, { method: 'DELETE' });
 			saved = null;
-			goto('/admin/learning-paths');
+			goto('/admin/codepaths');
 		} catch (e) {
 			error = (e as Error).message;
 		}
@@ -178,7 +178,7 @@
 	async function showPreview() {
 		if (!saved) return;
 		try {
-			preview = await api<PathView>(`/api/learning-paths/${saved.slug}`);
+			preview = await api<PathView>(`/api/codepaths/${saved.slug}`);
 		} catch (e) {
 			error = (e as Error).message;
 		}
@@ -780,7 +780,7 @@
 	<!-- Kopfzeile: alles Wichtige in einer Zeile -->
 	<header class="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-slate-200 pb-3">
 		<a
-			href="/admin/learning-paths"
+			href="/admin/codepaths"
 			class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
 			>← CodePaths</a
 		>
@@ -1484,7 +1484,7 @@
 						{/if}
 
 						<div class="mt-2 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
-							<a class="ed-button" href={exportUrl(['learningPaths'], [saved.slug])} download
+							<a class="ed-button" href={exportUrl(['codepaths'], [saved.slug])} download
 								>Exportieren</a
 							>
 							<button class="ed-button text-rose-700" onclick={remove}>CodePath löschen</button>

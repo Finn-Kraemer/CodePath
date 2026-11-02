@@ -39,7 +39,7 @@
 			[modules, next, paths] = await Promise.all([
 				api<ModuleSummary[]>('/api/modules'),
 				api<Recommendation | undefined>('/api/learning/next').then((r) => r ?? null),
-				api<PathLink[]>('/api/learning-paths')
+				api<PathLink[]>('/api/codepaths')
 			]);
 			if (paths.length) await showPath(paths[0].slug);
 		} catch (e) {
@@ -51,7 +51,7 @@
 
 	async function showPath(slug: string) {
 		pathSlug = slug;
-		path = await api<PathView>(`/api/learning-paths/${slug}`);
+		path = await api<PathView>(`/api/codepaths/${slug}`);
 	}
 
 	function setView(value: 'map' | 'list') {

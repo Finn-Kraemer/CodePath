@@ -548,7 +548,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/admin/learning-paths': {
+	'/api/admin/codepaths': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -564,7 +564,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/admin/learning-paths/order': {
+	'/api/admin/codepaths/order': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -580,7 +580,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/admin/learning-paths/{id}': {
+	'/api/admin/codepaths/{id}': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -1380,7 +1380,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/learning-paths': {
+	'/api/codepaths': {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -1396,7 +1396,7 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
-	'/api/learning-paths/{slug}': {
+	'/api/codepaths/{slug}': {
 		parameters: {
 			query?: never;
 			header?: never;

@@ -391,7 +391,7 @@
 		</a>
 
 		<a
-			href="/admin/learning-paths"
+			href="/admin/codepaths"
 			class="group flex flex-col gap-4 border border-slate-200 bg-white p-8 transition-all hover:border-institutional-navy"
 		>
 			<div class="text-slate-300 transition-colors group-hover:text-institutional-navy">

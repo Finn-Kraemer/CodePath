@@ -14,7 +14,7 @@
 
 	async function load() {
 		try {
-			paths = await api<PathSummary[]>('/api/admin/learning-paths');
+			paths = await api<PathSummary[]>('/api/admin/codepaths');
 		} catch (e) {
 			error = (e as Error).message;
 		} finally {
@@ -26,11 +26,11 @@
 		e.preventDefault();
 		error = '';
 		try {
-			const created = await api<PathAdmin>('/api/admin/learning-paths', {
+			const created = await api<PathAdmin>('/api/admin/codepaths', {
 				method: 'POST',
 				body: { title: newTitle, slug: slugify(newTitle) }
 			});
-			goto(`/admin/learning-paths/${created.id}`);
+			goto(`/admin/codepaths/${created.id}`);
 		} catch (err) {
 			error = (err as Error).message;
 		}
@@ -41,7 +41,7 @@
 		if (j < 0 || j >= paths.length) return;
 		[paths[i], paths[j]] = [paths[j], paths[i]];
 		try {
-			await api('/api/admin/learning-paths/order', { method: 'PUT', body: paths.map((p) => p.id) });
+			await api('/api/admin/codepaths/order', { method: 'PUT', body: paths.map((p) => p.id) });
 		} catch (err) {
 			error = (err as Error).message;
 		}
@@ -71,7 +71,7 @@
 			Modul-Steuerung des Kurses.
 		</p>
 		<div class="mt-6 flex flex-wrap gap-3">
-			<a class="ed-button" href={exportUrl(['learningPaths'])} download>Alle exportieren</a>
+			<a class="ed-button" href={exportUrl(['codepaths'])} download>Alle exportieren</a>
 			<a class="ed-button" href="/admin/transfer">Importieren …</a>
 		</div>
 	</header>
@@ -93,7 +93,7 @@
 			<ol class="flex flex-col border border-slate-200 bg-white">
 				{#each paths as path, i (path.id)}
 					<li class="flex flex-wrap items-center gap-3 border-b border-slate-100 p-4 last:border-0">
-						<a href="/admin/learning-paths/{path.id}" class="min-w-0 flex-1">
+						<a href="/admin/codepaths/{path.id}" class="min-w-0 flex-1">
 							<span class="block font-bold text-institutional-navy">{path.title}</span>
 							<span class="block text-xs text-slate-400"
 								>{path.stations} Stationen · /{path.slug} · {path.courseName

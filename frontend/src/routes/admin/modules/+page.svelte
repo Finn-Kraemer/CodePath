@@ -20,7 +20,7 @@
 
 	async function fetchModules() {
 		const request = ++latestRequest;
-		api<PathSummary[]>('/api/admin/learning-paths')
+		api<PathSummary[]>('/api/admin/codepaths')
 			.then((list) => (paths = list))
 			.catch(() => (paths = []));
 		try {
@@ -106,7 +106,7 @@
 		{#each coursePaths as path (path.id)}
 			<p class="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
 				Für diesen Kurs gilt der CodePath
-				<a href="/admin/learning-paths/{path.id}" class="font-bold underline">{path.title}</a
+				<a href="/admin/codepaths/{path.id}" class="font-bold underline">{path.title}</a
 				>{path.published ? '' : ' (Entwurf)'}. Beim Speichern übernimmt er seine Module und Aufgaben
 				hierher; Änderungen hier bleiben bis dahin bestehen.
 			</p>

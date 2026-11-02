@@ -29,6 +29,161 @@
         "tags" : [ "classroom-admin-controller" ]
       }
     },
+    "/api/admin/codepaths" : {
+      "get" : {
+        "operationId" : "all_2",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PathSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      },
+      "post" : {
+        "operationId" : "create_2",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/codepaths/order" : {
+      "put" : {
+        "operationId" : "reorder_3",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "integer",
+                  "format" : "int64"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/admin/codepaths/{id}" : {
+      "delete" : {
+        "operationId" : "delete_2",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      },
+      "get" : {
+        "operationId" : "get",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      },
+      "put" : {
+        "operationId" : "update_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PathUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
     "/api/admin/content" : {
       "get" : {
         "operationId" : "overview",
@@ -188,7 +343,7 @@
     },
     "/api/admin/content/modules/{id}/order" : {
       "put" : {
-        "operationId" : "reorder_3",
+        "operationId" : "reorder_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -956,7 +1111,7 @@
     },
     "/api/admin/knowledge" : {
       "get" : {
-        "operationId" : "all_2",
+        "operationId" : "all_1",
         "responses" : {
           "200" : {
             "content" : {
@@ -975,7 +1130,7 @@
         "tags" : [ "knowledge-controller" ]
       },
       "post" : {
-        "operationId" : "create_2",
+        "operationId" : "create_1",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1006,7 +1161,7 @@
     },
     "/api/admin/knowledge/order" : {
       "put" : {
-        "operationId" : "reorder_2",
+        "operationId" : "reorder_1",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1031,7 +1186,7 @@
     },
     "/api/admin/knowledge/{id}" : {
       "delete" : {
-        "operationId" : "delete_2",
+        "operationId" : "delete_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1049,7 +1204,7 @@
         "tags" : [ "knowledge-controller" ]
       },
       "put" : {
-        "operationId" : "update_1",
+        "operationId" : "update",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1082,161 +1237,6 @@
           }
         },
         "tags" : [ "knowledge-controller" ]
-      }
-    },
-    "/api/admin/learning-paths" : {
-      "get" : {
-        "operationId" : "all_1",
-        "responses" : {
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PathSummary"
-                  }
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "tags" : [ "learning-path-controller" ]
-      },
-      "post" : {
-        "operationId" : "create_1",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "type" : "object",
-                "additionalProperties" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PathAdmin"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "tags" : [ "learning-path-controller" ]
-      }
-    },
-    "/api/admin/learning-paths/order" : {
-      "put" : {
-        "operationId" : "reorder_1",
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "type" : "array",
-                "items" : {
-                  "type" : "integer",
-                  "format" : "int64"
-                }
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK"
-          }
-        },
-        "tags" : [ "learning-path-controller" ]
-      }
-    },
-    "/api/admin/learning-paths/{id}" : {
-      "delete" : {
-        "operationId" : "delete_1",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK"
-          }
-        },
-        "tags" : [ "learning-path-controller" ]
-      },
-      "get" : {
-        "operationId" : "get",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PathAdmin"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "tags" : [ "learning-path-controller" ]
-      },
-      "put" : {
-        "operationId" : "update",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/PathUpdate"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PathAdmin"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "tags" : [ "learning-path-controller" ]
       }
     },
     "/api/admin/media" : {
@@ -2430,6 +2430,53 @@
         "tags" : [ "auth-controller" ]
       }
     },
+    "/api/codepaths" : {
+      "get" : {
+        "operationId" : "published",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PathLink"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
+    "/api/codepaths/{slug}" : {
+      "get" : {
+        "operationId" : "view",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PathView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "code-path-controller" ]
+      }
+    },
     "/api/common/announcement" : {
       "get" : {
         "operationId" : "announcement_1",
@@ -2873,53 +2920,6 @@
         "tags" : [ "progress-controller" ]
       }
     },
-    "/api/learning-paths" : {
-      "get" : {
-        "operationId" : "published",
-        "responses" : {
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/PathLink"
-                  }
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "tags" : [ "learning-path-controller" ]
-      }
-    },
-    "/api/learning-paths/{slug}" : {
-      "get" : {
-        "operationId" : "view",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "slug",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PathView"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "tags" : [ "learning-path-controller" ]
-      }
-    },
     "/api/learning/next" : {
       "get" : {
         "operationId" : "next",
@@ -2935,7 +2935,7 @@
             "description" : "OK"
           }
         },
-        "tags" : [ "learning-path-controller" ]
+        "tags" : [ "code-path-controller" ]
       }
     },
     "/api/media/{key}" : {
