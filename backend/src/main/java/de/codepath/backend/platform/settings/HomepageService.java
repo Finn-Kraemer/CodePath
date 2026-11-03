@@ -2,12 +2,14 @@ package de.codepath.backend.platform.settings;
 
 import de.codepath.backend.engine.MediaKeys;
 import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.media.MediaReference;
 import de.codepath.backend.platform.media.MediaUsage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -76,6 +78,14 @@ public class HomepageService implements MediaUsage {
         boolean used = repository.findAllById(Set.of(PUBLISHED, DRAFT)).stream()
                 .anyMatch(s -> MediaKeys.find(s.getValue()).contains(key));
         return used ? Optional.of("auf der Startseite") : Optional.empty();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MediaReference> references() {
+        Set<String> keys = new java.util.LinkedHashSet<>();
+        repository.findAllById(Set.of(PUBLISHED, DRAFT)).forEach(s -> keys.addAll(MediaKeys.find(s.getValue())));
+        return keys.stream().map(key -> new MediaReference(key, "HOMEPAGE", "Startseite", "/admin/homepage")).toList();
     }
 
     private JsonNode read(String key) {

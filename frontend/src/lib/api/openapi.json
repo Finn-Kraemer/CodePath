@@ -603,7 +603,7 @@
     },
     "/api/admin/content/tasks/{id}" : {
       "delete" : {
-        "operationId" : "delete_3",
+        "operationId" : "delete_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1580,9 +1580,48 @@
         "tags" : [ "media-controller" ]
       }
     },
+    "/api/admin/media/delete-unused" : {
+      "post" : {
+        "operationId" : "deleteUnused",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CleanupResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "media-controller" ]
+      }
+    },
+    "/api/admin/media/library" : {
+      "get" : {
+        "operationId" : "library",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LibraryItem"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "media-controller" ]
+      }
+    },
     "/api/admin/media/{key}" : {
       "delete" : {
-        "operationId" : "delete_4",
+        "operationId" : "delete_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "key",
@@ -1593,6 +1632,40 @@
         } ],
         "responses" : {
           "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "media-controller" ]
+      },
+      "patch" : {
+        "operationId" : "rename",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "key",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Rename"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MediaInfo"
+                }
+              }
+            },
             "description" : "OK"
           }
         },
@@ -4643,6 +4716,20 @@
           }
         }
       },
+      "CleanupResult" : {
+        "type" : "object",
+        "properties" : {
+          "deleted" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "freedBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "deleted", "freedBytes" ]
+      },
       "Compass" : {
         "type" : "object",
         "properties" : {
@@ -5271,6 +5358,46 @@
         },
         "required" : [ "displayName", "points", "rank", "username" ]
       },
+      "LibraryItem" : {
+        "type" : "object",
+        "properties" : {
+          "contentType" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "height" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "originalName" : {
+            "type" : "string"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "url" : {
+            "type" : "string"
+          },
+          "usages" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MediaReference"
+            }
+          },
+          "width" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "contentType", "createdAt", "height", "key", "originalName", "size", "url", "usages", "width" ]
+      },
       "Link" : {
         "type" : "object",
         "properties" : {
@@ -5312,6 +5439,24 @@
           }
         },
         "required" : [ "contentType", "height", "key", "originalName", "size", "url", "width" ]
+      },
+      "MediaReference" : {
+        "type" : "object",
+        "properties" : {
+          "href" : {
+            "type" : "string"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "href", "key", "kind", "label" ]
       },
       "ModuleDetail" : {
         "type" : "object",
@@ -6377,6 +6522,15 @@
             "type" : "boolean"
           }
         }
+      },
+      "Rename" : {
+        "type" : "object",
+        "properties" : {
+          "originalName" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "originalName" ]
       },
       "ReorderRequest" : {
         "type" : "object",

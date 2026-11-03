@@ -61,6 +61,11 @@
 					disabled={busy}
 				/>
 			</label>
+			<a
+				href="/admin/media"
+				target="_blank"
+				class="mt-1 inline-block text-xs text-slate-500 underline">Bilder verwalten …</a
+			>
 			{#if busy}<p class="mt-2 text-xs text-slate-500">Wird hochgeladen …</p>{/if}
 			{#if error}<p class="mt-2 text-xs text-rose-700" role="alert">{error}</p>{/if}
 			{#if items.length}

@@ -3,6 +3,7 @@ package de.codepath.backend.content;
 import de.codepath.backend.engine.MediaKeys;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.media.MediaReference;
 import de.codepath.backend.platform.media.MediaUsage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -29,6 +31,17 @@ public class MediaService {
 
     public record MediaInfo(String key, String url, String contentType, String originalName, int size,
                             Integer width, Integer height) {
+    }
+
+    /** Ein Bild in der Medienverwaltung, mit allen Stellen, an denen es verwendet wird. */
+    public record LibraryItem(String key, String url, String contentType, String originalName, int size,
+                              Integer width, Integer height, LocalDateTime createdAt, List<MediaReference> usages) {
+    }
+
+    public record Rename(String originalName) {
+    }
+
+    public record CleanupResult(int deleted, long freedBytes) {
     }
 
     private final MediaRepository repository;
@@ -92,6 +105,60 @@ public class MediaService {
         return repository.listInfo().stream()
                 .map(i -> new MediaInfo(i.getKey(), url(i.getKey()), i.getContentType(), i.getOriginalName(), i.getSize(), i.getWidth(), i.getHeight()))
                 .toList();
+    }
+
+    /** Alle Bilder mit ihren Verwendungen (Aufgaben, Startseite, Seiten, Wissensdatenbank), neueste zuerst. */
+    @Transactional(readOnly = true)
+    public List<LibraryItem> library() {
+        Map<String, List<MediaReference>> usages = references();
+        return repository.listInfo().stream()
+                .map(i -> new LibraryItem(i.getKey(), url(i.getKey()), i.getContentType(), i.getOriginalName(), i.getSize(),
+                        i.getWidth(), i.getHeight(), i.getCreatedAt(), usages.getOrDefault(i.getKey(), List.of())))
+                .toList();
+    }
+
+    /** Ändert nur den angezeigten Namen; Schlüssel und Adresse bleiben, Verweise funktionieren weiter. */
+    @Transactional
+    public MediaInfo rename(String key, String originalName) {
+        MediaFile file = get(key).orElseThrow(() -> ApiException.notFound("Bild nicht gefunden."));
+        String name = cleanName(originalName == null ? null : originalName.strip());
+        if (name == null || name.isBlank()) throw ApiException.badRequest("Bitte einen Namen angeben.");
+        file.setOriginalName(name);
+        auditService.log("MEDIA_RENAMED", key, Map.of("name", name));
+        return info(file);
+    }
+
+    /** Löscht alle Bilder, die nirgends (auch in keiner früheren Aufgabenversion) verwendet werden. */
+    @Transactional
+    public CleanupResult deleteUnused() {
+        Map<String, List<MediaReference>> usages = references();
+        int deleted = 0;
+        long freed = 0;
+        for (MediaRepository.Info info : repository.listInfo()) {
+            if (usages.containsKey(info.getKey())) continue;
+            repository.deleteById(info.getKey());
+            deleted++;
+            freed += info.getSize();
+        }
+        if (deleted > 0) auditService.log("MEDIA_CLEANUP", "media", Map.of("deleted", deleted, "bytes", freed));
+        return new CleanupResult(deleted, freed);
+    }
+
+    private Map<String, List<MediaReference>> references() {
+        Map<String, List<MediaReference>> usages = new HashMap<>();
+        for (MediaRepository.TaskReference t : repository.taskReferences()) {
+            String label = "Aufgabe „" + t.getTitle() + "“ (" + t.getModuleTitle() + ")"
+                    + (Boolean.TRUE.equals(t.getLatest()) ? "" : " – nur in einer früheren Version");
+            usages.computeIfAbsent(t.getKey(), k -> new ArrayList<>())
+                    .add(new MediaReference(t.getKey(), "TASK", label, "/admin/content/" + t.getTaskId()));
+        }
+        for (MediaUsage usage : mediaUsages) {
+            for (MediaReference ref : usage.references()) {
+                List<MediaReference> list = usages.computeIfAbsent(ref.key(), k -> new ArrayList<>());
+                if (!list.contains(ref)) list.add(ref);
+            }
+        }
+        return usages;
     }
 
     /** Welche der Schlüssel fehlen in der Datenbank? */

@@ -1,5 +1,6 @@
 package de.codepath.backend.platform.media;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,4 +15,7 @@ public interface MediaUsage {
 
     /** Wo das Bild verwendet wird, z. B. "auf der Startseite" – leer, wenn nirgends. */
     Optional<String> usedBy(String key);
+
+    /** Alle Verwendungen aller Bilder auf einmal – für die Übersicht in der Medienverwaltung. */
+    List<MediaReference> references();
 }

@@ -7,6 +7,7 @@ import de.codepath.backend.engine.MediaKeys;
 import de.codepath.backend.identity.User;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.media.MediaReference;
 import de.codepath.backend.platform.media.MediaUsage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -221,6 +222,16 @@ public class KnowledgeService implements MediaUsage {
                 .filter(a -> MediaKeys.find(a.getBody()).contains(key))
                 .findFirst()
                 .map(a -> "im Wissensartikel „" + a.getTitle() + "“");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MediaReference> references() {
+        return repository.findAllByOrderByPositionAscIdAsc().stream()
+                .flatMap(a -> MediaKeys.find(a.getBody()).stream()
+                        .map(key -> new MediaReference(key, "KNOWLEDGE", "Wissensartikel „" + a.getTitle() + "“",
+                                "/admin/knowledge?artikel=" + a.getSlug())))
+                .toList();
     }
 
     int nextPosition() {

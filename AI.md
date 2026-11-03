@@ -58,7 +58,7 @@ Content-Pakete unter `content/<modul>/` (`module.json`, `tasks/NN-slug.json`, Ma
 
 ## Medien
 
-Bilder liegen in PostgreSQL, Schlüssel = SHA-256 + Endung (ADR-7). Upload nur für die Lehrkraft, nur PNG/JPEG/GIF/WebP bis 2 MB, Auslieferung unter `/api/media/` mit restriktiver CSP. Markdown zeigt nur diese Bilder. Details: `docs/historie/medien-und-neue-typen.md`.
+Bilder liegen in PostgreSQL, Schlüssel = SHA-256 + Endung (ADR-7). Upload nur für die Lehrkraft, nur PNG/JPEG/GIF/WebP bis 2 MB, Auslieferung unter `/api/media/` mit restriktiver CSP. Markdown zeigt nur diese Bilder. Details: `docs/historie/medien-und-neue-typen.md`. Medienverwaltung unter `/admin/media`: `GET /api/admin/media/library` liefert jedes Bild mit allen Verwendungen (`MediaReference`: Aufgaben über `MediaRepository.taskReferences`, alle anderen über `MediaUsage.references`), `PATCH /api/admin/media/{key}` ändert nur den angezeigten Namen, `POST /api/admin/media/delete-unused` löscht alle nirgends verwendeten Bilder.
 
 ## Startseite
 
