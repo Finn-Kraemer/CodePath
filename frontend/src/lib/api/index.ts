@@ -61,6 +61,8 @@ export type QuizView = Schemas['QuizView'];
 export type QuizCandidate = Schemas['Candidate'];
 export type PeerState = Schemas['PeerState'];
 export type TeacherPeerReview = Schemas['TeacherPeerReview'];
+export type WorksheetSummary = Schemas['WorksheetSummary'];
+export type WorksheetDetail = Schemas['WorksheetDetail'];
 
 export class ApiError extends Error {
 	constructor(
