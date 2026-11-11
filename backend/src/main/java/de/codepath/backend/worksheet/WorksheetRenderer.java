@@ -54,6 +54,9 @@ public final class WorksheetRenderer {
     private static final Pattern BULLET = Pattern.compile("^\\s*[-*•]\\s+(.*)$");
     private static final Pattern NUMBERED = Pattern.compile("^\\s*\\d+[.)]\\s+(.*)$");
 
+    /** Blöcke ohne eigenen Inhalt: allein ergeben sie keine sinnvolle Seite. */
+    private static final java.util.Set<String> LAYOUT_ONLY = java.util.Set.of("pagebreak", "divider", "space");
+
     private static final int NORMAL = 0;
     private static final int BOLD = 1;
     private static final int ITALIC = 2;
@@ -134,13 +137,31 @@ public final class WorksheetRenderer {
             boxChecked = checkbox(true);
 
             header();
-            int index = 0;
-            for (JsonNode block : blocks) {
-                String show = text(block, "show");
+            // Position im ganzen Blatt (nicht nur unter den sichtbaren Blöcken), damit gemischte
+            // Reihenfolgen in Schülerblatt und Lösung gleich sind
+            java.util.List<Integer> visible = new ArrayList<>();
+            for (int i = 0; i < blocks.size(); i++) {
+                String show = text(blocks.get(i), "show");
                 if (("student".equals(show) && solution) || ("solution".equals(show) && !solution)) continue;
-                block(block, index++);
+                visible.add(i);
             }
-            if (writer.getPageNumber() == 1 && blocks.isEmpty()) document.add(new Paragraph(" "));
+            // Umbrüche, Trennlinien und Freiraum am Ende erzeugen nur leere Seiten
+            while (!visible.isEmpty() && LAYOUT_ONLY.contains(text(blocks.get(visible.getLast()), "type"))) visible.removeLast();
+            boolean pageStart = false;
+            for (int i : visible) {
+                JsonNode block = blocks.get(i);
+                String type = text(block, "type");
+                if ("pagebreak".equals(type)) {
+                    document.newPage();
+                    pageStart = true;
+                    continue;
+                }
+                // Trennlinie oder Freiraum direkt nach einem Umbruch: oben auf der Seite ohne Sinn
+                if (pageStart && LAYOUT_ONLY.contains(type)) continue;
+                pageStart = false;
+                block(block, i);
+            }
+            if (writer.getPageNumber() == 1 && visible.isEmpty()) document.add(new Paragraph(" "));
             document.close();
         } catch (DocumentException e) {
             throw new IllegalStateException(e);

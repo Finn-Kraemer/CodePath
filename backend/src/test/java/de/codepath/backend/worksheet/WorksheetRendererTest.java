@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Renderer ohne Datenbank: Randfälle dürfen nie zu einem Fehler führen. */
-class WorksheetRendererTest {
+public class WorksheetRendererTest {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
 
@@ -65,6 +65,44 @@ class WorksheetRendererTest {
         try (PdfReader reader = new PdfReader(render(Map.of(), WorksheetRenderer.Variant.STUDENT))) {
             assertEquals(1, reader.getNumberOfPages());
         }
+    }
+
+    public static int pages(byte[] pdf) throws Exception {
+        try (PdfReader reader = new PdfReader(pdf)) {
+            return reader.getNumberOfPages();
+        }
+    }
+
+    @Test
+    void noEmptyPagesFromTrailingLayoutBlocks() throws Exception {
+        Map<String, Object> task = Map.of("type", "task", "prompt", "Erste Seite", "size", 2);
+        // Umbruch, Trennlinie und Freiraum am Ende ergeben keine leere Seite
+        assertEquals(1, pages(render(Map.of("blocks", List.of(task, Map.of("type", "pagebreak"), Map.of("type", "divider"),
+                Map.of("type", "space", "size", 3), Map.of("type", "pagebreak"))), WorksheetRenderer.Variant.STUDENT)));
+        // Folgt nur Inhalt der anderen Fassung, endet das Schülerblatt nach Seite 1, die Lösung nicht
+        Map<String, Object> content = Map.of("blocks", List.of(task, Map.of("type", "pagebreak"),
+                Map.of("type", "text", "text", "Erwartungshorizont", "show", "solution")));
+        assertEquals(1, pages(render(content, WorksheetRenderer.Variant.STUDENT)));
+        assertEquals(2, pages(render(content, WorksheetRenderer.Variant.SOLUTION)));
+        // Mehrere Umbrüche hintereinander und Trennlinie oben auf der Seite: eine neue Seite, ohne Linie davor
+        assertEquals(2, pages(render(Map.of("blocks", List.of(task, Map.of("type", "pagebreak"), Map.of("type", "pagebreak"),
+                Map.of("type", "divider"), Map.of("type", "text", "text", "Zweite Seite"))), WorksheetRenderer.Variant.STUDENT)));
+    }
+
+    @Test
+    void shuffledOrderIsTheSameInBothVariants() throws Exception {
+        List<Map<String, Object>> pairs = new java.util.ArrayList<>();
+        for (int i = 0; i < 6; i++) pairs.add(Map.of("left", "L" + i, "right", "Rechts" + i));
+        Map<String, Object> content = Map.of("blocks", List.of(
+                Map.of("type", "text", "text", "Nur Lösung", "show", "solution"),
+                Map.of("type", "matching", "prompt", "Ordne zu.", "pairs", pairs)));
+        String student = text(render(content, WorksheetRenderer.Variant.STUDENT));
+        String solution = text(render(content, WorksheetRenderer.Variant.SOLUTION));
+        List<String> orderStudent = new java.util.ArrayList<>(pairs.stream().map(p -> (String) p.get("right")).toList());
+        List<String> orderSolution = new java.util.ArrayList<>(orderStudent);
+        orderStudent.sort(java.util.Comparator.comparingInt(student::indexOf));
+        orderSolution.sort(java.util.Comparator.comparingInt(solution::indexOf));
+        assertEquals(orderStudent, orderSolution);
     }
 
     @Test

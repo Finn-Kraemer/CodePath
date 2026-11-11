@@ -239,7 +239,7 @@ Gelöschte mitgelieferte Aufgaben kommen auch bei Updates nicht wieder – auße
 | Reihenfolge | Schritte gemischt, Kästchen zum Nummerieren | richtige Nummern |
 | Tabelle | Zellen mit `[[Antwort]]` bleiben leer; mit Arbeitsauftrag zählt sie als Aufgabe | Antworten in den Zellen |
 
-Dazu **Inhalt** (Überschrift, Text, Infokasten „Merke/Tipp/Achtung“, Code – auf Wunsch mit Lücken, Bild aus der Medienverwaltung) und **Layout** (Freiraum, Trennlinie, Seitenumbruch). In Texten gehen `**fett**`, `*kursiv*`, `` `Code` `` und Listen mit `- ` oder `1. `. Jeder Block kann **nur im Schülerblatt** oder **nur in der Lösung** erscheinen – praktisch für einen Erwartungshorizont.
+Dazu **Inhalt** (Überschrift, Text, Infokasten „Merke/Tipp/Achtung“, Code – auf Wunsch mit Lücken, Bild aus der Medienverwaltung) und **Layout** (Freiraum, Trennlinie, Seitenumbruch). In Texten gehen `**fett**`, `*kursiv*`, `` `Code` `` und Listen mit `- ` oder `1. `. Jeder Block kann **nur im Schülerblatt** oder **nur in der Lösung** erscheinen – praktisch für einen Erwartungshorizont. Seitenumbrüche, Trennlinien und Freiraum am Ende des Blatts oder direkt nach einem Umbruch werden weggelassen, damit keine leeren Seiten entstehen.
 
 **Kopf & Layout:** Vorlagen (Arbeitsblatt, Hausaufgabe, Übung mit Punkten, Lernkontrolle) setzen die üblichen Einstellungen auf einmal. Einstellbar sind Art des Blatts, Fach, Schule, Untertitel, Logo, Arbeitsanweisung, die Felder im Kopf (Name, Klasse, Datum, Punkte erreicht/gesamt, Note – Klasse und Datum auch vorausgefüllt), Nummerierung („Aufgabe“, „Nr.“ …), Punkte je Aufgabe, Papier (A4, A5, Letter; hoch oder quer), Ränder, Schrift und Schriftgröße, Linienabstand, Akzentfarbe, Fußzeile und Seitenzahlen.
 

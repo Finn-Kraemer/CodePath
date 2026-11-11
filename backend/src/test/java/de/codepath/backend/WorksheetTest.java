@@ -88,6 +88,8 @@ class WorksheetTest extends IntegrationTestBase {
         assertTrue(student.contains("Aufgabe 8"));
         assertTrue(student.contains("/ 12,5"), "Gesamtpunkte im Kopf");
         assertTrue(student.contains("Seite 1 von"));
+        assertEquals(2, de.codepath.backend.worksheet.WorksheetRendererTest.pages(response.getContentAsByteArray()),
+                "Kein leeres Blatt durch Umbruch, Trennlinie und Freiraum am Ende");
         assertTrue(student.contains("Viel Erfolg!"));
         assertTrue(student.contains("Schleife"), "Wortspeicher zeigt die Lückenwörter");
         assertFalse(student.contains("Ein benannter Speicherplatz"), "Keine Lösung in der Schülerfassung");
