@@ -13,7 +13,7 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - **Sammel-Exporte zum Drucken:** Überall, wo es PDFs je Person eines Kurses gibt, stehen dieselben drei Wege bereit – **ZIP** (jede Datei einzeln), **Eine PDF** (alle Dokumente hintereinander, je Person ein Lesezeichen) und **Drucken** (öffnet die Sammel-PDF direkt im Browser). Mit **beidseitig** beginnt jede Person auf einem neuen Blatt. Gilt für Bewertungsbögen (Klassenauswertung plus alle Bögen), Teilnahmebestätigungen und – neu für die Lehrkraft – die **Mitnehm-Pakete** der ganzen Klasse (*Kurse & Konten*), z. B. zum Ausdrucken vor dem Kursende.
 
 ### Update
-- Migration V35 legt `evaluation_templates`, `evaluation_rounds` und `evaluation_responses` an und spielt drei Vorlagen ein. Ausgefüllte Bögen werden mit den Schülerkonten beim Beenden eines Kurses gelöscht. Die Verwaltung der Feedback-Nachrichten liegt jetzt unter `/admin/feedback/messages`.
+- Migration V36 legt `evaluation_templates`, `evaluation_rounds` und `evaluation_responses` an und spielt drei Vorlagen ein. Ausgefüllte Bögen werden mit den Schülerkonten beim Beenden eines Kurses gelöscht. Die Verwaltung der Feedback-Nachrichten liegt jetzt unter `/admin/feedback/messages`.
 
 ## 2.3.0
 
