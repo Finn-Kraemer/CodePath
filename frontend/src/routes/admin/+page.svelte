@@ -9,15 +9,18 @@
 	let loading = $state(true);
 	let error = $state('');
 	let pollInterval: ReturnType<typeof setInterval> | undefined;
+	let purgingSoon = $state<{ id: number; name: string; purgeAfter?: string }[]>([]);
 
 	async function fetchData() {
 		try {
-			const [studentsRes, submissionsRes, feedbackRes, certsRes] = await Promise.all([
+			const [studentsRes, submissionsRes, feedbackRes, certsRes, purgeRes] = await Promise.all([
 				auth.apiFetch('/api/admin/students'),
 				auth.apiFetch('/api/admin/submissions'),
 				auth.apiFetch('/api/feedback/status'),
-				auth.apiFetch('/api/admin/settings/certificates')
+				auth.apiFetch('/api/admin/settings/certificates'),
+				auth.apiFetch('/api/admin/courses/purging-soon')
 			]);
+			if (purgeRes.ok) purgingSoon = await purgeRes.json();
 
 			if (studentsRes.ok) {
 				const data = await studentsRes.json();
@@ -295,6 +298,20 @@
 	{#if error}
 		<div class="border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700" role="alert">
 			{error}
+		</div>
+	{/if}
+
+	{#if purgingSoon.length > 0}
+		<div
+			class="border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"
+			role="status"
+			data-testid="purging-soon"
+		>
+			<strong>Archivierte Kurse werden bald gelöscht:</strong>
+			{#each purgingSoon as course, i (course.id)}{i > 0 ? ', ' : ' '}„{course.name}“ am {course.purgeAfter
+					? new Date(course.purgeAfter).toLocaleDateString('de-DE')
+					: '–'}{/each}. Jetzt noch exportieren oder unter
+			<a href="/admin/courses" class="font-bold underline">Kurse &amp; Konten</a> wiederherstellen.
 		</div>
 	{/if}
 

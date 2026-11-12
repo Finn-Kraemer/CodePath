@@ -18,4 +18,8 @@ public interface ProgressRepository extends JpaRepository<Progress, Progress.Key
     List<Object[]> countSolvedByUser(Collection<Long> userIds);
 
     long countByUserIdAndStatus(Long userId, ProgressStatus status);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query(value = "delete from progress where user_id in :userIds", nativeQuery = true)
+    int deleteByUserIds(java.util.Collection<Long> userIds);
 }

@@ -925,7 +925,7 @@
     },
     "/api/admin/content/tasks/{id}/versions/{versionId}/restore" : {
       "post" : {
-        "operationId" : "restore",
+        "operationId" : "restore_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1005,6 +1005,27 @@
         "tags" : [ "identity-admin-controller" ]
       }
     },
+    "/api/admin/courses/purging-soon" : {
+      "get" : {
+        "operationId" : "purgingSoon",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CourseSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
     "/api/admin/courses/{id}/accounts" : {
       "post" : {
         "operationId" : "createAccounts",
@@ -1036,6 +1057,42 @@
                   "items" : {
                     "$ref" : "#/components/schemas/GeneratedAccount"
                   }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/courses/{id}/archive" : {
+      "post" : {
+        "operationId" : "archive_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ArchiveRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CourseSummary"
                 }
               }
             },
@@ -1130,6 +1187,70 @@
     "/api/admin/courses/{id}/join-code" : {
       "post" : {
         "operationId" : "regenerateJoinCode",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CourseSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/courses/{id}/promote" : {
+      "post" : {
+        "operationId" : "promote",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PromoteRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CourseSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/courses/{id}/restore" : {
+      "post" : {
+        "operationId" : "restore",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -5335,6 +5456,15 @@
           }
         }
       },
+      "ArchiveRequest" : {
+        "type" : "object",
+        "properties" : {
+          "months" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
       "ArticleAdmin" : {
         "type" : "object",
         "properties" : {
@@ -5851,6 +5981,10 @@
       "CourseSummary" : {
         "type" : "object",
         "properties" : {
+          "archivedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
           "endsOn" : {
             "type" : "string",
             "format" : "date"
@@ -5862,6 +5996,10 @@
           "joinCode" : {
             "type" : "string"
           },
+          "leaderboardSince" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
           "members" : {
             "type" : "integer",
             "format" : "int64"
@@ -5869,12 +6007,23 @@
           "name" : {
             "type" : "string"
           },
+          "purgeAfter" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
           "status" : {
             "type" : "string",
-            "enum" : [ "ACTIVE", "ENDED" ]
+            "enum" : [ "ACTIVE", "ARCHIVED", "ENDED" ]
+          },
+          "successorId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "successorName" : {
+            "type" : "string"
           }
         },
-        "required" : [ "endsOn", "id", "joinCode", "members", "name", "status" ]
+        "required" : [ "archivedAt", "endsOn", "id", "joinCode", "leaderboardSince", "members", "name", "purgeAfter", "status", "successorId", "successorName" ]
       },
       "CreateAccountsRequest" : {
         "type" : "object",
@@ -7491,6 +7640,32 @@
           }
         },
         "required" : [ "completedTasksCount", "courseName", "displayName", "pendingSubmissionsCount", "role", "totalPoints", "username" ]
+      },
+      "PromoteRequest" : {
+        "type" : "object",
+        "properties" : {
+          "copyCodePaths" : {
+            "type" : "boolean"
+          },
+          "endsOn" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "keepProgress" : {
+            "type" : "boolean"
+          },
+          "keepReleases" : {
+            "type" : "boolean"
+          },
+          "name" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "restartLeaderboard" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "name" ]
       },
       "PublicPage" : {
         "type" : "object",

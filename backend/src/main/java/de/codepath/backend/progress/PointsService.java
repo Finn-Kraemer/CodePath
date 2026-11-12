@@ -104,6 +104,17 @@ public class PointsService {
         return result;
     }
 
+    /** Wie {@link #totals}, aber nur Buchungen ab {@code since} (Rangliste neu gestartet); null = alle. */
+    public Map<Long, Long> totalsSince(Collection<Long> userIds, java.time.LocalDateTime since) {
+        if (since == null) return totals(userIds);
+        if (userIds.isEmpty()) return Map.of();
+        Map<Long, Long> result = new HashMap<>();
+        for (Object[] row : repository.totalsSince(userIds, since)) {
+            result.put((Long) row[0], ((Number) row[1]).longValue());
+        }
+        return result;
+    }
+
     public Map<Long, Long> byTask(Long userId) {
         Map<Long, Long> result = new HashMap<>();
         for (Object[] row : repository.byTask(userId)) {

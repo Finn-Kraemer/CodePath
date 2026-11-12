@@ -195,9 +195,21 @@ Im Profil laden Schülerinnen und Schüler ihr **Mitnehm-Paket** als PDF herunte
 
 Der **Berufe-Kompass** ordnet jedem Modul ein Berufsfeld zu und zeigt die drei Felder, in denen jemand anteilig die meisten Punkte geholt hat. Berufsfeld und Links pflegt die Lehrkraft unter **Inhalte → Modul bearbeiten**.
 
-### Kurs beenden
+### Kurs beenden, archivieren oder übernehmen
 
-**Kurse & Konten → Kurs beenden** löscht **alle Schülerkonten des Kurses mit Fortschritt, Versuchen, Abgaben, Hilfe-Rufen und Punkten**. Das ist aus Datenschutzgründen so gewollt und lässt sich nicht rückgängig machen – vorher die Bestätigungen exportieren. Der Beitrittscode ist danach ungültig.
+Am Ende eines Kurses gibt es unter **Kurse & Konten** drei Wege:
+
+- **Kurs beenden** löscht **alle Schülerkonten des Kurses mit Fortschritt, Versuchen, Abgaben, Hilfe-Rufen und Punkten**. Das ist aus Datenschutzgründen so gewollt und lässt sich nicht rückgängig machen – vorher die Bestätigungen exportieren. Der Beitrittscode ist danach ungültig.
+- **Archivieren** pausiert den Kurs: Alle Mitglieder werden abgemeldet und können sich nicht mehr anmelden, der Beitrittscode gilt nicht mehr. Du siehst weiter alle Daten (Schülerakten, Abgaben, Bewertungsbögen, Rangliste) und kannst Teilnahmebestätigungen und Mitnehm-Pakete exportieren – etwa für Zeugnisse, Nachfragen oder Elterngespräche. Beim Archivieren wählst du, nach wie vielen Monaten (1 bis 24, Standard 6) die Daten automatisch gelöscht werden, genau wie beim Beenden. Zwei Wochen vorher erscheint ein Hinweis im Leitstand und bei dem Kurs. Bis dahin holt **Wiederherstellen** den Kurs zurück; **Jetzt löschen** löscht sofort.
+- **Ins nächste Schuljahr** legt einen neuen Kurs an (Vorschlag: „9a“ wird „10a“, neuer Beitrittscode) und übernimmt alle Mitglieder mit ihren Konten. Wählbar ist:
+  - **Fortschritt und Punkte behalten** – sonst werden Versuche, Fortschritt und Punkte gelöscht.
+  - **Rangliste neu starten** – die Rangliste zählt nur Punkte ab der Übernahme; bisherige Punkte bleiben im Profil.
+  - **Freigaben übernehmen** – freigegebene Module und Aufgaben bleiben frei, Fristen beginnen neu. Sonst ist anfangs alles gesperrt.
+  - **CodePaths kopieren** – die CodePaths des alten Kurses gibt es danach auch für den neuen.
+
+  Der alte Kurs gilt danach als beendet und zeigt, wohin er übernommen wurde; seine Bewertungsrunden bleiben dort. Auch ein archivierter Kurs lässt sich übernehmen.
+
+Alle Übergänge stehen im Audit-Log.
 
 ## ◼ 5. Inhalte bearbeiten
 

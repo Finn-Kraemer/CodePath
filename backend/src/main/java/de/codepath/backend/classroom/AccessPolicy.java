@@ -142,7 +142,8 @@ public class AccessPolicy {
     /** Reine Kursfreigaben einer Person ohne CodePath-Sperren (Grundlage für die Pfadauswertung). */
     public Releases courseReleases(User user) {
         if (user.isTeacher()) return new Releases(true, null, Map.of(), Map.of(), PathGate.NO_OP);
-        Optional<Course> course = userService.courseOf(user.getId()).filter(Course::isActive);
+        // Archivierte Kurse bleiben lesbar (Schüler können sich dort nicht anmelden, die Lehrkraft exportiert)
+        Optional<Course> course = userService.courseOf(user.getId()).filter(Course::isReadable);
         if (course.isEmpty()) return new Releases(false, "Du bist in keinem aktiven Kurs.", Map.of(), Map.of(), PathGate.NO_OP);
         return forCourse(course.get().getId());
     }

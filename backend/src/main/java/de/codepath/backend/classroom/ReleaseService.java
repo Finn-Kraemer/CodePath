@@ -169,4 +169,23 @@ public class ReleaseService {
         if (!changes.isEmpty()) auditService.log("CODEPATH_APPLIED", "course:" + courseId, Map.of("changes", changes.size()));
         return changes;
     }
+
+    /**
+     * Übernahme in einen neuen Kurs: Mit „Freigaben übernehmen“ werden Modul- und Aufgabenfreigaben kopiert,
+     * Fristen beginnen neu (gelten nicht mit). Sonst startet der neue Kurs wie jeder neue Kurs: alles gesperrt.
+     */
+    @org.springframework.context.event.EventListener
+    @Transactional
+    public void onCoursePromoted(CourseService.CoursePromotedEvent event) {
+        if (!event.options().keepReleases()) return;
+        Long target = event.targetCourseId();
+        for (ModuleRelease source : repository.findByCourseId(event.sourceCourseId())) {
+            ModuleRelease copy = new ModuleRelease(target, source.getModuleId());
+            copy.setUnlocked(source.isUnlocked());
+            repository.save(copy);
+        }
+        for (TaskRelease source : taskReleaseRepository.findByCourseId(event.sourceCourseId())) {
+            taskReleaseRepository.save(new TaskRelease(target, source.getTaskId(), source.getMode()));
+        }
+    }
 }

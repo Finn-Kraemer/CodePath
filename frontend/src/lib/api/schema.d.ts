@@ -429,7 +429,7 @@ export interface paths {
 		};
 		get?: never;
 		put?: never;
-		post: operations['restore'];
+		post: operations['restore_1'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -452,6 +452,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/courses/purging-soon': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['purgingSoon'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/courses/{id}/accounts': {
 		parameters: {
 			query?: never;
@@ -462,6 +478,22 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post: operations['createAccounts'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/courses/{id}/archive': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['archive_1'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -510,6 +542,38 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post: operations['regenerateJoinCode'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/courses/{id}/promote': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['promote'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/courses/{id}/restore': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['restore'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -2516,6 +2580,10 @@ export interface components {
 				[key: string]: number;
 			};
 		};
+		ArchiveRequest: {
+			/** Format: int32 */
+			months?: number;
+		};
 		ArticleAdmin: {
 			body: string;
 			icon: string;
@@ -2705,16 +2773,25 @@ export interface components {
 			to?: string;
 		};
 		CourseSummary: {
+			/** Format: date-time */
+			archivedAt: string;
 			/** Format: date */
 			endsOn: string;
 			/** Format: int64 */
 			id: number;
 			joinCode: string;
+			/** Format: date-time */
+			leaderboardSince: string;
 			/** Format: int64 */
 			members: number;
 			name: string;
+			/** Format: date-time */
+			purgeAfter: string;
 			/** @enum {string} */
-			status: 'ACTIVE' | 'ENDED';
+			status: 'ACTIVE' | 'ARCHIVED' | 'ENDED';
+			/** Format: int64 */
+			successorId: number;
+			successorName: string;
 		};
 		CreateAccountsRequest: {
 			/** Format: int32 */
@@ -3353,6 +3430,15 @@ export interface components {
 			/** Format: int64 */
 			totalPoints: number;
 			username: string;
+		};
+		PromoteRequest: {
+			copyCodePaths?: boolean;
+			/** Format: date */
+			endsOn?: string;
+			keepProgress?: boolean;
+			keepReleases?: boolean;
+			name: string;
+			restartLeaderboard?: boolean;
 		};
 		PublicPage: {
 			content: components['schemas']['JsonNode'];
@@ -4795,7 +4881,7 @@ export interface operations {
 			};
 		};
 	};
-	restore: {
+	restore_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4862,6 +4948,26 @@ export interface operations {
 			};
 		};
 	};
+	purgingSoon: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['CourseSummary'][];
+				};
+			};
+		};
+	};
 	createAccounts: {
 		parameters: {
 			query?: never;
@@ -4884,6 +4990,32 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['GeneratedAccount'][];
+				};
+			};
+		};
+	};
+	archive_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['ArchiveRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['CourseSummary'];
 				};
 			};
 		};
@@ -4939,6 +5071,54 @@ export interface operations {
 		};
 	};
 	regenerateJoinCode: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['CourseSummary'];
+				};
+			};
+		};
+	};
+	promote: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['PromoteRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['CourseSummary'];
+				};
+			};
+		};
+	};
+	restore: {
 		parameters: {
 			query?: never;
 			header?: never;

@@ -1415,6 +1415,49 @@ public class CodePathService implements PathGate {
         }
     }
 
+    /**
+     * Übernahme in einen neuen Kurs: Auf Wunsch werden die CodePaths des alten Kurses für den neuen kopiert
+     * (die Originale bleiben am alten Kurs). Ohne Fortschritt entfallen auch Weichen-Entscheidungen,
+     * Freigaben und ausgewertete Bedingungen der Mitglieder.
+     */
+    @EventListener
+    @Transactional
+    public void onCoursePromoted(CourseService.CoursePromotedEvent event) {
+        if (!event.options().keepProgress() && !event.userIds().isEmpty()) {
+            choiceRepository.deleteByUserIdIn(event.userIds());
+            overrideRepository.deleteByUserIdIn(event.userIds());
+            branchResultRepository.deleteByUserIdIn(event.userIds());
+        }
+        if (!event.options().copyCodePaths()) return;
+        int position = repository.findAllByOrderByPositionAscIdAsc().stream().mapToInt(CodePath::getPosition).max().orElse(-1) + 1;
+        for (CodePath source : repository.findAllByOrderByPositionAscIdAsc()) {
+            if (!event.sourceCourseId().equals(source.getCourseId())) continue;
+            CodePath copy = new CodePath();
+            copy.setTitle(source.getTitle());
+            copy.setDescription(source.getDescription());
+            copy.setGraph(source.getGraph());
+            copy.setPublished(source.isPublished());
+            copy.setEnforce(source.isEnforce());
+            copy.setLockOthers(source.isLockOthers());
+            copy.setUnlockRestAfter(source.getUnlockRestAfter());
+            copy.setTemplateOnly(source.isTemplateOnly());
+            copy.setHideOverview(source.isHideOverview());
+            copy.setCourseId(event.targetCourseId());
+            copy.setPosition(position++);
+            copy.setSlug(freeSlug(source.getSlug(), event.targetCourseId()));
+            repository.save(copy);
+        }
+    }
+
+    /** Freie Adresse für eine Kopie: „slug-k12“, bei Bedarf mit laufender Nummer. */
+    private String freeSlug(String base, Long courseId) {
+        String suffix = "-k" + courseId;
+        String stem = base.length() + suffix.length() > 76 ? base.substring(0, 76 - suffix.length()) : base;
+        String candidate = stem + suffix;
+        for (int i = 2; repository.findBySlug(candidate).isPresent(); i++) candidate = stem + suffix + "-" + i;
+        return candidate;
+    }
+
     private record GateStation(PathGraph.Node node, NodeState state, String reason) {
     }
 
