@@ -334,9 +334,12 @@
 							class="border-slate-200 py-1 text-xs"
 						/></label
 					>
-					<p class="mt-2 text-xs text-slate-500">{step.taskIds?.length ?? 0} Fragen gewählt:</p>
+					<p class="mt-2 text-xs text-slate-500">
+						{step.taskIds?.length ?? 0}
+						{step.taskIds?.length === 1 ? 'Frage' : 'Fragen'} gewählt (gewählte stehen oben):
+					</p>
 					<div class="mt-1 max-h-48 overflow-y-auto border border-slate-100 p-2 text-xs">
-						{#each candidates as c (c.taskId)}
+						{#each [...candidates].sort((a, b) => Number(!!step.taskIds?.includes(b.taskId)) - Number(!!step.taskIds?.includes(a.taskId))) as c (c.taskId)}
 							<label class="flex items-start gap-2 py-0.5"
 								><input
 									type="checkbox"

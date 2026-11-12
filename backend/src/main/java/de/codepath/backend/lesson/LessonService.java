@@ -280,7 +280,7 @@ public class LessonService {
             }
             case QUIZ -> {
                 quizService.start(teacher, new QuizService.StartRequest(step.text(), courseId, step.taskIds()));
-                yield "Quiz-Runde gestartet (" + step.taskIds().size() + " Fragen)";
+                yield "Quiz-Runde gestartet (" + step.taskIds().size() + (step.taskIds().size() == 1 ? " Frage)" : " Fragen)");
             }
             case RELEASE -> release(step, courseId);
         };
@@ -406,7 +406,10 @@ public class LessonService {
                 case ANNOUNCEMENT -> s.text() == null || s.text().isBlank() ? "Live-Mitteilung ausblenden" : "Live-Mitteilung senden";
                 case EVALUATION -> ("CLOSED".equals(s.action()) ? "Bewertungsrunde schließen" : "Bewertungsrunde öffnen")
                         + (s.roundId() == null ? "" : ": " + evaluationService.get(s.roundId()).title());
-                case QUIZ -> "Quiz-Runde starten (" + (s.taskIds() == null ? 0 : s.taskIds().size()) + " Fragen)";
+                case QUIZ -> {
+                    int n = s.taskIds() == null ? 0 : s.taskIds().size();
+                    yield "Quiz-Runde starten (" + n + (n == 1 ? " Frage)" : " Fragen)");
+                }
                 case RELEASE -> {
                     Module module = contentService.module(s.moduleSlug());
                     if (s.taskSlug() != null && !s.taskSlug().isBlank()) {
