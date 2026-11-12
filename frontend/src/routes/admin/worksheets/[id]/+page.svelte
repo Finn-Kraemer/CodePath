@@ -5,6 +5,9 @@
 	import { api, ApiError, type WorksheetDetail } from '$lib/api';
 	import { auth } from '$lib/auth.svelte';
 	import MediaPicker from '$lib/components/MediaPicker.svelte';
+	import CourseSelect from '$lib/components/CourseSelect.svelte';
+	import PdfBundle from '$lib/components/PdfBundle.svelte';
+	import { courseSelection } from '$lib/courses.svelte';
 	import { mediaUrl } from '$lib/media';
 	import WorksheetBlockForm from '$lib/worksheet/WorksheetBlockForm.svelte';
 	import {
@@ -22,6 +25,7 @@
 	type Variant = 'student' | 'solution';
 
 	const id = $derived(page.params.id);
+	let variantCount = $state(2);
 
 	let title = $state('');
 	let content = $state<WorksheetContent>({ settings: {}, blocks: [] });
@@ -263,6 +267,53 @@
 			{error}
 		</p>
 	{/if}
+
+	<details class="border border-slate-200 bg-white" data-testid="worksheet-personal">
+		<summary
+			class="cursor-pointer px-6 py-4 font-mono text-[10px] font-bold tracking-widest text-institutional-navy uppercase"
+		>
+			Ein Blatt je Person oder Varianten A/B/C
+		</summary>
+		<div class="flex flex-col gap-4 px-6 pb-6 text-sm">
+			<p class="text-xs text-slate-500">
+				Jedes Blatt bekommt Name, Kurs und Datum im Kopf und eine eigene Mischung: Reihenfolge der
+				Aufgaben in jedem Abschnitt, Antwortoptionen, Aussagen und Zuordnungen. Bei jedem Export
+				gleich, Lösung und Schülerblatt einer Person passen zusammen. Es gilt der gespeicherte Stand{dirty
+					? ' – bitte erst speichern'
+					: ''}.
+			</p>
+			<CourseSelect />
+			{#if courseSelection.selectedId}
+				<PdfBundle
+					url="/api/admin/worksheets/{id}/students?courseId={courseSelection.selectedId}"
+					label="Schülerblätter"
+					testid="bundle-worksheet-students"
+				/>
+				<PdfBundle
+					url="/api/admin/worksheets/{id}/students?courseId={courseSelection.selectedId}&solution=true"
+					label="Passende Lösungen"
+					testid="bundle-worksheet-solutions"
+				/>
+			{/if}
+			<div class="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
+				<label class="text-xs text-slate-500"
+					>Ohne Konten:
+					<select bind:value={variantCount} class="ml-1 border-slate-200 py-1 text-xs">
+						{#each [2, 3, 4, 5, 6] as n (n)}<option value={n}>{n} Varianten</option>{/each}
+					</select></label
+				>
+			</div>
+			<PdfBundle
+				url="/api/admin/worksheets/{id}/variants?count={variantCount}"
+				label="Varianten"
+				testid="bundle-worksheet-variants"
+			/>
+			<PdfBundle
+				url="/api/admin/worksheets/{id}/variants?count={variantCount}&solution=true"
+				label="Lösungen der Varianten"
+			/>
+		</div>
+	</details>
 
 	<div class="grid grid-cols-1 gap-8 xl:grid-cols-[30rem_1fr]">
 		<aside

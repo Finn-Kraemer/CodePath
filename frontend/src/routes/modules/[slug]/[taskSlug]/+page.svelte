@@ -13,6 +13,7 @@
 	} from '$lib/api';
 	import NextTask from '$lib/pathway/NextTask.svelte';
 	import HelpButton from '$lib/help/HelpButton.svelte';
+	import JournalPanel from '$lib/journal/JournalPanel.svelte';
 	import { auth } from '$lib/auth.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import TaskRenderer from '$lib/tasks/TaskRenderer.svelte';
@@ -328,6 +329,9 @@
 
 				{#if auth.user && auth.user.role !== 'ADMIN'}
 					<HelpButton {task} moduleSlug={moduleSlug ?? ''} taskSlug={taskSlug ?? ''} />
+					{#key taskSlug}
+						<JournalPanel moduleSlug={moduleSlug ?? ''} taskSlug={taskSlug ?? null} />
+					{/key}
 				{/if}
 
 				<div class="space-y-4 border border-slate-200 bg-white p-8 text-sm shadow-sm">

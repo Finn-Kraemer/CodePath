@@ -52,10 +52,10 @@ public class WorksheetRendererTest {
                         Map.of("type", "heading", "level", 7, "text", "Ende 😀")));
         for (WorksheetRenderer.Variant variant : WorksheetRenderer.Variant.values()) {
             String text = text(render(content, variant));
-            assertTrue(text.contains("Test ?"), "Emoji wird ersetzt statt abzustürzen");
+            assertTrue(text.contains("Test 🚀"), "Emoji kommt aus der Ausweichschrift");
             assertTrue(text.contains("Nr. 1"));
             assertTrue(text.contains("[Bild nicht verfügbar]"));
-            assertTrue(text.contains("->"));
+            assertTrue(text.contains("→"));
             assertFalse(text.contains("Name:"));
         }
     }
@@ -124,5 +124,54 @@ public class WorksheetRendererTest {
     void fileNamesAreSafe() {
         assertEquals("Uebung_Binaerzahlen_Klasse_8b", WorksheetController.fileName("Übung: Binärzahlen / Klasse 8b"));
         assertEquals("Aufgabenblatt", WorksheetController.fileName("🚀"));
+    }
+
+    static java.util.List<String> order(String text, String prefix, int n) {
+        java.util.List<String> found = new java.util.ArrayList<>();
+        java.util.List<Integer> pos = new java.util.ArrayList<>();
+        for (int i = 1; i <= n; i++) {
+            int at = text.indexOf(prefix + i + "#");
+            assertTrue(at >= 0, prefix + i + " fehlt");
+            pos.add(at);
+            found.add(prefix + i);
+        }
+        java.util.List<String> sorted = new java.util.ArrayList<>(found);
+        sorted.sort(java.util.Comparator.comparing(x -> pos.get(found.indexOf(x))));
+        return sorted;
+    }
+
+    @Test
+    void personalSheetsHaveOwnReproducibleOrderAndMatchingSolution() throws Exception {
+        java.util.List<Object> blocks = new java.util.ArrayList<>();
+        blocks.add(Map.of("type", "heading", "text", "Teil A"));
+        for (int i = 1; i <= 5; i++) blocks.add(Map.of("id", "t" + i, "type", "task", "prompt", "Frage-" + i + "#", "points", 1));
+        java.util.List<Object> options = new java.util.ArrayList<>();
+        for (int i = 1; i <= 5; i++) options.add(Map.of("text", "Option-" + i + "#", "correct", i == 3));
+        blocks.add(Map.of("type", "heading", "text", "Teil B"));
+        blocks.add(Map.of("id", "c", "type", "choice", "prompt", "Wähle", "options", options));
+        JsonNode content = JSON.valueToTree(Map.of("settings", Map.of(), "blocks", blocks));
+
+        var lena = new WorksheetRenderer.Personalization("Lena Łódź", "8a", "12.11.2026", null, WorksheetRenderer.personSeed(1, 7));
+        var tom = new WorksheetRenderer.Personalization("Tom", "8a", "12.11.2026", null, WorksheetRenderer.personSeed(2, 7));
+        String a = text(WorksheetRenderer.render("Test", content, WorksheetRenderer.Variant.STUDENT, k -> null, lena));
+        String a2 = text(WorksheetRenderer.render("Test", content, WorksheetRenderer.Variant.STUDENT, k -> null, lena));
+        String b = text(WorksheetRenderer.render("Test", content, WorksheetRenderer.Variant.STUDENT, k -> null, tom));
+        String aSolution = text(WorksheetRenderer.render("Test", content, WorksheetRenderer.Variant.SOLUTION, k -> null, lena));
+
+        assertTrue(a.contains("Lena Łódź"), "Name im Kopf");
+        assertTrue(a.contains("12.11.2026") && a.contains("8a"), a);
+        assertTrue(b.contains("Tom"));
+        assertEquals(order(a, "Frage-", 5), order(a2, "Frage-", 5), "reproduzierbar");
+        assertEquals(order(a, "Option-", 5), order(a2, "Option-", 5));
+        assertNotEquals(order(a, "Frage-", 5) + "" + order(a, "Option-", 5), order(b, "Frage-", 5) + "" + order(b, "Option-", 5),
+                "zwei Personen, zwei Mischungen");
+        assertEquals(order(a, "Frage-", 5), order(aSolution, "Frage-", 5), "Lösung passt zum Schülerblatt");
+        assertEquals(order(a, "Option-", 5), order(aSolution, "Option-", 5));
+        // Abschnitte bleiben: alle Fragen stehen zwischen „Teil A“ und „Teil B“
+        assertTrue(a.indexOf("Teil A") < a.indexOf(order(a, "Frage-", 5).getFirst()));
+        assertTrue(a.indexOf(order(a, "Frage-", 5).getLast()) < a.indexOf("Teil B"));
+        // Ohne Personalisierung bleibt alles in der Reihenfolge des Editors
+        String plain = text(render(Map.of("settings", Map.of(), "blocks", blocks), WorksheetRenderer.Variant.STUDENT));
+        assertEquals(java.util.List.of("Frage-1", "Frage-2", "Frage-3", "Frage-4", "Frage-5"), order(plain, "Frage-", 5));
     }
 }

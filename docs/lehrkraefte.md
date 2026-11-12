@@ -41,6 +41,17 @@ Unter jedem Modul klappt **Einzelne Aufgaben** die Aufgabenliste auf. Je Aufgabe
 
 Die Einstellung gilt nur für den gewählten Kurs. Aufgaben- und Punktzahl des Moduls, der Modulfortschritt der Schülerinnen und Schüler und die **Teilnahmebestätigung** zählen nur die sichtbaren Aufgaben. Gesperrte Aufgaben lassen sich nicht abgeben; bereits verdiente Punkte bleiben im Punktestand.
 
+### Freigaben für einzelne Schülerinnen und Schüler
+
+Für Differenzierung lassen sich Module oder Aufgaben auch **nur für einzelne Personen** freigeben oder sperren – Zusatzaufgaben für Schnelle, leichtere Aufgaben zur Unterstützung:
+
+- **Modul-Steuerung → Für einzelne Schüler** (unter jedem Modul): Personen des Kurses ankreuzen, *Ganzes Modul* oder eine Aufgabe wählen, *freigeben* oder *sperren*, optional eine eigene Frist.
+- **Schülerakte → Zusätzliche Aufgaben & Freigaben**: dasselbe für eine Person, mit Liste aller ihrer Freigaben und *aufheben*.
+
+Freigaben für eine Person gehen immer vor. Die Rangfolge ist: **Aufgabe für die Person → Modul für die Person → Aufgabe im Kurs → Modul im Kurs**; sie gelten auch an einem verbindlichen CodePath vorbei, und die CodePath-Karte der Person berücksichtigt sie. Eine gesperrte Aufgabe ist auch serverseitig gesperrt. Die anderen sehen von persönlichen Freigaben nichts; die Person sieht die Aufgabe mit dem Hinweis „Für dich freigegeben“.
+
+Mit **Bonus ohne Ranglistenwirkung** wird eine Freigabe zur *Zusatzaufgabe*: Die Punkte zählen im Profil und in der Teilnahmebestätigung, aber nicht in der Rangliste – so bleibt sie fair.
+
 Empfehlung: Mit zwei oder drei Modulen beginnen und weitere im Laufe des Tages freigeben. Das Modul **Abschlusstest** erst am Ende freischalten.
 
 ### Geräte prüfen
@@ -157,6 +168,23 @@ Gesteuert wird auf der Quiz-Seite oder direkt im **Beamer-Modus** (die Runde üb
 
 Mit **Alle Schüler abmelden** im Control Center endet jede laufende Sitzung, z. B. am Ende des Tages an geteilten Geräten.
 
+### Stundenabläufe
+
+Unter **Leitstand → Stundenabläufe** planst du eine Stunde vorab als **Ablauf**: eine geordnete Liste von Schritten, je mit optionaler Dauer in Minuten.
+
+| Schritt | Was beim Auslösen passiert |
+|---|---|
+| **Freigabe** | Modul freigeben oder sperren bzw. einzelne Aufgabe freigeben, sperren oder wieder dem Modul folgen lassen; optional eine Frist (Uhrzeit wie „10:30“, „-“ entfernt sie) |
+| **Quiz-Runde** | startet die Quiz-Runde mit den vorausgewählten Auswahl-Aufgaben |
+| **Aufgabenblatt** | legt Schülerblatt und Lösung zum Öffnen und Drucken bereit |
+| **Bewertungsrunde** | öffnet oder schließt eine Runde des Kurses |
+| **Live-Mitteilung** | sendet den Text an die Klasse (leer = ausblenden) |
+| **Notiz** | Hinweis nur für dich, z. B. „Fragen an der Tafel sammeln“ |
+
+Zu Stundenbeginn startet **Stunde starten** den Ablauf und führt den ersten Schritt aus. Die Ansicht **Stunde läuft** zeigt den aktuellen Schritt groß, mit Timer (bei geplanter Dauer) und dem Knopf **Weiter**, der den nächsten Schritt genau einmal auslöst – auch ein Doppelklick oder ein zweites Fenster führen ihn nicht doppelt aus. Geht ein Schritt schief (z. B. läuft schon ein Quiz), steht der Grund verständlich da, der Ablauf geht trotzdem weiter. Mit **Am Ende alle Freigaben zurücksetzen** stellt **Stunde beenden** den Stand der Modul-Steuerung vom Start wieder her. Alle ausgeführten Schritte stehen im Audit-Log.
+
+Abläufe lassen sich sortieren, duplizieren und löschen. Ohne Kurs ist ein Ablauf eine **Vorlage**; Vorlagen gehen über *Import & Export* (Bereich „Stundenabläufe“) in andere Installationen. Bewertungsrunden und Aufgabenblätter sind dort ggf. neu zu wählen.
+
 ## ◼ 3. Bewerten
 
 Praxisaufgaben (Typ *Praxis*) bewertet die Lehrkraft selbst. Neue Abgaben erscheinen im **Prüfungszentrum** (*Abgaben prüfen*).
@@ -193,11 +221,33 @@ Unter **Leitstand → Feedback & Bewertung** gibt es zwei Wege:
 
 Im Profil laden Schülerinnen und Schüler ihr **Mitnehm-Paket** als PDF herunter: Ergebnisse je Aufgabe, eigener Code (letzte Abgabe bei Python-, SQL-, Terminal- und Praxisaufgaben), **Berufe-Kompass** und Links zum Weiterlernen. Das PDF entsteht beim Herunterladen und wird nicht gespeichert – auch nicht im Protokoll. Die Klasse vor dem Kursende daran erinnern.
 
+### Lerntagebuch
+
+Auf jeder Modul- und Aufgabenseite klappen Schülerinnen und Schüler **Mein Lerntagebuch** auf: private Notizen (Merksätze, offene Fragen) mit einfachem Markdown, automatisch gespeichert, höchstens 10.000 Zeichen je Modul. Im Profil stehen alle Einträge auf einen Blick, und das eigene **Mitnehm-Paket** enthält sie als Abschnitt „Mein Lerntagebuch“. **Du siehst die Notizen nicht** – auch nicht in den Mitnehm-Paketen, die du für die Klasse herunterlädst. Nur Einträge, die jemand ausdrücklich *mit der Lehrkraft teilt* (z. B. als Frage), erscheinen in der Schülerakte. Unter **Modul-Steuerung → Leitfragen fürs Lerntagebuch** gibst du je Modul Fragen vor, etwa „Was hast du heute gelernt?“ und „Was ist noch unklar?“. Beim Beenden des Kurses werden die Notizen gelöscht.
+
 Der **Berufe-Kompass** ordnet jedem Modul ein Berufsfeld zu und zeigt die drei Felder, in denen jemand anteilig die meisten Punkte geholt hat. Berufsfeld und Links pflegt die Lehrkraft unter **Inhalte → Modul bearbeiten**.
 
-### Kurs beenden
+### Anwesenheit
 
-**Kurse & Konten → Kurs beenden** löscht **alle Schülerkonten des Kurses mit Fortschritt, Versuchen, Abgaben, Hilfe-Rufen und Punkten**. Das ist aus Datenschutzgründen so gewollt und lässt sich nicht rückgängig machen – vorher die Bestätigungen exportieren. Der Beitrittscode ist danach ungültig.
+**Leitstand → Anwesenheit**, oben den Kurs wählen. *Termin anlegen* (Datum, optional ein Titel) trägt alle Mitglieder als **anwesend** ein – du klickst nur die Abweichungen an: *verspätet*, *entschuldigt* oder *fehlt*, bei Bedarf mit Notiz. Ein grüner Punkt neben dem Namen zeigt, dass jemand an dem Tag Aufgaben abgegeben hat; das ist nur ein Vorschlag, entscheiden tust du. Die **Übersicht** zeigt alle Personen und Termine als Tabelle mit Quote („an 9 von 10 Terminen teilgenommen“; verspätet zählt als teilgenommen, entschuldigt wird gesondert genannt).
+
+Export als **CSV** (für Excel) oder je Person als PDF über die Sammel-Exporte (ZIP, eine PDF, Drucken). Zwei Schalter gelten für die ganze Installation und sind anfangs aus: **Anwesenheitsquote auf der Teilnahmebestätigung** und **Schülerinnen und Schüler sehen ihre eigene Anwesenheit** im Profil (ohne deine Notizen). Die Schülerakte zeigt die Anwesenheit der Person. Nur Lehrkräfte sehen die Anwesenheit anderer; beim Beenden eines Kurses wird alles gelöscht.
+
+### Kurs beenden, archivieren oder übernehmen
+
+Am Ende eines Kurses gibt es unter **Kurse & Konten** drei Wege:
+
+- **Kurs beenden** löscht **alle Schülerkonten des Kurses mit Fortschritt, Versuchen, Abgaben, Hilfe-Rufen und Punkten**. Das ist aus Datenschutzgründen so gewollt und lässt sich nicht rückgängig machen – vorher die Bestätigungen exportieren. Der Beitrittscode ist danach ungültig.
+- **Archivieren** pausiert den Kurs: Alle Mitglieder werden abgemeldet und können sich nicht mehr anmelden, der Beitrittscode gilt nicht mehr. Du siehst weiter alle Daten (Schülerakten, Abgaben, Bewertungsbögen, Rangliste) und kannst Teilnahmebestätigungen und Mitnehm-Pakete exportieren – etwa für Zeugnisse, Nachfragen oder Elterngespräche. Beim Archivieren wählst du, nach wie vielen Monaten (1 bis 24, Standard 6) die Daten automatisch gelöscht werden, genau wie beim Beenden. Zwei Wochen vorher erscheint ein Hinweis im Leitstand und bei dem Kurs. Bis dahin holt **Wiederherstellen** den Kurs zurück; **Jetzt löschen** löscht sofort.
+- **Ins nächste Schuljahr** legt einen neuen Kurs an (Vorschlag: „9a“ wird „10a“, neuer Beitrittscode) und übernimmt alle Mitglieder mit ihren Konten. Wählbar ist:
+  - **Fortschritt und Punkte behalten** – sonst werden Versuche, Fortschritt und Punkte gelöscht.
+  - **Rangliste neu starten** – die Rangliste zählt nur Punkte ab der Übernahme; bisherige Punkte bleiben im Profil.
+  - **Freigaben übernehmen** – freigegebene Module und Aufgaben bleiben frei, Fristen beginnen neu. Sonst ist anfangs alles gesperrt.
+  - **CodePaths kopieren** – die CodePaths des alten Kurses gibt es danach auch für den neuen.
+
+  Der alte Kurs gilt danach als beendet und zeigt, wohin er übernommen wurde; seine Bewertungsrunden bleiben dort. Auch ein archivierter Kurs lässt sich übernehmen.
+
+Alle Übergänge stehen im Audit-Log.
 
 ## ◼ 5. Inhalte bearbeiten
 
@@ -252,7 +302,9 @@ Dazu **Inhalt** (Überschrift, Text, Infokasten „Merke/Tipp/Achtung“, Code �
 
 **Kopf & Layout:** Vorlagen (Arbeitsblatt, Hausaufgabe, Übung mit Punkten, Lernkontrolle) setzen die üblichen Einstellungen auf einmal. Einstellbar sind Art des Blatts, Fach, Schule, Untertitel, Logo, Arbeitsanweisung, die Felder im Kopf (Name, Klasse, Datum, Punkte erreicht/gesamt, Note – Klasse und Datum auch vorausgefüllt), Nummerierung („Aufgabe“, „Nr.“ …), Punkte je Aufgabe, Papier (A4, A5, Letter; hoch oder quer), Ränder, Schrift und Schriftgröße, Linienabstand, Akzentfarbe, Fußzeile und Seitenzahlen.
 
-**Exportieren:** *PDF Schülerblatt* und *PDF Lösung* speichern das Blatt und laden die Datei herunter; in der Liste gibt es dieselben Knöpfe für jedes Blatt. Gemischte Reihenfolgen (Zuordnen, Reihenfolge) bleiben bei jedem Export gleich, Schülerblatt und Lösung passen also immer zusammen. *Kopieren* macht aus einem Blatt die Vorlage für das nächste. Aufgabenblätter sind nur für Lehrkräfte sichtbar und lassen sich über *Import & Export* sichern. Wie bei allen PDFs von CodePath gehen nur Zeichen, die die Standardschriften kennen (Umlaute ja, Emojis nein).
+**Exportieren:** *PDF Schülerblatt* und *PDF Lösung* speichern das Blatt und laden die Datei herunter; in der Liste gibt es dieselben Knöpfe für jedes Blatt. Gemischte Reihenfolgen (Zuordnen, Reihenfolge) bleiben bei jedem Export gleich, Schülerblatt und Lösung passen also immer zusammen. *Kopieren* macht aus einem Blatt die Vorlage für das nächste. Aufgabenblätter sind nur für Lehrkräfte sichtbar und lassen sich über *Import & Export* sichern.
+
+**Ein Blatt je Person:** Im Editor unter *Ein Blatt je Person oder Varianten A/B/C* den Kurs wählen. *Schülerblätter* erzeugt für jede Person ein eigenes Blatt mit Name, Kurs und Datum im Kopf und eigener Mischung – Reihenfolge der Aufgaben innerhalb jedes Abschnitts (Überschriften, Texte und Umbrüche bleiben an ihrem Platz), Antwortoptionen beim Ankreuzen, Aussagen bei Richtig/Falsch, Zuordnungen und Reihenfolgen. Die Mischung hängt an Person und Blatt: Ein erneuter Export ergibt dasselbe Blatt, und *Passende Lösungen* liefert zu jeder Person genau ihre Lösung. Wie bei den anderen Sammel-Exporten als ZIP, eine PDF oder direkt zum Drucken. Für Klassen ohne Konten gibt es stattdessen 2 bis 6 **Varianten** (A, B, C …) mit eigener Mischung und passenden Lösungen. Wie in allen PDFs von CodePath erscheinen Sonderzeichen, Pfeile, mathematische Zeichen, fremde Schriften und Emojis (schwarzweiß) so, wie sie eingegeben wurden.
 
 ### Austausch und Sicherung
 

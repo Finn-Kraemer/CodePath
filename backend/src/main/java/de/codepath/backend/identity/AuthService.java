@@ -63,6 +63,10 @@ public class AuthService {
             throw e;
         }
         limiter.recordSuccess(request.username());
+        User account = userRepository.findByUsername(authentication.getName()).orElseThrow();
+        if (!account.isTeacher() && userService.courseOf(account.getId()).filter(Course::isArchived).isPresent()) {
+            throw ApiException.forbidden("Dein Kurs ist archiviert. Eine Anmeldung ist nicht mehr möglich – wende dich an deine Lehrkraft.");
+        }
 
         // Neue Session-ID nach dem Login verhindert Session Fixation
         if (httpRequest.getSession(false) != null) {
@@ -73,7 +77,7 @@ public class AuthService {
         SecurityContextHolder.setContext(context);
         securityContextRepository.saveContext(context, httpRequest, httpResponse);
 
-        return toResponse(userRepository.findByUsername(authentication.getName()).orElseThrow());
+        return toResponse(account);
     }
 
     public AuthResponse toResponse(User user) {

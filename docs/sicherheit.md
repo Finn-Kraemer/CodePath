@@ -11,6 +11,8 @@ CodePath verarbeitet Daten von Minderjährigen. Die Plattform ist deshalb so geb
 | Fortschritt, Versuche mit Antworten, Punkte | Bewertung, Rückmeldung, Lernanalyse | beim Beenden des Kurses |
 | Praxisabgaben, Rubrik-Bewertung, Kommentar der Lehrkraft | Bewertung offener Aufgaben | beim Beenden des Kurses |
 | Feedback der Klasse | Rückmeldung zum Kurs | beim Beenden des Kurses |
+| Lerntagebuch (eigene Notizen je Modul/Aufgabe; die Lehrkraft sieht nur ausdrücklich geteilte) | Lernen festhalten, Mitnehm-Paket | beim Beenden des Kurses (mit dem Konto) |
+| Anwesenheit je Termin (Status, Notiz der Lehrkraft) | Anwesenheitsliste, optional Quote auf der Teilnahmebestätigung | beim Beenden des Kurses |
 | Quiz-Antworten (gewählte Option je Frage) | Anonyme Verteilung am Beamer | beim Beenden des Kurses (mit dem Konto) |
 | Peer-Bewertungen (Punkte je Kriterium, Kommentar, wer wen bewertet hat) | Rückmeldung unter Mitschülern, Hilfe für die Lehrkraft | beim Beenden des Kurses (mit dem Konto) |
 | Hilfe-Rufe „Ich hänge fest“: Aufgabe, Zeitpunkte, Kategorie, Notiz, Nachricht der Lehrkraft, mitgeschickter Entwurf und letzte Ausgabe (je höchstens 20 KB) | Lehrkraft weiß, wer wobei Hilfe braucht | Entwurf und Ausgabe 24 Stunden nach dem Erledigen, alles beim Beenden des Kurses |
@@ -25,7 +27,7 @@ Der **Code-Visualizer** („Schritt für Schritt“) läuft vollständig im Brow
 
 **Nicht** erhoben werden: echte Namen (der Benutzername ist frei wählbar oder wird erzeugt), E-Mail-Adressen, Geräte- oder Standortdaten, Tracking. CodePath lädt nach der Installation nichts von fremden Servern nach – auch keine Schriften, Bilder oder Skripte. Markdown in Aufgaben zeigt nur Bilder aus der eigenen Ablage.
 
-**Kurs beenden** löscht alle Schülerkonten des Kurses mit sämtlichen zugehörigen Daten in einem Schritt. Teilnahmebestätigungen vorher herunterladen.
+**Kurs beenden** löscht alle Schülerkonten des Kurses mit sämtlichen zugehörigen Daten in einem Schritt. Teilnahmebestätigungen vorher herunterladen. Ein **archivierter** Kurs ist für Schülerinnen und Schüler gesperrt (keine Anmeldung, laufende Sitzungen enden); nach der beim Archivieren gewählten Frist (1 bis 24 Monate, Standard 6) löscht ein stündlicher Job die Daten automatisch wie beim Beenden. Beim **Übernehmen** in einen neuen Kurs bleiben die Konten bestehen; die Löschung erfolgt dann mit dem Ende des neuen Kurses.
 
 Wird CodePath für andere Schulen betrieben, ist ein Vertrag zur Auftragsverarbeitung (Art. 28 DSGVO) nötig; für mehrere Schulen empfiehlt sich je Schule eine eigene Instanz (siehe [Betriebshandbuch](betrieb.md#-mehrere-schulen-und-skalierung)).
 

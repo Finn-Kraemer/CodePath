@@ -68,6 +68,16 @@ public interface PointsEntryRepository extends JpaRepository<PointsEntry, Long> 
     @Query("select p.userId, sum(p.amount) from PointsEntry p where p.userId in :userIds group by p.userId")
     List<Object[]> totals(Collection<Long> userIds);
 
+    @Query("select p.userId, sum(p.amount) from PointsEntry p where p.userId in :userIds and p.createdAt >= :since group by p.userId")
+    List<Object[]> totalsSince(Collection<Long> userIds, java.time.LocalDateTime since);
+
+    @Query("select p.userId, p.taskId, p.amount, p.createdAt from PointsEntry p where p.userId in :userIds and p.taskId is not null")
+    List<Object[]> byUserAndTask(Collection<Long> userIds);
+
+    @Modifying
+    @Query(value = "delete from points_entries where user_id in :userIds", nativeQuery = true)
+    int deleteByUserIds(Collection<Long> userIds);
+
     @Query("select p.taskId, sum(p.amount) from PointsEntry p where p.userId = :userId and p.taskId is not null group by p.taskId")
     List<Object[]> byTask(Long userId);
 

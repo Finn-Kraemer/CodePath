@@ -4,6 +4,8 @@
 	import { api, type ModuleReleaseView, type PathSummary } from '$lib/api';
 	import CourseSelect from '$lib/components/CourseSelect.svelte';
 	import TaskReleases from '$lib/components/TaskReleases.svelte';
+	import UserReleases from '$lib/components/UserReleases.svelte';
+	import JournalPrompts from '$lib/journal/JournalPrompts.svelte';
 	import { courseSelection } from '$lib/courses.svelte';
 
 	type Module = ModuleReleaseView;
@@ -194,6 +196,8 @@
 					</div>
 					{#key courseSelection.selectedId}
 						<TaskReleases moduleId={mod.id} onchange={fetchModules} />
+						<UserReleases moduleId={mod.id} />
+						<JournalPrompts moduleId={mod.id} />
 					{/key}
 				</div>
 			{/each}

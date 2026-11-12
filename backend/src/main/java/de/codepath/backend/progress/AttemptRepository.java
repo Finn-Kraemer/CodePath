@@ -20,4 +20,8 @@ public interface AttemptRepository extends JpaRepository<Attempt, Long> {
                    count(distinct a.userId)
             from Attempt a group by a.taskId""")
     List<Object[]> statisticsByTask();
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query(value = "delete from attempts where user_id in :userIds", nativeQuery = true)
+    int deleteByUserIds(java.util.Collection<Long> userIds);
 }

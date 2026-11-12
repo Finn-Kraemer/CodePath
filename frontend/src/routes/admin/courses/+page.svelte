@@ -2,7 +2,7 @@
 	import PdfBundle from '$lib/components/PdfBundle.svelte';
 	import { onMount } from 'svelte';
 	import { api, type CourseSummary } from '$lib/api';
-	import { courseSelection } from '$lib/courses.svelte';
+	import { courseSelection, nextCourseName as nextName } from '$lib/courses.svelte';
 
 	type Account = { username: string; password: string };
 
@@ -14,6 +14,114 @@
 	let count = $state<Record<number, number>>({});
 	let error = $state('');
 	let message = $state('');
+
+	// Aufgeklappte Aktion je Kurs: archivieren oder ins nächste Schuljahr übernehmen
+	let panel = $state<{ id: number; kind: 'archive' | 'promote' } | null>(null);
+	let archiveMonths = $state(6);
+	let promote = $state({
+		name: '',
+		endsOn: '',
+		keepProgress: true,
+		keepReleases: false,
+		copyCodePaths: true,
+		restartLeaderboard: true
+	});
+
+	const DAY = 24 * 60 * 60 * 1000;
+
+	function date(value?: string | null) {
+		return value ? new Date(value).toLocaleDateString('de-DE') : '–';
+	}
+
+	function purgeSoon(course: CourseSummary) {
+		return (
+			course.status === 'ARCHIVED' &&
+			!!course.purgeAfter &&
+			new Date(course.purgeAfter).getTime() - Date.now() < 14 * DAY
+		);
+	}
+
+	function open(course: CourseSummary, kind: 'archive' | 'promote') {
+		if (panel?.id === course.id && panel.kind === kind) {
+			panel = null;
+			return;
+		}
+		panel = { id: course.id, kind };
+		archiveMonths = 6;
+		promote = {
+			name: nextName(course.name),
+			endsOn: '',
+			keepProgress: true,
+			keepReleases: false,
+			copyCodePaths: true,
+			restartLeaderboard: true
+		};
+	}
+
+	async function archive(course: CourseSummary) {
+		if (
+			!confirm(
+				`Kurs „${course.name}“ archivieren? Die ${course.members} Schülerinnen und Schüler werden abgemeldet und können sich nicht mehr anmelden. In ${archiveMonths} Monaten werden alle Daten gelöscht.`
+			)
+		)
+			return;
+		error = '';
+		try {
+			await api(`/api/admin/courses/${course.id}/archive`, {
+				method: 'POST',
+				body: { months: archiveMonths }
+			});
+			message = `Kurs „${course.name}“ archiviert.`;
+			panel = null;
+			await load();
+		} catch (e) {
+			error = (e as Error).message;
+		}
+	}
+
+	async function restore(course: CourseSummary) {
+		if (
+			!confirm(
+				`Kurs „${course.name}“ wiederherstellen? Anmeldung und Beitrittscode gelten wieder, die Löschfrist entfällt.`
+			)
+		)
+			return;
+		error = '';
+		try {
+			await api(`/api/admin/courses/${course.id}/restore`, { method: 'POST' });
+			message = `Kurs „${course.name}“ ist wieder aktiv.`;
+			await load();
+		} catch (e) {
+			error = (e as Error).message;
+		}
+	}
+
+	async function promoteCourse(course: CourseSummary) {
+		const lines = [
+			`Alle ${course.members} Mitglieder wechseln von „${course.name}“ in den neuen Kurs „${promote.name}“.`,
+			promote.keepProgress
+				? 'Fortschritt und Punkte bleiben erhalten.'
+				: 'Fortschritt, Versuche und Punkte werden GELÖSCHT.',
+			promote.keepReleases
+				? 'Freigaben werden übernommen (ohne Fristen).'
+				: 'Alle Module beginnen gesperrt.',
+			`„${course.name}“ gilt danach als beendet.`
+		];
+		if (!confirm(lines.join('\n'))) return;
+		error = '';
+		try {
+			const created = await api<CourseSummary>(`/api/admin/courses/${course.id}/promote`, {
+				method: 'POST',
+				body: { ...promote, endsOn: promote.endsOn || null }
+			});
+			message = `Neuer Kurs „${created.name}“ mit ${created.members} Mitgliedern angelegt. Beitrittscode: ${created.joinCode}`;
+			panel = null;
+			await load();
+			courseSelection.select(created.id);
+		} catch (e) {
+			error = (e as Error).message;
+		}
+	}
 
 	async function load() {
 		try {
@@ -59,6 +167,7 @@
 	}
 
 	async function endCourse(course: CourseSummary) {
+		error = '';
 		const typed = prompt(
 			`Kurs „${course.name}“ beenden? Alle ${course.members} Schülerkonten werden mit Fortschritt und Abgaben gelöscht. ` +
 				'Zeugnisse vorher herunterladen und die Klasse an ihr Mitnehm-Paket (Profil) erinnern! Zum Bestätigen den Kursnamen eingeben:'
@@ -157,19 +266,47 @@
 	<section class="space-y-6">
 		{#each courses as course (course.id)}
 			<article
-				class="border border-slate-200 bg-white p-6 {course.status === 'ENDED' ? 'opacity-60' : ''}"
+				class="border bg-white p-6 {course.status === 'ENDED'
+					? 'border-slate-200 opacity-60'
+					: course.status === 'ARCHIVED'
+						? 'border-amber-300'
+						: 'border-slate-200'}"
+				data-testid="course-{course.id}"
 			>
 				<div class="flex flex-wrap items-start justify-between gap-6">
 					<div>
 						<h2 class="text-xl font-bold text-institutional-navy">
 							{course.name}
 							{course.status === 'ENDED' ? '(beendet)' : ''}
+							{#if course.status === 'ARCHIVED'}
+								<span
+									class="ml-2 border border-amber-300 bg-amber-50 px-2 py-0.5 align-middle font-mono text-[10px] tracking-widest text-amber-800 uppercase"
+									>archiviert</span
+								>
+							{/if}
 						</h2>
 						<p class="text-sm text-slate-500">
 							{course.members} Mitglieder{course.endsOn
 								? ` · endet am ${new Date(course.endsOn).toLocaleDateString('de-DE')}`
+								: ''}{course.leaderboardSince
+								? ` · Rangliste seit ${date(course.leaderboardSince)}`
 								: ''}
 						</p>
+						{#if course.status === 'ENDED' && course.successorName}
+							<p class="text-sm text-slate-500">
+								Übernommen in „{course.successorName}“
+							</p>
+						{/if}
+						{#if course.status === 'ARCHIVED'}
+							<p
+								class="mt-1 text-sm {purgeSoon(course)
+									? 'font-bold text-rose-700'
+									: 'text-amber-800'}"
+							>
+								Archiviert am {date(course.archivedAt)} · Schüler können sich nicht anmelden · alle Daten
+								werden am {date(course.purgeAfter)} gelöscht
+							</p>
+						{/if}
 					</div>
 					{#if course.status === 'ACTIVE'}
 						<div class="text-right">
@@ -214,13 +351,131 @@
 							class="border-2 border-institutional-navy px-4 py-2 text-xs font-black tracking-widest text-institutional-navy uppercase"
 							>Konten anlegen</button
 						>
+					</div>
+				{/if}
+				{#if course.status !== 'ENDED'}
+					<div class="mt-4 flex flex-wrap gap-3 border-t border-slate-100 pt-4">
+						{#if course.status === 'ACTIVE'}
+							<button
+								onclick={() => open(course, 'archive')}
+								class="border border-amber-400 px-4 py-2 text-xs text-amber-800 uppercase"
+								data-testid="archive-{course.id}">Archivieren …</button
+							>
+						{:else}
+							<button
+								onclick={() => restore(course)}
+								class="border-2 border-institutional-navy px-4 py-2 text-xs font-black text-institutional-navy uppercase"
+								data-testid="restore-{course.id}">Wiederherstellen</button
+							>
+						{/if}
+						<button
+							onclick={() => open(course, 'promote')}
+							class="border border-slate-300 px-4 py-2 text-xs text-institutional-navy uppercase"
+							data-testid="promote-{course.id}">Ins nächste Schuljahr …</button
+						>
 						<span class="flex-1"></span>
 						<button
 							onclick={() => endCourse(course)}
 							class="border border-rose-400 px-4 py-2 text-xs text-rose-600 uppercase"
-							>Kurs beenden</button
+							>{course.status === 'ARCHIVED' ? 'Jetzt löschen' : 'Kurs beenden'}</button
 						>
 					</div>
+					{#if panel?.id === course.id && panel.kind === 'archive'}
+						<div class="mt-4 space-y-3 border border-amber-200 bg-amber-50 p-4 text-sm">
+							<p class="font-bold text-amber-900">Was beim Archivieren passiert</p>
+							<ul class="list-disc space-y-1 pl-5 text-amber-900">
+								<li>Alle Mitglieder werden abgemeldet und können sich nicht mehr anmelden.</li>
+								<li>Der Beitrittscode gilt nicht mehr.</li>
+								<li>
+									Du siehst weiter alle Daten (Schülerakten, Abgaben, Bewertungsbögen) und kannst
+									Bestätigungen und Mitnehm-Pakete exportieren.
+								</li>
+								<li>
+									Nach Ablauf der Frist werden alle Schülerkonten mit ihren Daten gelöscht – wie
+									beim Beenden. Bis dahin lässt sich der Kurs wiederherstellen.
+								</li>
+							</ul>
+							<label class="flex items-center gap-3"
+								>Löschen nach
+								<select bind:value={archiveMonths} class="border-amber-300 bg-white py-1">
+									{#each [1, 3, 6, 12, 24] as m (m)}<option value={m}
+											>{m} {m === 1 ? 'Monat' : 'Monaten'}</option
+										>{/each}
+								</select></label
+							>
+							<button
+								onclick={() => archive(course)}
+								class="bg-amber-700 px-4 py-2 text-xs font-black tracking-widest text-white uppercase"
+								data-testid="archive-confirm">Kurs archivieren</button
+							>
+						</div>
+					{/if}
+					{#if panel?.id === course.id && panel.kind === 'promote'}
+						<form
+							class="mt-4 space-y-3 border border-slate-200 bg-slate-50 p-4 text-sm"
+							onsubmit={(e) => {
+								e.preventDefault();
+								promoteCourse(course);
+							}}
+						>
+							<p class="font-bold text-institutional-navy">Ins nächste Schuljahr übernehmen</p>
+							<p class="text-slate-600">
+								Es entsteht ein neuer Kurs mit neuem Beitrittscode. Alle {course.members} Mitglieder wechseln
+								mit ihren Konten dorthin; „{course.name}“ gilt danach als beendet. Bewertungsrunden
+								bleiben beim alten Kurs.
+							</p>
+							<div class="flex flex-wrap gap-4">
+								<label
+									>Name des neuen Kurses<br /><input
+										bind:value={promote.name}
+										required
+										maxlength="100"
+										class="mt-1 border-slate-200"
+										data-testid="promote-name"
+									/></label
+								>
+								<label
+									>Enddatum (optional)<br /><input
+										type="date"
+										bind:value={promote.endsOn}
+										class="mt-1 border-slate-200"
+									/></label
+								>
+							</div>
+							<label class="flex items-start gap-2"
+								><input type="checkbox" bind:checked={promote.keepProgress} class="mt-1" />
+								<span
+									><strong>Fortschritt und Punkte behalten</strong> – sonst werden Versuche, Fortschritt
+									und Punkte aller Mitglieder gelöscht.</span
+								></label
+							>
+							<label class="flex items-start gap-2"
+								><input type="checkbox" bind:checked={promote.restartLeaderboard} class="mt-1" />
+								<span
+									><strong>Rangliste neu starten</strong> – sie zählt nur Punkte ab heute, bisherige Punkte
+									bleiben erhalten.</span
+								></label
+							>
+							<label class="flex items-start gap-2"
+								><input type="checkbox" bind:checked={promote.keepReleases} class="mt-1" />
+								<span
+									><strong>Freigaben übernehmen</strong> – freigegebene Module und Aufgaben bleiben frei,
+									Fristen beginnen neu. Sonst ist anfangs alles gesperrt.</span
+								></label
+							>
+							<label class="flex items-start gap-2"
+								><input type="checkbox" bind:checked={promote.copyCodePaths} class="mt-1" />
+								<span
+									><strong>CodePaths kopieren</strong> – die CodePaths von „{course.name}“ gibt es
+									danach auch für den neuen Kurs.</span
+								></label
+							>
+							<button
+								class="bg-institutional-navy px-4 py-2 text-xs font-black tracking-widest text-white uppercase"
+								data-testid="promote-confirm">Neuen Kurs anlegen und übernehmen</button
+							>
+						</form>
+					{/if}
 					<div class="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4">
 						<PdfBundle
 							url="/api/admin/courses/{course.id}/certificates"
