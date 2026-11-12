@@ -1,6 +1,11 @@
 # Ein Image für die ganze Anwendung: Spring Boot liefert API und das statisch gebaute Frontend aus.
+#
+# Frontend (statische Dateien) und Backend (JAR) sind plattformunabhängig und werden deshalb immer
+# auf der Plattform des Build-Rechners gebaut ($BUILDPLATFORM). Nur das Laufzeit-Image entsteht je
+# Zielplattform. Sonst laufen pnpm und Maven für arm64 unter QEMU-Emulation – das dauert ein Vielfaches
+# und blieb beim Release 2.4.0 in "pnpm install" hängen, bis der Job nach 60 Minuten abbrach.
 
-FROM node:22-alpine AS frontend
+FROM --platform=$BUILDPLATFORM node:22-alpine AS frontend
 WORKDIR /build/frontend
 RUN corepack enable
 COPY frontend/package.json frontend/pnpm-lock.yaml frontend/pnpm-workspace.yaml frontend/.npmrc ./
@@ -8,7 +13,7 @@ RUN pnpm install --frozen-lockfile
 COPY frontend/ ./
 RUN pnpm build
 
-FROM eclipse-temurin:25-jdk AS backend
+FROM --platform=$BUILDPLATFORM eclipse-temurin:25-jdk AS backend
 WORKDIR /build/backend
 COPY backend/mvnw backend/pom.xml ./
 COPY backend/.mvn .mvn
