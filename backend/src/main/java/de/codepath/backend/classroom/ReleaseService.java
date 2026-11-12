@@ -188,4 +188,60 @@ public class ReleaseService {
             taskReleaseRepository.save(new TaskRelease(target, source.getTaskId(), source.getMode()));
         }
     }
+
+    /** Modul gezielt freigeben oder sperren (für Stundenabläufe); liefert true, wenn sich etwas geändert hat. */
+    @Transactional
+    public boolean setUnlocked(Long courseId, Long moduleId, boolean unlocked) {
+        boolean current = repository.findById(new ModuleRelease.Key(courseId, moduleId)).map(ModuleRelease::isUnlocked).orElse(false);
+        if (current == unlocked) {
+            contentService.module(moduleId);
+            return false;
+        }
+        toggleTo(courseId, moduleId, unlocked);
+        return true;
+    }
+
+    private void toggleTo(Long courseId, Long moduleId, boolean unlocked) {
+        Module module = contentService.module(moduleId);
+        courseService.get(courseId);
+        ModuleRelease release = repository.findById(new ModuleRelease.Key(courseId, moduleId))
+                .orElseGet(() -> new ModuleRelease(courseId, moduleId));
+        release.setUnlocked(unlocked);
+        repository.save(release);
+        auditService.log(unlocked ? "MODULE_UNLOCKED" : "MODULE_LOCKED", "course:" + courseId, Map.of("module", module.getSlug()));
+    }
+
+    /** Stand aller Freigaben eines Kurses, um ihn später wiederherzustellen. */
+    public record Snapshot(List<ModuleState> modules, List<TaskState> tasks) {
+    }
+
+    public record ModuleState(Long moduleId, boolean unlocked, LocalDateTime availableUntil) {
+    }
+
+    public record TaskState(Long taskId, TaskReleaseMode mode) {
+    }
+
+    public Snapshot snapshot(Long courseId) {
+        return new Snapshot(
+                repository.findByCourseId(courseId).stream().map(r -> new ModuleState(r.getModuleId(), r.isUnlocked(), r.getAvailableUntil())).toList(),
+                taskReleaseRepository.findByCourseId(courseId).stream().map(r -> new TaskState(r.getTaskId(), r.getMode())).toList());
+    }
+
+    /** Setzt alle Modul- und Aufgabenfreigaben des Kurses auf einen gesicherten Stand zurück. */
+    @Transactional
+    public void restore(Long courseId, Snapshot snapshot) {
+        courseService.get(courseId);
+        repository.deleteAll(repository.findByCourseId(courseId));
+        taskReleaseRepository.deleteAll(taskReleaseRepository.findByCourseId(courseId));
+        repository.flush();
+        taskReleaseRepository.flush();
+        for (ModuleState m : snapshot.modules()) {
+            ModuleRelease r = new ModuleRelease(courseId, m.moduleId());
+            r.setUnlocked(m.unlocked());
+            r.setAvailableUntil(m.availableUntil());
+            repository.save(r);
+        }
+        for (TaskState t : snapshot.tasks()) taskReleaseRepository.save(new TaskRelease(courseId, t.taskId(), t.mode()));
+        auditService.log("RELEASES_RESTORED", "course:" + courseId, Map.of("modules", snapshot.modules().size(), "tasks", snapshot.tasks().size()));
+    }
 }

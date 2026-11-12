@@ -77,7 +77,7 @@ export interface paths {
 		};
 		get?: never;
 		put?: never;
-		post: operations['create_4'];
+		post: operations['create_5'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -92,9 +92,9 @@ export interface paths {
 			cookie?: never;
 		};
 		get: operations['detail_2'];
-		put: operations['update_3'];
+		put: operations['update_4'];
 		post?: never;
-		delete: operations['delete_4'];
+		delete: operations['delete_5'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -125,7 +125,7 @@ export interface paths {
 		};
 		get: operations['all_3'];
 		put?: never;
-		post: operations['create_3'];
+		post: operations['create_4'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -140,7 +140,7 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
-		put: operations['reorder_3'];
+		put: operations['reorder_4'];
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -155,10 +155,10 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['get'];
-		put: operations['update_2'];
+		get: operations['get_1'];
+		put: operations['update_3'];
 		post?: never;
-		delete: operations['delete_3'];
+		delete: operations['delete_4'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -332,7 +332,7 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
-		put: operations['reorder_2'];
+		put: operations['reorder_3'];
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -382,7 +382,7 @@ export interface paths {
 		get: operations['task_1'];
 		put?: never;
 		post?: never;
-		delete: operations['delete_6'];
+		delete: operations['delete_7'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -1006,7 +1006,7 @@ export interface paths {
 		get: operations['state_1'];
 		put?: never;
 		post?: never;
-		delete: operations['reset'];
+		delete: operations['reset_1'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -1069,7 +1069,7 @@ export interface paths {
 		};
 		get: operations['all_2'];
 		put?: never;
-		post: operations['create_2'];
+		post: operations['create_3'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -1084,7 +1084,7 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
-		put: operations['reorder_1'];
+		put: operations['reorder_2'];
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -1100,9 +1100,137 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
+		put: operations['update_2'];
+		post?: never;
+		delete: operations['delete_3'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/lessons': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['list_1'];
+		put?: never;
+		post: operations['create_2'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/lessons/order': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['reorder_1'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/lessons/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['get'];
 		put: operations['update_1'];
 		post?: never;
 		delete: operations['delete_2'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/lessons/{id}/copy': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['duplicate_1'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/lessons/{id}/finish': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['finish_1'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/lessons/{id}/next': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['next_1'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/lessons/{id}/reset': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['reset'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/lessons/{id}/start': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['start_1'];
+		delete?: never;
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -1166,7 +1294,7 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post?: never;
-		delete: operations['delete_5'];
+		delete: operations['delete_6'];
 		options?: never;
 		head?: never;
 		patch: operations['rename'];
@@ -2494,7 +2622,7 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post?: never;
-		delete: operations['delete_7'];
+		delete: operations['delete_8'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -2507,7 +2635,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['list_1'];
+		get: operations['list_2'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -2587,7 +2715,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['next_1'];
+		get: operations['next_2'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -3481,6 +3609,78 @@ export interface components {
 			rank: number;
 			username: string;
 		};
+		LessonDetail: {
+			/** Format: int64 */
+			courseId: number;
+			courseName: string;
+			/** Format: int32 */
+			currentStep: number;
+			/** Format: date */
+			date: string;
+			/** Format: date-time */
+			finishedAt: string;
+			/** Format: int64 */
+			id: number;
+			labels: string[];
+			log: components['schemas']['StepResult'][];
+			restoreReleases: boolean;
+			/** Format: date-time */
+			startedAt: string;
+			/** @enum {string} */
+			status: 'DRAFT' | 'RUNNING' | 'DONE';
+			/** Format: date-time */
+			stepStartedAt: string;
+			steps: components['schemas']['LessonStep'][];
+			title: string;
+		};
+		LessonStep: {
+			action: string;
+			deadline: string;
+			displayMode: string;
+			id: string;
+			/** Format: int32 */
+			minutes: number;
+			moduleSlug: string;
+			/** Format: int64 */
+			roundId: number;
+			taskIds: number[];
+			taskSlug: string;
+			text: string;
+			title: string;
+			/** @enum {string} */
+			type: 'RELEASE' | 'QUIZ' | 'WORKSHEET' | 'EVALUATION' | 'ANNOUNCEMENT' | 'NOTE';
+			/** Format: int64 */
+			worksheetId: number;
+		};
+		LessonSummary: {
+			/** Format: int64 */
+			courseId: number;
+			courseName: string;
+			/** Format: int32 */
+			currentStep: number;
+			/** Format: date */
+			date: string;
+			/** Format: int64 */
+			id: number;
+			/** Format: int32 */
+			position: number;
+			/** @enum {string} */
+			status: 'DRAFT' | 'RUNNING' | 'DONE';
+			/** Format: int32 */
+			steps: number;
+			title: string;
+			/** Format: date-time */
+			updatedAt: string;
+		};
+		LessonUpdate: {
+			/** Format: int64 */
+			courseId: number;
+			/** Format: date */
+			date: string;
+			restoreReleases: boolean;
+			steps: components['schemas']['LessonStep'][];
+			title: string;
+		};
 		LibraryItem: {
 			contentType: string;
 			/** Format: date-time */
@@ -3648,6 +3848,10 @@ export interface components {
 			showInNav: boolean;
 			slug: string;
 			title: string;
+		};
+		NextRequest: {
+			/** Format: int32 */
+			expectedStep?: number;
 		};
 		Node: {
 			boss: boolean;
@@ -4111,6 +4315,17 @@ export interface components {
 			courseId?: number;
 			taskIds?: number[];
 			title?: string;
+		};
+		StepResult: {
+			/** Format: date-time */
+			at: string;
+			/** Format: int32 */
+			index: number;
+			label: string;
+			message: string;
+			ok: boolean;
+			/** @enum {string} */
+			type: 'RELEASE' | 'QUIZ' | 'WORKSHEET' | 'EVALUATION' | 'ANNOUNCEMENT' | 'NOTE';
 		};
 		StudentBranchEntry: {
 			/** Format: date-time */
@@ -4744,7 +4959,7 @@ export interface operations {
 			};
 		};
 	};
-	create_4: {
+	create_5: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4790,7 +5005,7 @@ export interface operations {
 			};
 		};
 	};
-	update_3: {
+	update_4: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4816,7 +5031,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_4: {
+	delete_5: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4883,7 +5098,7 @@ export interface operations {
 			};
 		};
 	};
-	create_3: {
+	create_4: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4909,7 +5124,7 @@ export interface operations {
 			};
 		};
 	};
-	reorder_3: {
+	reorder_4: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4931,7 +5146,7 @@ export interface operations {
 			};
 		};
 	};
-	get: {
+	get_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4953,7 +5168,7 @@ export interface operations {
 			};
 		};
 	};
-	update_2: {
+	update_3: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4979,7 +5194,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_3: {
+	delete_4: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -5236,7 +5451,7 @@ export interface operations {
 			};
 		};
 	};
-	reorder_2: {
+	reorder_3: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -5334,7 +5549,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_6: {
+	delete_7: {
 		parameters: {
 			query: {
 				confirm: string;
@@ -6448,7 +6663,7 @@ export interface operations {
 			};
 		};
 	};
-	reset: {
+	reset_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -6553,7 +6768,7 @@ export interface operations {
 			};
 		};
 	};
-	create_2: {
+	create_3: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -6579,7 +6794,7 @@ export interface operations {
 			};
 		};
 	};
-	reorder_1: {
+	reorder_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -6601,7 +6816,7 @@ export interface operations {
 			};
 		};
 	};
-	update_1: {
+	update_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -6627,6 +6842,144 @@ export interface operations {
 			};
 		};
 	};
+	delete_3: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	list_1: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonSummary'][];
+				};
+			};
+		};
+	};
+	create_2: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['LessonUpdate'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonDetail'];
+				};
+			};
+		};
+	};
+	reorder_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': number[];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonSummary'][];
+				};
+			};
+		};
+	};
+	get: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonDetail'];
+				};
+			};
+		};
+	};
+	update_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['LessonUpdate'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonDetail'];
+				};
+			};
+		};
+	};
 	delete_2: {
 		parameters: {
 			query?: never;
@@ -6644,6 +6997,120 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content?: never;
+			};
+		};
+	};
+	duplicate_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonDetail'];
+				};
+			};
+		};
+	};
+	finish_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonDetail'];
+				};
+			};
+		};
+	};
+	next_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: {
+			content: {
+				'application/json': components['schemas']['NextRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonDetail'];
+				};
+			};
+		};
+	};
+	reset: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonDetail'];
+				};
+			};
+		};
+	};
+	start_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['LessonDetail'];
+				};
 			};
 		};
 	};
@@ -6734,7 +7201,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_5: {
+	delete_6: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -8940,7 +9407,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_7: {
+	delete_8: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -8960,7 +9427,7 @@ export interface operations {
 			};
 		};
 	};
-	list_1: {
+	list_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -9304,7 +9771,7 @@ export interface operations {
 			};
 		};
 	};
-	next_1: {
+	next_2: {
 		parameters: {
 			query?: never;
 			header?: never;

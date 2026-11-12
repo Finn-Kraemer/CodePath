@@ -128,6 +128,12 @@
 					icon: icons.users
 				},
 				{
+					href: '/admin/lessons',
+					title: 'Stundenabläufe',
+					text: 'Stunde vorab planen, mit einem Klick starten und weiterschalten',
+					icon: icons.projector
+				},
+				{
 					href: '/admin/attendance',
 					title: 'Anwesenheit',
 					text: 'Termine erfassen, Abweichungen anklicken, Quote und Export',

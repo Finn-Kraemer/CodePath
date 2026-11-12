@@ -137,7 +137,7 @@
     },
     "/api/admin/attendance/sessions" : {
       "post" : {
-        "operationId" : "create_4",
+        "operationId" : "create_5",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -165,7 +165,7 @@
     },
     "/api/admin/attendance/sessions/{id}" : {
       "delete" : {
-        "operationId" : "delete_4",
+        "operationId" : "delete_5",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -208,7 +208,7 @@
         "tags" : [ "attendance-controller" ]
       },
       "put" : {
-        "operationId" : "update_3",
+        "operationId" : "update_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -309,7 +309,7 @@
         "tags" : [ "code-path-controller" ]
       },
       "post" : {
-        "operationId" : "create_3",
+        "operationId" : "create_4",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -340,7 +340,7 @@
     },
     "/api/admin/codepaths/order" : {
       "put" : {
-        "operationId" : "reorder_3",
+        "operationId" : "reorder_4",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -365,7 +365,7 @@
     },
     "/api/admin/codepaths/{id}" : {
       "delete" : {
-        "operationId" : "delete_3",
+        "operationId" : "delete_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -383,7 +383,7 @@
         "tags" : [ "code-path-controller" ]
       },
       "get" : {
-        "operationId" : "get",
+        "operationId" : "get_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -408,7 +408,7 @@
         "tags" : [ "code-path-controller" ]
       },
       "put" : {
-        "operationId" : "update_2",
+        "operationId" : "update_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -757,7 +757,7 @@
     },
     "/api/admin/content/modules/{id}/order" : {
       "put" : {
-        "operationId" : "reorder_2",
+        "operationId" : "reorder_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -862,7 +862,7 @@
     },
     "/api/admin/content/tasks/{id}" : {
       "delete" : {
-        "operationId" : "delete_6",
+        "operationId" : "delete_7",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2320,7 +2320,7 @@
     },
     "/api/admin/homepage" : {
       "delete" : {
-        "operationId" : "reset",
+        "operationId" : "reset_1",
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -2445,7 +2445,7 @@
         "tags" : [ "knowledge-controller" ]
       },
       "post" : {
-        "operationId" : "create_2",
+        "operationId" : "create_3",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2476,7 +2476,7 @@
     },
     "/api/admin/knowledge/order" : {
       "put" : {
-        "operationId" : "reorder_1",
+        "operationId" : "reorder_2",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2501,7 +2501,7 @@
     },
     "/api/admin/knowledge/{id}" : {
       "delete" : {
-        "operationId" : "delete_2",
+        "operationId" : "delete_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2519,7 +2519,7 @@
         "tags" : [ "knowledge-controller" ]
       },
       "put" : {
-        "operationId" : "update_1",
+        "operationId" : "update_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2552,6 +2552,320 @@
           }
         },
         "tags" : [ "knowledge-controller" ]
+      }
+    },
+    "/api/admin/lessons" : {
+      "get" : {
+        "operationId" : "list_1",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LessonSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      },
+      "post" : {
+        "operationId" : "create_2",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LessonUpdate"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LessonDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      }
+    },
+    "/api/admin/lessons/order" : {
+      "put" : {
+        "operationId" : "reorder_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "integer",
+                  "format" : "int64"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LessonSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      }
+    },
+    "/api/admin/lessons/{id}" : {
+      "delete" : {
+        "operationId" : "delete_2",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      },
+      "get" : {
+        "operationId" : "get",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LessonDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      },
+      "put" : {
+        "operationId" : "update_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LessonUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LessonDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      }
+    },
+    "/api/admin/lessons/{id}/copy" : {
+      "post" : {
+        "operationId" : "duplicate_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LessonDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      }
+    },
+    "/api/admin/lessons/{id}/finish" : {
+      "post" : {
+        "operationId" : "finish_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LessonDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      }
+    },
+    "/api/admin/lessons/{id}/next" : {
+      "post" : {
+        "operationId" : "next_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NextRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LessonDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      }
+    },
+    "/api/admin/lessons/{id}/reset" : {
+      "post" : {
+        "operationId" : "reset",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LessonDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
+      }
+    },
+    "/api/admin/lessons/{id}/start" : {
+      "post" : {
+        "operationId" : "start_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LessonDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "lesson-controller" ]
       }
     },
     "/api/admin/media" : {
@@ -2648,7 +2962,7 @@
     },
     "/api/admin/media/{key}" : {
       "delete" : {
-        "operationId" : "delete_5",
+        "operationId" : "delete_6",
         "parameters" : [ {
           "in" : "path",
           "name" : "key",
@@ -5393,7 +5707,7 @@
     },
     "/api/journal/{id}" : {
       "delete" : {
-        "operationId" : "delete_7",
+        "operationId" : "delete_8",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -5413,7 +5727,7 @@
     },
     "/api/knowledge" : {
       "get" : {
-        "operationId" : "list_1",
+        "operationId" : "list_2",
         "responses" : {
           "200" : {
             "content" : {
@@ -5715,7 +6029,7 @@
     },
     "/api/learning/next" : {
       "get" : {
-        "operationId" : "next_1",
+        "operationId" : "next_2",
         "responses" : {
           "200" : {
             "content" : {
@@ -7759,6 +8073,194 @@
         },
         "required" : [ "displayName", "points", "rank", "username" ]
       },
+      "LessonDetail" : {
+        "type" : "object",
+        "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "currentStep" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "finishedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "labels" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "log" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StepResult"
+            }
+          },
+          "restoreReleases" : {
+            "type" : "boolean"
+          },
+          "startedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "DRAFT", "RUNNING", "DONE" ]
+          },
+          "stepStartedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LessonStep"
+            }
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "courseId", "courseName", "currentStep", "date", "finishedAt", "id", "labels", "log", "restoreReleases", "startedAt", "status", "stepStartedAt", "steps", "title" ]
+      },
+      "LessonStep" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "type" : "string"
+          },
+          "deadline" : {
+            "type" : "string"
+          },
+          "displayMode" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "minutes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "roundId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "taskIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          },
+          "taskSlug" : {
+            "type" : "string"
+          },
+          "text" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "RELEASE", "QUIZ", "WORKSHEET", "EVALUATION", "ANNOUNCEMENT", "NOTE" ]
+          },
+          "worksheetId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "action", "deadline", "displayMode", "id", "minutes", "moduleSlug", "roundId", "taskIds", "taskSlug", "text", "title", "type", "worksheetId" ]
+      },
+      "LessonSummary" : {
+        "type" : "object",
+        "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "currentStep" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "position" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "DRAFT", "RUNNING", "DONE" ]
+          },
+          "steps" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "courseId", "courseName", "currentStep", "date", "id", "position", "status", "steps", "title", "updatedAt" ]
+      },
+      "LessonUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "restoreReleases" : {
+            "type" : "boolean"
+          },
+          "steps" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LessonStep"
+            }
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "courseId", "date", "restoreReleases", "steps", "title" ]
+      },
       "LibraryItem" : {
         "type" : "object",
         "properties" : {
@@ -8207,6 +8709,15 @@
           }
         },
         "required" : [ "description", "showInNav", "slug", "title" ]
+      },
+      "NextRequest" : {
+        "type" : "object",
+        "properties" : {
+          "expectedStep" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
       },
       "Node" : {
         "type" : "object",
@@ -9444,6 +9955,33 @@
             "type" : "string"
           }
         }
+      },
+      "StepResult" : {
+        "type" : "object",
+        "properties" : {
+          "at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "index" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "ok" : {
+            "type" : "boolean"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "RELEASE", "QUIZ", "WORKSHEET", "EVALUATION", "ANNOUNCEMENT", "NOTE" ]
+          }
+        },
+        "required" : [ "at", "index", "label", "message", "ok", "type" ]
       },
       "StudentBranchEntry" : {
         "type" : "object",

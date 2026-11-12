@@ -31,6 +31,7 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 | `quiz` | Quiz-Runde am Beamer aus Auswahl-Aufgaben (`/api/quiz`, `/api/admin/quiz`), höchstens eine laufende Runde |
 | `attendance` | Anwesenheit je Kurs und Termin (`/api/admin/attendance`), Quote für Teilnahmebestätigung und Profil |
 | `journal` | Lerntagebuch: private Notizen je Modul/Aufgabe (`/api/journal`), Leitfragen, geteilte Einträge für die Lehrkraft |
+| `lesson` | Stundenabläufe: Schritte planen, starten, „Weiter“ (`/api/admin/lessons`), Vorlagen im Export |
 | `worksheet` | Aufgabenblätter der Lehrkraft als PDF (OpenPDF): Blöcke + Layout als JSON, Schülerfassung und Lösung (`/api/admin/worksheets`) |
 
 `ArchitectureTest` erzwingt: Repositories nur im eigenen Paket, keine Zyklen, `engine` hängt von keinem Fachpaket ab.
@@ -86,7 +87,7 @@ CodePaths (früher Lernpfade; V24 hat die Tabelle umbenannt). Paket `pathway` (`
 
 ## Zentraler Export/Import
 
-Jedes Fachpaket stellt `TransferSection`-Beans bereit (`settings`, `modules`, `homepage`, `pages`, `knowledge`, `codepaths`, `worksheets`; `order` legt die Importreihenfolge fest). Exportdatei: ZIP mit `codepath-export.json` (`format`, `version`, `sections`) und `media/<schlüssel>` für alle darin gefundenen Bildschlüssel. `TransferService.importFile` erkennt ZIP mit Manifest, JSON-Manifest oder Content-Paket (module.json → bisheriger Content-Import). Jeder Eintrag läuft über `ItemRunner` in einer eigenen Transaktion und landet als `TransferItem` (CREATED/UPDATED/UNCHANGED/ERROR) im Bericht; Module/Aufgaben liefert `ContentImporter.ImportReport.items`. Abgleich über den Slug, gelöscht wird nichts.
+Jedes Fachpaket stellt `TransferSection`-Beans bereit (`settings`, `modules`, `homepage`, `pages`, `knowledge`, `codepaths`, `worksheets`, `evaluation-templates`, `lessons`; `order` legt die Importreihenfolge fest). Exportdatei: ZIP mit `codepath-export.json` (`format`, `version`, `sections`) und `media/<schlüssel>` für alle darin gefundenen Bildschlüssel. `TransferService.importFile` erkennt ZIP mit Manifest, JSON-Manifest oder Content-Paket (module.json → bisheriger Content-Import). Jeder Eintrag läuft über `ItemRunner` in einer eigenen Transaktion und landet als `TransferItem` (CREATED/UPDATED/UNCHANGED/ERROR) im Bericht; Module/Aufgaben liefert `ContentImporter.ImportReport.items`. Abgleich über den Slug, gelöscht wird nichts.
 
 ## Sammel-Exporte (PDF)
 
@@ -103,6 +104,10 @@ Paket `evaluation`. `evaluation_templates` (Kriterien als JSON, `kind` SELF/LESS
 ## Freigaben pro Person
 
 `user_releases` (V38: `user_id`, genau eins von `module_id`/`task_id`, `mode` SHOWN/HIDDEN, `available_until`, `bonus`; mit dem Konto gelöscht). `AccessPolicy.Releases` wertet in dieser Rangfolge aus: Aufgabe der Person → Modul der Person → Aufgabe im Kurs → Modul im Kurs; eine Freigabe der Person gilt auch vor dem `PathGate`. `courseReleases(user)` enthält die Freigaben der Person, damit auch der CodePath-Status (AVAILABLE/LOCKED) sie berücksichtigt; `forCourse(courseId)` (Modul-Steuerung, Lehrkraftsicht) nicht. `UserReleaseService` (`POST /api/admin/user-releases` für mehrere Personen, `GET/DELETE /api/admin/students/{u}/releases`, `GET /api/admin/modules/{id}/user-releases?courseId=`), Audit `USER_RELEASE_SET`. Bonus: `LeaderboardService` zieht Punkte aus Aufgaben ab, die die Person nur als Bonus hat (`UserReleaseService.bonusTasks`); `TaskSummary.personal`/`bonus` für die Kennzeichnung. Frontend: `lib/components/UserReleases.svelte` (Schülerakte und Modul-Steuerung).
+
+## Stundenabläufe
+
+Paket `lesson` (V41): `lessons` mit Kurs (null = Vorlage), Titel, Datum, `steps` (JSON, `LessonStep`: RELEASE/QUIZ/WORKSHEET/EVALUATION/ANNOUNCEMENT/NOTE, `minutes`), `status` DRAFT/RUNNING/DONE, `current_step`, `step_started_at`, `restore_releases` mit `releases_snapshot` (`ReleaseService.snapshot`/`restore`) und `run_log` (`StepResult` je Schritt). `LessonService.start/next` sperren die Zeile (`findByIdForUpdate`), prüfen `expectedStep` (409 bei Doppelklick) und führen den Schritt danach in einer eigenen Transaktion aus (`TransactionTemplate`, REQUIRES_NEW) – ein Fehler (ApiException) landet als `ok=false` mit Meldung im Protokoll und bricht nicht ab. Schritte nutzen `ReleaseService.setUnlocked/setTaskMode/setDeadline`, `QuizService.start`, `EvaluationService.setStatus`, `ClassroomService.updateAnnouncement`. Audit: `LESSON_STARTED`, `LESSON_STEP_EXECUTED` (mit `ok`), `LESSON_FINISHED`. Export-Bereich `lessons` (`LessonTransfer`, als Vorlagen über den Titel). Frontend: `/admin/lessons`, Editor `/admin/lessons/[id]`, „Stunde läuft“ `/admin/lessons/[id]/run`, `lib/lesson/types.ts`.
 
 ## Lerntagebuch
 

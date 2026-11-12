@@ -168,6 +168,23 @@ Gesteuert wird auf der Quiz-Seite oder direkt im **Beamer-Modus** (die Runde üb
 
 Mit **Alle Schüler abmelden** im Control Center endet jede laufende Sitzung, z. B. am Ende des Tages an geteilten Geräten.
 
+### Stundenabläufe
+
+Unter **Leitstand → Stundenabläufe** planst du eine Stunde vorab als **Ablauf**: eine geordnete Liste von Schritten, je mit optionaler Dauer in Minuten.
+
+| Schritt | Was beim Auslösen passiert |
+|---|---|
+| **Freigabe** | Modul freigeben oder sperren bzw. einzelne Aufgabe freigeben, sperren oder wieder dem Modul folgen lassen; optional eine Frist (Uhrzeit wie „10:30“, „-“ entfernt sie) |
+| **Quiz-Runde** | startet die Quiz-Runde mit den vorausgewählten Auswahl-Aufgaben |
+| **Aufgabenblatt** | legt Schülerblatt und Lösung zum Öffnen und Drucken bereit |
+| **Bewertungsrunde** | öffnet oder schließt eine Runde des Kurses |
+| **Live-Mitteilung** | sendet den Text an die Klasse (leer = ausblenden) |
+| **Notiz** | Hinweis nur für dich, z. B. „Fragen an der Tafel sammeln“ |
+
+Zu Stundenbeginn startet **Stunde starten** den Ablauf und führt den ersten Schritt aus. Die Ansicht **Stunde läuft** zeigt den aktuellen Schritt groß, mit Timer (bei geplanter Dauer) und dem Knopf **Weiter**, der den nächsten Schritt genau einmal auslöst – auch ein Doppelklick oder ein zweites Fenster führen ihn nicht doppelt aus. Geht ein Schritt schief (z. B. läuft schon ein Quiz), steht der Grund verständlich da, der Ablauf geht trotzdem weiter. Mit **Am Ende alle Freigaben zurücksetzen** stellt **Stunde beenden** den Stand der Modul-Steuerung vom Start wieder her. Alle ausgeführten Schritte stehen im Audit-Log.
+
+Abläufe lassen sich sortieren, duplizieren und löschen. Ohne Kurs ist ein Ablauf eine **Vorlage**; Vorlagen gehen über *Import & Export* (Bereich „Stundenabläufe“) in andere Installationen. Bewertungsrunden und Aufgabenblätter sind dort ggf. neu zu wählen.
+
 ## ◼ 3. Bewerten
 
 Praxisaufgaben (Typ *Praxis*) bewertet die Lehrkraft selbst. Neue Abgaben erscheinen im **Prüfungszentrum** (*Abgaben prüfen*).
