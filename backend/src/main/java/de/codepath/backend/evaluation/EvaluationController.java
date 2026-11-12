@@ -2,6 +2,8 @@ package de.codepath.backend.evaluation;
 
 import de.codepath.backend.identity.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +16,7 @@ public class EvaluationController {
 
     private final EvaluationService service;
     private final UserService userService;
+    private final EvaluationExportService exportService;
 
     @GetMapping
     public List<EvaluationService.MyRound> mine() {
@@ -33,5 +36,11 @@ public class EvaluationController {
     @PutMapping("/{id}/lesson")
     public EvaluationService.MyRoundDetail lesson(@PathVariable("id") Long id, @RequestBody EvaluationService.EvaluationAnswers request) {
         return service.answer(userService.currentUser(), id, EvaluationPart.LESSON, request);
+    }
+
+    /** Eigener Bogen als PDF; die Lehrerbewertung nur, wenn sie freigegeben ist */
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> pdf(@PathVariable("id") Long id) {
+        return EvaluationAdminController.download(exportService.mySheet(userService.currentUser(), id), MediaType.APPLICATION_PDF);
     }
 }

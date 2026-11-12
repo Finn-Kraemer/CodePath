@@ -477,6 +477,9 @@
 			{#if round.status !== 'DRAFT'}
 				<button class="ed-button" onclick={() => setStatus('DRAFT')}>Zurück zum Entwurf</button>
 			{/if}
+			<a class="ed-button" href="/api/admin/evaluations/rounds/{round.id}/export.zip" download
+				>Klasse als ZIP</a
+			>
 			<button class="ed-button border-rose-300 text-rose-700" onclick={remove}>Löschen</button>
 		</div>
 
@@ -573,6 +576,12 @@
 		</form>
 	{:else if tab === 'results' && results && round}
 		<div class="mb-6 flex flex-wrap gap-2">
+			<a class="ed-button" href="/api/admin/evaluations/rounds/{round.id}/summary.pdf" download
+				>PDF: Klassenauswertung</a
+			>
+			<a class="ed-button" href="/api/admin/evaluations/rounds/{round.id}/export.zip" download
+				>ZIP: alle Bögen als PDF</a
+			>
 			<button class="ed-button" onclick={exportStudents}>CSV: je Person</button>
 			{#if round.lessonCriteria}
 				<button class="ed-button" onclick={exportLesson}>CSV: Unterrichtsbewertung</button>
@@ -627,7 +636,12 @@
 										{/if}
 									</td>
 								{/if}
-								<td class="p-3 text-right">
+								<td class="p-3 text-right whitespace-nowrap">
+									<a
+										class="ed-button"
+										href="/api/admin/evaluations/rounds/{round.id}/students/{s.userId}/pdf"
+										download>PDF</a
+									>
 									{#if teacherCriteria}
 										<button
 											class="ed-button"
@@ -724,6 +738,11 @@
 									)}{current.teacherRatedBy ? ` von ${current.teacherRatedBy}` : ''}{/if}
 							</p>
 						</div>
+						<a
+							class="ed-button"
+							href="/api/admin/evaluations/rounds/{round.id}/students/{current.userId}/pdf"
+							download>PDF</a
+						>
 						<button
 							class="ed-button"
 							disabled={studentIndex <= 0}

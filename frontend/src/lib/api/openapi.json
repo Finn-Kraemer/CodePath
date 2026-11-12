@@ -1267,6 +1267,34 @@
         "tags" : [ "evaluation-admin-controller" ]
       }
     },
+    "/api/admin/evaluations/rounds/{id}/export.zip" : {
+      "get" : {
+        "operationId" : "classZip",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
     "/api/admin/evaluations/rounds/{id}/results" : {
       "get" : {
         "operationId" : "results",
@@ -1397,6 +1425,70 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/StudentEvaluation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/students/{userId}/pdf" : {
+      "get" : {
+        "operationId" : "studentPdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/summary.pdf" : {
+      "get" : {
+        "operationId" : "summaryPdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
                 }
               }
             },
@@ -3755,6 +3847,34 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/MyRoundDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-controller" ]
+      }
+    },
+    "/api/evaluations/{id}/pdf" : {
+      "get" : {
+        "operationId" : "pdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
                 }
               }
             },

@@ -128,6 +128,12 @@
 					· Unterrichtsbewertung anonym
 				{/if}
 			</p>
+			<a
+				class="ed-button mt-4 inline-block"
+				href="/api/evaluations/{round.id}/pdf"
+				download
+				data-testid="evaluation-pdf">Als PDF herunterladen</a
+			>
 			{#if round.intro}
 				<p class="mt-4 whitespace-pre-line text-slate-600">{round.intro}</p>
 			{/if}

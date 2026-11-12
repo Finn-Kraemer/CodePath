@@ -548,6 +548,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/evaluations/rounds/{id}/export.zip': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['classZip'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/evaluations/rounds/{id}/results': {
 		parameters: {
 			query?: never;
@@ -589,6 +605,38 @@ export interface paths {
 		};
 		get: operations['student'];
 		put: operations['rate'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/students/{userId}/pdf': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['studentPdf'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/summary.pdf': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['summaryPdf'];
+		put?: never;
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -1821,6 +1869,22 @@ export interface paths {
 		};
 		get?: never;
 		put: operations['lesson'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/evaluations/{id}/pdf': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['pdf'];
+		put?: never;
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -4867,6 +4931,28 @@ export interface operations {
 			};
 		};
 	};
+	classZip: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
 	results: {
 		parameters: {
 			query?: never;
@@ -4959,6 +5045,51 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['StudentEvaluation'];
+				};
+			};
+		};
+	};
+	studentPdf: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+				userId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	summaryPdf: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
 				};
 			};
 		};
@@ -6954,6 +7085,28 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['MyRoundDetail'];
+				};
+			};
+		};
+	};
+	pdf: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
 				};
 			};
 		};

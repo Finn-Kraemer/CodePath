@@ -86,6 +86,18 @@ test('Selbsteinschätzung, Unterrichtsbewertung und Bewertung durch die Lehrkraf
 	await expect(student.getByText('Mehr eigene Projekte!')).toBeVisible();
 	await expect(student.getByText('Deine Einschätzung:').first()).toBeVisible();
 
+	// PDF des eigenen Bogens und ZIP der ganzen Klasse
+	const [pdf] = await Promise.all([
+		student.waitForEvent('download'),
+		student.getByTestId('evaluation-pdf').click()
+	]);
+	expect(pdf.suggestedFilename()).toMatch(/^Bewertung_Halbjahres-Feedback_.+\.pdf$/);
+	const [zip] = await Promise.all([
+		teacher.waitForEvent('download'),
+		teacher.getByRole('link', { name: 'Klasse als ZIP' }).click()
+	]);
+	expect(zip.suggestedFilename()).toBe('Bewertungen_Halbjahres-Feedback.zip');
+
 	// Lehrkraft blendet ihre Bewertung aus
 	await teacher.getByRole('tab', { name: 'Einstellungen' }).click();
 	await teacher.getByLabel(/Nicht sichtbar/).check();

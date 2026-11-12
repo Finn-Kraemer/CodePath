@@ -6,7 +6,10 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
+import java.io.ByteArrayInputStream;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -228,5 +231,56 @@ class EvaluationTest extends IntegrationTestBase {
         // Schüler kommen nicht an die Vorlagen
         User lena = student("lena", course("9a"));
         getAs(as(lena), ADMIN + "/templates").andExpect(status().isForbidden());
+    }
+
+    byte[] bytes(org.springframework.test.web.servlet.ResultActions result) throws Exception {
+        return result.andExpect(status().isOk()).andReturn().getResponse().getContentAsByteArray();
+    }
+
+    @Test
+    void sheetsAsPdfAndWholeClassAsZip() throws Exception {
+        Course course = course("9a");
+        User lena = student("lena", course);
+        User tom = student("tom", course);
+        long id = createRound(roundRequest(course, "AFTER_SELF", true, true));
+        open(id);
+        putAs(as(lena), "/api/evaluations/" + id + "/self", Map.of("answers", Map.of("fleiss", 4, "notiz", "Viel gelernt"))).andExpect(status().isOk());
+        putAs(as(lena), "/api/evaluations/" + id + "/lesson", Map.of("answers", Map.of("tempo", 2, "gern", true, "wunsch", "Geheimer Wunsch")))
+                .andExpect(status().isOk());
+        putAs(teacher(), ADMIN + "/rounds/" + id + "/students/" + lena.getId(), Map.of("answers", Map.of("fleiss", 5, "notiz", "Toll gemacht")))
+                .andExpect(status().isOk());
+        putAs(teacher(), ADMIN + "/rounds/" + id + "/students/" + tom.getId(), Map.of("answers", Map.of("fleiss", 2, "notiz", "Nur für Tom")))
+                .andExpect(status().isOk());
+
+        // Bogen für die Lehrkraft: Selbst- und Lehrerbewertung, anonyme Unterrichtsbewertung nicht
+        String sheet = TakeHomeTest.text(bytes(getAs(teacher(), ADMIN + "/rounds/" + id + "/students/" + lena.getId() + "/pdf")));
+        assertTrue(sheet.contains("Viel gelernt"));
+        assertTrue(sheet.contains("Toll gemacht"));
+        assertTrue(sheet.contains("5 von 5"));
+        assertFalse(sheet.contains("Geheimer Wunsch"), "anonym");
+
+        // Eigener Bogen: Tom hat sich nicht selbst eingeschätzt → Lehrerbewertung (AFTER_SELF) fehlt
+        String toms = TakeHomeTest.text(bytes(getAs(as(tom), "/api/evaluations/" + id + "/pdf")));
+        assertFalse(toms.contains("Nur für Tom"));
+        assertTrue(toms.contains("Selbsteinschätzung abgeschickt"));
+        String lenas = TakeHomeTest.text(bytes(getAs(as(lena), "/api/evaluations/" + id + "/pdf")));
+        assertTrue(lenas.contains("Toll gemacht"));
+        assertTrue(lenas.contains("Geheimer Wunsch"), "die eigene Unterrichtsbewertung");
+        getAs(as(lena), ADMIN + "/rounds/" + id + "/export.zip").andExpect(status().isForbidden());
+
+        // Ganze Klasse als ZIP: Klassenauswertung + ein Bogen je Person
+        Map<String, byte[]> files = new TreeMap<>();
+        try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(bytes(getAs(teacher(), ADMIN + "/rounds/" + id + "/export.zip"))))) {
+            for (ZipEntry e; (e = zip.getNextEntry()) != null; ) files.put(e.getName(), zip.readAllBytes());
+        }
+        assertEquals(Set.of("00_Klassenauswertung.pdf", "Bewertung_lena.pdf", "Bewertung_tom.pdf"), files.keySet());
+        String summary = TakeHomeTest.text(files.get("00_Klassenauswertung.pdf"));
+        assertTrue(summary.contains("Geheimer Wunsch"), "Freitexte der Unterrichtsbewertung in der Auswertung");
+        int wish = summary.indexOf("Geheimer Wunsch");
+        assertFalse(summary.substring(wish, Math.min(summary.length(), wish + 40)).contains("lena"), "ohne Namen");
+        assertTrue(summary.contains("Viel gelernt"), "Selbsteinschätzung mit Namen");
+        assertTrue(TakeHomeTest.text(files.get("Bewertung_tom.pdf")).contains("Nur für Tom"));
+        String single = TakeHomeTest.text(bytes(getAs(teacher(), ADMIN + "/rounds/" + id + "/summary.pdf")));
+        assertTrue(single.contains("KLASSE"));
     }
 }
