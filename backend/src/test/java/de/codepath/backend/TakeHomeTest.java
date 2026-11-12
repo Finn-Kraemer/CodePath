@@ -71,6 +71,36 @@ class TakeHomeTest extends IntegrationTestBase {
         assertTrue(text.contains("Noch keine Ergebnisse"));
     }
 
+    @Test
+    void teacherExportsCertificatesAndTakeHomeOfTheWholeCourseAsZipOrOnePdf() throws Exception {
+        Course course = course("9d");
+        User lena = student("lena", course);
+        User tom = student("tom", course);
+        student("fremd", course("9e"));
+        String base = "/api/admin/courses/" + course.getId();
+
+        // ZIP wie bisher (Standard)
+        var zip = getAs(teacher(), base + "/certificates").andExpect(status().isOk()).andReturn().getResponse();
+        assertEquals("application/zip", zip.getContentType());
+
+        // Eine PDF zum Drucken, je Person ein Lesezeichen, nach Namen sortiert
+        byte[] certificates = getAs(teacher(), base + "/certificates?format=pdf").andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray();
+        try (PdfReader reader = new PdfReader(certificates)) {
+            var marks = com.lowagie.text.pdf.SimpleBookmark.getBookmarkList(reader);
+            assertEquals(List.of("lena", "tom"), marks.stream().map(m -> m.get("Title")).toList());
+        }
+
+        String takeHome = text(getAs(teacher(), base + "/take-home?format=pdf").andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsByteArray());
+        assertTrue(takeHome.contains("MITNEHM-PAKET"));
+        assertFalse(takeHome.contains("fremd"), "nur der eigene Kurs");
+        assertEquals(1, jdbc.queryForObject("select count(*) from audit_events where action = 'TAKE_HOME_EXPORTED'", Integer.class));
+
+        getAs(as(lena), base + "/take-home?format=pdf").andExpect(status().isForbidden());
+        assertNotNull(tom);
+    }
+
     static String text(byte[] pdf) throws Exception {
         try (PdfReader reader = new PdfReader(pdf)) {
             PdfTextExtractor extractor = new PdfTextExtractor(reader);

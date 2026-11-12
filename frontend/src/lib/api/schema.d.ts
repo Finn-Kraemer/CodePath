@@ -155,7 +155,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['export_1'];
+		get: operations['export_2'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -511,6 +511,198 @@ export interface paths {
 		put?: never;
 		post: operations['regenerateJoinCode'];
 		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/courses/{id}/take-home': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['courseTakeHome'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['rounds'];
+		put?: never;
+		post: operations['createRound'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['round'];
+		put: operations['updateRound'];
+		post?: never;
+		delete: operations['deleteRound'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/export': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['export_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/export.zip': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['classZip'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/results': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['results'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/status': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['status'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/students/{userId}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['student'];
+		put: operations['rate'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/students/{userId}/pdf': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['studentPdf'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/summary.pdf': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['summaryPdf'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/templates': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['templates'];
+		put?: never;
+		post: operations['createTemplate'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/templates/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['updateTemplate'];
+		post?: never;
+		delete: operations['deleteTemplate'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -1547,7 +1739,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['pdf'];
+		get: operations['pdf_1'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -1741,6 +1933,86 @@ export interface paths {
 		};
 		get: operations['compass'];
 		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/evaluations': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['mine_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/evaluations/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['round_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/evaluations/{id}/lesson': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['lesson'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/evaluations/{id}/pdf': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['pdf'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/evaluations/{id}/self': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['self'];
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -2334,6 +2606,12 @@ export interface components {
 			/** Format: int32 */
 			totalEvaluated: number;
 		};
+		Bucket: {
+			/** Format: int64 */
+			count: number;
+			label: string;
+			value: string;
+		};
 		Candidate: {
 			moduleSlug: string;
 			moduleTitle: string;
@@ -2406,6 +2684,16 @@ export interface components {
 			/** Format: int32 */
 			percent: number;
 		};
+		Counts: {
+			/** Format: int64 */
+			lesson: number;
+			/** Format: int64 */
+			self: number;
+			/** Format: int64 */
+			students: number;
+			/** Format: int64 */
+			teacher: number;
+		};
 		CoursePathActionRequest: {
 			/** @enum {string} */
 			action?: 'RESET_CHOICE' | 'SET_CHOICE' | 'UNLOCK_BRANCH' | 'UNLOCK_NODE';
@@ -2466,6 +2754,18 @@ export interface components {
 			/** Format: int32 */
 			points: number;
 		};
+		CriterionStats: {
+			/** Format: int64 */
+			answered: number;
+			/** Format: double */
+			average: number;
+			distribution: components['schemas']['Bucket'][];
+			id: string;
+			label: string;
+			texts: components['schemas']['TextAnswer'][];
+			/** @enum {string} */
+			type: 'HEADING' | 'SCALE' | 'CHOICE' | 'YES_NO' | 'TEXT';
+		};
 		DeleteImpact: {
 			archived: boolean;
 			/** Format: int64 */
@@ -2504,6 +2804,31 @@ export interface components {
 			/** Format: double */
 			scoreThreshold: number;
 			task: string;
+		};
+		EvaluationAnswers: {
+			answers: {
+				[key: string]: unknown;
+			};
+		};
+		EvaluationCriterion: {
+			help: string;
+			id: string;
+			label: string;
+			labels: string[];
+			/** Format: int32 */
+			max: number;
+			maxLabel: string;
+			/** Format: int32 */
+			maxLength: number;
+			/** Format: int32 */
+			min: number;
+			minLabel: string;
+			multiple: boolean;
+			options: string[];
+			required: boolean;
+			style: string;
+			/** @enum {string} */
+			type: 'HEADING' | 'SCALE' | 'CHOICE' | 'YES_NO' | 'TEXT';
 		};
 		GateProgress: {
 			/** Format: int32 */
@@ -2755,6 +3080,49 @@ export interface components {
 			taskTitle?: string;
 			teacherMessage?: string;
 		};
+		MyPart: {
+			answers: {
+				[key: string]: unknown;
+			};
+			canEdit: boolean;
+			criteria: components['schemas']['EvaluationCriterion'][];
+			/** Format: date-time */
+			submittedAt: string;
+		};
+		MyRound: {
+			acceptingAnswers: boolean;
+			/** Format: date-time */
+			closesAt: string;
+			hasLesson: boolean;
+			hasSelf: boolean;
+			/** Format: int64 */
+			id: number;
+			lessonDone: boolean;
+			selfDone: boolean;
+			/** @enum {string} */
+			status: 'DRAFT' | 'OPEN' | 'CLOSED';
+			/** @enum {string} */
+			teacherState: 'NONE' | 'HIDDEN' | 'AFTER_SELF' | 'PENDING' | 'VISIBLE';
+			title: string;
+		};
+		MyRoundDetail: {
+			acceptingAnswers: boolean;
+			allowEdit: boolean;
+			/** Format: date-time */
+			closesAt: string;
+			/** Format: int64 */
+			id: number;
+			intro: string;
+			lesson: components['schemas']['MyPart'];
+			lessonAnonymous: boolean;
+			self: components['schemas']['MyPart'];
+			/** @enum {string} */
+			status: 'DRAFT' | 'OPEN' | 'CLOSED';
+			teacher: components['schemas']['MyPart'];
+			/** @enum {string} */
+			teacherState: 'NONE' | 'HIDDEN' | 'AFTER_SELF' | 'PENDING' | 'VISIBLE';
+			title: string;
+		};
 		NavLink: {
 			description: string;
 			showInNav: boolean;
@@ -2883,6 +3251,11 @@ export interface components {
 			updatedAt: string;
 			/** @enum {string} */
 			visibility: 'PUBLIC' | 'LOGGED_IN';
+		};
+		PartStats: {
+			criteria: components['schemas']['CriterionStats'][];
+			/** Format: int64 */
+			responses: number;
 		};
 		PathAdmin: {
 			applied: string[];
@@ -3099,6 +3472,57 @@ export interface components {
 		ReorderRequest: {
 			taskIds?: number[];
 		};
+		RoundAdmin: {
+			acceptingAnswers: boolean;
+			allowEdit: boolean;
+			/** Format: date-time */
+			closesAt: string;
+			counts: components['schemas']['Counts'];
+			/** Format: int64 */
+			courseId: number;
+			courseName: string;
+			/** Format: date-time */
+			createdAt: string;
+			/** Format: int64 */
+			id: number;
+			intro: string;
+			lessonAnonymous: boolean;
+			lessonCriteria: components['schemas']['EvaluationCriterion'][];
+			selfCriteria: components['schemas']['EvaluationCriterion'][];
+			/** @enum {string} */
+			status: 'DRAFT' | 'OPEN' | 'CLOSED';
+			teacherCriteria: components['schemas']['EvaluationCriterion'][];
+			teacherUsesSelfCriteria: boolean;
+			/** @enum {string} */
+			teacherVisibility: 'HIDDEN' | 'VISIBLE' | 'AFTER_SELF';
+			title: string;
+		};
+		RoundRequest: {
+			allowEdit?: boolean;
+			/** Format: date-time */
+			closesAt?: string;
+			/** Format: int64 */
+			courseId?: number;
+			intro?: string;
+			lessonAnonymous?: boolean;
+			lessonCriteria?: components['schemas']['EvaluationCriterion'][];
+			selfCriteria?: components['schemas']['EvaluationCriterion'][];
+			teacherCriteria?: components['schemas']['EvaluationCriterion'][];
+			teacherUsesSelfCriteria?: boolean;
+			/** @enum {string} */
+			teacherVisibility?: 'HIDDEN' | 'VISIBLE' | 'AFTER_SELF';
+			title?: string;
+		};
+		RoundResults: {
+			lesson: components['schemas']['PartStats'];
+			lessonAnswers: {
+				[key: string]: unknown;
+			}[];
+			round: components['schemas']['RoundAdmin'];
+			self: components['schemas']['PartStats'];
+			students: components['schemas']['StudentRow'][];
+			teacher: components['schemas']['PartStats'];
+		};
 		RunSolutionRequest: {
 			code?: string;
 			tests?: {
@@ -3172,6 +3596,30 @@ export interface components {
 				| 'SKIPPED';
 			subpath: boolean;
 		};
+		StudentEvaluation: {
+			displayName: string;
+			lessonAnswers: {
+				[key: string]: unknown;
+			};
+			lessonCriteria: components['schemas']['EvaluationCriterion'][];
+			lessonSubmitted: boolean;
+			selfAnswers: {
+				[key: string]: unknown;
+			};
+			selfCriteria: components['schemas']['EvaluationCriterion'][];
+			/** Format: date-time */
+			selfSubmittedAt: string;
+			teacherAnswers: {
+				[key: string]: unknown;
+			};
+			teacherCriteria: components['schemas']['EvaluationCriterion'][];
+			/** Format: date-time */
+			teacherRatedAt: string;
+			teacherRatedBy: string;
+			/** Format: int64 */
+			userId: number;
+			username: string;
+		};
 		StudentOverrideEntry: {
 			/** Format: date-time */
 			createdAt: string;
@@ -3203,6 +3651,30 @@ export interface components {
 			paths: components['schemas']['PathLink'][];
 			selectedSlug: string;
 			view: components['schemas']['PathView'];
+		};
+		StudentRow: {
+			displayName: string;
+			lessonAnswers: {
+				[key: string]: unknown;
+			};
+			lessonSubmitted: boolean;
+			selfAnswers: {
+				[key: string]: unknown;
+			};
+			/** Format: int32 */
+			selfScore: number;
+			/** Format: date-time */
+			selfSubmittedAt: string;
+			teacherAnswers: {
+				[key: string]: unknown;
+			};
+			/** Format: date-time */
+			teacherRatedAt: string;
+			/** Format: int32 */
+			teacherScore: number;
+			/** Format: int64 */
+			userId: number;
+			username: string;
 		};
 		StudentTask: {
 			/** Format: int32 */
@@ -3498,10 +3970,33 @@ export interface components {
 			/** Format: int32 */
 			total: number;
 		};
+		TemplateRequest: {
+			criteria?: components['schemas']['EvaluationCriterion'][];
+			description?: string;
+			/** @enum {string} */
+			kind?: 'SELF' | 'LESSON' | 'TEACHER';
+			name?: string;
+		};
+		TemplateView: {
+			criteria: components['schemas']['EvaluationCriterion'][];
+			description: string;
+			/** Format: int64 */
+			id: number;
+			/** @enum {string} */
+			kind: 'SELF' | 'LESSON' | 'TEACHER';
+			name: string;
+			slug: string;
+			/** Format: date-time */
+			updatedAt: string;
+		};
 		TestOutput: {
 			status: string;
 			stderr: string;
 			stdout: string;
+		};
+		TextAnswer: {
+			author: string;
+			text: string;
 		};
 		TransferItem: {
 			/** @enum {string} */
@@ -3851,7 +4346,7 @@ export interface operations {
 			};
 		};
 	};
-	export_1: {
+	export_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4395,7 +4890,11 @@ export interface operations {
 	};
 	courseCertificates: {
 		parameters: {
-			query?: never;
+			query?: {
+				format?: string;
+				duplex?: boolean;
+				inline?: boolean;
+			};
 			header?: never;
 			path: {
 				id: number;
@@ -4458,6 +4957,429 @@ export interface operations {
 				content: {
 					'*/*': components['schemas']['CourseSummary'];
 				};
+			};
+		};
+	};
+	courseTakeHome: {
+		parameters: {
+			query?: {
+				format?: string;
+				duplex?: boolean;
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	rounds: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['RoundAdmin'][];
+				};
+			};
+		};
+	};
+	createRound: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['RoundRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['RoundAdmin'];
+				};
+			};
+		};
+	};
+	round: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['RoundAdmin'];
+				};
+			};
+		};
+	};
+	updateRound: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['RoundRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['RoundAdmin'];
+				};
+			};
+		};
+	};
+	deleteRound: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	export_1: {
+		parameters: {
+			query?: {
+				format?: string;
+				duplex?: boolean;
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	classZip: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	results: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['RoundResults'];
+				};
+			};
+		};
+	};
+	status: {
+		parameters: {
+			query: {
+				status: string;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['RoundAdmin'];
+				};
+			};
+		};
+	};
+	student: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+				userId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['StudentEvaluation'];
+				};
+			};
+		};
+	};
+	rate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+				userId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['EvaluationAnswers'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['StudentEvaluation'];
+				};
+			};
+		};
+	};
+	studentPdf: {
+		parameters: {
+			query?: {
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+				userId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	summaryPdf: {
+		parameters: {
+			query?: {
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	templates: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TemplateView'][];
+				};
+			};
+		};
+	};
+	createTemplate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['TemplateRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TemplateView'];
+				};
+			};
+		};
+	};
+	updateTemplate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['TemplateRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TemplateView'];
+				};
+			};
+		};
+	};
+	deleteTemplate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
 			};
 		};
 	};
@@ -6192,7 +7114,7 @@ export interface operations {
 			};
 		};
 	};
-	pdf: {
+	pdf_1: {
 		parameters: {
 			query?: {
 				variant?: string;
@@ -6481,6 +7403,124 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['Compass'];
+				};
+			};
+		};
+	};
+	mine_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['MyRound'][];
+				};
+			};
+		};
+	};
+	round_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['MyRoundDetail'];
+				};
+			};
+		};
+	};
+	lesson: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['EvaluationAnswers'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['MyRoundDetail'];
+				};
+			};
+		};
+	};
+	pdf: {
+		parameters: {
+			query?: {
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	self: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['EvaluationAnswers'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['MyRoundDetail'];
 				};
 			};
 		};

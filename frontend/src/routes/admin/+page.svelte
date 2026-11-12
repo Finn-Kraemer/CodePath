@@ -137,6 +137,12 @@
 					icon: icons.check
 				},
 				{
+					href: '/admin/feedback',
+					title: 'Feedback & Bewertung',
+					text: 'Selbsteinschätzung, Unterrichtsbewertung, Schüler bewerten',
+					icon: icons.feedback
+				},
+				{
 					href: '/admin/statistics',
 					title: 'Lernanalyse',
 					text: 'Fortschritt und Schwierigkeiten der Klasse',
@@ -356,9 +362,9 @@
 			</li>
 			<li class="flex flex-wrap items-center gap-4 p-5">
 				<div class="min-w-0 flex-1">
-					<p class="font-bold text-institutional-navy">Feedback</p>
+					<p class="font-bold text-institutional-navy">Feedback-Nachrichten</p>
 					<p class="text-sm text-slate-500">
-						Rückmeldungen der Schülerinnen und Schüler einsammeln und lesen.
+						Freie Nachrichten der Klasse; Bewertungsbögen stehen unter „Feedback &amp; Bewertung“.
 					</p>
 				</div>
 				<span
@@ -366,7 +372,7 @@
 						? 'bg-emerald-100 text-emerald-800'
 						: 'bg-slate-100 text-slate-500'}">{feedbackEnabled ? 'Aktiv' : 'Aus'}</span
 				>
-				<a class="ed-button" href="/admin/feedback">Verwalten</a>
+				<a class="ed-button" href="/admin/feedback/messages">Verwalten</a>
 			</li>
 			<li class="flex flex-wrap items-center gap-4 p-5">
 				<div class="min-w-0 flex-1">

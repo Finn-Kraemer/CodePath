@@ -174,11 +174,20 @@ Alle anderen Typen bewertet CodePath sofort und ausschließlich auf dem Server.
 
 ### Teilnahmebestätigungen
 
-Im Control Center unter *Zeugnisfunktion* die Bestätigungen **freigeben**: Schülerinnen und Schüler laden ihre PDF dann im Profil herunter. Unter **Kurse & Konten → Zeugnisse (ZIP)** lädt die Lehrkraft alle Bestätigungen eines Kurses auf einmal herunter.
+Im Control Center unter *Zeugnisfunktion* die Bestätigungen **freigeben**: Schülerinnen und Schüler laden ihre PDF dann im Profil herunter. Unter **Kurse & Konten** lädt die Lehrkraft alle Bestätigungen eines Kurses auf einmal herunter – als **ZIP**, als **eine PDF** oder direkt zum **Drucken**; ebenso die **Mitnehm-Pakete** der ganzen Klasse. Mit **beidseitig** beginnt beim Duplexdruck jede Person auf einem neuen Blatt.
 
-### Feedback einholen
+### Feedback einholen und bewerten
 
-**Leitstand → Feedback** startet eine Feedback-Runde; die Klasse kann danach einmal Rückmeldung geben. Die Antworten erscheinen auf derselben Seite.
+Unter **Leitstand → Feedback & Bewertung** gibt es zwei Wege:
+
+- **Bewertungsrunden** – strukturierte Bögen je Kurs. **Neue Runde** übernimmt die mitgelieferten Vorlagen für drei Teile, die einzeln an- und abschaltbar sind:
+  - **Selbsteinschätzung** – die Schülerinnen und Schüler schätzen ihre Arbeit ein.
+  - **Unterrichtsbewertung** – die Klasse bewertet den Unterricht, standardmäßig **anonym** (du siehst die Antworten ohne Namen).
+  - **Bewertung durch die Lehrkraft** – du bewertest jede Person, wahlweise nach denselben Kriterien wie die Selbsteinschätzung (direkter Vergleich) oder nach eigenen.
+
+  Je Runde legst du fest, ob die Klasse deine Bewertung **nicht**, **sofort** oder **erst nach der eigenen Selbsteinschätzung** sieht (so bleibt die Selbsteinschätzung unbeeinflusst), ob abgeschickte Bögen bis zum Schluss geändert werden dürfen und optional eine Frist. Eine neue Runde ist ein **Entwurf**; erst **Öffnen** macht sie unter *Feedback* sichtbar, **Schließen** lässt nur noch lesen. Unter **Schüler bewerten** gehst du die Klasse mit „Speichern & weiter“ durch; die Selbsteinschätzung steht jeweils unter deiner Bewertung. Die **Auswertung** zeigt Verteilungen, Mittelwerte, Freitexte und je Person Selbst- und Fremdbild (große Abweichungen sind markiert); beides lässt sich als CSV herunterladen. Als **PDF** gibt es den Bogen jeder Person (in der Klassenliste oder beim Bewerten), die Klassenauswertung und oben in der Runde alles auf einmal – als **ZIP**, als **eine PDF** oder direkt zum **Drucken** – praktisch für Elterngespräche oder die Akte, bevor der Kurs beendet wird. Schülerinnen und Schüler laden ihren eigenen Bogen ebenfalls als PDF; deine Bewertung steht darin nur, wenn sie für sie sichtbar ist.
+- **Vorlagen** – eigene Bögen bauen: Skalen (Zahlen, Beschriftung je Stufe oder Sterne), Einfach- und Mehrfachauswahl, Ja/Nein, Freitext, Zwischenüberschriften, Pflichtfragen, Vorschau. Kriterien mit gleicher ID in Selbsteinschätzung und Lehrerbewertung werden verglichen. Vorlagen gehen beim **Import & Export** mit, Runden und Antworten nicht.
+- **Nachrichten** – die freie Feedback-Nachricht wie bisher: Runde starten, jede Person kann einmal schreiben.
 
 ### Mitnehm-Paket
 

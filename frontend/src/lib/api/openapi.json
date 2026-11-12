@@ -362,7 +362,7 @@
     },
     "/api/admin/content/export" : {
       "get" : {
-        "operationId" : "export_1",
+        "operationId" : "export_2",
         "responses" : {
           "200" : {
             "content" : {
@@ -1056,6 +1056,29 @@
             "type" : "integer",
             "format" : "int64"
           }
+        }, {
+          "in" : "query",
+          "name" : "format",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "duplex",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
         } ],
         "responses" : {
           "200" : {
@@ -1129,6 +1152,593 @@
           }
         },
         "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/courses/{id}/take-home" : {
+      "get" : {
+        "operationId" : "courseTakeHome",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "format",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "duplex",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds" : {
+      "get" : {
+        "operationId" : "rounds",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RoundAdmin"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      },
+      "post" : {
+        "operationId" : "createRound",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RoundRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoundAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}" : {
+      "delete" : {
+        "operationId" : "deleteRound",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      },
+      "get" : {
+        "operationId" : "round",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoundAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateRound",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RoundRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoundAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/export" : {
+      "get" : {
+        "operationId" : "export_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "format",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "duplex",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/export.zip" : {
+      "get" : {
+        "operationId" : "classZip",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/results" : {
+      "get" : {
+        "operationId" : "results",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoundResults"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/status" : {
+      "put" : {
+        "operationId" : "status",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "status",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoundAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/students/{userId}" : {
+      "get" : {
+        "operationId" : "student",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StudentEvaluation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      },
+      "put" : {
+        "operationId" : "rate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EvaluationAnswers"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StudentEvaluation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/students/{userId}/pdf" : {
+      "get" : {
+        "operationId" : "studentPdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/summary.pdf" : {
+      "get" : {
+        "operationId" : "summaryPdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/templates" : {
+      "get" : {
+        "operationId" : "templates",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TemplateView"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      },
+      "post" : {
+        "operationId" : "createTemplate",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TemplateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TemplateView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/templates/{id}" : {
+      "delete" : {
+        "operationId" : "deleteTemplate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateTemplate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TemplateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TemplateView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
       }
     },
     "/api/admin/feedback" : {
@@ -3216,7 +3826,7 @@
     },
     "/api/admin/worksheets/{id}/pdf" : {
       "get" : {
-        "operationId" : "pdf",
+        "operationId" : "pdf_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -3539,6 +4149,164 @@
           }
         },
         "tags" : [ "report-controller" ]
+      }
+    },
+    "/api/evaluations" : {
+      "get" : {
+        "operationId" : "mine_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/MyRound"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-controller" ]
+      }
+    },
+    "/api/evaluations/{id}" : {
+      "get" : {
+        "operationId" : "round_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MyRoundDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-controller" ]
+      }
+    },
+    "/api/evaluations/{id}/lesson" : {
+      "put" : {
+        "operationId" : "lesson",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EvaluationAnswers"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MyRoundDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-controller" ]
+      }
+    },
+    "/api/evaluations/{id}/pdf" : {
+      "get" : {
+        "operationId" : "pdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-controller" ]
+      }
+    },
+    "/api/evaluations/{id}/self" : {
+      "put" : {
+        "operationId" : "self",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EvaluationAnswers"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MyRoundDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-controller" ]
       }
     },
     "/api/events" : {
@@ -4813,6 +5581,22 @@
         },
         "required" : [ "edgeKey", "fromId", "fromLabel", "matchedCount", "pathSlug", "pathTitle", "rule", "toId", "toLabel", "totalEvaluated" ]
       },
+      "Bucket" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "count", "label", "value" ]
+      },
       "Candidate" : {
         "type" : "object",
         "properties" : {
@@ -5017,6 +5801,28 @@
         },
         "required" : [ "achieved", "career", "icon", "max", "moduleSlug", "moduleTitle", "percent" ]
       },
+      "Counts" : {
+        "type" : "object",
+        "properties" : {
+          "lesson" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "self" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "students" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "teacher" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "lesson", "self", "students", "teacher" ]
+      },
       "CoursePathActionRequest" : {
         "type" : "object",
         "properties" : {
@@ -5127,6 +5933,42 @@
         },
         "required" : [ "id", "label", "points" ]
       },
+      "CriterionStats" : {
+        "type" : "object",
+        "properties" : {
+          "answered" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "average" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "distribution" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Bucket"
+            }
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "texts" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TextAnswer"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "HEADING", "SCALE", "CHOICE", "YES_NO", "TEXT" ]
+          }
+        },
+        "required" : [ "answered", "average", "distribution", "id", "label", "texts", "type" ]
+      },
       "DeleteImpact" : {
         "type" : "object",
         "properties" : {
@@ -5227,6 +6069,74 @@
           }
         },
         "required" : [ "failedAttemptsThreshold", "hintsThreshold", "rule", "scoreThreshold", "task" ]
+      },
+      "EvaluationAnswers" : {
+        "type" : "object",
+        "properties" : {
+          "answers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          }
+        },
+        "required" : [ "answers" ]
+      },
+      "EvaluationCriterion" : {
+        "type" : "object",
+        "properties" : {
+          "help" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "labels" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "max" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "maxLabel" : {
+            "type" : "string"
+          },
+          "maxLength" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "min" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "minLabel" : {
+            "type" : "string"
+          },
+          "multiple" : {
+            "type" : "boolean"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "required" : {
+            "type" : "boolean"
+          },
+          "style" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "HEADING", "SCALE", "CHOICE", "YES_NO", "TEXT" ]
+          }
+        },
+        "required" : [ "help", "id", "label", "labels", "max", "maxLabel", "maxLength", "min", "minLabel", "multiple", "options", "required", "style", "type" ]
       },
       "GateProgress" : {
         "type" : "object",
@@ -5891,6 +6801,115 @@
           }
         }
       },
+      "MyPart" : {
+        "type" : "object",
+        "properties" : {
+          "answers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "canEdit" : {
+            "type" : "boolean"
+          },
+          "criteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "submittedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "answers", "canEdit", "criteria", "submittedAt" ]
+      },
+      "MyRound" : {
+        "type" : "object",
+        "properties" : {
+          "acceptingAnswers" : {
+            "type" : "boolean"
+          },
+          "closesAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "hasLesson" : {
+            "type" : "boolean"
+          },
+          "hasSelf" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "lessonDone" : {
+            "type" : "boolean"
+          },
+          "selfDone" : {
+            "type" : "boolean"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "DRAFT", "OPEN", "CLOSED" ]
+          },
+          "teacherState" : {
+            "type" : "string",
+            "enum" : [ "NONE", "HIDDEN", "AFTER_SELF", "PENDING", "VISIBLE" ]
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "acceptingAnswers", "closesAt", "hasLesson", "hasSelf", "id", "lessonDone", "selfDone", "status", "teacherState", "title" ]
+      },
+      "MyRoundDetail" : {
+        "type" : "object",
+        "properties" : {
+          "acceptingAnswers" : {
+            "type" : "boolean"
+          },
+          "allowEdit" : {
+            "type" : "boolean"
+          },
+          "closesAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "intro" : {
+            "type" : "string"
+          },
+          "lesson" : {
+            "$ref" : "#/components/schemas/MyPart"
+          },
+          "lessonAnonymous" : {
+            "type" : "boolean"
+          },
+          "self" : {
+            "$ref" : "#/components/schemas/MyPart"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "DRAFT", "OPEN", "CLOSED" ]
+          },
+          "teacher" : {
+            "$ref" : "#/components/schemas/MyPart"
+          },
+          "teacherState" : {
+            "type" : "string",
+            "enum" : [ "NONE", "HIDDEN", "AFTER_SELF", "PENDING", "VISIBLE" ]
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "acceptingAnswers", "allowEdit", "closesAt", "id", "intro", "lesson", "lessonAnonymous", "self", "status", "teacher", "teacherState", "title" ]
+      },
       "NavLink" : {
         "type" : "object",
         "properties" : {
@@ -6166,6 +7185,22 @@
           }
         },
         "required" : [ "changed", "description", "id", "published", "showInNav", "slug", "title", "updatedAt", "visibility" ]
+      },
+      "PartStats" : {
+        "type" : "object",
+        "properties" : {
+          "criteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CriterionStats"
+            }
+          },
+          "responses" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "criteria", "responses" ]
       },
       "PathAdmin" : {
         "type" : "object",
@@ -6783,6 +7818,159 @@
           }
         }
       },
+      "RoundAdmin" : {
+        "type" : "object",
+        "properties" : {
+          "acceptingAnswers" : {
+            "type" : "boolean"
+          },
+          "allowEdit" : {
+            "type" : "boolean"
+          },
+          "closesAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "counts" : {
+            "$ref" : "#/components/schemas/Counts"
+          },
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "intro" : {
+            "type" : "string"
+          },
+          "lessonAnonymous" : {
+            "type" : "boolean"
+          },
+          "lessonCriteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "selfCriteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "DRAFT", "OPEN", "CLOSED" ]
+          },
+          "teacherCriteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "teacherUsesSelfCriteria" : {
+            "type" : "boolean"
+          },
+          "teacherVisibility" : {
+            "type" : "string",
+            "enum" : [ "HIDDEN", "VISIBLE", "AFTER_SELF" ]
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "acceptingAnswers", "allowEdit", "closesAt", "counts", "courseId", "courseName", "createdAt", "id", "intro", "lessonAnonymous", "lessonCriteria", "selfCriteria", "status", "teacherCriteria", "teacherUsesSelfCriteria", "teacherVisibility", "title" ]
+      },
+      "RoundRequest" : {
+        "type" : "object",
+        "properties" : {
+          "allowEdit" : {
+            "type" : "boolean"
+          },
+          "closesAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "intro" : {
+            "type" : "string"
+          },
+          "lessonAnonymous" : {
+            "type" : "boolean"
+          },
+          "lessonCriteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "selfCriteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "teacherCriteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "teacherUsesSelfCriteria" : {
+            "type" : "boolean"
+          },
+          "teacherVisibility" : {
+            "type" : "string",
+            "enum" : [ "HIDDEN", "VISIBLE", "AFTER_SELF" ]
+          },
+          "title" : {
+            "type" : "string"
+          }
+        }
+      },
+      "RoundResults" : {
+        "type" : "object",
+        "properties" : {
+          "lesson" : {
+            "$ref" : "#/components/schemas/PartStats"
+          },
+          "lessonAnswers" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "additionalProperties" : { }
+            }
+          },
+          "round" : {
+            "$ref" : "#/components/schemas/RoundAdmin"
+          },
+          "self" : {
+            "$ref" : "#/components/schemas/PartStats"
+          },
+          "students" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StudentRow"
+            }
+          },
+          "teacher" : {
+            "$ref" : "#/components/schemas/PartStats"
+          }
+        },
+        "required" : [ "lesson", "lessonAnswers", "round", "self", "students", "teacher" ]
+      },
       "RunSolutionRequest" : {
         "type" : "object",
         "properties" : {
@@ -6971,6 +8159,66 @@
         },
         "required" : [ "chosenAt", "chosenBy", "chosenLabel", "chosenTo", "nodeId", "nodeLabel", "options", "pathSlug", "pathTitle", "state", "subpath" ]
       },
+      "StudentEvaluation" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "lessonAnswers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "lessonCriteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "lessonSubmitted" : {
+            "type" : "boolean"
+          },
+          "selfAnswers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "selfCriteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "selfSubmittedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "teacherAnswers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "teacherCriteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "teacherRatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "teacherRatedBy" : {
+            "type" : "string"
+          },
+          "userId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "displayName", "lessonAnswers", "lessonCriteria", "lessonSubmitted", "selfAnswers", "selfCriteria", "selfSubmittedAt", "teacherAnswers", "teacherCriteria", "teacherRatedAt", "teacherRatedBy", "userId", "username" ]
+      },
       "StudentOverrideEntry" : {
         "type" : "object",
         "properties" : {
@@ -7068,6 +8316,53 @@
           }
         },
         "required" : [ "branches", "choices", "overrides", "paths", "selectedSlug", "view" ]
+      },
+      "StudentRow" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "lessonAnswers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "lessonSubmitted" : {
+            "type" : "boolean"
+          },
+          "selfAnswers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "selfScore" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "selfSubmittedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "teacherAnswers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "teacherRatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "teacherScore" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "userId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "displayName", "lessonAnswers", "lessonSubmitted", "selfAnswers", "selfScore", "selfSubmittedAt", "teacherAnswers", "teacherRatedAt", "teacherScore", "userId", "username" ]
       },
       "StudentTask" : {
         "type" : "object",
@@ -7669,6 +8964,60 @@
         },
         "required" : [ "comment", "reviewer", "scores", "submittedAt", "total" ]
       },
+      "TemplateRequest" : {
+        "type" : "object",
+        "properties" : {
+          "criteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "SELF", "LESSON", "TEACHER" ]
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TemplateView" : {
+        "type" : "object",
+        "properties" : {
+          "criteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EvaluationCriterion"
+            }
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "SELF", "LESSON", "TEACHER" ]
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "criteria", "description", "id", "kind", "name", "slug", "updatedAt" ]
+      },
       "TestOutput" : {
         "type" : "object",
         "properties" : {
@@ -7683,6 +9032,18 @@
           }
         },
         "required" : [ "status", "stderr", "stdout" ]
+      },
+      "TextAnswer" : {
+        "type" : "object",
+        "properties" : {
+          "author" : {
+            "type" : "string"
+          },
+          "text" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "author", "text" ]
       },
       "TransferItem" : {
         "type" : "object",
