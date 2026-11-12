@@ -30,8 +30,12 @@ public class TakeHomeRenderer {
         }
     }
 
+    /** task null = Notiz zum ganzen Modul; text in Markdown */
+    public record JournalNote(String module, String task, String text) {
+    }
+
     public record TakeHome(String name, String courseName, LocalDate date, ReportService.Compass compass,
-                           List<ModuleBlock> modules, List<CodeBlock> code, List<Link> links) {
+                           List<ModuleBlock> modules, List<CodeBlock> code, List<Link> links, List<JournalNote> journal) {
     }
 
     private static final Color NAVY = new Color(15, 23, 42);
@@ -64,6 +68,7 @@ public class TakeHomeRenderer {
             header(document, data);
             compass(document, data.compass());
             results(document, data.modules());
+            journal(document, data.journal());
             code(document, data.code());
             links(document, data.links());
 
@@ -149,6 +154,74 @@ public class TakeHomeRenderer {
             }
             document.add(table);
         }
+    }
+
+    /** Eigene Notizen; Markdown wird lesbar dargestellt (Überschriften, Listen, fett, Code). */
+    private void journal(Document document, List<JournalNote> notes) {
+        if (notes == null || notes.isEmpty()) return;
+        section(document, "MEIN LERNTAGEBUCH");
+        String module = null;
+        for (JournalNote note : notes) {
+            if (!note.module().equals(module)) {
+                module = note.module();
+                Paragraph title = PdfFonts.paragraph(module, PdfFonts.font(PdfFonts.BOLD, 10, NAVY));
+                title.setSpacingBefore(8);
+                title.setSpacingAfter(2);
+                document.add(title);
+            }
+            if (note.task() != null) {
+                Paragraph task = PdfFonts.paragraph("Zur Aufgabe „" + note.task() + "“", PdfFonts.font(PdfFonts.ITALIC, 9, MUTED));
+                task.setSpacingBefore(4);
+                document.add(task);
+            }
+            for (Element e : markdown(note.text())) document.add(e);
+        }
+    }
+
+    /** Sehr einfaches Markdown: # Überschrift, - / 1. Listen, **fett**, *kursiv*, `Code`, Rest als Absatz. */
+    static List<Element> markdown(String text) {
+        List<Element> out = new java.util.ArrayList<>();
+        boolean code = false;
+        for (String raw : text.replace("\r", "").split("\n")) {
+            String line = raw.stripTrailing();
+            if (line.strip().startsWith("```")) {
+                code = !code;
+                continue;
+            }
+            if (code) {
+                Paragraph p = PdfFonts.paragraph(line.isEmpty() ? " " : line, PdfFonts.mono(8, NAVY));
+                p.setIndentationLeft(10);
+                out.add(p);
+                continue;
+            }
+            if (line.isBlank()) continue;
+            Paragraph p;
+            java.util.regex.Matcher heading = java.util.regex.Pattern.compile("^#{1,6}\\s+(.*)$").matcher(line);
+            java.util.regex.Matcher bullet = java.util.regex.Pattern.compile("^\\s*[-*+]\\s+(.*)$").matcher(line);
+            java.util.regex.Matcher number = java.util.regex.Pattern.compile("^\\s*(\\d+)[.)]\\s+(.*)$").matcher(line);
+            if (heading.matches()) {
+                p = PdfFonts.paragraph(inline(heading.group(1)), PdfFonts.font(PdfFonts.BOLD, 9.5f, NAVY));
+                p.setSpacingBefore(4);
+            } else if (bullet.matches()) {
+                p = PdfFonts.paragraph("•  " + inline(bullet.group(1)), PdfFonts.font(PdfFonts.NORMAL, 9, NAVY));
+                p.setIndentationLeft(10);
+            } else if (number.matches()) {
+                p = PdfFonts.paragraph(number.group(1) + ".  " + inline(number.group(2)), PdfFonts.font(PdfFonts.NORMAL, 9, NAVY));
+                p.setIndentationLeft(10);
+            } else {
+                p = PdfFonts.paragraph(inline(line.startsWith("> ") ? line.substring(2) : line), PdfFonts.font(PdfFonts.NORMAL, 9, NAVY));
+            }
+            p.setSpacingAfter(2);
+            out.add(p);
+        }
+        return out;
+    }
+
+    /** Auszeichnungen entfernen, Linktext behalten. */
+    static String inline(String text) {
+        return text.replaceAll("\\*\\*(.+?)\\*\\*", "$1").replaceAll("__(.+?)__", "$1")
+                .replaceAll("(?<![\\w*])\\*(?!\\s)(.+?)(?<!\\s)\\*", "$1").replaceAll("`([^`]+)`", "$1")
+                .replaceAll("\\[([^]]+)]\\(([^)]+)\\)", "$1 ($2)");
     }
 
     private void code(Document document, List<CodeBlock> blocks) {

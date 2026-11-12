@@ -1044,6 +1044,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/journal/shared': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['shared'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/knowledge': {
 		parameters: {
 			query?: never;
@@ -1181,6 +1197,22 @@ export interface paths {
 		};
 		get?: never;
 		put: operations['deadline'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/modules/{id}/journal-prompts': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['prompts'];
+		put: operations['setPrompts'];
 		post?: never;
 		delete?: never;
 		options?: never;
@@ -2388,6 +2420,54 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/journal': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['all_4'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/journal/modules/{slug}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['module'];
+		put: operations['save'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/journal/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		delete: operations['delete_7'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/knowledge': {
 		parameters: {
 			query?: never;
@@ -2587,7 +2667,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['module'];
+		get: operations['module_1'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -3306,6 +3386,19 @@ export interface components {
 			/** Format: int32 */
 			versionsPublished: number;
 		};
+		JournalEntryView: {
+			/** Format: int64 */
+			id: number;
+			moduleIcon: string;
+			moduleSlug: string;
+			moduleTitle: string;
+			shared: boolean;
+			taskSlug: string;
+			taskTitle: string;
+			text: string;
+			/** Format: date-time */
+			updatedAt: string;
+		};
 		JsonNode: {
 			array: boolean;
 			bigDecimal: boolean;
@@ -3406,6 +3499,14 @@ export interface components {
 			/** Format: int32 */
 			sortOrder: number;
 			title: string;
+		};
+		ModuleJournal: {
+			entries: components['schemas']['JournalEntryView'][];
+			/** Format: int32 */
+			maxChars: number;
+			moduleSlug: string;
+			moduleTitle: string;
+			prompts: string[];
 		};
 		ModuleReleaseView: {
 			/** Format: int32 */
@@ -3750,6 +3851,9 @@ export interface components {
 			name: string;
 			restartLeaderboard?: boolean;
 		};
+		PromptsRequest: {
+			prompts?: string;
+		};
 		PublicPage: {
 			content: components['schemas']['JsonNode'];
 			slug: string;
@@ -3925,6 +4029,11 @@ export interface components {
 				[key: string]: unknown;
 			}[];
 		};
+		SaveRequest: {
+			shared?: boolean;
+			taskSlug?: string;
+			text?: string;
+		};
 		ScoreRequest: {
 			comment?: string;
 			scores?: {
@@ -3951,6 +4060,11 @@ export interface components {
 		SettingsRequest: {
 			onCertificate?: boolean;
 			visibleToStudents?: boolean;
+		};
+		SharedEntry: {
+			displayName: string;
+			entry: components['schemas']['JournalEntryView'];
+			username: string;
 		};
 		SolutionRun: {
 			available: boolean;
@@ -6364,6 +6478,29 @@ export interface operations {
 			};
 		};
 	};
+	shared: {
+		parameters: {
+			query?: {
+				courseId?: number;
+				username?: string;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['SharedEntry'][];
+				};
+			};
+		};
+	};
 	all_2: {
 		parameters: {
 			query?: never;
@@ -6658,6 +6795,58 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content?: never;
+			};
+		};
+	};
+	prompts: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': {
+						[key: string]: string[];
+					};
+				};
+			};
+		};
+	};
+	setPrompts: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['PromptsRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': {
+						[key: string]: string[];
+					};
+				};
 			};
 		};
 	};
@@ -8595,6 +8784,94 @@ export interface operations {
 			};
 		};
 	};
+	all_4: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['JournalEntryView'][];
+				};
+			};
+		};
+	};
+	module: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ModuleJournal'];
+				};
+			};
+		};
+	};
+	save: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				slug: string;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['SaveRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['JournalEntryView'];
+				};
+			};
+		};
+	};
+	delete_7: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
 	list_1: {
 		parameters: {
 			query?: never;
@@ -9101,7 +9378,7 @@ export interface operations {
 			};
 		};
 	};
-	module: {
+	module_1: {
 		parameters: {
 			query?: never;
 			header?: never;

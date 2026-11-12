@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { auth } from '$lib/auth.svelte';
+	import JournalPanel from '$lib/journal/JournalPanel.svelte';
 	import PathIcon from '$lib/pathway/PathIcon.svelte';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
@@ -144,5 +146,8 @@
 				</li>
 			{/each}
 		</ol>
+	{/if}
+	{#if detail?.module && auth.user && auth.user.role !== 'ADMIN'}
+		<div class="mt-10"><JournalPanel moduleSlug={slug} /></div>
 	{/if}
 </div>

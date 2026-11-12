@@ -204,6 +204,10 @@ Unter **Leitstand → Feedback & Bewertung** gibt es zwei Wege:
 
 Im Profil laden Schülerinnen und Schüler ihr **Mitnehm-Paket** als PDF herunter: Ergebnisse je Aufgabe, eigener Code (letzte Abgabe bei Python-, SQL-, Terminal- und Praxisaufgaben), **Berufe-Kompass** und Links zum Weiterlernen. Das PDF entsteht beim Herunterladen und wird nicht gespeichert – auch nicht im Protokoll. Die Klasse vor dem Kursende daran erinnern.
 
+### Lerntagebuch
+
+Auf jeder Modul- und Aufgabenseite klappen Schülerinnen und Schüler **Mein Lerntagebuch** auf: private Notizen (Merksätze, offene Fragen) mit einfachem Markdown, automatisch gespeichert, höchstens 10.000 Zeichen je Modul. Im Profil stehen alle Einträge auf einen Blick, und das eigene **Mitnehm-Paket** enthält sie als Abschnitt „Mein Lerntagebuch“. **Du siehst die Notizen nicht** – auch nicht in den Mitnehm-Paketen, die du für die Klasse herunterlädst. Nur Einträge, die jemand ausdrücklich *mit der Lehrkraft teilt* (z. B. als Frage), erscheinen in der Schülerakte. Unter **Modul-Steuerung → Leitfragen fürs Lerntagebuch** gibst du je Modul Fragen vor, etwa „Was hast du heute gelernt?“ und „Was ist noch unklar?“. Beim Beenden des Kurses werden die Notizen gelöscht.
+
 Der **Berufe-Kompass** ordnet jedem Modul ein Berufsfeld zu und zeigt die drei Felder, in denen jemand anteilig die meisten Punkte geholt hat. Berufsfeld und Links pflegt die Lehrkraft unter **Inhalte → Modul bearbeiten**.
 
 ### Anwesenheit

@@ -30,6 +30,7 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 | `help` | Stiller Hilfe-Ruf „Ich hänge fest“: Warteschlange für Lehrkräfte (`/api/help`, `/api/admin/help`), Statistik je Aufgabe |
 | `quiz` | Quiz-Runde am Beamer aus Auswahl-Aufgaben (`/api/quiz`, `/api/admin/quiz`), höchstens eine laufende Runde |
 | `attendance` | Anwesenheit je Kurs und Termin (`/api/admin/attendance`), Quote für Teilnahmebestätigung und Profil |
+| `journal` | Lerntagebuch: private Notizen je Modul/Aufgabe (`/api/journal`), Leitfragen, geteilte Einträge für die Lehrkraft |
 | `worksheet` | Aufgabenblätter der Lehrkraft als PDF (OpenPDF): Blöcke + Layout als JSON, Schülerfassung und Lösung (`/api/admin/worksheets`) |
 
 `ArchitectureTest` erzwingt: Repositories nur im eigenen Paket, keine Zyklen, `engine` hängt von keinem Fachpaket ab.
@@ -102,6 +103,10 @@ Paket `evaluation`. `evaluation_templates` (Kriterien als JSON, `kind` SELF/LESS
 ## Freigaben pro Person
 
 `user_releases` (V38: `user_id`, genau eins von `module_id`/`task_id`, `mode` SHOWN/HIDDEN, `available_until`, `bonus`; mit dem Konto gelöscht). `AccessPolicy.Releases` wertet in dieser Rangfolge aus: Aufgabe der Person → Modul der Person → Aufgabe im Kurs → Modul im Kurs; eine Freigabe der Person gilt auch vor dem `PathGate`. `courseReleases(user)` enthält die Freigaben der Person, damit auch der CodePath-Status (AVAILABLE/LOCKED) sie berücksichtigt; `forCourse(courseId)` (Modul-Steuerung, Lehrkraftsicht) nicht. `UserReleaseService` (`POST /api/admin/user-releases` für mehrere Personen, `GET/DELETE /api/admin/students/{u}/releases`, `GET /api/admin/modules/{id}/user-releases?courseId=`), Audit `USER_RELEASE_SET`. Bonus: `LeaderboardService` zieht Punkte aus Aufgaben ab, die die Person nur als Bonus hat (`UserReleaseService.bonusTasks`); `TaskSummary.personal`/`bonus` für die Kennzeichnung. Frontend: `lib/components/UserReleases.svelte` (Schülerakte und Modul-Steuerung).
+
+## Lerntagebuch
+
+Paket `journal` (V40): `journal_entries` (Person, Modul, optional Aufgabe, Markdown-Text, `shared`; eindeutig je Person+Modul bzw. Person+Aufgabe) und `journal_prompts` (Leitfragen je Modul). Lesen und Schreiben nur für die eigene Person und nur in sichtbaren Modulen/Aufgaben (`AccessPolicy`), höchstens 10.000 Zeichen je Modul, leerer Text löscht (204), kein Audit-Eintrag. Die Lehrkraft sieht nur `shared` Einträge (`GET /api/admin/journal/shared?courseId|username`). `TakeHomeService.collect(user, withJournal)`: der eigene Download enthält „Mein Lerntagebuch“ (Markdown vereinfacht in `TakeHomeRenderer.markdown`), der Sammel-Export der Lehrkraft nicht. Frontend: `lib/journal/` (`JournalPanel` mit Autospeichern und lokalem Entwurf, `JournalOverview` im Profil, `JournalPrompts` in der Modul-Steuerung, `SharedJournal` in der Schülerakte).
 
 ## Anwesenheit
 

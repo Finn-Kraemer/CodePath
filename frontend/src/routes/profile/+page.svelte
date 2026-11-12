@@ -4,6 +4,7 @@
 	import { api, type Compass } from '$lib/api';
 	import CompassCard from '$lib/report/CompassCard.svelte';
 	import AttendanceSummary from '$lib/components/AttendanceSummary.svelte';
+	import JournalOverview from '$lib/journal/JournalOverview.svelte';
 
 	interface Profile {
 		username: string;
@@ -165,7 +166,10 @@
 
 			{#if compass}
 				<CompassCard {compass} />
+			{/if}
+			{#if auth.user?.role !== 'ADMIN'}
 				<AttendanceSummary />
+				<JournalOverview />
 			{/if}
 
 			<!-- Mitnehm-Paket -->

@@ -2387,6 +2387,43 @@
         "tags" : [ "homepage-controller" ]
       }
     },
+    "/api/admin/journal/shared" : {
+      "get" : {
+        "operationId" : "shared",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "username",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SharedEntry"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "journal-controller" ]
+      }
+    },
     "/api/admin/knowledge" : {
       "get" : {
         "operationId" : "all_2",
@@ -2731,6 +2768,80 @@
           }
         },
         "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/modules/{id}/journal-prompts" : {
+      "get" : {
+        "operationId" : "prompts",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "journal-controller" ]
+      },
+      "put" : {
+        "operationId" : "setPrompts",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PromptsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "journal-controller" ]
       }
     },
     "/api/admin/modules/{id}/tasks" : {
@@ -5064,6 +5175,107 @@
         "tags" : [ "help-controller" ]
       }
     },
+    "/api/journal" : {
+      "get" : {
+        "operationId" : "all_4",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/JournalEntryView"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "journal-controller" ]
+      }
+    },
+    "/api/journal/modules/{slug}" : {
+      "get" : {
+        "operationId" : "module",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ModuleJournal"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "journal-controller" ]
+      },
+      "put" : {
+        "operationId" : "save",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "slug",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaveRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/JournalEntryView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "journal-controller" ]
+      }
+    },
+    "/api/journal/{id}" : {
+      "delete" : {
+        "operationId" : "delete_7",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "journal-controller" ]
+      }
+    },
     "/api/knowledge" : {
       "get" : {
         "operationId" : "list_1",
@@ -5578,7 +5790,7 @@
     },
     "/api/modules/{slug}" : {
       "get" : {
-        "operationId" : "module",
+        "operationId" : "module_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "slug",
@@ -7256,6 +7468,41 @@
         },
         "required" : [ "errors", "items", "modulesCreated", "tasksCreated", "unchanged", "versionsPublished" ]
       },
+      "JournalEntryView" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moduleIcon" : {
+            "type" : "string"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "shared" : {
+            "type" : "boolean"
+          },
+          "taskSlug" : {
+            "type" : "string"
+          },
+          "taskTitle" : {
+            "type" : "string"
+          },
+          "text" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "id", "moduleIcon", "moduleSlug", "moduleTitle", "shared", "taskSlug", "taskTitle", "text", "updatedAt" ]
+      },
       "JsonNode" : {
         "type" : "object",
         "properties" : {
@@ -7522,6 +7769,34 @@
           }
         },
         "required" : [ "career", "description", "icon", "learnMore", "slug", "sortOrder", "title" ]
+      },
+      "ModuleJournal" : {
+        "type" : "object",
+        "properties" : {
+          "entries" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/JournalEntryView"
+            }
+          },
+          "maxChars" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "prompts" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "entries", "maxChars", "moduleSlug", "moduleTitle", "prompts" ]
       },
       "ModuleReleaseView" : {
         "type" : "object",
@@ -8388,6 +8663,14 @@
         },
         "required" : [ "name" ]
       },
+      "PromptsRequest" : {
+        "type" : "object",
+        "properties" : {
+          "prompts" : {
+            "type" : "string"
+          }
+        }
+      },
       "PublicPage" : {
         "type" : "object",
         "properties" : {
@@ -8882,6 +9165,20 @@
           }
         }
       },
+      "SaveRequest" : {
+        "type" : "object",
+        "properties" : {
+          "shared" : {
+            "type" : "boolean"
+          },
+          "taskSlug" : {
+            "type" : "string"
+          },
+          "text" : {
+            "type" : "string"
+          }
+        }
+      },
       "ScoreRequest" : {
         "type" : "object",
         "properties" : {
@@ -8953,6 +9250,21 @@
             "type" : "boolean"
           }
         }
+      },
+      "SharedEntry" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "entry" : {
+            "$ref" : "#/components/schemas/JournalEntryView"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "displayName", "entry", "username" ]
       },
       "SolutionRun" : {
         "type" : "object",
