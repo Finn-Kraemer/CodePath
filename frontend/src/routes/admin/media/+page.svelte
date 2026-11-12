@@ -9,7 +9,7 @@
 	} from '$lib/api';
 	import { formatBytes, mediaKinds, mediaUrl, uploadMedia } from '$lib/media';
 
-	type Filter = 'ALL' | 'USED' | 'UNUSED' | 'TASK' | 'HOMEPAGE' | 'PAGE' | 'KNOWLEDGE';
+	type Filter = 'ALL' | 'USED' | 'UNUSED' | keyof typeof mediaKinds;
 	type Sort = 'NEWEST' | 'OLDEST' | 'LARGEST' | 'NAME';
 
 	let items = $state<MediaLibraryItem[]>([]);

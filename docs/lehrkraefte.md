@@ -223,9 +223,31 @@ In der Modulliste unter *Neue Aufgabe* Titel, Slug (Kurzname für die Adresse, z
 
 Gelöschte mitgelieferte Aufgaben kommen auch bei Updates nicht wieder – außer über einen bewussten ZIP-Import.
 
+### Aufgabenblätter als PDF
+
+**Leitstand → Inhalte → Aufgabenblätter.** Arbeitsblätter, Hausaufgaben, Übungen und Lernkontrollen zum Ausdrucken oder zum Verschicken (z. B. über die Schulplattform). Titel eingeben, *Anlegen* – das neue Blatt startet mit einer Beispielaufgabe. Links baust du das Blatt aus Blöcken zusammen, rechts zeigt eine **Live-Vorschau** das fertige PDF, umschaltbar zwischen **Schülerblatt** und **Lösung**.
+
+**Blöcke für Aufgaben** (automatisch nummeriert, mit Punkten):
+
+| Block | Im Schülerblatt | In der Lösung |
+|---|---|---|
+| Freie Aufgabe | Arbeitsauftrag mit Linien, leerem Kasten oder Kästchenpapier (Höhe in Zeilen), optional Teilaufgaben a), b), … | Musterlösung rot im Antwortfeld |
+| Ankreuzen | Antworten mit Kästchen, in 1–4 Spalten | richtige Antworten angekreuzt |
+| Lückentext | Lücken aus `[[Wort]]`, optional mit Wortspeicher (plus falsche Wörter) | Lückenwörter rot eingetragen |
+| Richtig / Falsch | Aussagen als Tabelle zum Ankreuzen | richtiges Kreuz je Aussage |
+| Zuordnen | Begriffe links, rechts gemischt mit Buchstaben | Buchstaben eingetragen |
+| Reihenfolge | Schritte gemischt, Kästchen zum Nummerieren | richtige Nummern |
+| Tabelle | Zellen mit `[[Antwort]]` bleiben leer; mit Arbeitsauftrag zählt sie als Aufgabe | Antworten in den Zellen |
+
+Dazu **Inhalt** (Überschrift, Text, Infokasten „Merke/Tipp/Achtung“, Code – auf Wunsch mit Lücken, Bild aus der Medienverwaltung) und **Layout** (Freiraum, Trennlinie, Seitenumbruch). In Texten gehen `**fett**`, `*kursiv*`, `` `Code` `` und Listen mit `- ` oder `1. `. Jeder Block kann **nur im Schülerblatt** oder **nur in der Lösung** erscheinen – praktisch für einen Erwartungshorizont. Seitenumbrüche, Trennlinien und Freiraum am Ende des Blatts oder direkt nach einem Umbruch werden weggelassen, damit keine leeren Seiten entstehen.
+
+**Kopf & Layout:** Vorlagen (Arbeitsblatt, Hausaufgabe, Übung mit Punkten, Lernkontrolle) setzen die üblichen Einstellungen auf einmal. Einstellbar sind Art des Blatts, Fach, Schule, Untertitel, Logo, Arbeitsanweisung, die Felder im Kopf (Name, Klasse, Datum, Punkte erreicht/gesamt, Note – Klasse und Datum auch vorausgefüllt), Nummerierung („Aufgabe“, „Nr.“ …), Punkte je Aufgabe, Papier (A4, A5, Letter; hoch oder quer), Ränder, Schrift und Schriftgröße, Linienabstand, Akzentfarbe, Fußzeile und Seitenzahlen.
+
+**Exportieren:** *PDF Schülerblatt* und *PDF Lösung* speichern das Blatt und laden die Datei herunter; in der Liste gibt es dieselben Knöpfe für jedes Blatt. Gemischte Reihenfolgen (Zuordnen, Reihenfolge) bleiben bei jedem Export gleich, Schülerblatt und Lösung passen also immer zusammen. *Kopieren* macht aus einem Blatt die Vorlage für das nächste. Aufgabenblätter sind nur für Lehrkräfte sichtbar und lassen sich über *Import & Export* sichern. Wie bei allen PDFs von CodePath gehen nur Zeichen, die die Standardschriften kennen (Umlaute ja, Emojis nein).
+
 ### Austausch und Sicherung
 
-**Leitstand → Import & Export** sichert Einstellungen, Startseite, Seiten, Wissensdatenbank, CodePaths sowie Module und Aufgaben (mit Bildern) in **einer** ZIP-Datei – alles oder nur ausgewählte Bereiche. Einzelne Bereiche und einzelne CodePaths lassen sich auch in ihren Editoren exportieren. Schülerdaten sind nie enthalten.
+**Leitstand → Import & Export** sichert Einstellungen, Startseite, Seiten, Wissensdatenbank, CodePaths, Aufgabenblätter sowie Module und Aufgaben (mit Bildern) in **einer** ZIP-Datei – alles oder nur ausgewählte Bereiche. Einzelne Bereiche und einzelne CodePaths lassen sich auch in ihren Editoren exportieren. Schülerdaten sind nie enthalten.
 
 Der **zentrale Import** erkennt die Datei selbst (CodePath-Export als ZIP oder JSON, oder ein Content-Paket) und zeigt danach für jeden Eintrag, ob er **angelegt**, **überarbeitet** (gab es schon) oder **unverändert** gelassen wurde – oder warum ein **Fehler** auftrat. Ein fehlerhafter Eintrag hält die übrigen nicht auf. Gleiche Adresse (Slug) heißt „derselbe Eintrag“; gelöscht wird nichts.
 

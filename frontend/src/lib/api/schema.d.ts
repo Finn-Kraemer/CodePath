@@ -27,9 +27,9 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['all_2'];
+		get: operations['all_3'];
 		put?: never;
-		post: operations['create_2'];
+		post: operations['create_3'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -60,9 +60,9 @@ export interface paths {
 			cookie?: never;
 		};
 		get: operations['get'];
-		put: operations['update_1'];
+		put: operations['update_2'];
 		post?: never;
-		delete: operations['delete_2'];
+		delete: operations['delete_3'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -286,7 +286,7 @@ export interface paths {
 		get: operations['task_1'];
 		put?: never;
 		post?: never;
-		delete: operations['delete_4'];
+		delete: operations['delete_5'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -363,7 +363,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['preview'];
+		get: operations['preview_1'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -699,9 +699,9 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['all_1'];
+		get: operations['all_2'];
 		put?: never;
-		post: operations['create_1'];
+		post: operations['create_2'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -732,9 +732,9 @@ export interface paths {
 			cookie?: never;
 		};
 		get?: never;
-		put: operations['update'];
+		put: operations['update_1'];
 		post?: never;
-		delete: operations['delete_1'];
+		delete: operations['delete_2'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -798,7 +798,7 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post?: never;
-		delete: operations['delete_3'];
+		delete: operations['delete_4'];
 		options?: never;
 		head?: never;
 		patch: operations['rename'];
@@ -891,9 +891,9 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['all'];
+		get: operations['all_1'];
 		put?: never;
-		post: operations['create'];
+		post: operations['create_1'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -923,10 +923,10 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['detail'];
+		get: operations['detail_1'];
 		put: operations['settings'];
 		post?: never;
-		delete: operations['delete'];
+		delete: operations['delete_1'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -1371,7 +1371,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['detail_1'];
+		get: operations['detail_2'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -1468,6 +1468,86 @@ export interface paths {
 			cookie?: never;
 		};
 		get: operations['sections'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/worksheets': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['all'];
+		put?: never;
+		post: operations['create'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/worksheets/preview': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['preview'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/worksheets/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['detail'];
+		put: operations['update'];
+		post?: never;
+		delete: operations['delete'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/worksheets/{id}/copy': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['duplicate'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/worksheets/{id}/pdf': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['pdf'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -3455,6 +3535,33 @@ export interface components {
 			/** Format: int32 */
 			version: number;
 		};
+		WorksheetDetail: {
+			content: components['schemas']['JsonNode'];
+			/** Format: int64 */
+			id: number;
+			title: string;
+			/** Format: date-time */
+			updatedAt: string;
+		};
+		WorksheetSummary: {
+			/** Format: int32 */
+			blocks: number;
+			/** Format: int64 */
+			id: number;
+			kind: string;
+			/** Format: double */
+			points: number;
+			subject: string;
+			/** Format: int32 */
+			tasks: number;
+			title: string;
+			/** Format: date-time */
+			updatedAt: string;
+		};
+		WorksheetUpdate: {
+			content: components['schemas']['JsonNode'];
+			title: string;
+		};
 	};
 	responses: never;
 	parameters: never;
@@ -3488,7 +3595,7 @@ export interface operations {
 			};
 		};
 	};
-	all_2: {
+	all_3: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -3508,7 +3615,7 @@ export interface operations {
 			};
 		};
 	};
-	create_2: {
+	create_3: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -3578,7 +3685,7 @@ export interface operations {
 			};
 		};
 	};
-	update_1: {
+	update_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -3604,7 +3711,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_2: {
+	delete_3: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -3959,7 +4066,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_4: {
+	delete_5: {
 		parameters: {
 			query: {
 				confirm: string;
@@ -4097,7 +4204,7 @@ export interface operations {
 			};
 		};
 	};
-	preview: {
+	preview_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4614,7 +4721,7 @@ export interface operations {
 			};
 		};
 	};
-	all_1: {
+	all_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4634,7 +4741,7 @@ export interface operations {
 			};
 		};
 	};
-	create_1: {
+	create_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4682,7 +4789,7 @@ export interface operations {
 			};
 		};
 	};
-	update: {
+	update_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4708,7 +4815,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_1: {
+	delete_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4815,7 +4922,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_3: {
+	delete_4: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4987,7 +5094,7 @@ export interface operations {
 			};
 		};
 	};
-	all: {
+	all_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -5007,7 +5114,7 @@ export interface operations {
 			};
 		};
 	};
-	create: {
+	create_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -5055,7 +5162,7 @@ export interface operations {
 			};
 		};
 	};
-	detail: {
+	detail_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -5103,7 +5210,7 @@ export interface operations {
 			};
 		};
 	};
-	delete: {
+	delete_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -5757,7 +5864,7 @@ export interface operations {
 			};
 		};
 	};
-	detail_1: {
+	detail_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -5919,6 +6026,193 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['SectionInfo'][];
+				};
+			};
+		};
+	};
+	all: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['WorksheetSummary'][];
+				};
+			};
+		};
+	};
+	create: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': {
+					[key: string]: string;
+				};
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['WorksheetSummary'];
+				};
+			};
+		};
+	};
+	preview: {
+		parameters: {
+			query?: {
+				variant?: string;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['WorksheetUpdate'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/pdf': string;
+				};
+			};
+		};
+	};
+	detail: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['WorksheetDetail'];
+				};
+			};
+		};
+	};
+	update: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['WorksheetUpdate'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['WorksheetDetail'];
+				};
+			};
+		};
+	};
+	delete: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	duplicate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['WorksheetSummary'];
+				};
+			};
+		};
+	};
+	pdf: {
+		parameters: {
+			query?: {
+				variant?: string;
+				download?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'application/pdf': string;
 				};
 			};
 		};

@@ -25,7 +25,8 @@ export const mediaKinds = {
 	TASK: 'Aufgaben',
 	HOMEPAGE: 'Startseite',
 	PAGE: 'Seiten',
-	KNOWLEDGE: 'Wissensdatenbank'
+	KNOWLEDGE: 'Wissensdatenbank',
+	WORKSHEET: 'Aufgabenblätter'
 } as const;
 
 export function formatBytes(bytes: number): string {

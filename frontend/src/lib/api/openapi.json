@@ -31,7 +31,7 @@
     },
     "/api/admin/codepaths" : {
       "get" : {
-        "operationId" : "all_2",
+        "operationId" : "all_3",
         "responses" : {
           "200" : {
             "content" : {
@@ -50,7 +50,7 @@
         "tags" : [ "code-path-controller" ]
       },
       "post" : {
-        "operationId" : "create_2",
+        "operationId" : "create_3",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -106,7 +106,7 @@
     },
     "/api/admin/codepaths/{id}" : {
       "delete" : {
-        "operationId" : "delete_2",
+        "operationId" : "delete_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -149,7 +149,7 @@
         "tags" : [ "code-path-controller" ]
       },
       "put" : {
-        "operationId" : "update_1",
+        "operationId" : "update_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -603,7 +603,7 @@
     },
     "/api/admin/content/tasks/{id}" : {
       "delete" : {
-        "operationId" : "delete_4",
+        "operationId" : "delete_5",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -805,7 +805,7 @@
     },
     "/api/admin/content/tasks/{id}/preview" : {
       "get" : {
-        "operationId" : "preview",
+        "operationId" : "preview_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1399,7 +1399,7 @@
     },
     "/api/admin/knowledge" : {
       "get" : {
-        "operationId" : "all_1",
+        "operationId" : "all_2",
         "responses" : {
           "200" : {
             "content" : {
@@ -1418,7 +1418,7 @@
         "tags" : [ "knowledge-controller" ]
       },
       "post" : {
-        "operationId" : "create_1",
+        "operationId" : "create_2",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1474,7 +1474,7 @@
     },
     "/api/admin/knowledge/{id}" : {
       "delete" : {
-        "operationId" : "delete_1",
+        "operationId" : "delete_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1492,7 +1492,7 @@
         "tags" : [ "knowledge-controller" ]
       },
       "put" : {
-        "operationId" : "update",
+        "operationId" : "update_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1621,7 +1621,7 @@
     },
     "/api/admin/media/{key}" : {
       "delete" : {
-        "operationId" : "delete_3",
+        "operationId" : "delete_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "key",
@@ -1871,7 +1871,7 @@
     },
     "/api/admin/pages" : {
       "get" : {
-        "operationId" : "all",
+        "operationId" : "all_1",
         "responses" : {
           "200" : {
             "content" : {
@@ -1890,7 +1890,7 @@
         "tags" : [ "page-controller" ]
       },
       "post" : {
-        "operationId" : "create",
+        "operationId" : "create_1",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1946,7 +1946,7 @@
     },
     "/api/admin/pages/{id}" : {
       "delete" : {
-        "operationId" : "delete",
+        "operationId" : "delete_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -1964,7 +1964,7 @@
         "tags" : [ "page-controller" ]
       },
       "get" : {
-        "operationId" : "detail",
+        "operationId" : "detail_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2801,7 +2801,7 @@
     },
     "/api/admin/submissions/{id}" : {
       "get" : {
-        "operationId" : "detail_1",
+        "operationId" : "detail_2",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -3017,6 +3017,245 @@
           }
         },
         "tags" : [ "transfer-controller" ]
+      }
+    },
+    "/api/admin/worksheets" : {
+      "get" : {
+        "operationId" : "all",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/WorksheetSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "worksheet-controller" ]
+      },
+      "post" : {
+        "operationId" : "create",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorksheetSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "worksheet-controller" ]
+      }
+    },
+    "/api/admin/worksheets/preview" : {
+      "post" : {
+        "operationId" : "preview",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "variant",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "student"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/WorksheetUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "worksheet-controller" ]
+      }
+    },
+    "/api/admin/worksheets/{id}" : {
+      "delete" : {
+        "operationId" : "delete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "worksheet-controller" ]
+      },
+      "get" : {
+        "operationId" : "detail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorksheetDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "worksheet-controller" ]
+      },
+      "put" : {
+        "operationId" : "update",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/WorksheetUpdate"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorksheetDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "worksheet-controller" ]
+      }
+    },
+    "/api/admin/worksheets/{id}/copy" : {
+      "post" : {
+        "operationId" : "duplicate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorksheetSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "worksheet-controller" ]
+      }
+    },
+    "/api/admin/worksheets/{id}/pdf" : {
+      "get" : {
+        "operationId" : "pdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "variant",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "student"
+          }
+        }, {
+          "in" : "query",
+          "name" : "download",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "worksheet-controller" ]
       }
     },
     "/api/auth/login" : {
@@ -7523,6 +7762,73 @@
           }
         },
         "required" : [ "createdBy", "id", "points", "publishedAt", "title", "version" ]
+      },
+      "WorksheetDetail" : {
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "content", "id", "title", "updatedAt" ]
+      },
+      "WorksheetSummary" : {
+        "type" : "object",
+        "properties" : {
+          "blocks" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "subject" : {
+            "type" : "string"
+          },
+          "tasks" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "blocks", "id", "kind", "points", "subject", "tasks", "title", "updatedAt" ]
+      },
+      "WorksheetUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "content", "title" ]
       }
     }
   }

@@ -7,7 +7,11 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ## Unveröffentlicht
 
 ### Neu
+- **Aufgabenblätter als PDF** (*Leitstand → Inhalte → Aufgabenblätter*): Arbeitsblätter, Hausaufgaben und Lernkontrollen aus Blöcken zusammenstellen – freie Aufgaben mit Linien, Kasten oder Kästchenpapier (auch mit Teilaufgaben), Ankreuzen, Lückentext mit Wortspeicher, Richtig/Falsch, Zuordnen, Reihenfolge, Tabellen zum Ausfüllen, Code (auch als Lückencode), Bilder, Infokästen, Überschriften, Freiraum und Seitenumbrüche. Kopf und Layout sind frei einstellbar (Art, Fach, Schule, Logo, Felder für Name/Klasse/Datum/Punkte/Note, Nummerierung, Papierformat und Ausrichtung, Ränder, Schrift, Linienabstand, Akzentfarbe, Fußzeile). Live-Vorschau im Editor; Export als PDF jeweils als Schülerblatt und als Lösung mit rot eingetragenen Antworten. Blätter lassen sich kopieren und über Import & Export sichern.
 - **Medienverwaltung** (*Leitstand → Website → Medien*): Alle hochgeladenen Bilder auf einen Blick – mit Vorschau, Größe, Maßen und Datum und der Angabe, wo jedes Bild verwendet wird (Aufgaben, auch frühere Versionen, Startseite, eigene Seiten, Wissensartikel), jeweils mit Link zum Editor. Suchen, nach Verwendung filtern, sortieren; mehrere Bilder auf einmal hochladen (auch per Drag & Drop), Bilder umbenennen, Markdown oder Adresse kopieren, unbenutzte Bilder einzeln oder alle auf einmal löschen. Die Bildauswahl in den Editoren verlinkt auf die Verwaltung.
+
+### Update
+- Migration V35 legt die Tabelle `worksheets` für Aufgabenblätter an. Bestehende Daten bleiben unverändert.
 
 ## 2.3.0
 
