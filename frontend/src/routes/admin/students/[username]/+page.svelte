@@ -6,6 +6,7 @@
 	import { auth } from '$lib/auth.svelte';
 	import PathMap from '$lib/pathway/PathMap.svelte';
 	import UserReleases from '$lib/components/UserReleases.svelte';
+	import AttendanceSummary from '$lib/components/AttendanceSummary.svelte';
 
 	type StudentPathAdminView = Schemas['StudentPathAdminView'];
 

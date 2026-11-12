@@ -17,7 +17,8 @@ public class ReportRenderer {
     public record ModuleResult(String title, int achieved, int max) {
     }
 
-    byte[] render(User user, String courseName, List<ModuleResult> results) {
+    /** @param attendance Zeile zur Anwesenheit oder null (abschaltbar, siehe AttendanceService) */
+    byte[] render(User user, String courseName, List<ModuleResult> results, String attendance) {
         Document document = new Document(PageSize.A4, 40, 40, 60, 60);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -75,6 +76,7 @@ public class ReportRenderer {
 
             addFormCell(userBox, "NAME", user.getDisplayName() != null ? user.getDisplayName() : user.getUsername(), navy, bgGray, borderGray);
             addFormCell(userBox, "BENUTZERNAME", "@" + user.getUsername(), navy, bgGray, borderGray);
+            if (attendance != null) addFormCell(userBox, "ANWESENHEIT", attendance.replaceFirst("^Anwesenheit: ", ""), navy, bgGray, borderGray);
             addFormCell(userBox, "DATUM", java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd. MMMM yyyy", java.util.Locale.GERMAN)), navy, bgGray, borderGray);
             
             document.add(userBox);

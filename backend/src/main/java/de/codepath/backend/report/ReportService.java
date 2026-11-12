@@ -1,5 +1,6 @@
 package de.codepath.backend.report;
 
+import de.codepath.backend.attendance.AttendanceService;
 import de.codepath.backend.classroom.AccessPolicy;
 import de.codepath.backend.content.ContentService;
 import de.codepath.backend.content.Module;
@@ -30,11 +31,12 @@ public class ReportService {
     private final UserService userService;
     private final CourseService courseService;
     private final AuditService auditService;
+    private final AttendanceService attendanceService;
     private final ReportRenderer renderer = new ReportRenderer();
 
     public byte[] certificate(User user) {
         Optional<Course> course = userService.courseOf(user.getId());
-        return renderer.render(user, course.map(Course::getName).orElse(null), results(user));
+        return renderer.render(user, course.map(Course::getName).orElse(null), results(user), attendanceService.certificateLine(user));
     }
 
     /** Ergebnis eines Moduls mit den Aufgaben, die die Person sieht. */
@@ -54,7 +56,8 @@ public class ReportService {
 
     public List<ModuleScore> scores(User user) {
         Optional<Course> course = userService.courseOf(user.getId());
-        AccessPolicy.Releases releases = course.map(c -> accessPolicy.forCourse(c.getId())).orElseGet(() -> accessPolicy.releases(user));
+        // Kursfreigaben samt Freigaben für diese Person (ohne CodePath-Sperren)
+        AccessPolicy.Releases releases = course.isPresent() ? accessPolicy.courseReleases(user) : accessPolicy.releases(user);
         Map<Long, Long> points = progressService.pointsByTask(user.getId());
         List<ModuleScore> results = new ArrayList<>();
         for (Module module : contentService.modules()) {

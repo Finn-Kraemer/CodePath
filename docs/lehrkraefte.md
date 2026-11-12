@@ -206,6 +206,12 @@ Im Profil laden Schülerinnen und Schüler ihr **Mitnehm-Paket** als PDF herunte
 
 Der **Berufe-Kompass** ordnet jedem Modul ein Berufsfeld zu und zeigt die drei Felder, in denen jemand anteilig die meisten Punkte geholt hat. Berufsfeld und Links pflegt die Lehrkraft unter **Inhalte → Modul bearbeiten**.
 
+### Anwesenheit
+
+**Leitstand → Anwesenheit**, oben den Kurs wählen. *Termin anlegen* (Datum, optional ein Titel) trägt alle Mitglieder als **anwesend** ein – du klickst nur die Abweichungen an: *verspätet*, *entschuldigt* oder *fehlt*, bei Bedarf mit Notiz. Ein grüner Punkt neben dem Namen zeigt, dass jemand an dem Tag Aufgaben abgegeben hat; das ist nur ein Vorschlag, entscheiden tust du. Die **Übersicht** zeigt alle Personen und Termine als Tabelle mit Quote („an 9 von 10 Terminen teilgenommen“; verspätet zählt als teilgenommen, entschuldigt wird gesondert genannt).
+
+Export als **CSV** (für Excel) oder je Person als PDF über die Sammel-Exporte (ZIP, eine PDF, Drucken). Zwei Schalter gelten für die ganze Installation und sind anfangs aus: **Anwesenheitsquote auf der Teilnahmebestätigung** und **Schülerinnen und Schüler sehen ihre eigene Anwesenheit** im Profil (ohne deine Notizen). Die Schülerakte zeigt die Anwesenheit der Person. Nur Lehrkräfte sehen die Anwesenheit anderer; beim Beenden eines Kurses wird alles gelöscht.
+
 ### Kurs beenden, archivieren oder übernehmen
 
 Am Ende eines Kurses gibt es unter **Kurse & Konten** drei Wege:

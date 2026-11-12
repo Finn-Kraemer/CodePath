@@ -128,6 +128,12 @@
 					icon: icons.users
 				},
 				{
+					href: '/admin/attendance',
+					title: 'Anwesenheit',
+					text: 'Termine erfassen, Abweichungen anklicken, Quote und Export',
+					icon: icons.users
+				},
+				{
 					href: '/admin/modules',
 					title: 'Modul-Steuerung',
 					text: 'Module je Kurs freigeben, sperren, Fristen setzen',

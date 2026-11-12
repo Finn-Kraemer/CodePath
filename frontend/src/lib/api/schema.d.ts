@@ -20,6 +20,102 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/attendance': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['overview_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/attendance/export': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['pdfs'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/attendance/export.csv': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['csv'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/attendance/sessions': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['create_4'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/attendance/sessions/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['detail_2'];
+		put: operations['update_3'];
+		post?: never;
+		delete: operations['delete_4'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/attendance/sessions/{id}/entries/{userId}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['setEntry'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/codepaths': {
 		parameters: {
 			query?: never;
@@ -286,7 +382,7 @@ export interface paths {
 		get: operations['task_1'];
 		put?: never;
 		post?: never;
-		delete: operations['delete_5'];
+		delete: operations['delete_6'];
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -1054,7 +1150,7 @@ export interface paths {
 		get?: never;
 		put?: never;
 		post?: never;
-		delete: operations['delete_4'];
+		delete: operations['delete_5'];
 		options?: never;
 		head?: never;
 		patch: operations['rename'];
@@ -1196,7 +1292,7 @@ export interface paths {
 			cookie?: never;
 		};
 		get: operations['detail_1'];
-		put: operations['settings'];
+		put: operations['settings_1'];
 		post?: never;
 		delete: operations['delete_1'];
 		options?: never;
@@ -1348,6 +1444,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/settings/attendance': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['settings'];
+		put: operations['updateSettings'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/settings/certificates': {
 		parameters: {
 			query?: never;
@@ -1404,6 +1516,22 @@ export interface paths {
 			cookie?: never;
 		};
 		get: operations['students'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/students/{username}/attendance': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['student_1'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -1675,7 +1803,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['detail_2'];
+		get: operations['detail_3'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -1868,6 +1996,38 @@ export interface paths {
 			cookie?: never;
 		};
 		get: operations['pdf_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/attendance/me': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['own'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/attendance/status': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['status_1'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -2713,6 +2873,88 @@ export interface components {
 			/** Format: int64 */
 			userId: number;
 		};
+		AttendanceEntryView: {
+			activeThatDay: boolean;
+			displayName: string;
+			note: string;
+			/** @enum {string} */
+			status: 'PRESENT' | 'ABSENT' | 'EXCUSED' | 'LATE';
+			/** Format: int64 */
+			userId: number;
+			username: string;
+		};
+		AttendanceOverview: {
+			cells: {
+				[key: string]: {
+					[key: string]: 'PRESENT' | 'ABSENT' | 'EXCUSED' | 'LATE';
+				};
+			};
+			/** Format: int64 */
+			courseId: number;
+			courseName: string;
+			sessions: components['schemas']['AttendanceSessionSummary'][];
+			students: components['schemas']['AttendanceStudentRow'][];
+		};
+		AttendancePersonEntry: {
+			/** Format: date */
+			date: string;
+			note: string;
+			/** @enum {string} */
+			status: 'PRESENT' | 'ABSENT' | 'EXCUSED' | 'LATE';
+			title: string;
+		};
+		AttendancePersonView: {
+			displayName: string;
+			entries: components['schemas']['AttendancePersonEntry'][];
+			rate: components['schemas']['AttendanceRate'];
+			username: string;
+		};
+		AttendanceRate: {
+			/** Format: int32 */
+			absent: number;
+			/** Format: int32 */
+			attended: number;
+			/** Format: int32 */
+			excused: number;
+			/** Format: int32 */
+			late: number;
+			/** Format: int32 */
+			recorded: number;
+			text: string;
+		};
+		AttendanceSessionDetail: {
+			/** Format: int64 */
+			courseId: number;
+			courseName: string;
+			entries: components['schemas']['AttendanceEntryView'][];
+			session: components['schemas']['AttendanceSessionSummary'];
+		};
+		AttendanceSessionSummary: {
+			/** Format: int32 */
+			absent: number;
+			/** Format: date */
+			date: string;
+			/** Format: int32 */
+			excused: number;
+			/** Format: int64 */
+			id: number;
+			/** Format: int32 */
+			late: number;
+			/** Format: int32 */
+			present: number;
+			title: string;
+		};
+		AttendanceSettings: {
+			onCertificate: boolean;
+			visibleToStudents: boolean;
+		};
+		AttendanceStudentRow: {
+			displayName: string;
+			rate: components['schemas']['AttendanceRate'];
+			/** Format: int64 */
+			userId: number;
+			username: string;
+		};
 		AuthRequest: {
 			joinCode?: string;
 			password: string;
@@ -2945,6 +3187,10 @@ export interface components {
 			/** Format: double */
 			scoreThreshold: number;
 			task: string;
+		};
+		EntryRequest: {
+			note?: string;
+			status?: string;
 		};
 		EvaluationAnswers: {
 			answers: {
@@ -3695,6 +3941,17 @@ export interface components {
 			key: string;
 			label: string;
 		};
+		SessionRequest: {
+			/** Format: int64 */
+			courseId?: number;
+			/** Format: date */
+			date?: string;
+			title?: string;
+		};
+		SettingsRequest: {
+			onCertificate?: boolean;
+			visibleToStudents?: boolean;
+		};
 		SolutionRun: {
 			available: boolean;
 			outputs: components['schemas']['TestOutput'][];
@@ -4272,6 +4529,194 @@ export interface operations {
 			};
 		};
 	};
+	overview_1: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['AttendanceOverview'];
+				};
+			};
+		};
+	};
+	pdfs: {
+		parameters: {
+			query?: {
+				courseId?: number;
+				format?: string;
+				duplex?: boolean;
+				inline?: boolean;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	csv: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	create_4: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['SessionRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['AttendanceSessionDetail'];
+				};
+			};
+		};
+	};
+	detail_2: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['AttendanceSessionDetail'];
+				};
+			};
+		};
+	};
+	update_3: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['SessionRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['AttendanceSessionDetail'];
+				};
+			};
+		};
+	};
+	delete_4: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	setEntry: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+				userId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['EntryRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['AttendanceEntryView'];
+				};
+			};
+		};
+	};
 	all_3: {
 		parameters: {
 			query?: never;
@@ -4743,7 +5188,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_5: {
+	delete_6: {
 		parameters: {
 			query: {
 				confirm: string;
@@ -6120,7 +6565,7 @@ export interface operations {
 			};
 		};
 	};
-	delete_4: {
+	delete_5: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -6406,7 +6851,7 @@ export interface operations {
 			};
 		};
 	};
-	settings: {
+	settings_1: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -6666,6 +7111,50 @@ export interface operations {
 			};
 		};
 	};
+	settings: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['AttendanceSettings'];
+				};
+			};
+		};
+	};
+	updateSettings: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['SettingsRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['AttendanceSettings'];
+				};
+			};
+		};
+	};
 	certificates_1: {
 		parameters: {
 			query?: never;
@@ -6748,6 +7237,28 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['StudentOverview'][];
+				};
+			};
+		};
+	};
+	student_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				username: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['AttendancePersonView'];
 				};
 			};
 		};
@@ -7129,7 +7640,7 @@ export interface operations {
 			};
 		};
 	};
-	detail_2: {
+	detail_3: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -7502,6 +8013,48 @@ export interface operations {
 				};
 				content: {
 					'application/pdf': string;
+				};
+			};
+		};
+	};
+	own: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['AttendancePersonView'];
+				};
+			};
+		};
+	};
+	status_1: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': {
+						[key: string]: boolean;
+					};
 				};
 			};
 		};

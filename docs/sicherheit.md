@@ -11,6 +11,7 @@ CodePath verarbeitet Daten von Minderjährigen. Die Plattform ist deshalb so geb
 | Fortschritt, Versuche mit Antworten, Punkte | Bewertung, Rückmeldung, Lernanalyse | beim Beenden des Kurses |
 | Praxisabgaben, Rubrik-Bewertung, Kommentar der Lehrkraft | Bewertung offener Aufgaben | beim Beenden des Kurses |
 | Feedback der Klasse | Rückmeldung zum Kurs | beim Beenden des Kurses |
+| Anwesenheit je Termin (Status, Notiz der Lehrkraft) | Anwesenheitsliste, optional Quote auf der Teilnahmebestätigung | beim Beenden des Kurses |
 | Quiz-Antworten (gewählte Option je Frage) | Anonyme Verteilung am Beamer | beim Beenden des Kurses (mit dem Konto) |
 | Peer-Bewertungen (Punkte je Kriterium, Kommentar, wer wen bewertet hat) | Rückmeldung unter Mitschülern, Hilfe für die Lehrkraft | beim Beenden des Kurses (mit dem Konto) |
 | Hilfe-Rufe „Ich hänge fest“: Aufgabe, Zeitpunkte, Kategorie, Notiz, Nachricht der Lehrkraft, mitgeschickter Entwurf und letzte Ausgabe (je höchstens 20 KB) | Lehrkraft weiß, wer wobei Hilfe braucht | Entwurf und Ausgabe 24 Stunden nach dem Erledigen, alles beim Beenden des Kurses |

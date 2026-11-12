@@ -29,6 +29,265 @@
         "tags" : [ "classroom-admin-controller" ]
       }
     },
+    "/api/admin/attendance" : {
+      "get" : {
+        "operationId" : "overview_1",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendanceOverview"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      }
+    },
+    "/api/admin/attendance/export" : {
+      "get" : {
+        "operationId" : "pdfs",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "format",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "duplex",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      }
+    },
+    "/api/admin/attendance/export.csv" : {
+      "get" : {
+        "operationId" : "csv",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      }
+    },
+    "/api/admin/attendance/sessions" : {
+      "post" : {
+        "operationId" : "create_4",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SessionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendanceSessionDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      }
+    },
+    "/api/admin/attendance/sessions/{id}" : {
+      "delete" : {
+        "operationId" : "delete_4",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      },
+      "get" : {
+        "operationId" : "detail_2",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendanceSessionDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      },
+      "put" : {
+        "operationId" : "update_3",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SessionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendanceSessionDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      }
+    },
+    "/api/admin/attendance/sessions/{id}/entries/{userId}" : {
+      "put" : {
+        "operationId" : "setEntry",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "userId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EntryRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendanceEntryView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      }
+    },
     "/api/admin/codepaths" : {
       "get" : {
         "operationId" : "all_3",
@@ -603,7 +862,7 @@
     },
     "/api/admin/content/tasks/{id}" : {
       "delete" : {
-        "operationId" : "delete_5",
+        "operationId" : "delete_6",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -2352,7 +2611,7 @@
     },
     "/api/admin/media/{key}" : {
       "delete" : {
-        "operationId" : "delete_4",
+        "operationId" : "delete_5",
         "parameters" : [ {
           "in" : "path",
           "name" : "key",
@@ -2758,7 +3017,7 @@
         "tags" : [ "page-controller" ]
       },
       "put" : {
-        "operationId" : "settings",
+        "operationId" : "settings_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -3014,6 +3273,50 @@
         "tags" : [ "identity-admin-controller" ]
       }
     },
+    "/api/admin/settings/attendance" : {
+      "get" : {
+        "operationId" : "settings",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendanceSettings"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateSettings",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SettingsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendanceSettings"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      }
+    },
     "/api/admin/settings/certificates" : {
       "get" : {
         "operationId" : "certificates_1",
@@ -3105,6 +3408,32 @@
           }
         },
         "tags" : [ "student-record-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/attendance" : {
+      "get" : {
+        "operationId" : "student_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendancePersonView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
       }
     },
     "/api/admin/students/{username}/codepath" : {
@@ -3626,7 +3955,7 @@
     },
     "/api/admin/submissions/{id}" : {
       "get" : {
-        "operationId" : "detail_2",
+        "operationId" : "detail_3",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -4112,6 +4441,45 @@
           }
         },
         "tags" : [ "worksheet-controller" ]
+      }
+    },
+    "/api/attendance/me" : {
+      "get" : {
+        "operationId" : "own",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendancePersonView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
+      }
+    },
+    "/api/attendance/status" : {
+      "get" : {
+        "operationId" : "status_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "boolean"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendance-controller" ]
       }
     },
     "/api/auth/login" : {
@@ -5760,6 +6128,223 @@
         },
         "required" : [ "answer", "createdAt", "feedback", "id", "outcome", "score", "taskId", "taskVersionId", "userId" ]
       },
+      "AttendanceEntryView" : {
+        "type" : "object",
+        "properties" : {
+          "activeThatDay" : {
+            "type" : "boolean"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "PRESENT", "ABSENT", "EXCUSED", "LATE" ]
+          },
+          "userId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "activeThatDay", "displayName", "note", "status", "userId", "username" ]
+      },
+      "AttendanceOverview" : {
+        "type" : "object",
+        "properties" : {
+          "cells" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object",
+              "additionalProperties" : {
+                "type" : "string",
+                "enum" : [ "PRESENT", "ABSENT", "EXCUSED", "LATE" ]
+              }
+            }
+          },
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "sessions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AttendanceSessionSummary"
+            }
+          },
+          "students" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AttendanceStudentRow"
+            }
+          }
+        },
+        "required" : [ "cells", "courseId", "courseName", "sessions", "students" ]
+      },
+      "AttendancePersonEntry" : {
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "PRESENT", "ABSENT", "EXCUSED", "LATE" ]
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "date", "note", "status", "title" ]
+      },
+      "AttendancePersonView" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "entries" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AttendancePersonEntry"
+            }
+          },
+          "rate" : {
+            "$ref" : "#/components/schemas/AttendanceRate"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "displayName", "entries", "rate", "username" ]
+      },
+      "AttendanceRate" : {
+        "type" : "object",
+        "properties" : {
+          "absent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "attended" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "excused" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "late" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "recorded" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "text" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "absent", "attended", "excused", "late", "recorded", "text" ]
+      },
+      "AttendanceSessionDetail" : {
+        "type" : "object",
+        "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "entries" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AttendanceEntryView"
+            }
+          },
+          "session" : {
+            "$ref" : "#/components/schemas/AttendanceSessionSummary"
+          }
+        },
+        "required" : [ "courseId", "courseName", "entries", "session" ]
+      },
+      "AttendanceSessionSummary" : {
+        "type" : "object",
+        "properties" : {
+          "absent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "excused" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "late" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "present" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "absent", "date", "excused", "id", "late", "present", "title" ]
+      },
+      "AttendanceSettings" : {
+        "type" : "object",
+        "properties" : {
+          "onCertificate" : {
+            "type" : "boolean"
+          },
+          "visibleToStudents" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "onCertificate", "visibleToStudents" ]
+      },
+      "AttendanceStudentRow" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "rate" : {
+            "$ref" : "#/components/schemas/AttendanceRate"
+          },
+          "userId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "displayName", "rate", "userId", "username" ]
+      },
       "AuthRequest" : {
         "type" : "object",
         "properties" : {
@@ -6343,6 +6928,17 @@
           }
         },
         "required" : [ "failedAttemptsThreshold", "hintsThreshold", "rule", "scoreThreshold", "task" ]
+      },
+      "EntryRequest" : {
+        "type" : "object",
+        "properties" : {
+          "note" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          }
+        }
       },
       "EvaluationAnswers" : {
         "type" : "object",
@@ -8330,6 +8926,33 @@
           }
         },
         "required" : [ "key", "label" ]
+      },
+      "SessionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SettingsRequest" : {
+        "type" : "object",
+        "properties" : {
+          "onCertificate" : {
+            "type" : "boolean"
+          },
+          "visibleToStudents" : {
+            "type" : "boolean"
+          }
+        }
       },
       "SolutionRun" : {
         "type" : "object",

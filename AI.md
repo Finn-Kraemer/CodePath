@@ -29,6 +29,7 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 | `transfer` | Zentraler Export/Import; sammelt alle `platform.transfer.TransferSection`-Beans |
 | `help` | Stiller Hilfe-Ruf „Ich hänge fest“: Warteschlange für Lehrkräfte (`/api/help`, `/api/admin/help`), Statistik je Aufgabe |
 | `quiz` | Quiz-Runde am Beamer aus Auswahl-Aufgaben (`/api/quiz`, `/api/admin/quiz`), höchstens eine laufende Runde |
+| `attendance` | Anwesenheit je Kurs und Termin (`/api/admin/attendance`), Quote für Teilnahmebestätigung und Profil |
 | `worksheet` | Aufgabenblätter der Lehrkraft als PDF (OpenPDF): Blöcke + Layout als JSON, Schülerfassung und Lösung (`/api/admin/worksheets`) |
 
 `ArchitectureTest` erzwingt: Repositories nur im eigenen Paket, keine Zyklen, `engine` hängt von keinem Fachpaket ab.
@@ -101,6 +102,10 @@ Paket `evaluation`. `evaluation_templates` (Kriterien als JSON, `kind` SELF/LESS
 ## Freigaben pro Person
 
 `user_releases` (V38: `user_id`, genau eins von `module_id`/`task_id`, `mode` SHOWN/HIDDEN, `available_until`, `bonus`; mit dem Konto gelöscht). `AccessPolicy.Releases` wertet in dieser Rangfolge aus: Aufgabe der Person → Modul der Person → Aufgabe im Kurs → Modul im Kurs; eine Freigabe der Person gilt auch vor dem `PathGate`. `courseReleases(user)` enthält die Freigaben der Person, damit auch der CodePath-Status (AVAILABLE/LOCKED) sie berücksichtigt; `forCourse(courseId)` (Modul-Steuerung, Lehrkraftsicht) nicht. `UserReleaseService` (`POST /api/admin/user-releases` für mehrere Personen, `GET/DELETE /api/admin/students/{u}/releases`, `GET /api/admin/modules/{id}/user-releases?courseId=`), Audit `USER_RELEASE_SET`. Bonus: `LeaderboardService` zieht Punkte aus Aufgaben ab, die die Person nur als Bonus hat (`UserReleaseService.bonusTasks`); `TaskSummary.personal`/`bonus` für die Kennzeichnung. Frontend: `lib/components/UserReleases.svelte` (Schülerakte und Modul-Steuerung).
+
+## Anwesenheit
+
+Paket `attendance`. `attendance_sessions` (Kurs, Datum, Titel) und `attendance_entries` (Termin, Person, Status PRESENT/ABSENT/EXCUSED/LATE, Notiz) aus V39. Ein neuer Termin legt für alle Mitglieder PRESENT an. `activeThatDay` (Abgaben an dem Tag, per `JdbcTemplate` auf `attempts`) ist nur ein Vorschlag. Quote `AttendanceRate`: PRESENT und LATE zählen als teilgenommen. Schalter in `system_settings`: `attendance_on_certificate` (Zeile auf der Teilnahmebestätigung über `AttendanceService.certificateLine`) und `attendance_visible_to_students` (`GET /api/attendance/me` ohne Notizen, sonst 403). Exporte: `GET /api/admin/attendance/export.csv` (Semikolon, BOM, Schutz vor Formeln) und `GET /api/admin/attendance/export?format=zip|pdf` (`AttendancePdf` je Person über `PdfBundles`). Termine löscht der Listener auf `CourseEndingEvent`, Einträge zusätzlich die Konto-Löschung. Frontend: `/admin/attendance`, `lib/attendance.ts`, `AttendanceSummary.svelte` (Schülerakte, Profil).
 
 ## Kurse: beenden, archivieren, übernehmen
 
