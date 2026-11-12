@@ -1,5 +1,6 @@
 package de.codepath.backend;
 
+import de.codepath.backend.identity.Course;
 import de.codepath.backend.identity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -180,5 +181,35 @@ class WorksheetTest extends IntegrationTestBase {
         assertTrue(report.toString().contains("CREATED"), report.toString());
         assertTrue(report.toString().contains("UNCHANGED"), report.toString());
         assertEquals(2, body(getAs(teacher(), "/api/admin/worksheets")).size());
+    }
+
+    @Test
+    void sheetsPerStudentAndVariants() throws Exception {
+        Course course = course("8a");
+        student("lena", course);
+        student("tom", course);
+        long id = create("Lernkontrolle");
+        putAs(teacher(), "/api/admin/worksheets/" + id, Map.of("title", "Lernkontrolle", "content", FULL)).andExpect(status().isOk());
+
+        byte[] pdf = getAs(teacher(), "/api/admin/worksheets/" + id + "/students?courseId=" + course.getId() + "&format=pdf")
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsByteArray();
+        String text = TakeHomeTest.text(pdf);
+        assertTrue(text.contains("lena") && text.contains("tom"), "je Person ein Blatt mit Namen");
+        assertTrue(text.contains("8b"), "Klasse aus dem Blatt hat Vorrang");
+        byte[] zip = getAs(teacher(), "/api/admin/worksheets/" + id + "/students?courseId=" + course.getId() + "&solution=true")
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsByteArray();
+        java.util.List<String> names = new java.util.ArrayList<>();
+        try (var in = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(zip))) {
+            for (var e = in.getNextEntry(); e != null; e = in.getNextEntry()) names.add(e.getName());
+        }
+        assertEquals(java.util.List.of("Lernkontrolle_lena_Loesung.pdf", "Lernkontrolle_tom_Loesung.pdf"), names);
+        assertEquals(2, jdbc.queryForObject("select count(*) from audit_events where action = 'WORKSHEET_EXPORTED'", Integer.class));
+
+        String variants = TakeHomeTest.text(getAs(teacher(), "/api/admin/worksheets/" + id + "/variants?count=3&format=pdf")
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsByteArray());
+        assertTrue(variants.contains("VARIANTE A") && variants.contains("VARIANTE C"));
+        getAs(teacher(), "/api/admin/worksheets/" + id + "/variants?count=9").andExpect(status().isBadRequest());
+        getAs(as(userRepository.findByUsername("lena").orElseThrow()), "/api/admin/worksheets/" + id + "/students?courseId=" + course.getId())
+                .andExpect(status().isForbidden());
     }
 }

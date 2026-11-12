@@ -1,6 +1,7 @@
 package de.codepath.backend.worksheet;
 
 import lombok.RequiredArgsConstructor;
+import de.codepath.backend.platform.pdf.PdfBundles;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -62,6 +63,32 @@ public class WorksheetController {
                                       @RequestParam(name = "download", defaultValue = "false") boolean download) {
         WorksheetRenderer.Variant v = variant(variant);
         return file(service.pdf(id, v), v, download);
+    }
+
+    /**
+     * Ein eigenes Blatt je Person eines Kurses (Name im Kopf, eigene Mischung) – oder mit {@code solution=true}
+     * die jeweils passende Lösung. format=zip (Standard) oder pdf, wie bei den anderen Sammel-Exporten.
+     */
+    @GetMapping("/api/admin/worksheets/{id}/students")
+    public ResponseEntity<byte[]> students(@PathVariable("id") Long id, @RequestParam("courseId") Long courseId,
+                                           @RequestParam(name = "solution", defaultValue = "false") boolean solution,
+                                           @RequestParam(name = "format", required = false) String format,
+                                           @RequestParam(name = "duplex", defaultValue = "false") boolean duplex,
+                                           @RequestParam(name = "inline", defaultValue = "false") boolean inline) {
+        return PdfBundles.respond(fileName(service.title(id)) + (solution ? "_Loesungen" : "_Schuelerblaetter"),
+                service.forStudents(id, courseId, solution), PdfBundles.Format.parse(format), duplex, inline);
+    }
+
+    /** {@code count} Varianten (A, B, C …) mit eigener Mischung, für Klassen ohne Konten. */
+    @GetMapping("/api/admin/worksheets/{id}/variants")
+    public ResponseEntity<byte[]> variants(@PathVariable("id") Long id,
+                                           @RequestParam(name = "count", defaultValue = "2") int count,
+                                           @RequestParam(name = "solution", defaultValue = "false") boolean solution,
+                                           @RequestParam(name = "format", required = false) String format,
+                                           @RequestParam(name = "duplex", defaultValue = "false") boolean duplex,
+                                           @RequestParam(name = "inline", defaultValue = "false") boolean inline) {
+        return PdfBundles.respond(fileName(service.title(id)) + "_Varianten" + (solution ? "_Loesungen" : ""),
+                service.variants(id, count, solution), PdfBundles.Format.parse(format), duplex, inline);
     }
 
     /** Vorschau des aktuellen Stands im Editor, ohne zu speichern. */

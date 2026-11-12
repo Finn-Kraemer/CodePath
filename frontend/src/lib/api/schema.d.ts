@@ -1547,7 +1547,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['students'];
+		get: operations['students_1'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -2028,6 +2028,38 @@ export interface paths {
 			cookie?: never;
 		};
 		get: operations['pdf_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/worksheets/{id}/students': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['students'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/worksheets/{id}/variants': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['variants'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -7408,7 +7440,7 @@ export interface operations {
 			};
 		};
 	};
-	students: {
+	students_1: {
 		parameters: {
 			query?: {
 				courseId?: number;
@@ -8202,6 +8234,62 @@ export interface operations {
 				};
 				content: {
 					'application/pdf': string;
+				};
+			};
+		};
+	};
+	students: {
+		parameters: {
+			query: {
+				courseId: number;
+				solution?: boolean;
+				format?: string;
+				duplex?: boolean;
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	variants: {
+		parameters: {
+			query?: {
+				count?: number;
+				solution?: boolean;
+				format?: string;
+				duplex?: boolean;
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
 				};
 			};
 		};

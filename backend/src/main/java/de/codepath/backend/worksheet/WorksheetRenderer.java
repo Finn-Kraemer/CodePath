@@ -29,6 +29,19 @@ public final class WorksheetRenderer {
 
     public enum Variant { STUDENT, SOLUTION }
 
+    /**
+     * Eigenes Blatt für eine Person oder eine Gruppe: Name, Klasse und Datum im Kopf, eigene Mischung.
+     * Gleicher Seed = gleiches Blatt, Schülerblatt und Lösung passen also zusammen.
+     *
+     * @param name      Name im Namensfeld (oder null)
+     * @param className Klasse bzw. Kurs, falls im Blatt keine angegeben ist (oder null)
+     * @param date      Datum im Datumsfeld, falls im Blatt keins angegeben ist (oder null)
+     * @param label     Kennzeichen oben rechts, z. B. „Variante B“ (oder null)
+     * @param seed      Mischung: Reihenfolge der Aufgaben in jedem Abschnitt, Antwortoptionen, Aussagen, Zuordnungen
+     */
+    public record Personalization(String name, String className, String date, String label, long seed) {
+    }
+
     private static final Color INK = new Color(15, 23, 42);
     private static final Color MUTED = new Color(100, 116, 139);
     private static final Color LINE = new Color(148, 163, 184);
@@ -65,6 +78,7 @@ public final class WorksheetRenderer {
     private final JsonNode blocks;
     private final boolean solution;
     private final Function<String, byte[]> images;
+    private final Personalization person;
 
     private final Color accent;
     private final boolean serif;
@@ -80,7 +94,9 @@ public final class WorksheetRenderer {
     private PdfTemplate boxChecked;
     private int taskNumber;
 
-    private WorksheetRenderer(String title, JsonNode content, Variant variant, Function<String, byte[]> images) {
+    private WorksheetRenderer(String title, JsonNode content, Variant variant, Function<String, byte[]> images,
+                              Personalization person) {
+        this.person = person;
         this.title = title;
         this.settings = content.path("settings");
         this.blocks = content.path("blocks");
@@ -100,7 +116,13 @@ public final class WorksheetRenderer {
      * @param images lädt ein hochgeladenes Bild über seinen Schlüssel, {@code null} wenn es fehlt
      */
     public static byte[] render(String title, JsonNode content, Variant variant, Function<String, byte[]> images) {
-        return new WorksheetRenderer(title, content, variant, images).render();
+        return render(title, content, variant, images, null);
+    }
+
+    /** Wie oben, als eigenes Blatt für eine Person bzw. Variante ({@code person} null = für alle gleich). */
+    public static byte[] render(String title, JsonNode content, Variant variant, Function<String, byte[]> images,
+                                Personalization person) {
+        return new WorksheetRenderer(title, content, variant, images, person).render();
     }
 
     /** Summe der Punkte aller Aufgaben (für das Punktefeld im Kopf und die Übersicht). */
@@ -146,6 +168,7 @@ public final class WorksheetRenderer {
             }
             // Umbrüche, Trennlinien und Freiraum am Ende erzeugen nur leere Seiten
             while (!visible.isEmpty() && LAYOUT_ONLY.contains(text(blocks.get(visible.getLast()), "type"))) visible.removeLast();
+            if (person != null) visible = shuffleTaskRuns(visible);
             boolean pageStart = false;
             for (int i : visible) {
                 JsonNode block = blocks.get(i);
@@ -246,13 +269,19 @@ public final class WorksheetRenderer {
             badge.setAlignment(Element.ALIGN_RIGHT);
             right.addElement(badge);
         }
+        if (person != null && person.label() != null) {
+            Paragraph badge = PdfFonts.paragraph(person.label().toUpperCase(Locale.GERMAN), font(BOLD, size, INK));
+            badge.setAlignment(Element.ALIGN_RIGHT);
+            right.addElement(badge);
+        }
         if (!kind.isEmpty()) {
             Paragraph p = PdfFonts.paragraph(kind.toUpperCase(Locale.GERMAN), font(BOLD, size - 1, accent));
             p.setAlignment(Element.ALIGN_RIGHT);
             right.addElement(p);
         }
         top.addCell(right);
-        if (logo != null || !school.isEmpty() || !subject.isEmpty() || !kind.isEmpty() || solution) document.add(top);
+        if (logo != null || !school.isEmpty() || !subject.isEmpty() || !kind.isEmpty() || solution
+                || (person != null && person.label() != null)) document.add(top);
 
         Paragraph heading = PdfFonts.paragraph(title, font(BOLD, size + 9, INK));
         heading.setSpacingBefore(6);
@@ -290,17 +319,32 @@ public final class WorksheetRenderer {
         record Field(String label, String value, float width) {
         }
         java.util.List<Field> fields = new ArrayList<>();
-        if (flag(settings, "nameField", true)) fields.add(new Field("Name", "", 4));
-        if (flag(settings, "classField", true)) fields.add(new Field("Klasse", text(settings, "className").strip(), 1.6f));
-        if (flag(settings, "dateField", true)) fields.add(new Field("Datum", text(settings, "date").strip(), 2));
+        String className = text(settings, "className").strip();
+        String date = text(settings, "date").strip();
+        if (person != null && className.isEmpty() && person.className() != null) className = person.className();
+        if (person != null && date.isEmpty() && person.date() != null) date = person.date();
+        if (flag(settings, "nameField", true) || (person != null && person.name() != null)) {
+            fields.add(new Field("Name", person != null && person.name() != null ? person.name() : "", 4));
+        }
+        if (flag(settings, "classField", true)) fields.add(new Field("Klasse", className, 1.6f));
+        if (flag(settings, "dateField", true)) fields.add(new Field("Datum", date, 2));
         double total = totalPoints(blocks);
         if (flag(settings, "pointsField", true) && total > 0) fields.add(new Field("Punkte", "\u00A0".repeat(5) + "/\u00A0" + points(total), 2.6f));
         if (flag(settings, "gradeField", false)) fields.add(new Field("Note", "", 1.4f));
         if (fields.isEmpty()) return;
 
+        // Vorgegebene Anteile; vorbelegte Werte (Name, Kurs, Datum) bekommen mindestens so viel Platz, wie sie brauchen
+        float available = document.right() - document.left();
+        float share = 0;
+        for (Field f : fields) share += f.width();
+        share += (fields.size() - 1) * 0.25f;
         float[] widths = new float[fields.size() * 2 - 1];
         for (int i = 0; i < fields.size(); i++) {
-            widths[i * 2] = fields.get(i).width();
+            Field f = fields.get(i);
+            float points = f.width() / share * available;
+            float needed = font(BOLD, size - 2, MUTED).getBaseFont().getWidthPoint(f.label() + ": ", size - 2)
+                    + font(NORMAL, size, INK).getBaseFont().getWidthPoint(f.value(), size) + 8;
+            widths[i * 2] = Math.max(points, needed) / available * share;
             if (i > 0) widths[i * 2 - 1] = 0.25f;
         }
         PdfPTable table = new PdfPTable(widths);
@@ -335,9 +379,9 @@ public final class WorksheetRenderer {
             }
             case "box" -> box(block);
             case "task" -> task(block);
-            case "choice" -> choice(block);
+            case "choice" -> choice(block, index);
             case "gap" -> gapText(block);
-            case "truefalse" -> trueFalse(block);
+            case "truefalse" -> trueFalse(block, index);
             case "matching" -> matching(block, index);
             case "order" -> order(block, index);
             case "table" -> table(block);
@@ -414,14 +458,15 @@ public final class WorksheetRenderer {
         }
     }
 
-    private void choice(JsonNode block) {
+    private void choice(JsonNode block, int index) {
         taskHead(block);
         JsonNode options = block.path("options");
         int columns = Math.min(number(block, "columns", 1, 1, 4), Math.max(1, options.size()));
         PdfPTable table = new PdfPTable(columns);
         table.setWidthPercentage(100);
         table.setSpacingBefore(size * 0.3f);
-        for (JsonNode option : options) {
+        for (int i : personalOrder(options.size(), block, index)) {
+            JsonNode option = options.get(i);
             boolean checked = solution && flag(option, "correct", false);
             Phrase phrase = new Phrase();
             phrase.setLeading(size * 1.45f);
@@ -467,7 +512,7 @@ public final class WorksheetRenderer {
         }
     }
 
-    private void trueFalse(JsonNode block) {
+    private void trueFalse(JsonNode block, int index) {
         taskHead(block);
         PdfPTable table = new PdfPTable(new float[]{8, 1.2f, 1.2f});
         table.setWidthPercentage(100);
@@ -476,7 +521,9 @@ public final class WorksheetRenderer {
         table.addCell(headCell("Aussage", Element.ALIGN_LEFT));
         table.addCell(headCell(textOr(block, "trueLabel", "richtig"), Element.ALIGN_CENTER));
         table.addCell(headCell(textOr(block, "falseLabel", "falsch"), Element.ALIGN_CENTER));
-        for (JsonNode statement : block.path("statements")) {
+        JsonNode statements = block.path("statements");
+        for (int i : personalOrder(statements.size(), block, index)) {
+            JsonNode statement = statements.get(i);
             boolean correct = flag(statement, "correct", true);
             PdfPCell text = new PdfPCell(inline(text(statement, "text"), size, INK, false));
             rowStyle(text);
@@ -1008,9 +1055,60 @@ public final class WorksheetRenderer {
         return order;
     }
 
-    private static long seed(JsonNode block, int index) {
+    private long seed(JsonNode block, int index) {
         String id = text(block, "id");
-        return id.isEmpty() ? index * 7919L : id.hashCode();
+        long base = id.isEmpty() ? index * 7919L : id.hashCode();
+        return person == null ? base : mix(base ^ mix(person.seed()));
+    }
+
+    /** Reihenfolge der Optionen bzw. Aussagen: unverändert, außer bei einem eigenen Blatt. */
+    private java.util.List<Integer> personalOrder(int n, JsonNode block, int index) {
+        if (person == null) {
+            java.util.List<Integer> order = new ArrayList<>();
+            for (int i = 0; i < n; i++) order.add(i);
+            return order;
+        }
+        return shuffled(n, seed(block, index) + 1);
+    }
+
+    /**
+     * Mischt die Aufgaben innerhalb jedes Abschnitts: Folgen von Aufgabenblöcken ohne Überschrift, Text,
+     * Umbruch o. Ä. dazwischen. So bleiben Einleitungen bei ihren Aufgaben.
+     */
+    private java.util.List<Integer> shuffleTaskRuns(java.util.List<Integer> visible) {
+        java.util.List<Integer> result = new ArrayList<>();
+        java.util.List<Integer> run = new ArrayList<>();
+        for (int i : visible) {
+            if (WorksheetContent.isTask(blocks.get(i))) {
+                run.add(i);
+                continue;
+            }
+            flushRun(run, result);
+            result.add(i);
+        }
+        flushRun(run, result);
+        return result;
+    }
+
+    private void flushRun(java.util.List<Integer> run, java.util.List<Integer> result) {
+        if (run.size() > 1) {
+            for (int k : shuffled(run.size(), mix(person.seed() + run.getFirst() * 31L))) result.add(run.get(k));
+        } else {
+            result.addAll(run);
+        }
+        run.clear();
+    }
+
+    /** SplitMix64: aus ähnlichen Zahlen werden gut verteilte Seeds. */
+    static long mix(long z) {
+        z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9L;
+        z = (z ^ (z >>> 27)) * 0x94d049bb133111ebL;
+        return z ^ (z >>> 31);
+    }
+
+    /** Seed je Person und Blatt – derselbe bei jedem Export. */
+    public static long personSeed(long userId, long worksheetId) {
+        return mix(userId * 1_000_003L + worksheetId);
     }
 
     private static String answer(String raw) {
