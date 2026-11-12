@@ -86,7 +86,7 @@ class WorksheetTest extends IntegrationTestBase {
         assertTrue(student.contains("Gesamtschule Musterstadt"));
         assertTrue(student.contains("Aufgabe 1"));
         assertTrue(student.contains("Aufgabe 8"));
-        assertTrue(student.contains("/ 12,5"), "Gesamtpunkte im Kopf");
+        assertTrue(student.matches("(?sU).*/\\s+12,5.*"), "Gesamtpunkte im Kopf");
         assertTrue(student.contains("Seite 1 von"));
         assertEquals(2, de.codepath.backend.worksheet.WorksheetRendererTest.pages(response.getContentAsByteArray()),
                 "Kein leeres Blatt durch Umbruch, Trennlinie und Freiraum am Ende");

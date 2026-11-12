@@ -3,6 +3,7 @@ package de.codepath.backend.worksheet;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
 import com.lowagie.text.pdf.draw.LineSeparator;
+import de.codepath.backend.platform.pdf.PdfFonts;
 import tools.jackson.databind.JsonNode;
 
 import javax.imageio.ImageIO;
@@ -10,8 +11,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
@@ -197,7 +196,7 @@ public final class WorksheetRenderer {
             String footer = text(settings, "footer").strip();
             if (solution) footer = footer.isEmpty() ? "Lösung" : footer + "  ·  Lösung";
             if (!footer.isEmpty()) {
-                ColumnText.showTextAligned(cb, Element.ALIGN_LEFT, new Phrase(clean(footer).replace('\n', ' '), small),
+                ColumnText.showTextAligned(cb, Element.ALIGN_LEFT, text(footer.replace('\n', ' '), small),
                         document.left(), y, 0);
             }
             if (flag(settings, "pageNumbers", true)) {
@@ -236,8 +235,8 @@ public final class WorksheetRenderer {
         }
         PdfPCell left = plain();
         left.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        if (!school.isEmpty()) left.addElement(new Paragraph(clean(school), font(BOLD, size - 2, MUTED)));
-        if (!subject.isEmpty()) left.addElement(new Paragraph(clean(subject), font(NORMAL, size - 1, MUTED)));
+        if (!school.isEmpty()) left.addElement(PdfFonts.paragraph(school, font(BOLD, size - 2, MUTED)));
+        if (!subject.isEmpty()) left.addElement(PdfFonts.paragraph(subject, font(NORMAL, size - 1, MUTED)));
         top.addCell(left);
 
         PdfPCell right = plain();
@@ -248,19 +247,19 @@ public final class WorksheetRenderer {
             right.addElement(badge);
         }
         if (!kind.isEmpty()) {
-            Paragraph p = new Paragraph(clean(kind).toUpperCase(Locale.GERMAN), font(BOLD, size - 1, accent));
+            Paragraph p = PdfFonts.paragraph(kind.toUpperCase(Locale.GERMAN), font(BOLD, size - 1, accent));
             p.setAlignment(Element.ALIGN_RIGHT);
             right.addElement(p);
         }
         top.addCell(right);
         if (logo != null || !school.isEmpty() || !subject.isEmpty() || !kind.isEmpty() || solution) document.add(top);
 
-        Paragraph heading = new Paragraph(clean(title), font(BOLD, size + 9, INK));
+        Paragraph heading = PdfFonts.paragraph(title, font(BOLD, size + 9, INK));
         heading.setSpacingBefore(6);
         document.add(heading);
         String subtitle = text(settings, "subtitle").strip();
         if (!subtitle.isEmpty()) {
-            Paragraph p = new Paragraph(clean(subtitle), font(NORMAL, size + 1, MUTED));
+            Paragraph p = PdfFonts.paragraph(subtitle, font(NORMAL, size + 1, MUTED));
             p.setSpacingBefore(2);
             document.add(p);
         }
@@ -295,7 +294,7 @@ public final class WorksheetRenderer {
         if (flag(settings, "classField", true)) fields.add(new Field("Klasse", text(settings, "className").strip(), 1.6f));
         if (flag(settings, "dateField", true)) fields.add(new Field("Datum", text(settings, "date").strip(), 2));
         double total = totalPoints(blocks);
-        if (flag(settings, "pointsField", true) && total > 0) fields.add(new Field("Punkte", "      / " + points(total), 2.2f));
+        if (flag(settings, "pointsField", true) && total > 0) fields.add(new Field("Punkte", "\u00A0".repeat(5) + "/\u00A0" + points(total), 2.6f));
         if (flag(settings, "gradeField", false)) fields.add(new Field("Note", "", 1.4f));
         if (fields.isEmpty()) return;
 
@@ -311,8 +310,8 @@ public final class WorksheetRenderer {
             if (i > 0) table.addCell(plain());
             Field field = fields.get(i);
             Phrase phrase = new Phrase();
-            phrase.add(new Chunk(field.label() + ": ", font(BOLD, size - 2, MUTED)));
-            phrase.add(new Chunk(clean(field.value()), font(NORMAL, size, INK)));
+            phrase.add(text(field.label() + ": ", font(BOLD, size - 2, MUTED)));
+            phrase.add(text(field.value(), font(NORMAL, size, INK)));
             PdfPCell cell = new PdfPCell(phrase);
             cell.setBorder(Rectangle.BOTTOM);
             cell.setBorderColor(LINE);
@@ -360,7 +359,7 @@ public final class WorksheetRenderer {
 
     private void heading(JsonNode block) {
         boolean small = number(block, "level", 1, 1, 2) == 2;
-        Paragraph p = new Paragraph(clean(text(block, "text")), font(BOLD, small ? size + 1 : size + 4, small ? accent : INK));
+        Paragraph p = PdfFonts.paragraph(text(block, "text"), font(BOLD, small ? size + 1 : size + 4, small ? accent : INK));
         p.setSpacingBefore(size * (small ? 0.8f : 1.2f));
         p.setSpacingAfter(size * 0.3f);
         document.add(p);
@@ -382,7 +381,7 @@ public final class WorksheetRenderer {
         cell.setPaddingTop(4);
         cell.setPaddingLeft(10);
         String heading = text(block, "title").strip();
-        if (!heading.isEmpty()) cell.addElement(new Paragraph(clean(heading), font(BOLD, size, colors[0])));
+        if (!heading.isEmpty()) cell.addElement(PdfFonts.paragraph(heading, font(BOLD, size, colors[0])));
         for (Element e : rich(text(block, "text"), size, INK, false)) cell.addElement(e);
         table.addCell(cell);
         document.add(table);
@@ -453,7 +452,7 @@ public final class WorksheetRenderer {
                 PdfPTable bank = new PdfPTable(1);
                 bank.setWidthPercentage(100);
                 bank.setSpacingBefore(size * 0.3f);
-                PdfPCell cell = new PdfPCell(new Phrase(clean(String.join("   ·   ", words)), font(NORMAL, size - 1, INK)));
+                PdfPCell cell = new PdfPCell(text(String.join("   ·   ", words), font(NORMAL, size - 1, INK)));
                 cell.setBorderColor(LIGHT);
                 cell.setBackgroundColor(PAPER);
                 cell.setPadding(6);
@@ -555,7 +554,7 @@ public final class WorksheetRenderer {
                     cell = new PdfPCell(inline(value, size - 1, Color.WHITE, false));
                     cell.setBackgroundColor(INK);
                 } else if (full.matches()) {
-                    cell = new PdfPCell(solution ? new Phrase(clean(answer(full.group(1))), font(BOLD, size, RED)) : new Phrase(""));
+                    cell = new PdfPCell(solution ? text(answer(full.group(1)), font(BOLD, size, RED)) : new Phrase(""));
                     if (solution) cell.setBackgroundColor(RED_BG);
                 } else {
                     cell = new PdfPCell(inline(value, size, INK, true));
@@ -591,17 +590,17 @@ public final class WorksheetRenderer {
             while (indent < line.length() && line.charAt(indent) == ' ') indent++;
             line = "\u00A0".repeat(indent) + line.substring(indent);
             if (!gaps) {
-                phrase.add(new Chunk(line, mono(codeSize, INK)));
+                phrase.add(text(line, mono(codeSize, INK)));
                 continue;
             }
             Matcher m = GAP.matcher(line);
             int last = 0;
             while (m.find()) {
-                phrase.add(new Chunk(line.substring(last, m.start()), mono(codeSize, INK)));
+                phrase.add(text(line.substring(last, m.start()), mono(codeSize, INK)));
                 phrase.add(gapChunk(m.group(1), mono(codeSize, INK), mono(codeSize, RED)));
                 last = m.end();
             }
-            phrase.add(new Chunk(line.substring(last), mono(codeSize, INK)));
+            phrase.add(text(line.substring(last), mono(codeSize, INK)));
         }
         PdfPTable table = new PdfPTable(1);
         table.setWidthPercentage(100);
@@ -609,7 +608,7 @@ public final class WorksheetRenderer {
         table.setSpacingAfter(size * 0.4f);
         String caption = text(block, "caption").strip();
         if (!caption.isEmpty()) {
-            PdfPCell head = new PdfPCell(new Phrase(clean(caption), font(BOLD, size - 2, MUTED)));
+            PdfPCell head = new PdfPCell(text(caption, font(BOLD, size - 2, MUTED)));
             head.setBorderColor(LIGHT);
             head.setBackgroundColor(PAPER);
             head.setPadding(5);
@@ -646,7 +645,7 @@ public final class WorksheetRenderer {
         document.add(img);
         String caption = text(block, "caption").strip();
         if (!caption.isEmpty()) {
-            Paragraph p = new Paragraph(clean(caption), font(ITALIC, size - 2, MUTED));
+            Paragraph p = PdfFonts.paragraph(caption, font(ITALIC, size - 2, MUTED));
             p.setAlignment(switch (text(block, "align")) {
                 case "left" -> Element.ALIGN_LEFT;
                 case "right" -> Element.ALIGN_RIGHT;
@@ -679,7 +678,7 @@ public final class WorksheetRenderer {
         java.util.List<Element> prompt = rich(text(block, "prompt"), size, INK, false);
         if (numbering) {
             taskNumber++;
-            Chunk label = new Chunk(clean(numberLabel) + " " + taskNumber + "   ", font(BOLD, size, accent));
+            Phrase label = text(numberLabel + " " + taskNumber + "   ", font(BOLD, size, accent));
             if (!prompt.isEmpty() && prompt.getFirst() instanceof Paragraph first) {
                 first.add(0, label);
             } else {
@@ -689,7 +688,7 @@ public final class WorksheetRenderer {
         for (Element e : prompt) left.addElement(e);
         String hint = text(block, "hint").strip();
         if (!hint.isEmpty()) {
-            Paragraph p = new Paragraph(clean(hint), font(ITALIC, size - 1.5f, MUTED));
+            Paragraph p = PdfFonts.paragraph(hint, font(ITALIC, size - 1.5f, MUTED));
             p.setSpacingBefore(1);
             left.addElement(p);
         }
@@ -781,7 +780,7 @@ public final class WorksheetRenderer {
     }
 
     private PdfPCell headCell(String text, int align) {
-        PdfPCell cell = new PdfPCell(new Phrase(clean(text), font(BOLD, size - 2, MUTED)));
+        PdfPCell cell = new PdfPCell(text(text, font(BOLD, size - 2, MUTED)));
         cell.setBorder(Rectangle.BOTTOM);
         cell.setBorderColor(LINE);
         cell.setHorizontalAlignment(align);
@@ -811,7 +810,7 @@ public final class WorksheetRenderer {
         outer.setVerticalAlignment(Element.ALIGN_MIDDLE);
         PdfPTable inner = new PdfPTable(1);
         inner.setWidthPercentage(100);
-        PdfPCell box = new PdfPCell(new Phrase(value, font(BOLD, size, RED)));
+        PdfPCell box = new PdfPCell(text(value, font(BOLD, size, RED)));
         box.setBorderColor(LINE);
         box.setBorderWidth(0.7f);
         box.setFixedHeight(Math.max(size * 1.9f, lineHeight * 0.8f));
@@ -825,7 +824,7 @@ public final class WorksheetRenderer {
 
     private Phrase numbered(String label, String text) {
         Phrase phrase = new Phrase();
-        phrase.add(new Chunk(label + "  ", font(BOLD, size, accent)));
+        phrase.add(text(label + "  ", font(BOLD, size, accent)));
         phrase.add(inline(text, size, INK, false));
         return phrase;
     }
@@ -856,18 +855,16 @@ public final class WorksheetRenderer {
         return tpl;
     }
 
-    private Chunk gapChunk(String raw, Font normal, Font red) {
+    private Phrase gapChunk(String raw, Font normal, Font red) {
         String answer = answer(raw);
-        Chunk chunk;
         if (solution) {
-            chunk = new Chunk("\u00A0" + clean(answer) + "\u00A0", red);
-            chunk.setUnderline(RED, 0.6f, 0, -2.5f, 0, PdfContentByte.LINE_CAP_BUTT);
-        } else {
-            int width = Math.max(8, Math.round(answer.length() * 1.7f) + 2);
-            chunk = new Chunk("\u00A0".repeat(width), normal);
-            chunk.setUnderline(INK, 0.6f, 0, -2.5f, 0, PdfContentByte.LINE_CAP_BUTT);
+            return styled("\u00A0" + answer + "\u00A0", red,
+                    c -> c.setUnderline(RED, 0.6f, 0, -2.5f, 0, PdfContentByte.LINE_CAP_BUTT));
         }
-        return chunk;
+        int width = Math.max(8, Math.round(answer.length() * 1.7f) + 2);
+        Chunk chunk = new Chunk("\u00A0".repeat(width), normal);
+        chunk.setUnderline(INK, 0.6f, 0, -2.5f, 0, PdfContentByte.LINE_CAP_BUTT);
+        return new Phrase(chunk);
     }
 
     // ---------------------------------------------------------------- Text mit einfacher Formatierung
@@ -936,23 +933,21 @@ public final class WorksheetRenderer {
         Matcher m = INLINE.matcher(value);
         int last = 0;
         while (m.find()) {
-            if (m.start() > last) phrase.add(new Chunk(value.substring(last, m.start()), font(NORMAL, fontSize, color)));
+            if (m.start() > last) phrase.add(text(value.substring(last, m.start()), font(NORMAL, fontSize, color)));
             if (m.group(1) != null) {
-                phrase.add(new Chunk(m.group(1), font(BOLD, fontSize, color)));
+                phrase.add(text(m.group(1), font(BOLD, fontSize, color)));
             } else if (m.group(2) != null) {
-                phrase.add(new Chunk(m.group(2), font(ITALIC, fontSize, color)));
+                phrase.add(text(m.group(2), font(ITALIC, fontSize, color)));
             } else if (m.group(3) != null) {
-                Chunk code = new Chunk(m.group(3), mono(fontSize - 0.5f, color));
-                code.setBackground(PAPER);
-                phrase.add(code);
+                phrase.add(styled(m.group(3), mono(fontSize - 0.5f, color), c -> c.setBackground(PAPER)));
             } else if (gaps) {
                 phrase.add(gapChunk(m.group(4), font(NORMAL, fontSize, color), font(BOLD, fontSize, RED)));
             } else {
-                phrase.add(new Chunk(m.group(), font(NORMAL, fontSize, color)));
+                phrase.add(text(m.group(), font(NORMAL, fontSize, color)));
             }
             last = m.end();
         }
-        if (last < value.length()) phrase.add(new Chunk(value.substring(last), font(NORMAL, fontSize, color)));
+        if (last < value.length()) phrase.add(text(value.substring(last), font(NORMAL, fontSize, color)));
         return phrase;
     }
 
@@ -975,16 +970,23 @@ public final class WorksheetRenderer {
     }
 
     private Font font(int style, float fontSize, Color color) {
-        String name = switch (style) {
-            case BOLD -> serif ? FontFactory.TIMES_BOLD : FontFactory.HELVETICA_BOLD;
-            case ITALIC -> serif ? FontFactory.TIMES_ITALIC : FontFactory.HELVETICA_OBLIQUE;
-            default -> serif ? FontFactory.TIMES_ROMAN : FontFactory.HELVETICA;
-        };
-        return FontFactory.getFont(name, FontFactory.defaultEncoding, false, fontSize, Font.UNDEFINED, color);
+        return PdfFonts.font(serif ? PdfFonts.Family.SERIF : PdfFonts.Family.SANS, style, fontSize, color);
     }
 
     private static Font mono(float fontSize, Color color) {
-        return FontFactory.getFont(FontFactory.COURIER, fontSize, color);
+        return PdfFonts.mono(fontSize, color);
+    }
+
+    /** Text mit Ausweichschriften für Zeichen, die die Hauptschrift nicht kennt. */
+    private static Phrase text(String value, Font font) {
+        return PdfFonts.phrase(value, font);
+    }
+
+    /** Wie {@link #text}, jedes Stück mit derselben Auszeichnung (Unterstrich, Hintergrund). */
+    private static Phrase styled(String value, Font font, java.util.function.Consumer<Chunk> style) {
+        Phrase phrase = PdfFonts.phrase(value, font);
+        for (Element e : phrase) if (e instanceof Chunk c) style.accept(c);
+        return phrase;
     }
 
     private static PdfPCell plain() {
@@ -1060,19 +1062,7 @@ public final class WorksheetRenderer {
         return value == null || !value.isBoolean() ? fallback : value.asBoolean();
     }
 
-    /** Die Standardschriften kennen nur Windows-1252; einige Zeichen werden ersetzt, der Rest zu "?". */
     static String clean(String text) {
-        if (text == null) return "";
-        String value = text.replace("→", "->").replace("←", "<-").replace("⇒", "=>").replace("≤", "<=")
-                .replace("≥", ">=").replace("≠", "!=").replace("✓", "x").replace("✔", "x").replace("\t", "    ");
-        CharsetEncoder encoder = Charset.forName("windows-1252").newEncoder();
-        StringBuilder sb = new StringBuilder(value.length());
-        value.codePoints().forEach(cp -> {
-            String ch = new String(Character.toChars(cp));
-            if (cp == '\n' || (cp >= 32 && encoder.canEncode(ch))) sb.append(ch);
-            else if (cp == '\r') return;
-            else if (Character.getType(cp) != Character.NON_SPACING_MARK && cp != 0xFE0F) sb.append('?');
-        });
-        return sb.toString();
+        return PdfFonts.clean(text);
     }
 }

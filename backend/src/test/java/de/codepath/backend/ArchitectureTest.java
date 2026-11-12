@@ -48,4 +48,12 @@ class ArchitectureTest {
                         "de.codepath.backend.site..", "de.codepath.backend.pathway..", "de.codepath.backend.transfer..", "de.codepath.backend.help..", "de.codepath.backend.quiz..", "de.codepath.backend.evaluation..", "de.codepath.backend.worksheet..")
                 .check(CLASSES);
     }
+
+    @Test
+    void allPdfsUseTheSharedFonts() {
+        noClasses().that().resideOutsideOfPackage("de.codepath.backend.platform.pdf..")
+                .should().dependOnClassesThat().haveFullyQualifiedName("com.lowagie.text.FontFactory")
+                .because("alle PDFs nutzen die eingebetteten Unicode-Schriften aus platform.pdf.PdfFonts")
+                .check(CLASSES);
+    }
 }

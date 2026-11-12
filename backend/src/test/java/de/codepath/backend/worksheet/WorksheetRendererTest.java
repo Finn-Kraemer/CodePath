@@ -52,10 +52,10 @@ public class WorksheetRendererTest {
                         Map.of("type", "heading", "level", 7, "text", "Ende 😀")));
         for (WorksheetRenderer.Variant variant : WorksheetRenderer.Variant.values()) {
             String text = text(render(content, variant));
-            assertTrue(text.contains("Test ?"), "Emoji wird ersetzt statt abzustürzen");
+            assertTrue(text.contains("Test 🚀"), "Emoji kommt aus der Ausweichschrift");
             assertTrue(text.contains("Nr. 1"));
             assertTrue(text.contains("[Bild nicht verfügbar]"));
-            assertTrue(text.contains("->"));
+            assertTrue(text.contains("→"));
             assertFalse(text.contains("Name:"));
         }
     }

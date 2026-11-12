@@ -3,6 +3,7 @@ package de.codepath.backend.report;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
 import de.codepath.backend.identity.User;
+import de.codepath.backend.platform.pdf.PdfFonts;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
@@ -28,8 +29,8 @@ public class ReportRenderer {
                 @Override
                 public void onEndPage(PdfWriter writer, Document document) {
                     PdfContentByte canvas = writer.getDirectContentUnder();
-                    Font waterFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 50, new Color(226, 232, 240, 40));
-                    Phrase watermark = new Phrase("TEILNAHMEBESTÄTIGUNG", waterFont);
+                    Font waterFont = PdfFonts.font(PdfFonts.BOLD, 50, new Color(226, 232, 240, 40));
+                    Phrase watermark = PdfFonts.phrase("TEILNAHMEBESTÄTIGUNG", waterFont);
                     ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER, watermark, 297, 421, 45);
                     
                     // Top gold line
@@ -56,11 +57,11 @@ public class ReportRenderer {
             hCell.setBorder(Rectangle.NO_BORDER);
             hCell.setPaddingBottom(30);
             
-            Paragraph pTitle = new Paragraph("TEILNAHMEBESTÄTIGUNG", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, navy));
+            Paragraph pTitle = PdfFonts.paragraph("TEILNAHMEBESTÄTIGUNG", PdfFonts.font(PdfFonts.BOLD, 22, navy));
             pTitle.setSpacingAfter(5);
             hCell.addElement(pTitle);
             
-            Paragraph pSub = new Paragraph(courseName != null ? courseName.toUpperCase(java.util.Locale.GERMAN) : "BERUFSORIENTIERUNG IT", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, gold));
+            Paragraph pSub = PdfFonts.paragraph(courseName != null ? courseName.toUpperCase(java.util.Locale.GERMAN) : "BERUFSORIENTIERUNG IT", PdfFonts.font(PdfFonts.BOLD, 12, gold));
             hCell.addElement(pSub);
             
             headerTable.addCell(hCell);
@@ -79,7 +80,7 @@ public class ReportRenderer {
             document.add(userBox);
 
             // Table of results
-            Paragraph tableTitle = new Paragraph("ERGEBNISSE DER LERNMODULE", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, navy));
+            Paragraph tableTitle = PdfFonts.paragraph("ERGEBNISSE DER LERNMODULE", PdfFonts.font(PdfFonts.BOLD, 10, navy));
             tableTitle.setSpacingAfter(10);
             document.add(tableTitle);
 
@@ -90,7 +91,7 @@ public class ReportRenderer {
 
             String[] colHeaders = {"Lernmodul", "Ergebnis", "Max.", "Note"};
             for (String ch : colHeaders) {
-                PdfPCell cell = new PdfPCell(new Phrase(ch.toUpperCase(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE)));
+                PdfPCell cell = new PdfPCell(PdfFonts.phrase(ch.toUpperCase(), PdfFonts.font(PdfFonts.BOLD, 9, Color.WHITE)));
                 cell.setBackgroundColor(navy);
                 cell.setPadding(10);
                 cell.setBorder(Rectangle.NO_BORDER);
@@ -104,10 +105,10 @@ public class ReportRenderer {
                 if (r.max() <= 0) continue;
                 int grade = calculateGrade((double) r.achieved() / r.max());
                 Color rowBg = (i % 2 == 0) ? Color.WHITE : new Color(248, 250, 252);
-                table.addCell(createCell(r.title(), FontFactory.getFont(FontFactory.HELVETICA, 10), rowBg, borderGray));
-                table.addCell(createCell(r.achieved() + " Pkt.", FontFactory.getFont(FontFactory.HELVETICA, 10), rowBg, borderGray));
-                table.addCell(createCell(r.max() + " Pkt.", FontFactory.getFont(FontFactory.HELVETICA, 10), rowBg, borderGray));
-                table.addCell(createCell(String.valueOf(grade), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10), rowBg, borderGray));
+                table.addCell(createCell(r.title(), PdfFonts.font(PdfFonts.NORMAL, 10, Color.BLACK), rowBg, borderGray));
+                table.addCell(createCell(r.achieved() + " Pkt.", PdfFonts.font(PdfFonts.NORMAL, 10, Color.BLACK), rowBg, borderGray));
+                table.addCell(createCell(r.max() + " Pkt.", PdfFonts.font(PdfFonts.NORMAL, 10, Color.BLACK), rowBg, borderGray));
+                table.addCell(createCell(String.valueOf(grade), PdfFonts.font(PdfFonts.BOLD, 10, Color.BLACK), rowBg, borderGray));
                 totalAchieved += r.achieved();
                 totalMax += r.max();
             }
@@ -128,13 +129,13 @@ public class ReportRenderer {
                 summaryCell.setBorderColor(navy);
                 summaryCell.setBackgroundColor(bgGray);
 
-                Paragraph resTitle = new Paragraph("GESAMTBEWERTUNG", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, navy));
+                Paragraph resTitle = PdfFonts.paragraph("GESAMTBEWERTUNG", PdfFonts.font(PdfFonts.BOLD, 12, navy));
                 resTitle.setSpacingAfter(10);
                 summaryCell.addElement(resTitle);
 
-                summaryCell.addElement(new Paragraph(String.format("Erreicht wurden %d von %d Punkten.", totalAchieved, totalMax), FontFactory.getFont(FontFactory.HELVETICA, 10)));
+                summaryCell.addElement(PdfFonts.paragraph(String.format("Erreicht wurden %d von %d Punkten.", totalAchieved, totalMax), PdfFonts.font(PdfFonts.NORMAL, 10, Color.BLACK)));
                 
-                Paragraph pFinalGrade = new Paragraph("GESAMTNOTE: " + finalGrade, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, gold));
+                Paragraph pFinalGrade = PdfFonts.paragraph("GESAMTNOTE: " + finalGrade, PdfFonts.font(PdfFonts.BOLD, 18, gold));
                 pFinalGrade.setSpacingBefore(10);
                 summaryCell.addElement(pFinalGrade);
 
@@ -151,12 +152,12 @@ public class ReportRenderer {
     }
 
     private void addFormCell(PdfPTable table, String label, String value, Color navy, Color bg, Color border) {
-        PdfPCell lCell = new PdfPCell(new Phrase(label, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 7, Color.GRAY)));
+        PdfPCell lCell = new PdfPCell(PdfFonts.phrase(label, PdfFonts.font(PdfFonts.BOLD, 7, Color.GRAY)));
         lCell.setBorder(Rectangle.NO_BORDER);
         lCell.setPaddingTop(10);
         table.addCell(lCell);
 
-        PdfPCell vCell = new PdfPCell(new Phrase(value, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, navy)));
+        PdfPCell vCell = new PdfPCell(PdfFonts.phrase(value, PdfFonts.font(PdfFonts.BOLD, 11, navy)));
         vCell.setBorder(Rectangle.BOTTOM);
         vCell.setBorderColor(border);
         vCell.setPaddingBottom(5);
@@ -164,7 +165,7 @@ public class ReportRenderer {
     }
 
     private PdfPCell createCell(String text, Font font, Color bg, Color border) {
-        PdfPCell cell = new PdfPCell(new Phrase(text, font));
+        PdfPCell cell = new PdfPCell(PdfFonts.phrase(text, font));
         cell.setPadding(10);
         cell.setBackgroundColor(bg);
         cell.setBorder(Rectangle.BOTTOM);
