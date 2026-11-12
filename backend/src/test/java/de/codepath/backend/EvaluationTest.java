@@ -282,5 +282,14 @@ class EvaluationTest extends IntegrationTestBase {
         assertTrue(TakeHomeTest.text(files.get("Bewertung_tom.pdf")).contains("Nur für Tom"));
         String single = TakeHomeTest.text(bytes(getAs(teacher(), ADMIN + "/rounds/" + id + "/summary.pdf")));
         assertTrue(single.contains("KLASSE"));
+
+        // Eine Sammel-PDF zum Drucken: Auswertung + alle Bögen, direkt im Browser geöffnet
+        var print = getAs(teacher(), ADMIN + "/rounds/" + id + "/export?format=pdf&duplex=true&inline=true")
+                .andExpect(status().isOk()).andReturn().getResponse();
+        assertEquals("application/pdf", print.getContentType());
+        assertTrue(print.getHeader("Content-Disposition").startsWith("inline"));
+        String all = TakeHomeTest.text(print.getContentAsByteArray());
+        assertTrue(all.contains("Toll gemacht") && all.contains("Nur für Tom") && all.contains("KLASSE"));
+        getAs(teacher(), ADMIN + "/rounds/" + id + "/export?format=docx").andExpect(status().isBadRequest());
     }
 }

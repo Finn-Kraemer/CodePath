@@ -1,7 +1,7 @@
 <script lang="ts">
+	import PdfBundle from '$lib/components/PdfBundle.svelte';
 	import { onMount } from 'svelte';
 	import { api, type CourseSummary } from '$lib/api';
-	import { auth } from '$lib/auth.svelte';
 	import { courseSelection } from '$lib/courses.svelte';
 
 	type Account = { username: string; password: string };
@@ -56,20 +56,6 @@
 		} catch (e) {
 			error = (e as Error).message;
 		}
-	}
-
-	async function downloadCertificates(course: CourseSummary) {
-		const res = await auth.apiFetch(`/api/admin/courses/${course.id}/certificates`);
-		if (!res.ok) {
-			error = 'Export fehlgeschlagen.';
-			return;
-		}
-		const url = URL.createObjectURL(await res.blob());
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `Teilnahmebestaetigungen_${course.name}.zip`;
-		a.click();
-		URL.revokeObjectURL(url);
 	}
 
 	async function endCourse(course: CourseSummary) {
@@ -230,14 +216,22 @@
 						>
 						<span class="flex-1"></span>
 						<button
-							onclick={() => downloadCertificates(course)}
-							class="border border-slate-300 px-4 py-2 text-xs uppercase">Zeugnisse (ZIP)</button
-						>
-						<button
 							onclick={() => endCourse(course)}
 							class="border border-rose-400 px-4 py-2 text-xs text-rose-600 uppercase"
 							>Kurs beenden</button
 						>
+					</div>
+					<div class="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4">
+						<PdfBundle
+							url="/api/admin/courses/{course.id}/certificates"
+							label="Teilnahmebestätigungen"
+							testid="bundle-certificates"
+						/>
+						<PdfBundle
+							url="/api/admin/courses/{course.id}/take-home"
+							label="Mitnehm-Pakete"
+							testid="bundle-take-home"
+						/>
 					</div>
 				{/if}
 			</article>

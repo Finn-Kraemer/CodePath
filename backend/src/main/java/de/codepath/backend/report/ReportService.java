@@ -10,15 +10,12 @@ import de.codepath.backend.identity.User;
 import de.codepath.backend.identity.UserService;
 import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.pdf.PdfFile;
 import de.codepath.backend.progress.ProgressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Zeugnis: bewertet werden nur die für den Kurs freigeschalteten Module. Punkte kommen aus dem Journal.
@@ -99,22 +96,21 @@ public class ReportService {
         return new Compass(entries, entries.stream().filter(e -> e.percent() > 0).limit(3).toList());
     }
 
-    /** Alle Zeugnisse eines Kurses als ZIP – vor dem Beenden des Kurses herunterladen. */
-    public byte[] courseCertificates(Long courseId) {
+    /** Alle Zeugnisse eines Kurses (als ZIP oder Sammel-PDF) – vor dem Beenden des Kurses herunterladen. */
+    public List<PdfFile> courseCertificates(Long courseId) {
         Course course = courseService.get(courseId);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (ZipOutputStream zip = new ZipOutputStream(out)) {
-            for (Long userId : userService.memberIds(course.getId())) {
-                Optional<User> user = userService.byId(userId);
-                if (user.isEmpty()) continue;
-                zip.putNextEntry(new ZipEntry("Teilnahmebestaetigung_" + user.get().getUsername() + ".pdf"));
-                zip.write(certificate(user.get()));
-                zip.closeEntry();
-            }
-        } catch (IOException e) {
-            throw ApiException.badRequest("ZIP konnte nicht erstellt werden.");
-        }
-        auditService.log("CERTIFICATES_EXPORTED", "course:" + courseId, Map.of());
-        return out.toByteArray();
+        List<PdfFile> files = members(course).stream()
+                .map(user -> new PdfFile("Teilnahmebestaetigung_" + user.getUsername() + ".pdf", user.getVisibleName(), certificate(user)))
+                .toList();
+        auditService.log("CERTIFICATES_EXPORTED", "course:" + courseId, Map.of("count", files.size()));
+        return files;
+    }
+
+    /** Mitglieder eines Kurses ohne Lehrkräfte, nach Namen sortiert (Reihenfolge in ZIP und Sammel-PDF). */
+    List<User> members(Course course) {
+        return userService.memberIds(course.getId()).stream().map(userService::byId).flatMap(Optional::stream)
+                .filter(u -> !u.isTeacher())
+                .sorted(Comparator.comparing(User::getVisibleName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 }

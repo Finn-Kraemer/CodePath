@@ -94,9 +94,17 @@ test('Selbsteinschätzung, Unterrichtsbewertung und Bewertung durch die Lehrkraf
 	expect(pdf.suggestedFilename()).toMatch(/^Bewertung_Halbjahres-Feedback_.+\.pdf$/);
 	const [zip] = await Promise.all([
 		teacher.waitForEvent('download'),
-		teacher.getByRole('link', { name: 'Klasse als ZIP' }).click()
+		teacher.getByTestId('bundle-evaluation').getByRole('link', { name: 'ZIP' }).click()
 	]);
 	expect(zip.suggestedFilename()).toBe('Bewertungen_Halbjahres-Feedback.zip');
+	const [all] = await Promise.all([
+		teacher.waitForEvent('download'),
+		teacher.getByTestId('bundle-evaluation').getByRole('link', { name: 'Eine PDF' }).click()
+	]);
+	expect(all.suggestedFilename()).toBe('Bewertungen_Halbjahres-Feedback.pdf');
+	const printTab = teacher.getByTestId('bundle-evaluation').getByRole('link', { name: 'Drucken' });
+	await expect(printTab).toHaveAttribute('href', /format=pdf&inline=true/);
+	await expect(printTab).toHaveAttribute('target', '_blank');
 
 	// Lehrkraft blendet ihre Bewertung aus
 	await teacher.getByRole('tab', { name: 'Einstellungen' }).click();
@@ -107,4 +115,28 @@ test('Selbsteinschätzung, Unterrichtsbewertung und Bewertung durch die Lehrkraf
 	await student.getByRole('tab', { name: 'Rückmeldung der Lehrkraft' }).click();
 	await expect(student.getByText('nicht für dich freigegeben')).toBeVisible();
 	await expect(student.getByText('Mehr eigene Projekte!')).toHaveCount(0);
+});
+
+test('Teilnahmebestätigungen und Mitnehm-Pakete eines Kurses als ZIP oder eine PDF', async ({
+	browser
+}) => {
+	const courseName = `E2E Druck ${Date.now()}`;
+	const { teacher, joinCode } = await courseWithModules(browser, courseName, []);
+	await registerStudent(browser, joinCode, `druck${Date.now() % 100000}`);
+	await teacher.goto('/admin/courses');
+	const course = teacher.locator('article', { hasText: courseName });
+	const [pdf] = await Promise.all([
+		teacher.waitForEvent('download'),
+		course.getByTestId('bundle-certificates').getByRole('link', { name: 'Eine PDF' }).click()
+	]);
+	expect(pdf.suggestedFilename()).toMatch(/^Teilnahmebestaetigungen_Kurs_\d+\.pdf$/);
+	await course.getByTestId('bundle-take-home').getByLabel('beidseitig').check();
+	const [zip] = await Promise.all([
+		teacher.waitForEvent('download'),
+		course.getByTestId('bundle-take-home').getByRole('link', { name: 'ZIP' }).click()
+	]);
+	expect(zip.suggestedFilename()).toMatch(/^Mitnehm-Pakete_Kurs_\d+\.zip$/);
+	await expect(
+		course.getByTestId('bundle-take-home').getByRole('link', { name: 'Eine PDF' })
+	).toHaveAttribute('href', /format=pdf&duplex=true/);
 });

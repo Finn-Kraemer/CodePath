@@ -155,7 +155,7 @@ export interface paths {
 			path?: never;
 			cookie?: never;
 		};
-		get: operations['export_1'];
+		get: operations['export_2'];
 		put?: never;
 		post?: never;
 		delete?: never;
@@ -516,6 +516,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/courses/{id}/take-home': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['courseTakeHome'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/evaluations/rounds': {
 		parameters: {
 			query?: never;
@@ -543,6 +559,22 @@ export interface paths {
 		put: operations['updateRound'];
 		post?: never;
 		delete: operations['deleteRound'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/evaluations/rounds/{id}/export': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['export_1'];
+		put?: never;
+		post?: never;
+		delete?: never;
 		options?: never;
 		head?: never;
 		patch?: never;
@@ -4207,7 +4239,7 @@ export interface operations {
 			};
 		};
 	};
-	export_1: {
+	export_2: {
 		parameters: {
 			query?: never;
 			header?: never;
@@ -4751,7 +4783,11 @@ export interface operations {
 	};
 	courseCertificates: {
 		parameters: {
-			query?: never;
+			query?: {
+				format?: string;
+				duplex?: boolean;
+				inline?: boolean;
+			};
 			header?: never;
 			path: {
 				id: number;
@@ -4813,6 +4849,32 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['CourseSummary'];
+				};
+			};
+		};
+	};
+	courseTakeHome: {
+		parameters: {
+			query?: {
+				format?: string;
+				duplex?: boolean;
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
 				};
 			};
 		};
@@ -4928,6 +4990,32 @@ export interface operations {
 					[name: string]: unknown;
 				};
 				content?: never;
+			};
+		};
+	};
+	export_1: {
+		parameters: {
+			query?: {
+				format?: string;
+				duplex?: boolean;
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
 			};
 		};
 	};
@@ -5051,7 +5139,9 @@ export interface operations {
 	};
 	studentPdf: {
 		parameters: {
-			query?: never;
+			query?: {
+				inline?: boolean;
+			};
 			header?: never;
 			path: {
 				id: number;
@@ -5074,7 +5164,9 @@ export interface operations {
 	};
 	summaryPdf: {
 		parameters: {
-			query?: never;
+			query?: {
+				inline?: boolean;
+			};
 			header?: never;
 			path: {
 				id: number;
@@ -7091,7 +7183,9 @@ export interface operations {
 	};
 	pdf: {
 		parameters: {
-			query?: never;
+			query?: {
+				inline?: boolean;
+			};
 			header?: never;
 			path: {
 				id: number;

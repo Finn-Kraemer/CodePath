@@ -7,6 +7,7 @@
 	import CriteriaEditor from '$lib/evaluation/CriteriaEditor.svelte';
 	import EvaluationForm from '$lib/evaluation/EvaluationForm.svelte';
 	import ResultBars from '$lib/evaluation/ResultBars.svelte';
+	import PdfBundle from '$lib/components/PdfBundle.svelte';
 	import {
 		PART_LABELS,
 		VISIBILITY_LABELS,
@@ -477,10 +478,14 @@
 			{#if round.status !== 'DRAFT'}
 				<button class="ed-button" onclick={() => setStatus('DRAFT')}>Zurück zum Entwurf</button>
 			{/if}
-			<a class="ed-button" href="/api/admin/evaluations/rounds/{round.id}/export.zip" download
-				>Klasse als ZIP</a
-			>
 			<button class="ed-button border-rose-300 text-rose-700" onclick={remove}>Löschen</button>
+			<div class="w-full border-t border-slate-200 pt-3">
+				<PdfBundle
+					url="/api/admin/evaluations/rounds/{round.id}/export"
+					label="Klasse: Auswertung + alle Bögen"
+					testid="bundle-evaluation"
+				/>
+			</div>
 		</div>
 
 		<div class="mb-6 flex flex-wrap gap-1 border-b border-slate-200" role="tablist">
@@ -579,9 +584,7 @@
 			<a class="ed-button" href="/api/admin/evaluations/rounds/{round.id}/summary.pdf" download
 				>PDF: Klassenauswertung</a
 			>
-			<a class="ed-button" href="/api/admin/evaluations/rounds/{round.id}/export.zip" download
-				>ZIP: alle Bögen als PDF</a
-			>
+
 			<button class="ed-button" onclick={exportStudents}>CSV: je Person</button>
 			{#if round.lessonCriteria}
 				<button class="ed-button" onclick={exportLesson}>CSV: Unterrichtsbewertung</button>

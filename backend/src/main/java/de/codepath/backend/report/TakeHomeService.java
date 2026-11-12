@@ -7,6 +7,9 @@ import de.codepath.backend.identity.User;
 import de.codepath.backend.identity.UserService;
 import de.codepath.backend.progress.ProgressService;
 import de.codepath.backend.progress.ProgressStatus;
+import de.codepath.backend.identity.CourseService;
+import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.pdf.PdfFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +36,23 @@ public class TakeHomeService {
     private final ReportService reportService;
     private final ProgressService progressService;
     private final UserService userService;
+    private final CourseService courseService;
+    private final AuditService auditService;
     private final TakeHomeRenderer renderer = new TakeHomeRenderer();
+
+    /**
+     * Mitnehm-Pakete aller Schülerinnen und Schüler eines Kurses, z. B. zum Ausdrucken vor dem Kursende.
+     * Anders als beim eigenen Abruf protokolliert, weil die Lehrkraft Daten vieler Personen auf einmal exportiert.
+     */
+    @Transactional
+    public List<PdfFile> course(Long courseId) {
+        Course course = courseService.get(courseId);
+        List<PdfFile> files = reportService.members(course).stream()
+                .map(user -> new PdfFile("Mitnehm-Paket_" + user.getUsername() + ".pdf", user.getVisibleName(), render(user)))
+                .toList();
+        auditService.log("TAKE_HOME_EXPORTED", "course:" + courseId, Map.of("count", files.size()));
+        return files;
+    }
 
     @Transactional(readOnly = true)
     public byte[] render(User user) {

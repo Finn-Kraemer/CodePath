@@ -362,7 +362,7 @@
     },
     "/api/admin/content/export" : {
       "get" : {
-        "operationId" : "export_1",
+        "operationId" : "export_2",
         "responses" : {
           "200" : {
             "content" : {
@@ -1056,6 +1056,29 @@
             "type" : "integer",
             "format" : "int64"
           }
+        }, {
+          "in" : "query",
+          "name" : "format",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "duplex",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
         } ],
         "responses" : {
           "200" : {
@@ -1129,6 +1152,57 @@
           }
         },
         "tags" : [ "identity-admin-controller" ]
+      }
+    },
+    "/api/admin/courses/{id}/take-home" : {
+      "get" : {
+        "operationId" : "courseTakeHome",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "format",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "duplex",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "report-controller" ]
       }
     },
     "/api/admin/evaluations/rounds" : {
@@ -1258,6 +1332,57 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/RoundAdmin"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "evaluation-admin-controller" ]
+      }
+    },
+    "/api/admin/evaluations/rounds/{id}/export" : {
+      "get" : {
+        "operationId" : "export_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "format",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "duplex",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
                 }
               }
             },
@@ -1453,6 +1578,14 @@
             "type" : "integer",
             "format" : "int64"
           }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
         } ],
         "responses" : {
           "200" : {
@@ -1480,6 +1613,14 @@
           "schema" : {
             "type" : "integer",
             "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
           }
         } ],
         "responses" : {
@@ -3866,6 +4007,14 @@
           "schema" : {
             "type" : "integer",
             "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
           }
         } ],
         "responses" : {

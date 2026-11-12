@@ -2,7 +2,7 @@ package de.codepath.backend.evaluation;
 
 import de.codepath.backend.identity.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
+import de.codepath.backend.platform.pdf.PdfBundles;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +40,8 @@ public class EvaluationController {
 
     /** Eigener Bogen als PDF; die Lehrerbewertung nur, wenn sie freigegeben ist */
     @GetMapping("/{id}/pdf")
-    public ResponseEntity<byte[]> pdf(@PathVariable("id") Long id) {
-        return EvaluationAdminController.download(exportService.mySheet(userService.currentUser(), id), MediaType.APPLICATION_PDF);
+    public ResponseEntity<byte[]> pdf(@PathVariable("id") Long id,
+                                      @RequestParam(name = "inline", defaultValue = "false") boolean inline) {
+        return PdfBundles.respond(exportService.mySheet(userService.currentUser(), id), inline);
     }
 }

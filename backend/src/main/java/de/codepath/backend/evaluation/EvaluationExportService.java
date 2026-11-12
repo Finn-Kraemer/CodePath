@@ -3,18 +3,14 @@ package de.codepath.backend.evaluation;
 import de.codepath.backend.identity.Course;
 import de.codepath.backend.identity.User;
 import de.codepath.backend.identity.UserService;
-import de.codepath.backend.platform.ApiException;
 import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.pdf.PdfFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Bewertungsbögen als PDF: der Bogen einer Person (für die Lehrkraft oder die Person selbst), die
@@ -32,18 +28,16 @@ public class EvaluationExportService {
     private final UserService userService;
     private final AuditService auditService;
 
-    public record Export(String filename, byte[] content) {
-    }
-
     /** Bogen einer Person für die Lehrkraft. */
-    public Export studentSheet(Long roundId, Long userId) {
+    public PdfFile studentSheet(Long roundId, Long userId) {
         EvaluationService.RoundAdmin round = service.get(roundId);
         EvaluationService.StudentEvaluation student = service.student(roundId, userId);
-        return new Export(fileName("Bewertung", round.title(), student.username()), EvaluationPdf.sheet(teacherSheet(round, student)));
+        return new PdfFile(fileName("Bewertung", round.title(), student.username()), student.displayName(),
+                EvaluationPdf.sheet(teacherSheet(round, student)));
     }
 
     /** Eigener Bogen der angemeldeten Person. */
-    public Export mySheet(User user, Long roundId) {
+    public PdfFile mySheet(User user, Long roundId) {
         EvaluationService.MyRoundDetail d = service.myRound(user, roundId);
         String course = userService.courseOf(user.getId()).map(Course::getName).orElse("");
         List<EvaluationPdf.Section> sections = new ArrayList<>();
@@ -72,35 +66,37 @@ public class EvaluationExportService {
             }, null, List.of()));
         }
         EvaluationPdf.Sheet sheet = new EvaluationPdf.Sheet(d.title(), course, user.getVisibleName(), d.intro(), LocalDateTime.now(), sections);
-        return new Export(fileName("Bewertung", d.title(), user.getUsername()), EvaluationPdf.sheet(sheet));
+        return new PdfFile(fileName("Bewertung", d.title(), user.getUsername()), user.getVisibleName(), EvaluationPdf.sheet(sheet));
     }
 
     /** Klassenauswertung als PDF. */
-    public Export summary(Long roundId) {
+    public PdfFile summary(Long roundId) {
         EvaluationService.RoundResults results = service.results(roundId);
-        return new Export(fileName("Klassenauswertung", results.round().title(), null), EvaluationPdf.summary(summaryOf(results)));
+        return new PdfFile(fileName("Klassenauswertung", results.round().title(), null), "Klassenauswertung",
+                EvaluationPdf.summary(summaryOf(results)));
     }
 
-    /** Klassenauswertung und die Bögen aller Personen des Kurses als ZIP. */
-    public Export classZip(Long roundId) {
+    /**
+     * Klassenauswertung und die Bögen aller Personen des Kurses – für ZIP oder Sammel-PDF.
+     * Die Klassenauswertung steht vorne ({@code 00_…}), danach die Personen nach Namen.
+     */
+    public List<PdfFile> classFiles(Long roundId) {
         EvaluationService.RoundResults results = service.results(roundId);
         EvaluationService.RoundAdmin round = results.round();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (ZipOutputStream zip = new ZipOutputStream(out)) {
-            zip.putNextEntry(new ZipEntry("00_Klassenauswertung.pdf"));
-            zip.write(EvaluationPdf.summary(summaryOf(results)));
-            zip.closeEntry();
-            for (EvaluationService.StudentRow row : results.students()) {
-                EvaluationService.StudentEvaluation student = service.student(roundId, row.userId());
-                zip.putNextEntry(new ZipEntry("Bewertung_" + safe(student.username()) + ".pdf"));
-                zip.write(EvaluationPdf.sheet(teacherSheet(round, student)));
-                zip.closeEntry();
-            }
-        } catch (IOException e) {
-            throw ApiException.badRequest("ZIP konnte nicht erstellt werden.");
+        List<PdfFile> files = new ArrayList<>();
+        files.add(new PdfFile("00_Klassenauswertung.pdf", "Klassenauswertung", EvaluationPdf.summary(summaryOf(results))));
+        for (EvaluationService.StudentRow row : results.students()) {
+            EvaluationService.StudentEvaluation student = service.student(roundId, row.userId());
+            files.add(new PdfFile("Bewertung_" + safe(student.username()) + ".pdf", student.displayName(),
+                    EvaluationPdf.sheet(teacherSheet(round, student))));
         }
         auditService.log("EVALUATION_ROUND_EXPORTED", "evaluation:" + roundId, Map.of("students", results.students().size()));
-        return new Export(fileName("Bewertungen", round.title(), null).replaceAll("\\.pdf$", ".zip"), out.toByteArray());
+        return files;
+    }
+
+    /** Dateiname ohne Endung für ZIP und Sammel-PDF */
+    public String bundleName(Long roundId) {
+        return "Bewertungen_" + safe(service.get(roundId).title());
     }
 
     // ------------------------------------------------------------------ Aufbau
