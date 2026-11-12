@@ -70,7 +70,7 @@ public class StudentTaskService {
                     t.version().getDifficulty().name(), t.version().getPoints(), status.name(),
                     status == ProgressStatus.SOLVED, p != null && (p.isLocked() || status == ProgressStatus.FAILED),
                     blocked, blocked ? taskAccess.reason() : null,
-                    points.getOrDefault(t.taskId(), 0L));
+                    points.getOrDefault(t.taskId(), 0L), releases.personallyShown(t), releases.bonus(t));
         }).toList();
         return new TaskViews.ModuleDetail(summary(module, access, tasks, progress, points), summaries);
     }

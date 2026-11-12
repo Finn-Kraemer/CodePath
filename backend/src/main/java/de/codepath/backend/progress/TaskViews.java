@@ -15,12 +15,16 @@ public final class TaskViews {
                                 int totalTasks, int completedTasks, long pointsEarned, int maxPoints) {
     }
 
+    /**
+     * @param personal eigens für diese Person freigegeben (Differenzierung)
+     * @param bonus    Zusatzaufgabe: Punkte zählen nicht in der Rangliste
+     */
     public record TaskSummary(Long id, String slug, String title, String type, String difficulty, int points,
                               String status, boolean isCompleted, boolean isLocked, boolean isBlocked,
-                              String blockedReason, long pointsEarned) {
+                              String blockedReason, long pointsEarned, boolean personal, boolean bonus) {
         public TaskSummary(Long id, String slug, String title, String type, String difficulty, int points,
                            String status, boolean isCompleted, boolean isLocked, long pointsEarned) {
-            this(id, slug, title, type, difficulty, points, status, isCompleted, isLocked, false, null, pointsEarned);
+            this(id, slug, title, type, difficulty, points, status, isCompleted, isLocked, false, null, pointsEarned, false, false);
         }
     }
 

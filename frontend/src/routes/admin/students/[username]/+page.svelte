@@ -5,6 +5,7 @@
 	import { api, type Schemas } from '$lib/api';
 	import { auth } from '$lib/auth.svelte';
 	import PathMap from '$lib/pathway/PathMap.svelte';
+	import UserReleases from '$lib/components/UserReleases.svelte';
 
 	type StudentPathAdminView = Schemas['StudentPathAdminView'];
 
@@ -278,6 +279,10 @@
 		<div class="grid grid-cols-1 gap-12 lg:grid-cols-3">
 			<div class="space-y-12 lg:col-span-2">
 				{#if activeTab === 'tasks'}
+					<UserReleases
+						{username}
+						onchange={() => fetchData(pathAdmin?.selectedSlug ?? undefined)}
+					/>
 					<!-- Task Checklist -->
 					<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
 						<h3 class="mb-10 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">

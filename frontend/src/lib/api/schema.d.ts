@@ -1140,6 +1140,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/modules/{id}/user-releases': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['moduleUserReleases'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/pages': {
 		parameters: {
 			query?: never;
@@ -1492,6 +1508,38 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/students/{username}/releases': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['studentReleases'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/students/{username}/releases/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		delete: operations['deleteStudentRelease'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/students/{username}/report': {
 		parameters: {
 			query?: never;
@@ -1726,6 +1774,22 @@ export interface paths {
 		get: operations['sections'];
 		put?: never;
 		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/user-releases': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['setUserReleases'];
 		delete?: never;
 		options?: never;
 		head?: never;
@@ -4030,12 +4094,14 @@ export interface components {
 		};
 		TaskSummary: {
 			blockedReason: string;
+			bonus: boolean;
 			difficulty: string;
 			/** Format: int64 */
 			id: number;
 			isBlocked: boolean;
 			isCompleted: boolean;
 			isLocked: boolean;
+			personal: boolean;
 			/** Format: int32 */
 			points: number;
 			/** Format: int64 */
@@ -4102,6 +4168,36 @@ export interface components {
 			unchanged: number;
 			/** Format: int32 */
 			updated: number;
+		};
+		UserReleaseRequest: {
+			availableUntil?: string;
+			bonus?: boolean;
+			mode?: string;
+			/** Format: int64 */
+			moduleId?: number;
+			/** Format: int64 */
+			taskId?: number;
+			usernames?: string[];
+		};
+		UserReleaseView: {
+			/** Format: date-time */
+			availableUntil: string;
+			bonus: boolean;
+			displayName: string;
+			/** Format: int64 */
+			id: number;
+			/** @enum {string} */
+			mode: 'SHOWN' | 'HIDDEN';
+			moduleIcon: string;
+			/** Format: int64 */
+			moduleId: number;
+			moduleSlug: string;
+			moduleTitle: string;
+			/** Format: int64 */
+			taskId: number;
+			taskSlug: string;
+			taskTitle: string;
+			username: string;
 		};
 		VersionRow: {
 			/** Format: int64 */
@@ -6196,6 +6292,30 @@ export interface operations {
 			};
 		};
 	};
+	moduleUserReleases: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['UserReleaseView'][];
+				};
+			};
+		};
+	};
 	all_1: {
 		parameters: {
 			query?: never;
@@ -6779,6 +6899,49 @@ export interface operations {
 			};
 		};
 	};
+	studentReleases: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				username: string;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['UserReleaseView'][];
+				};
+			};
+		};
+	};
+	deleteStudentRelease: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				username: string;
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
 	studentReport: {
 		parameters: {
 			query?: never;
@@ -7128,6 +7291,30 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['SectionInfo'][];
+				};
+			};
+		};
+	};
+	setUserReleases: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['UserReleaseRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['UserReleaseView'][];
 				};
 			};
 		};

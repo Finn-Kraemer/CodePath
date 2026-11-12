@@ -2600,6 +2600,44 @@
         "tags" : [ "classroom-admin-controller" ]
       }
     },
+    "/api/admin/modules/{id}/user-releases" : {
+      "get" : {
+        "operationId" : "moduleUserReleases",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/UserReleaseView"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
     "/api/admin/pages" : {
       "get" : {
         "operationId" : "all_1",
@@ -3279,6 +3317,62 @@
         "tags" : [ "code-path-controller" ]
       }
     },
+    "/api/admin/students/{username}/releases" : {
+      "get" : {
+        "operationId" : "studentReleases",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/UserReleaseView"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
+    "/api/admin/students/{username}/releases/{id}" : {
+      "delete" : {
+        "operationId" : "deleteStudentRelease",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "username",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
+      }
+    },
     "/api/admin/students/{username}/report" : {
       "get" : {
         "operationId" : "studentReport",
@@ -3748,6 +3842,37 @@
           }
         },
         "tags" : [ "transfer-controller" ]
+      }
+    },
+    "/api/admin/user-releases" : {
+      "post" : {
+        "operationId" : "setUserReleases",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserReleaseRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/UserReleaseView"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "classroom-admin-controller" ]
       }
     },
     "/api/admin/worksheets" : {
@@ -9073,6 +9198,9 @@
           "blockedReason" : {
             "type" : "string"
           },
+          "bonus" : {
+            "type" : "boolean"
+          },
           "difficulty" : {
             "type" : "string"
           },
@@ -9087,6 +9215,9 @@
             "type" : "boolean"
           },
           "isLocked" : {
+            "type" : "boolean"
+          },
+          "personal" : {
             "type" : "boolean"
           },
           "points" : {
@@ -9110,7 +9241,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "blockedReason", "difficulty", "id", "isBlocked", "isCompleted", "isLocked", "points", "pointsEarned", "slug", "status", "title", "type" ]
+        "required" : [ "blockedReason", "bonus", "difficulty", "id", "isBlocked", "isCompleted", "isLocked", "personal", "points", "pointsEarned", "slug", "status", "title", "type" ]
       },
       "TeacherPeerReview" : {
         "type" : "object",
@@ -9269,6 +9400,84 @@
           }
         },
         "required" : [ "created", "detected", "errors", "items", "unchanged", "updated" ]
+      },
+      "UserReleaseRequest" : {
+        "type" : "object",
+        "properties" : {
+          "availableUntil" : {
+            "type" : "string"
+          },
+          "bonus" : {
+            "type" : "boolean"
+          },
+          "mode" : {
+            "type" : "string"
+          },
+          "moduleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "taskId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "usernames" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "UserReleaseView" : {
+        "type" : "object",
+        "properties" : {
+          "availableUntil" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "bonus" : {
+            "type" : "boolean"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "mode" : {
+            "type" : "string",
+            "enum" : [ "SHOWN", "HIDDEN" ]
+          },
+          "moduleIcon" : {
+            "type" : "string"
+          },
+          "moduleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moduleSlug" : {
+            "type" : "string"
+          },
+          "moduleTitle" : {
+            "type" : "string"
+          },
+          "taskId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "taskSlug" : {
+            "type" : "string"
+          },
+          "taskTitle" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "availableUntil", "bonus", "displayName", "id", "mode", "moduleIcon", "moduleId", "moduleSlug", "moduleTitle", "taskId", "taskSlug", "taskTitle", "username" ]
       },
       "VersionRow" : {
         "type" : "object",

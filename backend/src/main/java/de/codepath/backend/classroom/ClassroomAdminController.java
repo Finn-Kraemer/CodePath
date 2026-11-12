@@ -24,6 +24,15 @@ public class ClassroomAdminController {
     private final CourseService courseService;
     private final SettingsService settings;
     private final UserService userService;
+    private final UserReleaseService userReleaseService;
+
+    /**
+     * Freigabe für eine oder mehrere Personen. Genau eins von moduleId und taskId; mode SHOWN, HIDDEN oder
+     * NONE (aufheben); availableUntil optional (ISO-Datum mit Uhrzeit); bonus: Punkte ohne Ranglistenwirkung.
+     */
+    public record UserReleaseRequest(List<String> usernames, Long moduleId, Long taskId, String mode,
+                                     String availableUntil, Boolean bonus) {
+    }
 
     @GetMapping("/modules")
     public List<ReleaseService.ModuleReleaseView> modules(@RequestParam(name = "courseId", required = false) Long courseId) {
@@ -59,6 +68,35 @@ public class ClassroomAdminController {
     public void deadline(@PathVariable("id") Long moduleId, @RequestParam(name = "courseId", required = false) Long courseId,
                          @RequestBody Map<String, String> body) {
         releaseService.setDeadline(resolveCourse(courseId), moduleId, parseDeadline(body.get("deadline")));
+    }
+
+    @GetMapping("/students/{username}/releases")
+    public List<UserReleaseService.UserReleaseView> studentReleases(@PathVariable("username") String username) {
+        return userReleaseService.forStudent(username);
+    }
+
+    @DeleteMapping("/students/{username}/releases/{id}")
+    public void deleteStudentRelease(@PathVariable("username") String username, @PathVariable("id") Long id) {
+        userReleaseService.delete(username, id);
+    }
+
+    /** Freigaben einzelner Personen eines Kurses in einem Modul (für die Modul-Steuerung). */
+    @GetMapping("/modules/{id}/user-releases")
+    public List<UserReleaseService.UserReleaseView> moduleUserReleases(@PathVariable("id") Long moduleId,
+                                                                       @RequestParam(name = "courseId", required = false) Long courseId) {
+        return userReleaseService.forModule(resolveCourse(courseId), moduleId);
+    }
+
+    @PostMapping("/user-releases")
+    public List<UserReleaseService.UserReleaseView> setUserReleases(@RequestBody UserReleaseRequest request) {
+        TaskReleaseMode mode;
+        try {
+            mode = request.mode() == null || "NONE".equals(request.mode()) ? null : TaskReleaseMode.valueOf(request.mode());
+        } catch (IllegalArgumentException e) {
+            throw ApiException.badRequest("mode: SHOWN, HIDDEN oder NONE");
+        }
+        return userReleaseService.apply(new UserReleaseService.Change(request.usernames(), request.moduleId(), request.taskId(),
+                mode, parseDeadline(request.availableUntil()), Boolean.TRUE.equals(request.bonus())));
     }
 
     @PutMapping("/announcement")

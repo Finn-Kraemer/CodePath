@@ -1,5 +1,6 @@
 package de.codepath.backend.progress;
 
+import de.codepath.backend.classroom.UserReleaseService;
 import de.codepath.backend.identity.Course;
 import de.codepath.backend.identity.CourseService;
 import de.codepath.backend.identity.User;
@@ -19,6 +20,7 @@ public class LeaderboardService {
     private final UserService userService;
     private final PointsService pointsService;
     private final CourseService courseService;
+    private final UserReleaseService userReleaseService;
 
     public TaskViews.Leaderboard leaderboard(User viewer, Long requestedCourseId) {
         List<Long> ids;
@@ -33,7 +35,12 @@ public class LeaderboardService {
             since = course.map(Course::getLeaderboardSince).orElse(null);
         }
         // Rangliste neu gestartet (z. B. nach der Übernahme ins nächste Schuljahr): nur neue Punkte zählen
-        Map<Long, Long> totals = pointsService.totalsSince(ids, since);
+        Map<Long, Long> totals = new HashMap<>(pointsService.totalsSince(ids, since));
+        // Zusatzaufgaben „Bonus ohne Ranglistenwirkung“ zählen nicht mit
+        Map<Long, Set<Long>> bonus = userReleaseService.bonusTasks(ids);
+        if (!bonus.isEmpty()) {
+            pointsService.byTaskSince(bonus, since).forEach((userId, points) -> totals.merge(userId, -points, Long::sum));
+        }
         List<User> users = new ArrayList<>();
         for (Long id : ids) userService.byId(id).ifPresent(users::add);
         users.sort(Comparator.<User>comparingLong(u -> -totals.getOrDefault(u.getId(), 0L)).thenComparing(User::getUsername));
@@ -49,7 +56,7 @@ public class LeaderboardService {
         }
         TaskViews.LeaderboardEntry own = ranked.stream().filter(e -> e.username().equals(viewer.getUsername())).findFirst()
                 .orElse(new TaskViews.LeaderboardEntry(viewer.getUsername(), viewer.getVisibleName(),
-                        pointsService.totalsSince(List.of(viewer.getId()), since).getOrDefault(viewer.getId(), 0L), 0));
+                        totals.getOrDefault(viewer.getId(), 0L), 0));
         return new TaskViews.Leaderboard(ranked.subList(0, Math.min(3, ranked.size())),
                 ranked.subList(0, Math.min(MAX_ENTRIES, ranked.size())), own);
     }

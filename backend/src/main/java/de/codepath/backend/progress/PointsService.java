@@ -115,6 +115,22 @@ public class PointsService {
         return result;
     }
 
+    /** Summe je Person über die angegebenen Aufgaben (je Person eigene Auswahl), ab {@code since} (null = alle). */
+    public Map<Long, Long> byTaskSince(Map<Long, Set<Long>> tasksByUser, java.time.LocalDateTime since) {
+        Map<Long, Long> result = new HashMap<>();
+        if (tasksByUser.isEmpty()) return result;
+        for (Object[] row : repository.byUserAndTask(tasksByUser.keySet())) {
+            Long userId = (Long) row[0];
+            Long taskId = (Long) row[1];
+            java.time.LocalDateTime at = (java.time.LocalDateTime) row[3];
+            if (since != null && at.isBefore(since)) continue;
+            if (tasksByUser.getOrDefault(userId, Set.of()).contains(taskId)) {
+                result.merge(userId, ((Number) row[2]).longValue(), Long::sum);
+            }
+        }
+        return result;
+    }
+
     public Map<Long, Long> byTask(Long userId) {
         Map<Long, Long> result = new HashMap<>();
         for (Object[] row : repository.byTask(userId)) {

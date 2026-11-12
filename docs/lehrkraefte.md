@@ -41,6 +41,17 @@ Unter jedem Modul klappt **Einzelne Aufgaben** die Aufgabenliste auf. Je Aufgabe
 
 Die Einstellung gilt nur für den gewählten Kurs. Aufgaben- und Punktzahl des Moduls, der Modulfortschritt der Schülerinnen und Schüler und die **Teilnahmebestätigung** zählen nur die sichtbaren Aufgaben. Gesperrte Aufgaben lassen sich nicht abgeben; bereits verdiente Punkte bleiben im Punktestand.
 
+### Freigaben für einzelne Schülerinnen und Schüler
+
+Für Differenzierung lassen sich Module oder Aufgaben auch **nur für einzelne Personen** freigeben oder sperren – Zusatzaufgaben für Schnelle, leichtere Aufgaben zur Unterstützung:
+
+- **Modul-Steuerung → Für einzelne Schüler** (unter jedem Modul): Personen des Kurses ankreuzen, *Ganzes Modul* oder eine Aufgabe wählen, *freigeben* oder *sperren*, optional eine eigene Frist.
+- **Schülerakte → Zusätzliche Aufgaben & Freigaben**: dasselbe für eine Person, mit Liste aller ihrer Freigaben und *aufheben*.
+
+Freigaben für eine Person gehen immer vor. Die Rangfolge ist: **Aufgabe für die Person → Modul für die Person → Aufgabe im Kurs → Modul im Kurs**; sie gelten auch an einem verbindlichen CodePath vorbei, und die CodePath-Karte der Person berücksichtigt sie. Eine gesperrte Aufgabe ist auch serverseitig gesperrt. Die anderen sehen von persönlichen Freigaben nichts; die Person sieht die Aufgabe mit dem Hinweis „Für dich freigegeben“.
+
+Mit **Bonus ohne Ranglistenwirkung** wird eine Freigabe zur *Zusatzaufgabe*: Die Punkte zählen im Profil und in der Teilnahmebestätigung, aber nicht in der Rangliste – so bleibt sie fair.
+
 Empfehlung: Mit zwei oder drei Modulen beginnen und weitere im Laufe des Tages freigeben. Das Modul **Abschlusstest** erst am Ende freischalten.
 
 ### Geräte prüfen
