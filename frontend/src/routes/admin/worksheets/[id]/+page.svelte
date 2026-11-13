@@ -209,13 +209,11 @@
 		<div class="min-w-0 flex-1">
 			<div class="mb-2 flex items-center gap-3 text-institutional-navy/40">
 				<a href="/admin" class="transition-colors hover:text-institutional-gold">
-					<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase"
-						>Admin Dashboard</span
-					>
+					<span class="font-mono text-[11px] font-bold tracking-wider uppercase">Leitstand</span>
 				</a>
 				<span class="text-slate-300">/</span>
 				<a href="/admin/worksheets" class="transition-colors hover:text-institutional-gold">
-					<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase"
+					<span class="font-mono text-[11px] font-bold tracking-wider uppercase"
 						>Aufgabenblätter</span
 					>
 				</a>
@@ -235,7 +233,7 @@
 			</p>
 		</div>
 		<div class="flex flex-wrap items-center gap-3">
-			<span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+			<span class="font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 				{#if loading}Lädt …{:else if dirty}Ungespeicherte Änderungen{:else}Gespeichert{/if}
 			</span>
 			<button
@@ -250,7 +248,7 @@
 				disabled={busy || loading || !title.trim()}>PDF Lösung</button
 			>
 			<button
-				class="bg-institutional-navy px-6 py-3 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:opacity-95 disabled:opacity-50"
+				class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:opacity-95 disabled:opacity-50"
 				onclick={() => download('student')}
 				disabled={busy || loading || !title.trim()}>PDF Schülerblatt</button
 			>
@@ -258,19 +256,22 @@
 	</header>
 
 	{#if message}
-		<p class="text-[11px] font-bold tracking-widest text-teal-700 uppercase" role="status">
+		<p class="text-[11px] font-bold tracking-wider text-teal-700 uppercase" role="status">
 			{message}
 		</p>
 	{/if}
 	{#if error}
-		<p class="text-[11px] font-bold tracking-widest text-rose-700 uppercase" role="alert">
+		<p class="text-[11px] font-bold tracking-wider text-rose-700 uppercase" role="alert">
 			{error}
 		</p>
 	{/if}
 
-	<details class="border border-slate-200 bg-white" data-testid="worksheet-personal">
+	<details
+		class="rounded-[var(--radius-ui)] border border-slate-200 bg-white"
+		data-testid="worksheet-personal"
+	>
 		<summary
-			class="cursor-pointer px-6 py-4 font-mono text-[10px] font-bold tracking-widest text-institutional-navy uppercase"
+			class="cursor-pointer px-6 py-4 font-mono text-[11px] font-bold tracking-wider text-institutional-navy uppercase"
 		>
 			Ein Blatt je Person oder Varianten A/B/C
 		</summary>
@@ -319,13 +320,13 @@
 		<aside
 			class="flex flex-col gap-4 xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:self-start xl:overflow-y-auto"
 		>
-			<div class="flex border border-slate-200 bg-white" role="tablist">
+			<div class="flex rounded-[var(--radius-ui)] border border-slate-200 bg-white" role="tablist">
 				{#each [['blocks', 'Inhalt'], ['settings', 'Kopf & Layout']] as [key, label] (key)}
 					<button
 						type="button"
 						role="tab"
 						aria-selected={panel === key}
-						class="flex-1 px-4 py-2 text-[11px] font-bold tracking-widest uppercase {panel === key
+						class="flex-1 px-4 py-2 text-[11px] font-bold tracking-wider uppercase {panel === key
 							? 'bg-institutional-navy text-white'
 							: 'text-slate-500 hover:text-institutional-navy'}"
 						onclick={() => (panel = key as 'blocks' | 'settings')}>{label}</button
@@ -335,7 +336,9 @@
 
 			{#if panel === 'settings'}
 				{@const s = content.settings}
-				<section class="flex flex-col gap-4 border border-slate-200 bg-white p-4">
+				<section
+					class="flex flex-col gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4"
+				>
 					<div>
 						<p class="ed-label">Vorlage für den Kopf</p>
 						<div class="mt-2 flex flex-wrap gap-2">
@@ -506,7 +509,7 @@
 									onclick={() => select(block.id)}
 									aria-expanded={selected === block.id}
 								>
-									<span class="block font-mono text-[9px] tracking-widest text-slate-400 uppercase"
+									<span class="block font-mono text-[11px] tracking-wider text-slate-400 uppercase"
 										>{numbers[block.id] ? `${numbers[block.id]} · ` : ''}{BLOCK_TYPES[block.type]
 											.label}{block.show === 'solution'
 											? ' · nur Lösung'
@@ -558,7 +561,7 @@
 							Neuer Block {index >= 0 ? 'nach dem gewählten' : 'am Ende'}
 						</p>
 						{#each groups as group (group)}
-							<p class="mt-3 mb-1 font-mono text-[9px] tracking-widest text-slate-400 uppercase">
+							<p class="mt-3 mb-1 font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 								{group}
 							</p>
 							<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -581,7 +584,7 @@
 				{:else}
 					<button
 						type="button"
-						class="border-2 border-dashed border-slate-300 p-3 text-[11px] font-bold tracking-widest text-slate-500 uppercase hover:border-institutional-navy hover:text-institutional-navy"
+						class="border-2 border-dashed border-slate-300 p-3 text-[11px] font-bold tracking-wider text-slate-500 uppercase hover:border-institutional-navy hover:text-institutional-navy"
 						onclick={() => (adding = true)}>+ Block hinzufügen</button
 					>
 				{/if}
@@ -593,11 +596,11 @@
 			class="flex min-w-0 flex-col gap-2 xl:sticky xl:top-4 xl:self-start"
 		>
 			<div class="flex flex-wrap items-center gap-3">
-				<div class="flex border border-slate-200 bg-white">
+				<div class="flex rounded-[var(--radius-ui)] border border-slate-200 bg-white">
 					{#each [['student', 'Schülerblatt'], ['solution', 'Lösung']] as [key, label] (key)}
 						<button
 							type="button"
-							class="px-4 py-1.5 text-[11px] font-bold tracking-widest uppercase {variant === key
+							class="px-4 py-1.5 text-[11px] font-bold tracking-wider uppercase {variant === key
 								? 'bg-institutional-navy text-white'
 								: 'text-slate-500 hover:text-institutional-navy'}"
 							aria-pressed={variant === key}

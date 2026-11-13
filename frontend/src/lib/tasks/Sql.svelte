@@ -41,7 +41,7 @@
 	onDestroy(() => editor?.dispose());
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
+<div class="ui-card p-6 sm:p-8">
 	{#if cfg.tables?.length}
 		<p class="mb-4 font-mono text-xs text-slate-500">Tabellen: {cfg.tables.join(', ')}</p>
 	{/if}
@@ -52,7 +52,7 @@
 	></div>
 	{#if table}
 		<div class="mb-6 overflow-x-auto">
-			<p class="mb-2 font-mono text-[10px] text-slate-400 uppercase">
+			<p class="mb-2 font-mono text-[11px] text-slate-400 uppercase">
 				Dein Ergebnis ({table.rowCount} Zeilen)
 			</p>
 			<table class="w-full border-collapse font-mono text-xs">

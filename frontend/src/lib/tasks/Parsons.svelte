@@ -57,8 +57,8 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
-	<p class="mb-6 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+<div class="ui-card p-6 sm:p-8">
+	<p class="mb-5 text-sm font-semibold text-slate-600">
 		Baue das Programm aus den Bausteinen{cfg.checkIndent
 			? ' – die Einrückung zählt'
 			: ''}{cfg.hasDistractors ? '. Nicht jeder Baustein wird gebraucht' : ''}
@@ -66,7 +66,7 @@
 
 	<div class="mb-8 grid gap-6 lg:grid-cols-2">
 		<section aria-label="Bausteine">
-			<h3 class="mb-3 text-xs font-black tracking-widest text-slate-500 uppercase">Bausteine</h3>
+			<h3 class="mb-3 text-xs font-black tracking-wider text-slate-500 uppercase">Bausteine</h3>
 			<div class="space-y-2">
 				{#each available as block (block.id)}
 					<button
@@ -85,9 +85,7 @@
 		</section>
 
 		<section aria-label="Dein Programm">
-			<h3 class="mb-3 text-xs font-black tracking-widest text-slate-500 uppercase">
-				Dein Programm
-			</h3>
+			<h3 class="mb-3 text-xs font-black tracking-wider text-slate-500 uppercase">Dein Programm</h3>
 			<div
 				class="min-h-24 space-y-2 border-2 border-dashed border-slate-200 bg-slate-900 p-3"
 				use:dndzone={{

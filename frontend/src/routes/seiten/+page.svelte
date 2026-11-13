@@ -21,12 +21,10 @@
 	>
 		<div>
 			<span
-				class="mb-4 inline-block font-mono text-[10px] font-bold tracking-[4px] text-institutional-gold uppercase"
+				class="mb-4 inline-block font-mono text-[11px] font-bold tracking-wider text-institutional-gold uppercase"
 				>Überblick</span
 			>
-			<h1
-				class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase"
-			>
+			<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 				Seiten
 			</h1>
 			<p class="mt-4 text-slate-500">Alle Informationsseiten auf einen Blick.</p>
@@ -50,11 +48,9 @@
 				<li>
 					<a
 						href={`/seiten/${link.slug}`}
-						class="group flex h-full flex-col border border-slate-200 bg-white p-8 shadow-sm transition-all hover:border-institutional-navy hover:shadow-xl"
+						class="group flex h-full flex-col rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8 shadow-sm transition-all hover:border-institutional-navy hover:shadow-xl"
 					>
-						<h2
-							class="font-sans text-xl font-bold tracking-tight text-institutional-navy uppercase"
-						>
+						<h2 class="font-sans text-xl font-bold tracking-tight text-institutional-navy">
 							{link.title}
 						</h2>
 						{#if link.description}
@@ -63,7 +59,7 @@
 							<span class="flex-1"></span>
 						{/if}
 						<span
-							class="mt-6 text-[10px] font-black tracking-widest text-institutional-gold uppercase group-hover:underline"
+							class="mt-6 text-[11px] font-black tracking-wider text-institutional-gold uppercase group-hover:underline"
 							>Öffnen →</span
 						>
 					</a>

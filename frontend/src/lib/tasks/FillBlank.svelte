@@ -67,9 +67,9 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
+<div class="ui-card p-6 sm:p-8">
 	<div
-		class="mb-10 overflow-x-auto rounded-none p-8 font-mono text-sm leading-loose whitespace-pre-wrap
+		class="mb-10 overflow-x-auto p-8 font-mono text-sm leading-loose whitespace-pre-wrap
 		{code
 			? 'border-4 border-slate-800 bg-slate-900 text-teal-300'
 			: 'border border-slate-100 bg-slate-50'}"
@@ -95,7 +95,7 @@
 						{disabled}
 						aria-label={`Lücke ${i + 1}`}
 						placeholder={sol ? sol.answers[i] : ''}
-						class="mx-1 inline-block min-w-[90px] rounded-none border-b-2 px-2 py-0.5 outline-none disabled:opacity-70
+						class="mx-1 inline-block min-w-[90px] border-b-2 px-2 py-0.5 outline-none disabled:opacity-70
 						{code ? 'bg-slate-800 text-white' : 'bg-white text-institutional-navy'} {mark(i)}"
 						size={Math.max(6, (answers[i] ?? '').length + 1)}
 					/>
@@ -125,7 +125,7 @@
 			<button
 				onclick={tryOut}
 				disabled={!runner.ready}
-				class="w-full border-2 border-institutional-navy py-4 text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+				class="w-full rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy py-4 text-sm font-semibold text-institutional-navy disabled:opacity-40"
 			>
 				{runner.ready ? 'Ausprobieren' : 'Python lädt …'}
 			</button>
@@ -136,7 +136,7 @@
 							? visualize(sol.answers, 'Lösung Schritt für Schritt')
 							: visualize(answers, 'Dein Programm Schritt für Schritt')}
 					disabled={!runner.ready}
-					class="w-full border-2 border-institutional-navy py-4 text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+					class="w-full rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy py-4 text-sm font-semibold text-institutional-navy disabled:opacity-40"
 				>
 					{sol ? 'Lösung Schritt für Schritt' : 'Schritt für Schritt'}
 				</button>

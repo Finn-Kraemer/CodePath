@@ -148,7 +148,7 @@
 			{#each releases as r (r.id)}
 				<li class="flex flex-wrap items-center gap-3 px-3 py-2 text-xs">
 					<span
-						class="px-2 py-0.5 font-mono text-[9px] font-bold tracking-widest uppercase {r.mode ===
+						class="px-2 py-0.5 font-mono text-[11px] font-bold tracking-wider uppercase {r.mode ===
 						'SHOWN'
 							? 'bg-emerald-50 text-emerald-700'
 							: 'bg-rose-50 text-rose-700'}">{r.mode === 'SHOWN' ? 'frei' : 'gesperrt'}</span
@@ -157,7 +157,7 @@
 					<span class="flex-1 text-slate-700">
 						{r.moduleTitle}{r.taskTitle ? ` › ${r.taskTitle}` : ' (ganzes Modul)'}
 						{#if r.bonus}<span
-								class="ml-1 bg-amber-50 px-1.5 py-0.5 font-mono text-[9px] text-amber-800 uppercase"
+								class="ml-1 bg-amber-50 px-1.5 py-0.5 font-mono text-[11px] text-amber-800 uppercase"
 								>Bonus</span
 							>{/if}
 						{#if r.availableUntil}<span class="ml-1 text-slate-400"
@@ -227,15 +227,18 @@
 			type="button"
 			disabled={saving}
 			onclick={save}
-			class="bg-institutional-navy px-4 py-2 text-[10px] font-black tracking-widest text-white uppercase disabled:opacity-50"
+			class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
 			data-testid="user-release-save">Speichern</button
 		>
 	</div>
 {/snippet}
 
 {#if username}
-	<section class="border border-slate-200 bg-white p-8 shadow-sm" data-testid="personal-releases">
-		<h3 class="mb-2 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+	<section
+		class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8 shadow-sm"
+		data-testid="personal-releases"
+	>
+		<h3 class="mb-2 font-sans text-sm font-black tracking-wider text-slate-400 uppercase">
 			Zusätzliche Aufgaben &amp; Freigaben
 		</h3>
 		<p class="mb-4 text-xs text-slate-500">
@@ -261,7 +264,7 @@
 		}}
 	>
 		<summary
-			class="cursor-pointer px-8 py-4 font-mono text-[10px] font-bold tracking-widest text-slate-500 uppercase hover:text-institutional-navy"
+			class="cursor-pointer px-8 py-4 font-mono text-[11px] font-bold tracking-wider text-slate-500 uppercase hover:text-institutional-navy"
 		>
 			Für einzelne Schüler{releases && releases.length ? ` (${releases.length})` : ''}
 		</summary>

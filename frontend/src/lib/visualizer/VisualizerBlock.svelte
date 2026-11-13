@@ -41,7 +41,7 @@
 		<button
 			type="button"
 			onclick={start}
-			class="mt-2 border-2 border-institutional-navy px-4 py-2 font-mono text-[10px] font-black tracking-widest text-institutional-navy uppercase hover:bg-slate-50"
+			class="mt-2 rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy px-4 py-2 text-sm font-semibold text-institutional-navy hover:bg-slate-50"
 		>
 			▶ Schritt für Schritt ansehen
 		</button>

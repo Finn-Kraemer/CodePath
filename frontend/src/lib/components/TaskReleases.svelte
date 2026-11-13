@@ -46,7 +46,7 @@
 	}}
 >
 	<summary
-		class="cursor-pointer px-8 py-4 font-mono text-[10px] font-bold tracking-widest text-slate-500 uppercase hover:text-institutional-navy"
+		class="cursor-pointer px-8 py-4 font-mono text-[11px] font-bold tracking-wider text-slate-500 uppercase hover:text-institutional-navy"
 	>
 		Einzelne Aufgaben
 	</summary>
@@ -61,13 +61,13 @@
 						<span class="w-6 font-mono text-slate-400">{i + 1}</span>
 						<span class="flex-1 {task.visible ? 'text-slate-700' : 'text-slate-400 line-through'}">
 							{task.title}
-							<span class="ml-1 font-mono text-[9px] text-slate-400 uppercase"
+							<span class="ml-1 font-mono text-[11px] text-slate-400 uppercase"
 								>{TYPE_LABELS[task.type] ?? task.type} · {task.points} P.</span
 							>
 						</span>
 						<select
 							aria-label="Freigabe {task.title}"
-							class="border border-slate-200 bg-white px-2 py-1 text-xs"
+							class="rounded-[var(--radius-ui)] border border-slate-200 bg-white px-2 py-1 text-xs"
 							value={task.mode ?? 'MODULE'}
 							disabled={saving === task.id}
 							onchange={(e) => setMode(task, e.currentTarget.value)}
@@ -79,7 +79,7 @@
 					</li>
 				{/each}
 			</ol>
-			<p class="mt-3 text-[10px] text-slate-400 italic">
+			<p class="mt-3 text-[11px] text-slate-400 italic">
 				„Freigegeben“ zeigt die Aufgabe auch bei gesperrtem Modul, „Gesperrt“ blendet sie aus.
 				Punkte und Teilnahmebestätigung zählen nur sichtbare Aufgaben.
 			</p>

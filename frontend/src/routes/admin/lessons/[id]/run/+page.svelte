@@ -70,7 +70,7 @@
 		<div>
 			<a
 				href="/admin/lessons/{id}"
-				class="mb-4 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+				class="mb-4 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 				>← Ablauf bearbeiten</a
 			>
 			<h1 class="font-sans text-3xl font-extrabold text-institutional-navy">
@@ -86,7 +86,7 @@
 			<button
 				onclick={finish}
 				disabled={busy}
-				class="border border-rose-400 px-4 py-2 text-xs text-rose-700 uppercase"
+				class="rounded-[var(--radius-ui-sm)] border border-rose-400 px-4 py-2 text-sm text-rose-700"
 				data-testid="lesson-finish">Stunde beenden</button
 			>
 		{/if}
@@ -103,10 +103,12 @@
 				data-testid="lesson-current"
 				aria-live="polite"
 			>
-				<p class="font-mono text-xs tracking-widest text-slate-400 uppercase">
+				<p class="font-mono text-xs tracking-wider text-slate-400 uppercase">
 					Schritt {current + 1} von {steps.length} · {TYPE_LABEL[step.type]}
 				</p>
-				<h2 class="mt-2 text-3xl font-black text-institutional-navy">{lesson.labels[current]}</h2>
+				<h2 class="mt-2 text-3xl font-extrabold text-institutional-navy">
+					{lesson.labels[current]}
+				</h2>
 				{#if step.text && (step.type === 'NOTE' || step.type === 'ANNOUNCEMENT')}
 					<p class="mt-4 text-lg whitespace-pre-line text-slate-700">{step.text}</p>
 				{/if}
@@ -153,14 +155,14 @@
 						<button
 							onclick={next}
 							disabled={busy}
-							class="bg-institutional-navy px-10 py-4 text-sm font-black tracking-[3px] text-white uppercase disabled:opacity-50"
+							class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-10 py-4 text-sm font-semibold text-white disabled:opacity-50"
 							data-testid="lesson-next">Weiter: {lesson.labels[current + 1]}</button
 						>
 					{:else}
 						<button
 							onclick={finish}
 							disabled={busy}
-							class="bg-emerald-700 px-10 py-4 text-sm font-black tracking-[3px] text-white uppercase"
+							class="rounded-[var(--radius-ui-sm)] bg-emerald-700 px-10 py-4 text-sm font-semibold text-white"
 							>Letzter Schritt – Stunde beenden</button
 						>
 					{/if}
@@ -174,17 +176,17 @@
 				>
 			</section>
 		{:else}
-			<section class="border border-slate-200 bg-white p-6 text-sm">
+			<section class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6 text-sm">
 				Der Ablauf ist noch nicht gestartet.
 				<button
-					class="ml-2 bg-institutional-navy px-4 py-2 text-xs font-black text-white uppercase"
+					class="ml-2 rounded-[var(--radius-ui-sm)] bg-institutional-navy px-4 py-2 text-sm font-semibold text-white"
 					onclick={() => act('start')}
 					disabled={busy}>Jetzt starten</button
 				>
 			</section>
 		{/if}
 
-		<section class="border border-slate-200 bg-white p-6">
+		<section class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6">
 			<h2 class="mb-3 font-bold text-institutional-navy">Ablauf</h2>
 			<ol class="space-y-1 text-sm">
 				{#each steps as s, i (i)}

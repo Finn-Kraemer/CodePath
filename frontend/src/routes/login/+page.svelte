@@ -36,21 +36,17 @@
 </script>
 
 <div class="mx-auto mt-12 max-w-lg">
-	<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
+	<div class=" rounded-[var(--radius-ui)] border border-slate-200 bg-white p-12 shadow-sm">
 		<div class="mb-12 text-center">
-			<h1
-				class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy uppercase"
-			>
+			<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 				Login
 			</h1>
-			<p class="mt-3 text-[10px] font-bold tracking-[4px] text-slate-400 uppercase">CodePath</p>
+			<p class="mt-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase">CodePath</p>
 		</div>
 
 		{#if error}
-			<div
-				class="mb-10 rounded-none border border-red-200 bg-red-50 p-6 font-mono text-xs text-red-600"
-			>
-				<span class="font-bold tracking-widest uppercase">Fehler:</span>
+			<div class="mb-10 border border-red-200 bg-red-50 p-6 font-mono text-xs text-red-600">
+				<span class="font-bold tracking-wider uppercase">Fehler:</span>
 				{error}
 			</div>
 		{/if}
@@ -59,7 +55,7 @@
 			<div>
 				<label
 					for="username"
-					class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+					class="mb-3 block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 					>Nutzername</label
 				>
 				<input
@@ -67,7 +63,7 @@
 					type="text"
 					id="username"
 					required
-					class="w-full rounded-none border-slate-200 bg-slate-50 px-5 py-4 transition-all outline-none focus:border-institutional-navy focus:ring-0"
+					class="w-full border-slate-200 bg-slate-50 px-5 py-4 transition-all outline-none focus:border-institutional-navy focus:ring-0"
 					placeholder="max.mustermann"
 				/>
 			</div>
@@ -75,7 +71,7 @@
 			<div>
 				<label
 					for="password"
-					class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+					class="mb-3 block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 					>Passwort</label
 				>
 				<input
@@ -83,14 +79,14 @@
 					type="password"
 					id="password"
 					required
-					class="w-full rounded-none border-slate-200 bg-slate-50 px-5 py-4 transition-all outline-none focus:border-institutional-navy focus:ring-0"
+					class="w-full border-slate-200 bg-slate-50 px-5 py-4 transition-all outline-none focus:border-institutional-navy focus:ring-0"
 				/>
 			</div>
 
 			<button
 				type="submit"
 				disabled={loading}
-				class="w-full rounded-none bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-95 disabled:opacity-50"
+				class="w-full rounded-[var(--radius-ui-sm)] bg-institutional-navy py-3 text-sm font-semibold text-white shadow-sm transition-all hover:opacity-95 disabled:opacity-50"
 			>
 				{loading ? 'Verifizierung...' : 'Anmelden'}
 			</button>

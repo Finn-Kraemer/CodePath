@@ -74,7 +74,7 @@
 					{#each items as item (item.key)}
 						<button
 							type="button"
-							class="border border-slate-200 bg-white p-1 hover:border-slate-500"
+							class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-1 hover:border-slate-500"
 							onclick={() => choose(item)}
 							title={item.originalName ?? item.key}
 						>
@@ -84,7 +84,7 @@
 								class="h-20 w-full object-contain"
 								loading="lazy"
 							/>
-							<span class="block truncate text-[10px] text-slate-500"
+							<span class="block truncate text-[11px] text-slate-500"
 								>{item.originalName ?? item.key.slice(0, 12)}</span
 							>
 						</button>

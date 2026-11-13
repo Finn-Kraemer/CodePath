@@ -68,14 +68,14 @@
 	{#if !loaded}
 		<p class="text-center text-slate-500">Lädt …</p>
 	{:else if !quiz}
-		<div class="border border-slate-200 bg-white p-10 text-center">
+		<div class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-10 text-center">
 			<p class="text-lg font-bold text-institutional-navy">Gerade läuft kein Quiz.</p>
 			<p class="mt-2 text-sm text-slate-500">
 				Sobald deine Lehrkraft eins startet, erscheint es hier von selbst.
 			</p>
 		</div>
 	{:else}
-		<p class="mb-4 font-mono text-xs font-bold tracking-widest text-slate-400 uppercase">
+		<p class="mb-4 font-mono text-xs font-bold tracking-wider text-slate-400 uppercase">
 			{quiz.title}
 			{#if quiz.phase !== 'LOBBY'}· Frage {quiz.index + 1} von {quiz.total}{/if}
 			· {quiz.myScore} richtig
@@ -86,7 +86,9 @@
 				<p class="mt-2 text-slate-500">Schau zum Beamer – gleich kommt die erste Frage.</p>
 			</div>
 		{:else}
-			<div class="mb-6 border border-slate-200 bg-white p-6 text-lg font-bold">
+			<div
+				class="mb-6 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6 text-lg font-bold"
+			>
 				<Markdown source={quiz.question ?? ''} />
 			</div>
 			<div class="grid grid-cols-1 gap-3">
@@ -120,7 +122,7 @@
 			{#if quiz.multiple && quiz.phase === 'QUESTION'}
 				<button
 					type="button"
-					class="mt-4 w-full bg-institutional-navy py-4 font-mono text-xs font-black tracking-widest text-white uppercase disabled:opacity-40"
+					class="mt-4 w-full rounded-[var(--radius-ui-sm)] bg-institutional-navy py-4 text-sm font-semibold text-white disabled:opacity-40"
 					disabled={!chosen.length}
 					onclick={() => send(chosen)}>Antwort senden</button
 				>

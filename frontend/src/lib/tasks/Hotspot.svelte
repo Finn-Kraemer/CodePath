@@ -24,8 +24,8 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
-	<p class="mb-6 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+<div class="ui-card p-6 sm:p-8">
+	<p class="mb-5 text-sm font-semibold text-slate-600">
 		Klicke die passenden Zeilen an{cfg.count ? ` – gesucht: ${cfg.count}` : ''} · markiert: {selected.length}
 	</p>
 	<div class="mb-10 border-2 border-slate-100 bg-slate-50 p-2" role="group" aria-label="Zeilen">

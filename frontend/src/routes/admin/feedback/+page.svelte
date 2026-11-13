@@ -71,10 +71,10 @@
 <div class="mx-auto max-w-7xl pb-24">
 	<a
 		href="/admin"
-		class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+		class="mb-6 inline-flex font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 		>← Leitstand</a
 	>
-	<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+	<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 		Feedback &amp; Bewertung
 	</h1>
 	<p class="mt-2 mb-8 max-w-3xl text-sm text-slate-500">
@@ -86,7 +86,7 @@
 
 	<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
 		<label
-			class="flex items-center gap-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+			class="flex items-center gap-3 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 		>
 			Kurs
 			<select
@@ -104,7 +104,7 @@
 		</label>
 		<a
 			href="/admin/feedback/rounds/new"
-			class="bg-institutional-navy px-6 py-3 font-mono text-xs font-black tracking-widest text-white uppercase"
+			class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white"
 			>+ Neue Runde</a
 		>
 	</div>
@@ -129,7 +129,9 @@
 		<ul class="flex flex-col gap-3">
 			{#each rounds as round (round.id)}
 				{@const s = status(round)}
-				<li class="flex flex-wrap items-center gap-4 border border-slate-200 bg-white p-5">
+				<li
+					class="flex flex-wrap items-center gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-5"
+				>
 					<div class="min-w-0 flex-1">
 						<a
 							href="/admin/feedback/rounds/{round.id}"
@@ -138,7 +140,7 @@
 						<p class="mt-1 text-xs text-slate-500">
 							{round.courseName} · {parts(round).join(' · ')}
 						</p>
-						<p class="mt-1 font-mono text-[10px] text-slate-400">
+						<p class="mt-1 font-mono text-[11px] text-slate-400">
 							Selbst {round.counts.self}/{round.counts.students} · Unterricht {round.counts
 								.lesson}/{round.counts.students} · Bewertet {round.counts.teacher}/{round.counts
 								.students}
@@ -148,7 +150,7 @@
 							{#if round.closesAt}· Frist {formatDate(round.closesAt)}{/if}
 						</p>
 					</div>
-					<span class="px-2 py-1 font-mono text-[9px] font-bold uppercase {s.cls}">{s.label}</span>
+					<span class="px-2 py-1 font-mono text-[11px] font-bold uppercase {s.cls}">{s.label}</span>
 					{#if round.status !== 'OPEN'}
 						<button class="ed-button" onclick={() => setStatus(round, 'OPEN')}>Öffnen</button>
 					{:else}

@@ -464,14 +464,12 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
+			>← Leitstand</a
 		>
 		<div class="flex flex-wrap items-end justify-between gap-4">
 			<div>
-				<h1
-					class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase"
-				>
+				<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 					Klassenraum
 				</h1>
 				<p class="mt-4 max-w-2xl text-slate-500">
@@ -496,7 +494,9 @@
 		{/if}
 
 		<!-- ------------------------------------------------------------ Raum -->
-		<section class="flex flex-col gap-4 border border-slate-200 bg-white p-4 sm:p-6">
+		<section
+			class="flex flex-col gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4 sm:p-6"
+		>
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<div class="flex border border-slate-200 text-sm" role="tablist">
 					<button
@@ -535,7 +535,7 @@
 					{#each presets as preset (preset.label)}
 						<button
 							type="button"
-							class="h-10 border border-slate-300 px-3 text-sm hover:border-institutional-navy"
+							class="h-10 rounded-[var(--radius-ui-sm)] border border-slate-300 px-3 text-sm hover:border-institutional-navy"
 							onclick={preset.add}>+ {preset.label}</button
 						>
 					{/each}
@@ -704,7 +704,7 @@
 											</select>
 										</label>
 										<button
-											class="h-10 bg-institutional-navy px-4 text-xs font-black tracking-[2px] text-white uppercase disabled:opacity-50"
+											class="h-10 rounded-[var(--radius-ui-sm)] bg-institutional-navy px-4 text-sm font-semibold text-white disabled:opacity-50"
 											disabled={seatPersonId === '' || busy}>Zuweisen</button
 										>
 									</form>
@@ -726,7 +726,7 @@
 											/>
 										</label>
 										<button
-											class="h-10 border border-institutional-navy px-4 text-sm disabled:opacity-50"
+											class="h-10 rounded-[var(--radius-ui-sm)] border border-institutional-navy px-4 text-sm disabled:opacity-50"
 											disabled={!seatNewName.trim() || busy}>Eintragen &amp; zuweisen</button
 										>
 									</form>
@@ -779,7 +779,9 @@
 		</section>
 
 		<!-- ------------------------------------------------------------ Beobachtungsbogen -->
-		<section class="flex flex-col gap-4 border border-slate-200 bg-white p-4 sm:p-6">
+		<section
+			class="flex flex-col gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4 sm:p-6"
+		>
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<h2 class="text-xl font-bold text-institutional-navy">Beobachtungsbogen</h2>
 				<div class="flex flex-wrap items-center gap-3">
@@ -797,7 +799,7 @@
 					</div>
 					{#if editable}
 						<button
-							class="h-10 bg-institutional-navy px-4 text-xs font-black tracking-[2px] text-white uppercase"
+							class="h-10 rounded-[var(--radius-ui-sm)] bg-institutional-navy px-4 text-sm font-semibold text-white"
 							onclick={() => (criterionForm = { criterion: null })}>+ Kriterium</button
 						>
 					{/if}
@@ -858,7 +860,7 @@
 						/>
 					</label>
 					<button
-						class="h-10 border border-institutional-navy px-4 text-sm disabled:opacity-50"
+						class="h-10 rounded-[var(--radius-ui-sm)] border border-institutional-navy px-4 text-sm disabled:opacity-50"
 						disabled={!newPersonName.trim() || busy}>Hinzufügen</button
 					>
 					<p class="text-xs text-slate-400">
@@ -869,7 +871,9 @@
 		</section>
 
 		<!-- ------------------------------------------------------------ Vorlagen, Export, Import -->
-		<section class="grid gap-6 border border-slate-200 bg-white p-4 sm:p-6 lg:grid-cols-2">
+		<section
+			class="grid gap-6 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4 sm:p-6 lg:grid-cols-2"
+		>
 			<div class="flex min-w-0 flex-col gap-3">
 				<h2 class="font-bold text-institutional-navy">Vorlagen</h2>
 				<p class="text-xs text-slate-500">
@@ -895,7 +899,7 @@
 							</select>
 						</label>
 						<button
-							class="h-10 border border-institutional-navy px-4 text-sm disabled:opacity-50"
+							class="h-10 rounded-[var(--radius-ui-sm)] border border-institutional-navy px-4 text-sm disabled:opacity-50"
 							disabled={templateSource === '' || (!applyRoom && !applyCriteria) || busy}
 							onclick={applyTemplate}>Übernehmen</button
 						>
@@ -931,7 +935,7 @@
 						/>
 					</label>
 					<button
-						class="h-10 border border-institutional-navy px-4 text-sm disabled:opacity-50"
+						class="h-10 rounded-[var(--radius-ui-sm)] border border-institutional-navy px-4 text-sm disabled:opacity-50"
 						disabled={!templateName.trim() || busy}>Speichern</button
 					>
 				</form>

@@ -191,10 +191,10 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
+			>← Leitstand</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Kurse &amp; Konten
 		</h1>
 		<p class="mt-4 text-slate-500">
@@ -213,7 +213,7 @@
 		</div>{/if}
 
 	<form
-		class="flex flex-wrap items-end gap-4 border border-slate-200 bg-white p-6"
+		class="flex flex-wrap items-end gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6"
 		onsubmit={(e) => {
 			e.preventDefault();
 			create();
@@ -235,7 +235,7 @@
 			/></label
 		>
 		<button
-			class="bg-institutional-navy px-6 py-3 text-xs font-black tracking-[3px] text-white uppercase"
+			class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white"
 			>Kurs anlegen</button
 		>
 	</form>
@@ -246,8 +246,9 @@
 				<h2 class="font-bold">
 					Neue Konten für {accounts.course} – Passwörter werden nur jetzt angezeigt
 				</h2>
-				<button onclick={() => window.print()} class="border px-4 py-2 text-xs uppercase"
-					>Drucken</button
+				<button
+					onclick={() => window.print()}
+					class="rounded-[var(--radius-ui-sm)] border px-4 py-2 text-sm">Drucken</button
 				>
 			</div>
 			<table class="w-full font-mono text-sm">
@@ -280,7 +281,7 @@
 							{course.status === 'ENDED' ? '(beendet)' : ''}
 							{#if course.status === 'ARCHIVED'}
 								<span
-									class="ml-2 border border-amber-300 bg-amber-50 px-2 py-0.5 align-middle font-mono text-[10px] tracking-widest text-amber-800 uppercase"
+									class="ml-2 border border-amber-300 bg-amber-50 px-2 py-0.5 align-middle font-mono text-[11px] tracking-wider text-amber-800 uppercase"
 									>archiviert</span
 								>
 							{/if}
@@ -310,10 +311,10 @@
 					</div>
 					{#if course.status === 'ACTIVE'}
 						<div class="text-right">
-							<p class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+							<p class="font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 								Beitrittscode
 							</p>
-							<p class="font-mono text-3xl font-black tracking-[6px] text-institutional-navy">
+							<p class="font-mono text-3xl font-black tracking-wider text-institutional-navy">
 								{course.joinCode}
 							</p>
 							<button
@@ -348,7 +349,7 @@
 						>
 						<button
 							onclick={() => createAccounts(course)}
-							class="border-2 border-institutional-navy px-4 py-2 text-xs font-black tracking-widest text-institutional-navy uppercase"
+							class="rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy px-4 py-2 text-sm font-semibold text-institutional-navy"
 							>Konten anlegen</button
 						>
 					</div>
@@ -358,25 +359,25 @@
 						{#if course.status === 'ACTIVE'}
 							<button
 								onclick={() => open(course, 'archive')}
-								class="border border-amber-400 px-4 py-2 text-xs text-amber-800 uppercase"
+								class="rounded-[var(--radius-ui-sm)] border border-amber-400 px-4 py-2 text-sm text-amber-800"
 								data-testid="archive-{course.id}">Archivieren …</button
 							>
 						{:else}
 							<button
 								onclick={() => restore(course)}
-								class="border-2 border-institutional-navy px-4 py-2 text-xs font-black text-institutional-navy uppercase"
+								class="rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy px-4 py-2 text-sm font-semibold text-institutional-navy"
 								data-testid="restore-{course.id}">Wiederherstellen</button
 							>
 						{/if}
 						<button
 							onclick={() => open(course, 'promote')}
-							class="border border-slate-300 px-4 py-2 text-xs text-institutional-navy uppercase"
+							class="rounded-[var(--radius-ui-sm)] border border-slate-300 px-4 py-2 text-sm text-institutional-navy"
 							data-testid="promote-{course.id}">Ins nächste Schuljahr …</button
 						>
 						<span class="flex-1"></span>
 						<button
 							onclick={() => endCourse(course)}
-							class="border border-rose-400 px-4 py-2 text-xs text-rose-600 uppercase"
+							class="rounded-[var(--radius-ui-sm)] border border-rose-400 px-4 py-2 text-sm text-rose-600"
 							>{course.status === 'ARCHIVED' ? 'Jetzt löschen' : 'Kurs beenden'}</button
 						>
 					</div>
@@ -405,7 +406,7 @@
 							>
 							<button
 								onclick={() => archive(course)}
-								class="bg-amber-700 px-4 py-2 text-xs font-black tracking-widest text-white uppercase"
+								class="rounded-[var(--radius-ui-sm)] bg-amber-700 px-4 py-2 text-sm font-semibold text-white"
 								data-testid="archive-confirm">Kurs archivieren</button
 							>
 						</div>
@@ -471,7 +472,7 @@
 								></label
 							>
 							<button
-								class="bg-institutional-navy px-4 py-2 text-xs font-black tracking-widest text-white uppercase"
+								class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-4 py-2 text-sm font-semibold text-white"
 								data-testid="promote-confirm">Neuen Kurs anlegen und übernehmen</button
 							>
 						</form>

@@ -169,7 +169,7 @@
 	>
 		<div>{@render header()}</div>
 		<div class="flex flex-wrap items-center gap-3">
-			<span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+			<span class="font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 				{#if loading}Lädt …{:else if dirty}Ungespeicherte Änderungen{:else if live}Live{:else if published}Entwurf
 					weicht von Live ab{:else if kind === 'homepage'}Standardseite aktiv{:else}Nicht
 					veröffentlicht{/if}
@@ -178,7 +178,7 @@
 				>Entwurf speichern</button
 			>
 			<button
-				class="bg-institutional-navy px-6 py-3 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:opacity-95 disabled:opacity-50"
+				class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 font-sans text-sm font-semibold text-white shadow-lg transition-all hover:opacity-95 disabled:opacity-50"
 				onclick={publish}
 				disabled={busy || loading || live}>Veröffentlichen</button
 			>
@@ -186,12 +186,12 @@
 	</header>
 
 	{#if message}
-		<p class="text-[11px] font-bold tracking-widest text-teal-700 uppercase" role="status">
+		<p class="text-[11px] font-bold tracking-wider text-teal-700 uppercase" role="status">
 			{message}
 		</p>
 	{/if}
 	{#if error}
-		<p class="text-[11px] font-bold tracking-widest text-rose-700 uppercase" role="alert">
+		<p class="text-[11px] font-bold tracking-wider text-rose-700 uppercase" role="alert">
 			{error}
 		</p>
 	{/if}
@@ -215,7 +215,7 @@
 								onclick={() => select(block.id)}
 								aria-expanded={selected === block.id}
 							>
-								<span class="block font-mono text-[9px] tracking-widest text-slate-400 uppercase"
+								<span class="block font-mono text-[11px] tracking-wider text-slate-400 uppercase"
 									>{BLOCK_TYPES[block.type].label}{block.hidden ? ' · ausgeblendet' : ''}</span
 								>
 								<span
@@ -288,7 +288,7 @@
 			{:else}
 				<button
 					type="button"
-					class="border-2 border-dashed border-slate-300 p-3 text-[11px] font-bold tracking-widest text-slate-500 uppercase hover:border-institutional-navy hover:text-institutional-navy"
+					class="border-2 border-dashed border-slate-300 p-3 text-[11px] font-bold tracking-wider text-slate-500 uppercase hover:border-institutional-navy hover:text-institutional-navy"
 					onclick={() => (adding = true)}>+ Abschnitt hinzufügen</button
 				>
 			{/if}

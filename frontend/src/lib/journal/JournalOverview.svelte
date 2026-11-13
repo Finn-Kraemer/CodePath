@@ -23,8 +23,11 @@
 	}
 </script>
 
-<section class="border border-slate-200 bg-white p-8 shadow-sm" data-testid="journal-overview">
-	<h3 class="mb-2 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+<section
+	class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8 shadow-sm"
+	data-testid="journal-overview"
+>
+	<h3 class="mb-2 font-sans text-sm font-black tracking-wider text-slate-400 uppercase">
 		Mein Lerntagebuch
 	</h3>
 	{#if entries === null}

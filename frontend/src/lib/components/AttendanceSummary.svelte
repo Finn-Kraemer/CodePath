@@ -27,8 +27,11 @@
 </script>
 
 {#if person}
-	<section class="border border-slate-200 bg-white p-8 shadow-sm" data-testid="attendance-summary">
-		<h3 class="mb-2 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+	<section
+		class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8 shadow-sm"
+		data-testid="attendance-summary"
+	>
+		<h3 class="mb-2 font-sans text-sm font-black tracking-wider text-slate-400 uppercase">
 			Anwesenheit
 		</h3>
 		<p class="text-lg font-bold text-institutional-navy">{person.rate.text}</p>

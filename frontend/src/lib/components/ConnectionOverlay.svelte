@@ -101,7 +101,7 @@
 			<div class="flex flex-col gap-3" aria-live="polite">
 				<h2
 					id="connection-title"
-					class="text-2xl font-black tracking-tight text-white uppercase sm:text-3xl"
+					class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl"
 				>
 					{texts[shown].title}
 				</h2>
@@ -112,7 +112,7 @@
 			{#if shown !== 'slow'}
 				<button
 					type="button"
-					class="min-h-11 rounded-none border border-white/30 px-6 py-3 text-[10px] font-black tracking-[3px] text-white uppercase transition-colors hover:bg-white hover:text-institutional-navy"
+					class="min-h-11 rounded-[var(--radius-ui-sm)] border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-institutional-navy"
 					onclick={() => location.reload()}
 				>
 					Seite neu laden

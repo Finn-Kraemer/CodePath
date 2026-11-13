@@ -73,16 +73,16 @@
 	></div>
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 		<label class="block">
-			<span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+			<span class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 				>Eingaben für input() – eine pro Zeile</span
 			>
 			<textarea
-				class="mt-1 h-32 w-full border border-slate-200 bg-white p-3 font-mono text-xs"
+				class="mt-1 h-32 w-full rounded-[var(--radius-ui)] border border-slate-200 bg-white p-3 font-mono text-xs"
 				bind:value={stdin}
 			></textarea>
 		</label>
 		<div>
-			<span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+			<span class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 				>Ausgabe</span
 			>
 			<div class="mt-1"><CodeOutput {output} {error} /></div>
@@ -105,7 +105,7 @@
 			type="button"
 			onclick={run}
 			disabled={!runner.ready || running}
-			class="w-full border-2 border-institutional-navy py-4 font-sans text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+			class="w-full rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy py-4 text-sm font-semibold text-institutional-navy disabled:opacity-40"
 		>
 			{runner.ready ? (running ? 'Läuft …' : 'Programm ausführen') : 'Python lädt …'}
 		</button>
@@ -114,7 +114,7 @@
 				type="button"
 				onclick={() => (visualized = { code, stdin, key: (visualized?.key ?? 0) + 1 })}
 				disabled={!runner.ready || running || !code.trim()}
-				class="w-full border-2 border-institutional-navy py-4 font-sans text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+				class="w-full border-2 border-institutional-navy py-4 font-sans text-xs font-black tracking-wider text-institutional-navy uppercase disabled:opacity-40"
 			>
 				Schritt für Schritt
 			</button>

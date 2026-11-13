@@ -74,14 +74,12 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
+			>← Leitstand</a
 		>
 		<div class="flex flex-wrap items-end justify-between gap-4">
 			<div>
-				<h1
-					class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase"
-				>
+				<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 					Stundenabläufe
 				</h1>
 				<p class="mt-4 max-w-2xl text-slate-500">
@@ -101,12 +99,15 @@
 	<div>
 		<button
 			onclick={create}
-			class="bg-institutional-navy px-6 py-3 text-xs font-black tracking-[3px] text-white uppercase"
+			class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white"
 			data-testid="lesson-create">Neuer Ablauf</button
 		>
 	</div>
 
-	<ul class="divide-y divide-slate-100 border border-slate-200 bg-white" data-testid="lesson-list">
+	<ul
+		class="divide-y divide-slate-100 rounded-[var(--radius-ui)] border border-slate-200 bg-white"
+		data-testid="lesson-list"
+	>
 		{#each lessons as lesson, i (lesson.id)}
 			<li class="flex flex-wrap items-center gap-4 px-6 py-4">
 				<div class="flex flex-col">
@@ -133,14 +134,14 @@
 					</span>
 				</a>
 				<span
-					class="font-mono text-[10px] tracking-widest uppercase {lesson.status === 'RUNNING'
+					class="font-mono text-[11px] tracking-wider uppercase {lesson.status === 'RUNNING'
 						? 'text-emerald-700'
 						: 'text-slate-400'}">{STATUS[lesson.status]}</span
 				>
 				{#if lesson.status === 'RUNNING'}
 					<a
 						href="/admin/lessons/{lesson.id}/run"
-						class="bg-emerald-700 px-4 py-2 text-xs font-black tracking-widest text-white uppercase"
+						class="rounded-[var(--radius-ui-sm)] bg-emerald-700 px-4 py-2 text-sm font-semibold text-white"
 						>Zur laufenden Stunde</a
 					>
 				{:else}
@@ -148,7 +149,7 @@
 						onclick={() => start(lesson)}
 						disabled={!lesson.courseId || lesson.steps === 0}
 						title={!lesson.courseId ? 'Erst einen Kurs wählen' : ''}
-						class="bg-institutional-navy px-4 py-2 text-xs font-black tracking-widest text-white uppercase disabled:opacity-40"
+						class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
 						>Starten</button
 					>
 				{/if}

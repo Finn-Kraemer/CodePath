@@ -114,14 +114,12 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
+			>← Leitstand</a
 		>
 		<div class="flex flex-wrap items-end justify-between gap-4">
 			<div>
-				<h1
-					class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase"
-				>
+				<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 					Anwesenheit
 				</h1>
 				<p class="mt-4 max-w-2xl text-slate-500">
@@ -143,7 +141,7 @@
 		</div>{/if}
 
 	<form
-		class="flex flex-wrap items-end gap-4 border border-slate-200 bg-white p-6"
+		class="flex flex-wrap items-end gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6"
 		onsubmit={(e) => {
 			e.preventDefault();
 			create();
@@ -168,7 +166,7 @@
 		>
 		<button
 			disabled={busy || !courseSelection.selectedId}
-			class="bg-institutional-navy px-6 py-3 text-xs font-black tracking-[3px] text-white uppercase disabled:opacity-50"
+			class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white disabled:opacity-50"
 			data-testid="attendance-create">Termin anlegen</button
 		>
 	</form>
@@ -235,7 +233,7 @@
 	{/if}
 
 	{#if overview}
-		<section class="border border-slate-200 bg-white p-6">
+		<section class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6">
 			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
 				<h2 class="font-bold text-institutional-navy">Termine von {overview.courseName}</h2>
 				<div class="flex border border-slate-200 text-xs" role="tablist">
@@ -316,7 +314,9 @@
 			{/if}
 		</section>
 
-		<section class="flex flex-col gap-3 border border-slate-200 bg-white p-6">
+		<section
+			class="flex flex-col gap-3 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6"
+		>
 			<h2 class="font-bold text-institutional-navy">Export &amp; Einstellungen</h2>
 			<div class="flex flex-wrap items-center gap-3">
 				<a

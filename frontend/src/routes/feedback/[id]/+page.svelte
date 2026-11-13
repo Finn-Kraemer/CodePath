@@ -103,7 +103,7 @@
 <div class="mx-auto max-w-3xl py-12">
 	<a
 		href="/feedback"
-		class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+		class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 		>← Feedback</a
 	>
 
@@ -113,12 +113,10 @@
 		</p>
 	{:else if round}
 		<header class="mt-4 mb-8 border-b border-slate-200 pb-6">
-			<h1
-				class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy uppercase"
-			>
+			<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 				{round.title}
 			</h1>
-			<p class="mt-2 font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+			<p class="mt-2 font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 				{#if round.acceptingAnswers}
 					Offen{round.closesAt ? ` bis ${formatDate(round.closesAt)}` : ''}
 				{:else}
@@ -203,7 +201,7 @@
 				<div class="mt-6 flex flex-wrap gap-3">
 					{#if editing[tab]}
 						<button
-							class="bg-institutional-navy px-8 py-4 font-mono text-xs font-black tracking-widest text-white uppercase disabled:opacity-40"
+							class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-8 py-4 text-sm font-semibold text-white disabled:opacity-40"
 							disabled={busy}
 							onclick={() => submit(tab as Part)}
 						>

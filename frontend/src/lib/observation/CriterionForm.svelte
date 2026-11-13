@@ -70,7 +70,7 @@
 </script>
 
 <form
-	class="flex flex-col gap-4 border-2 border-institutional-navy bg-white p-5"
+	class="flex flex-col gap-4 rounded-[var(--radius-ui)] border-2 border-institutional-navy bg-white p-5"
 	onsubmit={submit}
 	data-testid="criterion-form"
 >
@@ -181,7 +181,7 @@
 
 	<div class="flex flex-wrap items-center gap-3">
 		<button
-			class="bg-institutional-navy px-6 py-3 text-xs font-black tracking-[3px] text-white uppercase disabled:opacity-50"
+			class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white disabled:opacity-50"
 			disabled={busy}>Speichern</button
 		>
 		<button type="button" class="text-sm underline" onclick={oncancel}>Abbrechen</button>

@@ -30,7 +30,7 @@
 
 <div class="mx-auto max-w-4xl py-12">
 	<header class="mb-12 border-b border-slate-200 pb-8">
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Wichtige Kursinformationen
 		</h1>
 		<p class="mt-2 text-slate-500">Aktuelle Mitteilungen und Informationen der Lehrkräfte.</p>
@@ -43,12 +43,12 @@
 			></div>
 		</div>
 	{:else if announcement}
-		<article class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
+		<article class=" rounded-[var(--radius-ui)] border border-slate-200 bg-white p-12 shadow-sm">
 			<div class="mb-8 flex items-center justify-between border-b border-slate-100 pb-6">
-				<span class="font-mono text-[10px] font-bold tracking-[3px] text-slate-400 uppercase"
+				<span class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 					>Offizielle Mitteilung</span
 				>
-				<span class="font-mono text-[10px] font-bold text-slate-400"
+				<span class="font-mono text-[11px] font-bold text-slate-400"
 					>Aktualisiert am: {formatDate(announcement.updatedAt)}</span
 				>
 			</div>
@@ -79,7 +79,7 @@
 			</div>
 		</article>
 	{:else}
-		<div class="rounded-none border border-dashed border-slate-200 bg-slate-50 p-24 text-center">
+		<div class=" border border-dashed border-slate-200 bg-slate-50 p-24 text-center">
 			<p class="font-serif text-sm text-slate-400 italic">
 				Aktuell liegen keine speziellen Mitteilungen vor.
 			</p>

@@ -34,18 +34,16 @@
 		<div>
 			<div class="mb-2 flex items-center gap-3 text-institutional-navy/40">
 				<a href="/admin" class="transition-colors hover:text-institutional-gold">
-					<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase"
-						>Admin Dashboard</span
-					>
+					<span class="font-mono text-[11px] font-bold tracking-wider uppercase">Leitstand</span>
 				</a>
 				<span class="text-slate-300">/</span>
 				<span
-					class="font-mono text-[10px] font-bold tracking-[4px] text-institutional-gold uppercase"
+					class="font-mono text-[11px] font-bold tracking-wider text-institutional-gold uppercase"
 					>Teilnehmer</span
 				>
 			</div>
 			<h1
-				class="font-sans text-6xl leading-none font-black tracking-tighter text-institutional-navy uppercase"
+				class="font-sans text-6xl leading-none font-extrabold tracking-tight text-institutional-navy"
 			>
 				Teilnehmer
 			</h1>
@@ -53,7 +51,7 @@
 
 		<div class="flex flex-col items-end gap-3">
 			<CourseSelect onchange={fetchData} />
-			<div class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+			<div class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 				Gesamt: {students.length} Accounts
 			</div>
 		</div>
@@ -65,7 +63,7 @@
 				<div
 					class="mx-auto mb-4 h-8 w-8 animate-spin border-2 border-slate-200 border-t-institutional-navy"
 				></div>
-				<p class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+				<p class="font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 					Lade Teilnehmerdaten...
 				</p>
 			</div>
@@ -74,11 +72,13 @@
 				{error}
 			</div>
 		{:else}
-			<div class="overflow-hidden rounded-none border border-slate-200 bg-white shadow-sm">
+			<div
+				class="overflow-hidden rounded-[var(--radius-ui)] border border-slate-200 bg-white shadow-sm"
+			>
 				<table class="w-full text-left">
 					<thead>
 						<tr
-							class="border-b border-slate-200 bg-slate-50 font-mono text-[9px] font-black tracking-widest text-slate-400 uppercase"
+							class="border-b border-slate-200 bg-slate-50 font-mono text-[11px] font-black tracking-wider text-slate-400 uppercase"
 						>
 							<th class="w-20 px-8 py-4">#</th>
 							<th class="px-8 py-4">Teilnehmer</th>
@@ -100,7 +100,7 @@
 										>
 											{student.displayName || student.username}
 										</span>
-										<span class="font-mono text-[10px] text-slate-400">@{student.username}</span>
+										<span class="font-mono text-[11px] text-slate-400">@{student.username}</span>
 									</div>
 								</td>
 								<td class="px-8 py-5 text-right font-mono text-xs text-slate-500">

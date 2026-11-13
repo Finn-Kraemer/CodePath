@@ -72,7 +72,7 @@
 	};
 
 	const button =
-		'border px-4 py-2 font-mono text-[10px] font-bold tracking-widest uppercase disabled:opacity-40';
+		'border px-4 py-2 font-mono text-[11px] font-bold tracking-wider uppercase disabled:opacity-40';
 </script>
 
 <svelte:head><title>Hilfe-Rufe | CodePath</title></svelte:head>
@@ -80,14 +80,12 @@
 <div class="mx-auto max-w-5xl">
 	<a
 		href="/admin"
-		class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+		class="mb-6 inline-flex font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 		>← Leitstand</a
 	>
 	<div class="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6">
 		<div>
-			<h1
-				class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase"
-			>
+			<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 				Hilfe-Rufe
 			</h1>
 			<p class="mt-2 text-sm text-slate-500">
@@ -108,7 +106,9 @@
 	{/if}
 
 	{#if queue && queue.open.length === 0}
-		<p class="border border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
+		<p
+			class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-10 text-center text-sm text-slate-500"
+		>
 			Gerade hängt niemand fest.
 		</p>
 	{/if}
@@ -154,7 +154,7 @@
 					</div>
 				</div>
 
-				<div class="mt-4 flex flex-wrap gap-2 font-mono text-[10px] text-slate-600 uppercase">
+				<div class="mt-4 flex flex-wrap gap-2 font-mono text-[11px] text-slate-600 uppercase">
 					{#if entry.category}
 						<span class="border border-amber-300 bg-amber-50 px-2 py-1 text-amber-800"
 							>{HELP_CATEGORY_LABELS[entry.category] ?? entry.category}</span
@@ -174,7 +174,7 @@
 					<p class="mt-4 border-l-4 border-slate-300 bg-slate-50 p-3 text-sm">„{entry.note}“</p>
 				{/if}
 				{#if entry.draft}
-					<p class="mt-4 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+					<p class="mt-4 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 						Aktueller Stand
 					</p>
 					<!-- eslint-disable-next-line svelte/no-at-html-tags -- nur escapter Text und hljs-Spans -->
@@ -184,7 +184,7 @@
 						></pre>
 				{/if}
 				{#if entry.lastOutput}
-					<p class="mt-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+					<p class="mt-3 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 						Letzte Ausgabe beim Ausprobieren
 					</p>
 					<pre
@@ -248,12 +248,12 @@
 	</ol>
 
 	{#if queue?.recent.length}
-		<h2
-			class="mt-12 mb-4 font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
-		>
+		<h2 class="mt-12 mb-4 font-mono text-[11px] font-black tracking-wider text-slate-400 uppercase">
 			Zuletzt erledigt (30 Min.)
 		</h2>
-		<ul class="divide-y divide-slate-100 border border-slate-200 bg-white text-sm">
+		<ul
+			class="divide-y divide-slate-100 rounded-[var(--radius-ui)] border border-slate-200 bg-white text-sm"
+		>
 			{#each queue.recent as entry (entry.id)}
 				<li class="flex flex-wrap justify-between gap-2 px-4 py-3" data-testid="help-recent">
 					<span><strong>{entry.displayName}</strong> · {entry.taskTitle}</span>

@@ -88,9 +88,7 @@
 		class="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-8"
 	>
 		<div>
-			<h1
-				class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase"
-			>
+			<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 				Wissensdatenbank
 			</h1>
 			<p class="mt-4 text-slate-500">
@@ -122,7 +120,7 @@
 						bind:value={query}
 						placeholder="Wiki durchsuchen …"
 						aria-label="Wissensdatenbank durchsuchen"
-						class="w-full border border-slate-200 bg-white py-3 pr-3 pl-10 text-sm focus:border-institutional-navy focus:outline-none"
+						class="w-full rounded-[var(--radius-ui)] border border-slate-200 bg-white py-3 pr-3 pl-10 text-sm focus:border-institutional-navy focus:outline-none"
 						onkeydown={(e) => {
 							if (e.key === 'Enter' && hits?.length) choose(hits[0].slug);
 							if (e.key === 'Escape') query = '';
@@ -145,7 +143,7 @@
 
 				{#if hits !== null}
 					<section aria-label="Suchergebnisse" aria-live="polite">
-						<p class="mb-2 font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+						<p class="mb-2 font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 							{searching
 								? 'Suche …'
 								: `${hits.length} ${hits.length === 1 ? 'Treffer' : 'Treffer'}`}
@@ -189,21 +187,21 @@
 							<button
 								onclick={() => choose(entry.slug)}
 								aria-current={selected === entry.slug}
-								class="flex w-full items-center justify-start gap-4 border-l-4 p-5 text-left font-sans text-xs font-bold tracking-widest uppercase transition-all
+								class="flex w-full items-center justify-start gap-3 rounded-[var(--radius-ui-sm)] px-3 py-2.5 text-left text-sm font-semibold transition-all
                         {selected === entry.slug
-									? 'border-institutional-gold bg-amber-50 text-institutional-gold shadow-sm'
-									: 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'}"
+									? 'bg-institutional-navy text-white'
+									: 'text-slate-700 hover:bg-slate-100'}"
 							>
-								<span class="text-xl grayscale">{entry.icon}</span>
+								<span class="text-lg">{entry.icon}</span>
 								<span class="flex-1">{entry.title}</span>
 								{#if !entry.published}
-									<span class="font-mono text-[8px] text-slate-400">Entwurf</span>
+									<span class="font-mono text-[11px] text-slate-400">Entwurf</span>
 								{/if}
 							</button>
 						{/each}
 
 						{#if articles.length === 0}
-							<p class="p-5 font-mono text-[10px] text-slate-400 uppercase italic">
+							<p class="p-5 font-mono text-[11px] text-slate-400 uppercase italic">
 								Warte auf Freischaltung der Inhalte...
 							</p>
 						{/if}
@@ -216,12 +214,12 @@
 					<p class="mb-4 text-sm text-rose-700" role="alert">{error}</p>
 				{/if}
 				{#if article}
-					<div class="rounded-none border border-slate-200 bg-white p-6 shadow-sm sm:p-12">
+					<div
+						class=" rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6 shadow-sm sm:p-12"
+					>
 						<div class="mb-16 flex items-center gap-6">
 							<span class="text-5xl">{article.icon}</span>
-							<h2
-								class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy uppercase"
-							>
+							<h2 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 								{article.title}
 							</h2>
 						</div>
@@ -246,8 +244,8 @@
 	:global(.knowledge pre) {
 		background-color: #0f172a !important;
 		padding: 1.5rem !important;
-		border: 4px solid #1e293b !important;
-		border-radius: 0 !important;
+		border: 1px solid #1e293b !important;
+		border-radius: var(--radius-ui-sm) !important;
 	}
 
 	:global(.knowledge code) {

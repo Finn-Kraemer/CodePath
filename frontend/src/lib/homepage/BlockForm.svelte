@@ -200,7 +200,7 @@
 						{@const custom = isCustom(item.href)}
 						<div class="border border-slate-200 bg-slate-50 p-3">
 							<div class="mb-2 flex items-center justify-between">
-								<span class="font-mono text-[10px] text-slate-400">Button {i + 1}</span>
+								<span class="font-mono text-[11px] text-slate-400">Button {i + 1}</span>
 								{@render rowTools(field.key, i, items.length)}
 							</div>
 							<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -281,7 +281,7 @@
 					{#each items as item, i (i)}
 						<div class="border border-slate-200 bg-slate-50 p-3">
 							<div class="mb-2 flex items-center justify-between">
-								<span class="font-mono text-[10px] text-slate-400">#{i + 1}</span>
+								<span class="font-mono text-[11px] text-slate-400">#{i + 1}</span>
 								{@render rowTools(field.key, i, items.length)}
 							</div>
 							<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">

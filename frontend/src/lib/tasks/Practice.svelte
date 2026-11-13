@@ -51,13 +51,13 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
+<div class="ui-card p-6 sm:p-8">
 	<div class="mb-8 border-l-4 border-amber-400 bg-amber-50 p-6 text-sm text-amber-900">
 		<Markdown source={cfg.instructions} />
 		{#if cfg.submissionNote}<p class="mt-4 text-xs italic">{cfg.submissionNote}</p>{/if}
 	</div>
 	<div class="mb-8">
-		<p class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+		<p class="mb-3 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 			Bewertet wird nach
 		</p>
 		<ul class="space-y-1 text-sm">
@@ -72,7 +72,7 @@
 	</div>
 	{#if pending}
 		<div
-			class="mb-8 border border-blue-200 bg-blue-50 p-6 text-xs font-bold tracking-widest text-blue-700 uppercase"
+			class="mb-8 border border-blue-200 bg-blue-50 p-6 text-xs font-bold tracking-wider text-blue-700 uppercase"
 		>
 			Abgabe liegt bei der Lehrkraft zur Bewertung
 		</div>
@@ -89,7 +89,7 @@
 	</div>
 	{#if cfg.codeEditor}
 		<div class="mb-8">
-			<p class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+			<p class="mb-3 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 				Dein Programm{cfg.codeRequired ? ' (wird mit abgegeben)' : ' (optional)'}
 			</p>
 			<PythonWorkbench

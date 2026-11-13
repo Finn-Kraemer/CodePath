@@ -72,10 +72,10 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase transition-colors hover:text-institutional-navy"
+			>← Leitstand</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Prüfungszentrum
 		</h1>
 		<p class="mt-4 text-slate-500">Ausstehende praktische Abgaben zur manuellen Validierung.</p>
@@ -88,7 +88,7 @@
 			></div>
 		</div>
 	{:else if submissions.length === 0}
-		<div class="rounded-none border border-dashed border-slate-200 bg-white p-24 text-center">
+		<div class=" border border-dashed border-slate-200 bg-white p-24 text-center">
 			<p class="font-serif text-sm text-slate-400 italic">
 				Aktuell liegen keine offenen Abgaben vor.
 			</p>
@@ -97,14 +97,14 @@
 		<div class="grid grid-cols-1 gap-4">
 			{#each submissions as s (s.id)}
 				<div
-					class="flex items-center justify-between rounded-none border border-slate-200 bg-white p-10 shadow-sm"
+					class="flex items-center justify-between rounded-[var(--radius-ui)] border border-slate-200 bg-white p-10 shadow-sm"
 				>
 					<div>
 						<div class="mb-3 flex items-center gap-3">
 							<span class="font-sans text-sm font-black text-institutional-navy uppercase"
 								>{s.displayName || s.username}</span
 							>
-							<span class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+							<span class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 								>@{s.username}</span
 							>
 						</div>
@@ -115,7 +115,7 @@
 							in
 							<span class="font-bold tracking-tight text-slate-700 uppercase">{s.moduleTitle}</span>
 						</p>
-						<p class="mt-4 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase">
+						<p class="mt-4 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 							Eingang: {new Date(s.submittedAt).toLocaleString('de-DE')}
 						</p>
 					</div>
@@ -123,19 +123,19 @@
 					<div class="flex gap-4">
 						<a
 							href={`/admin/submissions/${s.id}`}
-							class="rounded-none border border-institutional-navy px-8 py-4 text-[10px] font-bold tracking-[3px] text-institutional-navy uppercase transition-all hover:bg-slate-50"
+							class="rounded-[var(--radius-ui-sm)] border border-institutional-navy px-8 py-4 text-sm font-semibold text-institutional-navy transition-all hover:bg-slate-50"
 						>
 							Abgabe öffnen
 						</a>
 						<button
 							onclick={() => approve(s.id, true)}
-							class="rounded-none border border-amber-500 px-6 py-4 text-[10px] font-bold tracking-[3px] text-amber-600 uppercase transition-all hover:bg-amber-500 hover:text-white"
+							class="rounded-[var(--radius-ui-sm)] border border-amber-500 px-6 py-4 text-sm font-semibold text-amber-600 transition-all hover:bg-amber-500 hover:text-white"
 						>
 							Halbe Punkte
 						</button>
 						<button
 							onclick={() => approve(s.id, false)}
-							class="rounded-none bg-institutional-navy px-8 py-4 text-[10px] font-bold tracking-[3px] text-white uppercase shadow-md transition-all hover:opacity-90"
+							class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-8 py-4 text-sm font-semibold text-white shadow-md transition-all hover:opacity-90"
 						>
 							Volle Punkte
 						</button>

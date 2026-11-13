@@ -56,7 +56,7 @@
 
 <div class="mx-auto max-w-3xl py-12">
 	<header class="mb-10 border-b border-slate-200 pb-8">
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Feedback
 		</h1>
 		<p class="mt-2 text-slate-500">
@@ -80,7 +80,7 @@
 		<section aria-labelledby="rounds" class="mb-12">
 			<h2
 				id="rounds"
-				class="mb-4 font-sans text-sm font-black tracking-[3px] text-institutional-navy uppercase"
+				class="mb-4 font-sans text-sm font-black tracking-wider text-institutional-navy uppercase"
 			>
 				Bewertungsbögen
 			</h2>
@@ -118,7 +118,7 @@
 									</p>
 								</div>
 								<span
-									class="px-2 py-1 font-mono text-[9px] font-bold uppercase {round.acceptingAnswers
+									class="px-2 py-1 font-mono text-[11px] font-bold uppercase {round.acceptingAnswers
 										? open
 											? 'bg-amber-100 text-amber-800'
 											: 'bg-emerald-100 text-emerald-800'
@@ -127,7 +127,7 @@
 									{round.acceptingAnswers ? (open ? `${open} offen` : 'Erledigt') : 'Abgeschlossen'}
 								</span>
 								{#if round.acceptingAnswers && round.closesAt}
-									<span class="w-full font-mono text-[10px] text-slate-400"
+									<span class="w-full font-mono text-[11px] text-slate-400"
 										>Bis {formatDate(round.closesAt)}</span
 									>
 								{/if}
@@ -141,7 +141,7 @@
 		<section aria-labelledby="message">
 			<h2
 				id="message"
-				class="mb-4 font-sans text-sm font-black tracking-[3px] text-institutional-navy uppercase"
+				class="mb-4 font-sans text-sm font-black tracking-wider text-institutional-navy uppercase"
 			>
 				Nachricht an die Lehrkraft
 			</h2>
@@ -158,7 +158,7 @@
 					Danke! Deine Nachricht ist angekommen.
 				</p>
 			{:else}
-				<div class="border border-slate-200 bg-white p-6">
+				<div class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6">
 					<p class="mb-4 text-sm text-slate-500">
 						Deine Nachricht wird deinem Profil zugeordnet und kann nur einmal abgeschickt werden.
 					</p>
@@ -174,7 +174,7 @@
 					<button
 						onclick={handleSubmit}
 						disabled={submitting || !content.trim()}
-						class="mt-4 w-full bg-institutional-navy py-4 font-mono text-xs font-black tracking-widest text-white uppercase disabled:opacity-30"
+						class="mt-4 w-full rounded-[var(--radius-ui-sm)] bg-institutional-navy py-4 text-sm font-semibold text-white disabled:opacity-30"
 					>
 						{submitting ? 'Wird gesendet …' : 'Nachricht abschicken'}
 					</button>

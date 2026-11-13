@@ -7,10 +7,10 @@
 	const total = $derived((stats.distribution ?? []).reduce((sum, b) => sum + b.count, 0));
 </script>
 
-<div class="border border-slate-200 bg-white p-5">
+<div class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-5">
 	<div class="flex flex-wrap items-baseline justify-between gap-2">
 		<p class="font-bold text-institutional-navy">{stats.label}</p>
-		<p class="font-mono text-[10px] text-slate-400">
+		<p class="font-mono text-[11px] text-slate-400">
 			{stats.answered} Antwort{stats.answered === 1 ? '' : 'en'}{#if stats.average != null}
 				· Ø <span class="text-sm font-bold text-institutional-navy"
 					>{stats.average.toLocaleString('de-DE')}</span
@@ -54,7 +54,7 @@
 					<li class="border-l-4 border-slate-200 bg-slate-50 px-3 py-2 text-sm">
 						<p class="whitespace-pre-line text-slate-700">{text.text}</p>
 						{#if text.author}
-							<p class="mt-1 font-mono text-[10px] text-slate-400">– {text.author}</p>
+							<p class="mt-1 font-mono text-[11px] text-slate-400">– {text.author}</p>
 						{/if}
 					</li>
 				{/each}

@@ -149,7 +149,9 @@
 	}
 </script>
 
-<div class="relative w-full overflow-hidden border border-slate-200 bg-white">
+<div
+	class="relative w-full overflow-hidden rounded-[var(--radius-ui-sm)] border border-slate-200 bg-white"
+>
 	<svg
 		bind:this={svg}
 		viewBox="{view.x} {view.y} {view.width} {view.height}"
