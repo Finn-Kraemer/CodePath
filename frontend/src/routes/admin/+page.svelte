@@ -140,6 +140,12 @@
 					icon: icons.users
 				},
 				{
+					href: '/admin/classroom',
+					title: 'Klassenraum',
+					text: 'Sitzplan anlegen, im Unterricht bewerten und Notizen machen',
+					icon: icons.check
+				},
+				{
 					href: '/admin/modules',
 					title: 'Modul-Steuerung',
 					text: 'Module je Kurs freigeben, sperren, Fristen setzen',

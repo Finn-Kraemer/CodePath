@@ -3322,6 +3322,731 @@
         "tags" : [ "classroom-admin-controller" ]
       }
     },
+    "/api/admin/observations" : {
+      "get" : {
+        "operationId" : "observationBoard",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "courseId",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/templates" : {
+      "get" : {
+        "operationId" : "observationTemplates",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TemplateSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/templates/{id}" : {
+      "delete" : {
+        "operationId" : "observationDeleteTemplate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/apply" : {
+      "post" : {
+        "operationId" : "observationApply",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ApplyRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/criteria" : {
+      "post" : {
+        "operationId" : "observationCreateCriterion",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CriterionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/criteria-order" : {
+      "put" : {
+        "operationId" : "observationReorder",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OrderRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/criteria/{id}" : {
+      "delete" : {
+        "operationId" : "observationDeleteCriterion",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      },
+      "put" : {
+        "operationId" : "observationUpdateCriterion",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CriterionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/export.csv" : {
+      "get" : {
+        "operationId" : "observationCsv",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/export.json" : {
+      "get" : {
+        "operationId" : "observationExportJson",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardExport"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/import" : {
+      "post" : {
+        "operationId" : "observationImportJson",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BoardExport"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/layout" : {
+      "put" : {
+        "operationId" : "observationLayout",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RoomLayout"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/pdf" : {
+      "get" : {
+        "operationId" : "observationPdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "perPerson",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        }, {
+          "in" : "query",
+          "name" : "inline",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/people" : {
+      "post" : {
+        "operationId" : "observationAddPerson",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NameRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/people/{id}" : {
+      "delete" : {
+        "operationId" : "observationDeletePerson",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      },
+      "put" : {
+        "operationId" : "observationRenamePerson",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NameRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/people/{id}/note" : {
+      "put" : {
+        "operationId" : "observationNote",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NoteRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PersonView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/people/{id}/ratings/{criterionId}" : {
+      "put" : {
+        "operationId" : "observationRate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "criterionId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ValueRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PersonView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/people/{id}/seat" : {
+      "put" : {
+        "operationId" : "observationSeat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SeatRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
+    "/api/admin/observations/{courseId}/templates" : {
+      "post" : {
+        "operationId" : "observationSaveTemplate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NameRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TemplateSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
     "/api/admin/pages" : {
       "get" : {
         "operationId" : "all_1",
@@ -6592,6 +7317,21 @@
           }
         }
       },
+      "ApplyRequest" : {
+        "type" : "object",
+        "properties" : {
+          "criteria" : {
+            "type" : "boolean"
+          },
+          "room" : {
+            "type" : "boolean"
+          },
+          "sourceId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
       "ApproveRequest" : {
         "type" : "object",
         "properties" : {
@@ -7044,6 +7784,72 @@
         },
         "required" : [ "courseName", "displayName", "role", "username" ]
       },
+      "BoardExport" : {
+        "type" : "object",
+        "properties" : {
+          "course" : {
+            "type" : "string"
+          },
+          "criteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ExportCriterion"
+            }
+          },
+          "format" : {
+            "type" : "string"
+          },
+          "layout" : {
+            "$ref" : "#/components/schemas/RoomLayout"
+          },
+          "people" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ExportPerson"
+            }
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "course", "criteria", "format", "layout", "people", "version" ]
+      },
+      "BoardView" : {
+        "type" : "object",
+        "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "criteria" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CriterionView"
+            }
+          },
+          "editable" : {
+            "type" : "boolean"
+          },
+          "layout" : {
+            "$ref" : "#/components/schemas/RoomLayout"
+          },
+          "people" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PersonView"
+            }
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "courseId", "courseName", "criteria", "editable", "layout", "people", "updatedAt" ]
+      },
       "BranchConditionStats" : {
         "type" : "object",
         "properties" : {
@@ -7453,6 +8259,30 @@
         },
         "required" : [ "id", "label", "points" ]
       },
+      "CriterionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "NUMBER", "CHOICE" ]
+          },
+          "max" : {
+            "type" : "number"
+          },
+          "min" : {
+            "type" : "number"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObservationOption"
+            }
+          }
+        }
+      },
       "CriterionStats" : {
         "type" : "object",
         "properties" : {
@@ -7488,6 +8318,35 @@
           }
         },
         "required" : [ "answered", "average", "distribution", "id", "label", "texts", "type" ]
+      },
+      "CriterionView" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "NUMBER", "CHOICE" ]
+          },
+          "max" : {
+            "type" : "number"
+          },
+          "min" : {
+            "type" : "number"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObservationOption"
+            }
+          }
+        },
+        "required" : [ "id", "kind", "max", "min", "name", "options" ]
       },
       "DeleteImpact" : {
         "type" : "object",
@@ -7668,6 +8527,55 @@
           }
         },
         "required" : [ "help", "id", "label", "labels", "max", "maxLabel", "maxLength", "min", "minLabel", "multiple", "options", "required", "style", "type" ]
+      },
+      "ExportCriterion" : {
+        "type" : "object",
+        "properties" : {
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "NUMBER", "CHOICE" ]
+          },
+          "max" : {
+            "type" : "number"
+          },
+          "min" : {
+            "type" : "number"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ObservationOption"
+            }
+          }
+        },
+        "required" : [ "kind", "max", "min", "name", "options" ]
+      },
+      "ExportPerson" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "ratings" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "seatId" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "name", "note", "ratings", "seatId", "username" ]
       },
       "GateProgress" : {
         "type" : "object",
@@ -7916,6 +8824,29 @@
           }
         },
         "required" : [ "errors", "items", "modulesCreated", "tasksCreated", "unchanged", "versionsPublished" ]
+      },
+      "ImportResult" : {
+        "type" : "object",
+        "properties" : {
+          "board" : {
+            "$ref" : "#/components/schemas/BoardView"
+          },
+          "criteria" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "people" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "warnings" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "board", "criteria", "people", "warnings" ]
       },
       "JournalEntryView" : {
         "type" : "object",
@@ -8692,6 +9623,14 @@
         },
         "required" : [ "acceptingAnswers", "allowEdit", "closesAt", "id", "intro", "lesson", "lessonAnonymous", "self", "status", "teacher", "teacherState", "title" ]
       },
+      "NameRequest" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
       "NavLink" : {
         "type" : "object",
         "properties" : {
@@ -8870,6 +9809,26 @@
         },
         "required" : [ "boss", "chosenTo", "done", "gateProgress", "href", "icon", "id", "kind", "knowledgeArticle", "label", "min", "options", "path", "points", "reason", "recommended", "requirement", "state", "teacherUnlocked", "total", "x", "y" ]
       },
+      "NoteRequest" : {
+        "type" : "object",
+        "properties" : {
+          "note" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ObservationOption" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "value" ]
+      },
       "OpenTaskView" : {
         "type" : "object",
         "properties" : {
@@ -8903,6 +9862,18 @@
           }
         },
         "required" : [ "id", "label", "text" ]
+      },
+      "OrderRequest" : {
+        "type" : "object",
+        "properties" : {
+          "ids" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          }
+        }
       },
       "PageDetail" : {
         "type" : "object",
@@ -9252,6 +10223,42 @@
           }
         },
         "required" : [ "assignments", "canReview", "enabled", "maxPoints", "reason", "received", "rubric" ]
+      },
+      "PersonView" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "ratings" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "seatId" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "userId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "name", "note", "ratings", "seatId", "updatedAt", "userId", "username" ]
       },
       "Profile" : {
         "type" : "object",
@@ -9643,6 +10650,73 @@
           }
         }
       },
+      "RoomItem" : {
+        "type" : "object",
+        "properties" : {
+          "height" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "TABLE", "TEACHER", "BOARD" ]
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "rotation" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "seats" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RoomSeat"
+            }
+          },
+          "width" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "x" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "y" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "height", "id", "kind", "label", "rotation", "seats", "width", "x", "y" ]
+      },
+      "RoomLayout" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RoomItem"
+            }
+          }
+        },
+        "required" : [ "items" ]
+      },
+      "RoomSeat" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "side" : {
+            "type" : "string",
+            "enum" : [ "TOP", "BOTTOM", "LEFT", "RIGHT" ]
+          }
+        },
+        "required" : [ "id", "side" ]
+      },
       "RoundAdmin" : {
         "type" : "object",
         "properties" : {
@@ -9857,6 +10931,14 @@
           }
         },
         "required" : [ "icon", "slug", "snippet", "title" ]
+      },
+      "SeatRequest" : {
+        "type" : "object",
+        "properties" : {
+          "seatId" : {
+            "type" : "string"
+          }
+        }
       },
       "SectionInfo" : {
         "type" : "object",
@@ -10899,6 +11981,35 @@
           }
         }
       },
+      "TemplateSummary" : {
+        "type" : "object",
+        "properties" : {
+          "courseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "criteria" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "seats" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "tables" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "courseId", "criteria", "id", "name", "seats", "tables" ]
+      },
       "TemplateView" : {
         "type" : "object",
         "properties" : {
@@ -11086,6 +12197,14 @@
           }
         },
         "required" : [ "availableUntil", "bonus", "displayName", "id", "mode", "moduleIcon", "moduleId", "moduleSlug", "moduleTitle", "taskId", "taskSlug", "taskTitle", "username" ]
+      },
+      "ValueRequest" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "string"
+          }
+        }
       },
       "VersionRow" : {
         "type" : "object",

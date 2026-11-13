@@ -185,6 +185,22 @@ Zu Stundenbeginn startet **Stunde starten** den Ablauf und führt den ersten Sch
 
 Abläufe lassen sich sortieren, duplizieren und löschen. Ohne Kurs ist ein Ablauf eine **Vorlage**; Vorlagen gehen über *Import & Export* (Bereich „Stundenabläufe“) in andere Installationen. Bewertungsrunden und Aufgabenblätter sind dort ggf. neu zu wählen.
 
+### Klassenraum: Sitzplan und Beobachtungsbogen
+
+Unter **Leitstand → Klassenraum** hältst du im laufenden Unterricht Beobachtungen fest – je Kurs, nur für dich sichtbar.
+
+**Raum anlegen** (*Raum bearbeiten*): Einzel-, Zweier- und Gruppentische, Computerreihen, Lehrerpult und Tafel hinzufügen, per Maus oder Finger verschieben (Raster), drehen (15° oder 90°), Größe und Bezeichnung ändern, Sitzplätze je Tischseite einstellen, duplizieren und löschen. Mit der Tastatur: Tab zum Element, Pfeiltasten verschieben, <kbd>R</kbd> dreht, <kbd>Entf</kbd> löscht. Der Raum wird automatisch gespeichert.
+
+**Plätze zuweisen** (*Sitzplan*): Alle Schülerkonten des Kurses stehen automatisch im Bogen; Personen ohne Konto (z. B. Gäste) trägst du mit Namen ein. Eine Person unter „Ohne Platz“ auf einen Platz ziehen – oder erst die Person, dann den Platz antippen. Ein Klick auf einen freien Platz öffnet die Auswahl; ein Klick auf einen belegten Platz springt zur Zeile im Bogen. Zieht man eine Person auf einen belegten Platz, tauschen beide.
+
+**Beobachtungsbogen:** Eine Zeile je Person, sortiert nach Sitzplan oder alphabetisch. Mit **+ Kriterium** legst du Spalten an – als **Zahl** (optional mit Bereich, z. B. 1–5) oder als **Auswahlliste** mit eigenen Optionen aus Wert und Beschreibung, z. B. *Interesse: 1 – Neugier durch Fragen zum Beruf, 2 – Wirkt motiviert und aufgeweckt*. Ein Klick auf den Spaltenkopf bearbeitet oder löscht das Kriterium, die Pfeile sortieren. Werte und Notizen werden ohne Extra-Klick gespeichert; <kbd>Enter</kbd> springt eine Zeile tiefer, <kbd>Tab</kbd> zur nächsten Spalte. Je Kriterium gibt es einen aktuellen Wert pro Person.
+
+**Vorlagen:** Raum und Kriterien als Vorlage speichern (z. B. „Computerraum 1“) und in anderen Kursen übernehmen – auch direkt aus dem Bogen eines anderen Kurses. Personen, Bewertungen und Notizen kommen dabei nie mit. Vorlagen stehen auch im zentralen Export (Bereich „Klassenraum-Vorlagen“).
+
+**Export:** PDF mit Sitzplan, Tabelle und Erklärung der Auswahllisten, auf Wunsch mit einer Seite je Person; CSV für Tabellenkalkulationen; JSON mit allem (Raum, Kriterien, Plätze, Bewertungen, Notizen). Ein JSON-Import ersetzt den Raum, gleicht Kriterien über den Namen und Personen über den Benutzernamen ab (sonst als Name ohne Konto).
+
+**Datenschutz:** Bewertungen und Notizen sind personenbezogene Daten. Schülerinnen und Schüler sehen sie nicht. Beim Beenden des Kurses wird der Bogen gelöscht, mit einem Konto auch dessen Zeile; wer den Kurs verlässt, verschwindet aus dem Bogen. Bei der Übernahme ins nächste Schuljahr wandern Raum, Kriterien und Plätze mit, Bewertungen und Notizen nur zusammen mit dem Fortschritt. Im Audit-Log steht nur, *dass* exportiert wurde – nie Inhalte.
+
 ## ◼ 3. Bewerten
 
 Praxisaufgaben (Typ *Praxis*) bewertet die Lehrkraft selbst. Neue Abgaben erscheinen im **Prüfungszentrum** (*Abgaben prüfen*).
@@ -308,7 +324,7 @@ Dazu **Inhalt** (Überschrift, Text, Infokasten „Merke/Tipp/Achtung“, Code �
 
 ### Austausch und Sicherung
 
-**Leitstand → Import & Export** sichert Einstellungen, Startseite, Seiten, Wissensdatenbank, CodePaths, Aufgabenblätter sowie Module und Aufgaben (mit Bildern) in **einer** ZIP-Datei – alles oder nur ausgewählte Bereiche. Einzelne Bereiche und einzelne CodePaths lassen sich auch in ihren Editoren exportieren. Schülerdaten sind nie enthalten.
+**Leitstand → Import & Export** sichert Einstellungen, Startseite, Seiten, Wissensdatenbank, CodePaths, Aufgabenblätter, Klassenraum-Vorlagen sowie Module und Aufgaben (mit Bildern) in **einer** ZIP-Datei – alles oder nur ausgewählte Bereiche. Einzelne Bereiche und einzelne CodePaths lassen sich auch in ihren Editoren exportieren. Schülerdaten sind nie enthalten.
 
 Der **zentrale Import** erkennt die Datei selbst (CodePath-Export als ZIP oder JSON, oder ein Content-Paket) und zeigt danach für jeden Eintrag, ob er **angelegt**, **überarbeitet** (gab es schon) oder **unverändert** gelassen wurde – oder warum ein **Fehler** auftrat. Ein fehlerhafter Eintrag hält die übrigen nicht auf. Gleiche Adresse (Slug) heißt „derselbe Eintrag“; gelöscht wird nichts.
 
