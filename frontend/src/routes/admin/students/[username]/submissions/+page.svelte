@@ -83,10 +83,10 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href={`/admin/students/${username}`}
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase transition-colors hover:text-institutional-navy"
 			>← Zurück zur Teilnehmer-Akte: {username}</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Leistungs-Nachweise
 		</h1>
 		<p class="mt-4 text-slate-500">
@@ -103,7 +103,7 @@
 			></div>
 		</div>
 	{:else if submissions.length === 0}
-		<div class="rounded-none border border-dashed border-slate-200 bg-white p-24 text-center">
+		<div class=" border border-dashed border-slate-200 bg-white p-24 text-center">
 			<p class="font-serif text-sm text-slate-400 italic">
 				Keine Abgaben für diesen Teilnehmer vorhanden.
 			</p>
@@ -112,7 +112,7 @@
 		<div class="grid grid-cols-1 gap-8">
 			{#each submissions as s (s.id)}
 				<div
-					class="flex flex-col overflow-hidden rounded-none border border-slate-200 bg-white shadow-sm"
+					class="flex flex-col overflow-hidden rounded-[var(--radius-ui)] border border-slate-200 bg-white shadow-sm"
 				>
 					<!-- Header Section -->
 					<div class="flex items-center justify-between border-b border-slate-100 bg-slate-50 p-8">
@@ -131,22 +131,22 @@
 
 							{#if s.status === 'APPROVED'}
 								<span
-									class="bg-teal-100 px-2 py-0.5 text-[9px] font-bold tracking-wider text-teal-700 uppercase"
+									class="bg-teal-100 px-2 py-0.5 text-[11px] font-bold tracking-wider text-teal-700 uppercase"
 									>Validiert</span
 								>
 							{:else if s.status === 'REJECTED'}
 								<span
-									class="bg-red-100 px-2 py-0.5 text-[9px] font-bold tracking-wider text-red-700 uppercase"
+									class="bg-red-100 px-2 py-0.5 text-[11px] font-bold tracking-wider text-red-700 uppercase"
 									>Abgelehnt</span
 								>
 							{:else}
 								<span
-									class="bg-amber-100 px-2 py-0.5 text-[9px] font-bold tracking-wider text-amber-700 uppercase"
+									class="bg-amber-100 px-2 py-0.5 text-[11px] font-bold tracking-wider text-amber-700 uppercase"
 									>Ausstehend</span
 								>
 							{/if}
 						</div>
-						<p class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+						<p class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 							Eingang: {new Date(s.submittedAt).toLocaleString('de-DE')}
 						</p>
 					</div>
@@ -154,14 +154,14 @@
 					<!-- Content Preview -->
 					<div class="p-8">
 						<span
-							class="mb-4 block font-mono text-[9px] font-bold tracking-[3px] text-slate-400 uppercase"
+							class="mb-4 block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 							>Abgegebene Ausarbeitung</span
 						>
 						<PracticeReview content={s.content} />
 
 						{#if s.adminComment}
 							<div class="mt-6 border-l-2 border-red-200 bg-red-50/30 p-4">
-								<p class="mb-1 text-[10px] font-bold tracking-wider text-red-600 uppercase">
+								<p class="mb-1 text-[11px] font-bold tracking-wider text-red-600 uppercase">
 									Feedback vom Dozenten:
 								</p>
 								<p class="text-sm text-slate-600 italic">"{s.adminComment}"</p>
@@ -174,38 +174,38 @@
 						<div class="flex flex-wrap justify-end gap-4 border-t border-slate-100 bg-slate-50 p-8">
 							<button
 								onclick={() => reject(s.id, true)}
-								class="rounded-none border border-red-600 bg-white px-6 py-4 text-[10px] font-bold tracking-[3px] text-red-600 uppercase transition-all hover:bg-red-600 hover:text-white"
+								class="rounded-[var(--radius-ui-sm)] border border-red-600 bg-white px-6 py-4 text-sm font-semibold text-red-600 transition-all hover:bg-red-600 hover:text-white"
 							>
 								Endgültig Sperren
 							</button>
 							<button
 								onclick={() => reject(s.id, false)}
-								class="rounded-none border border-red-200 bg-white px-6 py-4 text-[10px] font-bold tracking-[3px] text-red-400 uppercase transition-all hover:bg-red-50"
+								class="rounded-[var(--radius-ui-sm)] border border-red-200 bg-white px-6 py-4 text-sm font-semibold text-red-400 transition-all hover:bg-red-50"
 							>
 								Ablehnen (Korrektur)
 							</button>
 							<button
 								onclick={() => approve(s.id, true)}
-								class="rounded-none border border-amber-500 bg-white px-6 py-4 text-[10px] font-bold tracking-[3px] text-amber-600 uppercase transition-all hover:bg-amber-500 hover:text-white"
+								class="rounded-[var(--radius-ui-sm)] border border-amber-500 bg-white px-6 py-4 text-sm font-semibold text-amber-600 transition-all hover:bg-amber-500 hover:text-white"
 							>
 								Halbe Punkte
 							</button>
 							<button
 								onclick={() => approve(s.id, false)}
-								class="rounded-none bg-teal-700 px-8 py-4 text-[10px] font-bold tracking-[3px] text-white uppercase shadow-md transition-all hover:bg-teal-800"
+								class="rounded-[var(--radius-ui-sm)] bg-teal-700 px-8 py-4 text-sm font-semibold text-white shadow-md transition-all hover:bg-teal-800"
 							>
 								Volle Punkte
 							</button>
 						</div>
 					{:else}
 						<div class="flex justify-end gap-4 border-t border-slate-100 bg-slate-50 p-8">
-							<p class="py-4 text-[10px] font-bold tracking-widest text-slate-400 uppercase italic">
+							<p class="py-4 text-[11px] font-bold tracking-wider text-slate-400 uppercase italic">
 								Bereits bearbeitet
 							</p>
 							{#if s.status === 'APPROVED'}
 								<button
 									onclick={() => reject(s.id, false)}
-									class="rounded-none border border-red-100 bg-white px-6 py-4 text-[9px] font-bold tracking-[2px] text-red-400 uppercase transition-all hover:bg-red-50"
+									class="rounded-[var(--radius-ui-sm)] border border-red-100 bg-white px-6 py-4 text-sm font-semibold text-red-400 transition-all hover:bg-red-50"
 								>
 									Nachträglich Ablehnen
 								</button>

@@ -73,10 +73,10 @@
 	}
 
 	const small =
-		'w-full border px-3 py-3 font-mono text-[10px] font-bold tracking-widest uppercase disabled:opacity-40';
+		'flex min-h-10 w-full items-center justify-center gap-2 rounded-[var(--radius-ui-sm)] border px-3 text-sm font-semibold disabled:opacity-40';
 </script>
 
-<div class="border border-slate-200 bg-white p-6 text-sm shadow-sm" data-testid="help">
+<div class="ui-card p-5 text-sm" data-testid="help">
 	{#if request && forThisTask}
 		<div role="status" aria-live="polite">
 			{#if request.status === 'CLAIMED'}
@@ -97,7 +97,7 @@
 					data-testid="help-message"
 				>
 					<span
-						class="block font-mono text-[9px] font-black tracking-widest text-amber-700 uppercase"
+						class="block font-mono text-[11px] font-black tracking-wider text-amber-700 uppercase"
 						>Nachricht deiner Lehrkraft</span
 					>{request.teacherMessage}
 				</p>

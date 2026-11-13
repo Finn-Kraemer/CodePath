@@ -8,16 +8,15 @@
 	{#snippet header()}
 		<div class="mb-2 flex items-center gap-3 text-institutional-navy/40">
 			<a href="/admin" class="transition-colors hover:text-institutional-gold">
-				<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase">Admin Dashboard</span
-				>
+				<span class="font-mono text-[11px] font-bold tracking-wider uppercase">Leitstand</span>
 			</a>
 			<span class="text-slate-300">/</span>
-			<span class="font-mono text-[10px] font-bold tracking-[4px] text-institutional-gold uppercase"
+			<span class="font-mono text-[11px] font-bold tracking-wider text-institutional-gold uppercase"
 				>Startseite</span
 			>
 		</div>
 		<h1
-			class="font-sans text-5xl leading-none font-black tracking-tighter text-institutional-navy uppercase"
+			class="font-sans text-3xl leading-none font-extrabold tracking-tight text-institutional-navy"
 		>
 			Startseite
 		</h1>

@@ -49,104 +49,161 @@
 	}
 
 	onMount(fetchData);
+
+	const modes = [
+		{
+			value: 'HEADER',
+			label: 'Oben auf jeder Seite',
+			hint: 'Banner unter der Menüleiste, sofort für alle sichtbar'
+		},
+		{ value: 'INFO_PAGE', label: 'Nur auf der Info-Seite', hint: 'Unaufdringlich, zum Nachlesen' },
+		{ value: 'BOTH', label: 'Überall', hint: 'Banner und Info-Seite' }
+	];
+
+	const templates = [
+		'In 10 Minuten ist Pause – speichert bitte vorher eure Aufgaben.',
+		'Bitte jetzt abgeben.',
+		'Gleich startet die Quiz-Runde!',
+		'Alle bitte einmal zum Beamer schauen.'
+	];
 </script>
 
-<div class="mx-auto flex max-w-7xl flex-col gap-10 pb-24">
-	<header class="flex items-end justify-between border-b border-slate-200 pb-10">
-		<div>
-			<div class="mb-2 flex items-center gap-3 text-institutional-navy/40">
-				<a href="/admin" class="transition-colors hover:text-institutional-gold">
-					<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase"
-						>Admin Dashboard</span
-					>
-				</a>
-				<span class="text-slate-300">/</span>
-				<span
-					class="font-mono text-[10px] font-bold tracking-[4px] text-institutional-gold uppercase"
-					>Live-Mitteilung</span
-				>
-			</div>
-			<h1
-				class="font-sans text-6xl leading-none font-black tracking-tighter text-institutional-navy uppercase"
-			>
-				Messaging
-			</h1>
-		</div>
+<svelte:head><title>Live-Mitteilung | CodePath</title></svelte:head>
+
+<div class="flex flex-col gap-6 pb-12">
+	<header>
+		<p class="ui-eyebrow">Unterricht</p>
+		<h1 class="ui-title mt-1">Live-Mitteilung</h1>
+		<p class="mt-1.5 text-[15px] text-slate-600">
+			Erscheint sofort bei allen angemeldeten Schülerinnen und Schülern.
+		</p>
 	</header>
 
-	<section class="max-w-3xl">
-		<div class="space-y-10 border border-slate-200 bg-white p-12 shadow-sm">
-			<div class="space-y-4">
-				<label
-					class="font-sans text-[10px] font-black tracking-[4px] text-institutional-navy uppercase"
-					>Inhalt der Mitteilung</label
-				>
+	<div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+		<section class="ui-card flex flex-col gap-5 p-6" aria-label="Mitteilung verfassen">
+			<div>
+				<label class="ed-label" for="announcement-text">Nachricht</label>
 				<textarea
+					id="announcement-text"
+					class="ed-input min-h-36"
+					rows="5"
+					maxlength="500"
 					bind:value={announcement}
-					placeholder="Wichtige System-Meldung verfassen..."
-					class="h-64 w-full resize-none rounded-none border border-slate-200 bg-slate-50 p-6 font-sans text-sm text-slate-700 transition-all focus:border-institutional-navy focus:outline-none"
+					placeholder="z. B. In 10 Minuten ist Pause – speichert bitte vorher eure Aufgaben."
 				></textarea>
+				<p class="mt-1 text-right font-mono text-xs text-slate-500">{announcement.length} / 500</p>
 			</div>
 
-			<div class="space-y-4">
-				<label
-					class="font-sans text-[10px] font-black tracking-[4px] text-institutional-navy uppercase"
-					>Anzeigeort wählen</label
-				>
-				<div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-					{#each ['HEADER', 'INFO_PAGE', 'BOTH'] as mode (mode)}
+			<div>
+				<p class="ed-label mb-2">Vorlagen</p>
+				<div class="flex flex-wrap gap-2">
+					{#each templates as t (t)}
 						<button
-							onclick={() => (displayMode = mode)}
-							class="border py-4 font-mono text-[10px] font-bold tracking-widest uppercase transition-all
-							{displayMode === mode
-								? 'border-institutional-navy bg-institutional-navy text-white'
-								: 'border-slate-200 bg-white text-slate-400 hover:border-slate-300'}"
+							type="button"
+							class="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[13px] text-slate-700 hover:bg-slate-50"
+							onclick={() => (announcement = t)}>{t}</button
 						>
-							{mode.replace('_', ' ')}
-						</button>
 					{/each}
 				</div>
-				<p class="font-mono text-[10px] text-slate-400 italic">
-					HEADER: Wird oben auf jeder Seite angezeigt. INFO_PAGE: Nur auf der Info-Seite. BOTH:
-					Überall.
-				</p>
 			</div>
 
-			<div class="flex items-center justify-between gap-6 border-t border-slate-100 pt-6">
-				{#if success}
-					<p
-						class="animate-in fade-in text-[10px] font-bold tracking-widest text-teal-600 uppercase duration-300"
-					>
-						Signal erfolgreich gesendet!
-					</p>
-				{:else if error}
-					<p class="text-[10px] font-bold tracking-widest text-rose-600 uppercase">{error}</p>
-				{:else}
-					<div></div>
-				{/if}
+			<fieldset>
+				<legend class="ed-label mb-2">Wo anzeigen?</legend>
+				<div class="flex flex-col gap-2">
+					{#each modes as m (m.value)}
+						<label
+							class="flex cursor-pointer items-start gap-3 rounded-[var(--radius-ui-sm)] border p-3.5 {displayMode ===
+							m.value
+								? 'border-institutional-navy ring-1 ring-institutional-navy'
+								: 'border-slate-200 hover:border-slate-300'}"
+						>
+							<input
+								type="radio"
+								name="display-mode"
+								value={m.value}
+								bind:group={displayMode}
+								class="mt-0.5 text-institutional-navy"
+							/>
+							<span>
+								<span class="block text-[15px] font-semibold">{m.label}</span>
+								<span class="block text-[13px] text-slate-500">{m.hint}</span>
+							</span>
+						</label>
+					{/each}
+				</div>
+			</fieldset>
 
+			{#if error}
+				<p class="rounded-[var(--radius-ui-sm)] bg-rose-50 p-3 text-sm text-rose-700" role="alert">
+					{error}
+				</p>
+			{/if}
+			{#if success}
+				<p
+					class="rounded-[var(--radius-ui-sm)] bg-emerald-50 p-3 text-sm text-emerald-800"
+					role="status"
+				>
+					Mitteilung ist live.
+				</p>
+			{/if}
+
+			<div class="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
 				<button
+					class="ui-btn ui-btn-primary flex-1"
 					onclick={updateAnnouncement}
 					disabled={loading}
-					class="group flex items-center gap-4 rounded-none bg-institutional-navy px-12 py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-xl transition-all hover:opacity-95 disabled:opacity-50"
 				>
-					{loading ? 'Übertrage...' : 'Live Veröffentlichen'}
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-4 w-4 transition-transform group-hover:translate-x-1"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M14 5l7 7m0 0l-7 7m7-7H3"
-						/>
-					</svg>
+					{loading ? 'Wird gesendet …' : 'Live veröffentlichen'}
 				</button>
+				<button
+					class="ui-btn"
+					onclick={() => {
+						announcement = '';
+						updateAnnouncement();
+					}}
+					disabled={loading}>Mitteilung entfernen</button
+				>
 			</div>
-		</div>
-	</section>
+		</section>
+
+		<section class="flex flex-col gap-3" aria-label="Vorschau">
+			<p class="ui-eyebrow">So sehen es Schülerinnen und Schüler</p>
+			<div class="ui-card overflow-hidden shadow-sm">
+				<div class="flex h-12 items-center gap-3 border-b border-slate-200 px-4">
+					<span class="h-6 w-6 rounded bg-institutional-navy"></span>
+					<span class="text-sm font-extrabold">CodePath</span>
+					<span class="flex-1"></span>
+					<span class="h-2 w-14 rounded-full bg-slate-200"></span>
+					<span class="h-2 w-10 rounded-full bg-slate-200"></span>
+				</div>
+				{#if displayMode !== 'INFO_PAGE' && announcement.trim()}
+					<div class="flex items-start gap-3 border-b border-amber-200 bg-amber-50 px-4 py-3">
+						<span
+							class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-institutional-gold text-xs text-white"
+							aria-hidden="true">!</span
+						>
+						<p class="min-w-0 flex-1 text-sm text-amber-950">
+							<span class="block font-semibold">Mitteilung der Lehrkraft</span>
+							<span class="whitespace-pre-line">{announcement}</span>
+						</p>
+					</div>
+				{/if}
+				<div class="flex flex-col gap-2.5 p-4">
+					<span class="h-3.5 w-2/5 rounded-full bg-slate-200"></span>
+					<span class="h-2 w-4/5 rounded-full bg-slate-100"></span>
+					<span class="h-2 w-3/5 rounded-full bg-slate-100"></span>
+					<div class="mt-2 grid grid-cols-3 gap-2">
+						<span class="h-16 rounded border border-slate-200"></span>
+						<span class="h-16 rounded border border-slate-200"></span>
+						<span class="h-16 rounded border border-slate-200"></span>
+					</div>
+				</div>
+			</div>
+			{#if displayMode !== 'HEADER'}
+				<p class="rounded-[var(--radius-ui-sm)] bg-sky-50 p-3 text-[13px] text-sky-900">
+					Die Nachricht steht außerdem oben auf der Info-Seite.
+				</p>
+			{/if}
+		</section>
+	</div>
 </div>

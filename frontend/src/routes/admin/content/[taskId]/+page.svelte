@@ -178,44 +178,53 @@
 <svelte:head><title>Aufgabe bearbeiten | CodePath</title></svelte:head>
 
 <div class="flex flex-col gap-6 pb-24">
-	<a
-		href="/admin/content"
-		class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-		>← Alle Inhalte</a
-	>
 	{#if view && file}
-		<header
-			class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4"
-		>
-			<div>
-				<p class="font-mono text-xs text-slate-400">
-					{view.moduleSlug}/{file.slug} · {TYPE_LABELS[view.type] ?? view.type} · {view.currentVersion
-						? `veröffentlicht: v${view.currentVersion}`
-						: 'noch nicht veröffentlicht'}{view.draft ? ' · Entwurf vorhanden' : ''}
-				</p>
-				<h1 class="text-3xl font-extrabold text-institutional-navy">{file.title}</h1>
-			</div>
-			<div class="flex flex-wrap gap-2">
-				<button class="ed-button" onclick={save} disabled={busy}>Entwurf speichern</button>
-				<button class="ed-button" onclick={runCheck} disabled={busy}>Prüfen</button>
-				<button
-					class="ed-button bg-green-700 text-white"
-					onclick={publish}
-					disabled={busy || (!view.draft && !dirty)}>Veröffentlichen</button
+		<header class="flex flex-col gap-3 border-b border-slate-200 pb-4">
+			<nav aria-label="Brotkrumen" class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+				<a href="/admin/content" class="font-medium text-slate-600 hover:text-institutional-navy"
+					>Aufgaben &amp; Module</a
 				>
-				{#if view.draft && view.currentVersion}<button
-						class="ed-button"
-						onclick={discard}
-						disabled={busy}>Entwurf verwerfen</button
-					>{/if}
-				<button class="ed-button" onclick={() => archive(!view!.archived)} disabled={busy}
-					>{view.archived ? 'Wiederherstellen' : 'Archivieren'}</button
-				>
-				{#if view.archived}<button
-						class="ed-button border-rose-300 text-rose-700"
-						onclick={prepareDelete}
-						disabled={busy}>Endgültig löschen …</button
-					>{/if}
+				<span aria-hidden="true">/</span>
+				<span class="font-mono text-xs">{view.moduleSlug}/{file.slug}</span>
+			</nav>
+			<div class="flex flex-wrap items-center gap-x-4 gap-y-3">
+				<h1 class="text-2xl font-extrabold tracking-tight text-institutional-navy">
+					{file.title}
+				</h1>
+				<span class="flex flex-wrap gap-2">
+					<span class="ui-chip ui-chip-info">{TYPE_LABELS[view.type] ?? view.type}</span>
+					<span class="ui-chip {view.currentVersion ? 'ui-chip-done' : ''}"
+						>{view.currentVersion
+							? `Veröffentlicht · v${view.currentVersion}`
+							: 'Noch nicht veröffentlicht'}</span
+					>
+					{#if view.draft}<span class="ui-chip ui-chip-now">Entwurf vorhanden</span>{/if}
+					{#if dirty}<span class="ui-chip ui-chip-now">Ungespeichert</span>{/if}
+					{#if view.archived}<span class="ui-chip ui-chip-danger">Archiviert</span>{/if}
+				</span>
+				<span class="flex-1"></span>
+				<div class="flex flex-wrap gap-2">
+					<button class="ed-button" onclick={() => archive(!view!.archived)} disabled={busy}
+						>{view.archived ? 'Wiederherstellen' : 'Archivieren'}</button
+					>
+					{#if view.archived}<button
+							class="ed-button border-rose-300 text-rose-700"
+							onclick={prepareDelete}
+							disabled={busy}>Endgültig löschen …</button
+						>{/if}
+					{#if view.draft && view.currentVersion}<button
+							class="ed-button"
+							onclick={discard}
+							disabled={busy}>Entwurf verwerfen</button
+						>{/if}
+					<button class="ed-button" onclick={runCheck} disabled={busy}>Prüfen</button>
+					<button class="ed-button" onclick={save} disabled={busy}>Entwurf speichern</button>
+					<button
+						class="ed-button bg-institutional-navy text-white"
+						onclick={publish}
+						disabled={busy || (!view.draft && !dirty)}>Veröffentlichen</button
+					>
+				</div>
 			</div>
 		</header>
 
@@ -353,12 +362,14 @@
 					>Auftrag (Markdown)<textarea class="ed-input" rows="3" bind:value={file.assignment}
 					></textarea></label
 				>
-				<fieldset class="border border-slate-200 p-4">
-					<legend class="ed-label px-1">Aufgabenspezifisch</legend>
+				<fieldset class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4">
+					<legend class="ed-label px-1.5 !text-institutional-navy">Aufgabenspezifisch</legend>
 					<ConfigForm type={view.type} bind:config={file.config} points={file.points} />
 				</fieldset>
-				<fieldset class="space-y-2 border border-slate-200 p-4">
-					<legend class="ed-label px-1">Gestufte Hinweise (höchstens drei)</legend>
+				<fieldset class="space-y-2 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4">
+					<legend class="ed-label px-1.5 !text-institutional-navy"
+						>Gestufte Hinweise (höchstens drei)</legend
+					>
 					{#each hints as _, i (i)}<textarea
 							class="ed-input"
 							rows="2"
@@ -373,8 +384,12 @@
 						bind:value={file.explanation}
 					></textarea></label
 				>
-				<fieldset class="grid grid-cols-2 gap-3 border border-slate-200 p-4 md:grid-cols-4">
-					<legend class="ed-label px-1">Regeln (leer = Standard des Typs)</legend>
+				<fieldset
+					class="grid grid-cols-2 gap-3 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4 md:grid-cols-4"
+				>
+					<legend class="ed-label px-1.5 !text-institutional-navy"
+						>Regeln (leer = Standard des Typs)</legend
+					>
 					<label class="ed-label"
 						>Max. Versuche<input
 							class="ed-input"

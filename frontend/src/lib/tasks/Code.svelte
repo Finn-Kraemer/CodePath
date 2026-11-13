@@ -69,7 +69,7 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
+<div class="ui-card p-6 sm:p-8">
 	{#if !cfg.graded}
 		<div class="mb-6 border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
 			Übung ohne Punkte: Auf diesem Server ist kein Code-Prüfer eingerichtet. Probiere dein Programm
@@ -120,7 +120,7 @@
 					type="button"
 					onclick={() => visualize(sol.code ?? '', 'Musterlösung Schritt für Schritt')}
 					disabled={!runner.ready}
-					class="mt-2 border border-green-700 px-4 py-2 font-mono text-[10px] font-bold tracking-widest text-green-700 uppercase disabled:opacity-40"
+					class="mt-2 rounded-[var(--radius-ui-sm)] border border-green-700 px-4 py-2 text-sm font-semibold text-green-700 disabled:opacity-40"
 				>
 					Musterlösung Schritt für Schritt ansehen
 				</button>
@@ -145,7 +145,7 @@
 		<button
 			onclick={tryOut}
 			disabled={!runner.ready || running}
-			class="border-2 border-institutional-navy py-5 font-sans text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+			class="rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy py-3 text-sm font-semibold text-institutional-navy disabled:opacity-40"
 		>
 			{runner.ready ? (running ? 'Läuft …' : 'Ausprobieren') : 'Python lädt …'}
 		</button>
@@ -153,7 +153,7 @@
 			<button
 				onclick={() => visualize(code, 'Dein Programm Schritt für Schritt')}
 				disabled={!runner.ready || running || !code.trim()}
-				class="border-2 border-institutional-navy py-5 font-sans text-xs font-black tracking-[4px] text-institutional-navy uppercase disabled:opacity-40"
+				class="rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy py-3 text-sm font-semibold text-institutional-navy disabled:opacity-40"
 			>
 				Schritt für Schritt
 			</button>

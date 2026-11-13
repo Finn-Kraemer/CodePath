@@ -9,6 +9,13 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 ### Neu
 - **Medienverwaltung** (*Leitstand → Website → Medien*): Alle hochgeladenen Bilder auf einen Blick – mit Vorschau, Größe, Maßen und Datum und der Angabe, wo jedes Bild verwendet wird (Aufgaben, auch frühere Versionen, Startseite, eigene Seiten, Wissensartikel), jeweils mit Link zum Editor. Suchen, nach Verwendung filtern, sortieren; mehrere Bilder auf einmal hochladen (auch per Drag & Drop), Bilder umbenennen, Markdown oder Adresse kopieren, unbenutzte Bilder einzeln oder alle auf einmal löschen. Die Bildauswahl in den Editoren verlinkt auf die Verwaltung.
 
+### Verbessert
+- **Neue Oberfläche:** Ruhigere Typografie ohne Versalien und Sperrschrift, leicht gerundete Ecken, Karten auf hellgrauem Grund und Status-Farben mit Bedeutung (erledigt, jetzt dran, gesperrt). Der Eckenradius steht zentral in `layout.css` (`--radius-ui`, `--radius-ui-sm`); 0 ergibt den früheren kantigen Look.
+- **Administration mit Seitennavigation:** Alle Bereiche stehen links in einer festen Leiste (Unterricht, Inhalte, Website) mit Zählern für Hilfe-Rufe und offene Abgaben. In CodePath- und Aufgaben-Editor schrumpft sie zur Icon-Leiste. Der Leitstand zeigt Kennzahlen, wartende Hilfe-Rufe, die Rangliste, „Wo hakt es?“ (Aufgaben mit den meisten Fehlversuchen) und Schalter für Zeugnisse.
+- **CodePath-Ansicht:** Fortschrittskopf mit Ring, Band „Weitermachen“, Legende, Punktraster, hervorgehobene nächste Station; passt der ganze Weg auf den Bildschirm, wird er beim Öffnen komplett gezeigt. Modulkarten mit Status, Fortschritt und Frist.
+- **Aufgabenseite, Modulseite, Profil und Live-Mitteilung** im neuen Stil; die Live-Mitteilung hat Vorlagen und eine Vorschau.
+- **Handy:** Leiste unten mit CodePath, Wissen, Rangliste und Profil statt Hamburger-Menü.
+
 ## 2.3.0
 
 ### Neu

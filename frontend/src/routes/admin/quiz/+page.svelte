@@ -84,10 +84,10 @@
 <div class="mx-auto max-w-5xl">
 	<a
 		href="/admin"
-		class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+		class="mb-6 inline-flex font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 		>← Leitstand</a
 	>
-	<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+	<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 		Quiz-Runde
 	</h1>
 	<p class="mt-2 mb-8 text-sm text-slate-500">
@@ -120,12 +120,12 @@
 		</div>
 	{:else}
 		{#if finished}
-			<div class="mb-8 border border-slate-200 bg-white p-8">
+			<div class="mb-8 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8">
 				<QuizStage quiz={finished} />
 			</div>
 		{/if}
 		<form
-			class="space-y-6 border border-slate-200 bg-white p-8"
+			class="space-y-6 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8"
 			onsubmit={(e) => {
 				e.preventDefault();
 				action('/api/admin/quiz', { title, courseId, taskIds: selected });
@@ -154,7 +154,7 @@
 					{#each modules as [module, tasks] (module)}
 						<div>
 							<p
-								class="mb-1 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+								class="mb-1 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 							>
 								{module}
 							</p>
@@ -180,7 +180,7 @@
 			<button
 				type="submit"
 				disabled={busy || !selected.length}
-				class="bg-institutional-navy px-8 py-4 font-mono text-xs font-black tracking-widest text-white uppercase disabled:opacity-40"
+				class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-8 py-4 text-sm font-semibold text-white disabled:opacity-40"
 				>Quiz starten</button
 			>
 		</form>

@@ -128,35 +128,39 @@
 	onMount(fetchProfile);
 </script>
 
-<div class="mx-auto max-w-4xl">
-	<header class="mb-12 border-b border-slate-200 pb-8">
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			Mein Profil
-		</h1>
-		<p class="mt-4 text-slate-500">Persönliche Einstellungen und Leistungsübersicht.</p>
+<div class="mx-auto max-w-5xl">
+	<header class="mb-6 flex items-center gap-4">
+		<span
+			class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-2xl font-extrabold text-indigo-800"
+			aria-hidden="true">{(profile?.username ?? '?').charAt(0).toUpperCase()}</span
+		>
+		<div>
+			<h1 class="ui-title">
+				{profile ? `Hallo ${profile.username}!` : 'Mein Profil'}
+			</h1>
+			<p class="mt-1 text-[15px] text-slate-600">Dein Fortschritt, dein Kompass und dein Konto.</p>
+		</div>
 	</header>
 
 	{#if loading}
 		<div class="flex justify-center py-24">
 			<div
-				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
+				class="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-institutional-navy"
 			></div>
 		</div>
 	{:else if profile}
-		<div class="space-y-12">
+		<div class="space-y-6">
 			<!-- Stats -->
-			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-				<div class="rounded-none border border-slate-200 bg-white p-10 text-center shadow-sm">
-					<p class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-						Gesamtpunktzahl
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<div class="ui-card p-6">
+					<p class="text-sm font-semibold text-slate-600">Punkte</p>
+					<p class="mt-1 text-4xl font-extrabold tracking-tight text-institutional-gold">
+						{profile.totalPoints}
 					</p>
-					<p class="font-sans text-5xl font-black text-institutional-gold">{profile.totalPoints}</p>
 				</div>
-				<div class="rounded-none border border-slate-200 bg-white p-10 text-center shadow-sm">
-					<p class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-						Abgeschlossene Aufgaben
-					</p>
-					<p class="font-sans text-5xl font-black text-institutional-navy">
+				<div class="ui-card p-6">
+					<p class="text-sm font-semibold text-slate-600">Abgeschlossene Aufgaben</p>
+					<p class="mt-1 text-4xl font-extrabold tracking-tight text-institutional-navy">
 						{profile.completedTasksCount}
 					</p>
 				</div>
@@ -168,24 +172,22 @@
 
 			<!-- Mitnehm-Paket -->
 			<section
-				class="border-2 border-institutional-navy bg-white p-8 shadow-sm md:p-12"
+				class="rounded-[var(--radius-ui)] bg-institutional-navy p-6 text-white md:p-8"
 				aria-label="Mitnehm-Paket"
 			>
-				<h2 class="mb-4 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
-					Mein Mitnehm-Paket
-				</h2>
-				<p class="mb-3 text-sm leading-relaxed text-slate-600">
+				<h2 class="mb-2 text-xl font-bold">Mein Mitnehm-Paket</h2>
+				<p class="mb-3 text-[15px] leading-relaxed text-slate-200">
 					Dein Code, deine Ergebnisse, dein Berufe-Kompass und Links zum Weiterlernen – alles in
 					einem PDF zum Behalten. Wenn der Kurs endet, wird dein Konto gelöscht. Lade dir das Paket
 					vorher herunter.
 				</p>
-				<p class="mb-8 text-xs text-slate-400">
+				<p class="mb-6 text-[13px] text-slate-400">
 					Das PDF entsteht beim Herunterladen und wird auf dem Server nicht gespeichert.
 				</p>
 				<a
 					href="/api/reports/take-home"
 					download="Mitnehm-Paket_{profile.username}.pdf"
-					class="flex w-full items-center justify-center gap-4 bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:bg-slate-800"
+					class="ui-btn border-white bg-white text-institutional-navy hover:bg-amber-50"
 					data-testid="take-home"
 				>
 					Mitnehm-Paket herunterladen (PDF)
@@ -193,21 +195,16 @@
 			</section>
 
 			<!-- Report Card Download -->
-			<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
-				<h2 class="mb-6 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
-					Abschluss-Dokumente
-				</h2>
-				<p class="mb-10 text-sm leading-relaxed text-slate-500">
+			<div class="ui-card p-6 md:p-8">
+				<h2 class="mb-2 text-xl font-bold">Abschluss-Dokumente</h2>
+				<p class="mb-6 text-[15px] leading-relaxed text-slate-600">
 					Laden Sie hier Ihren offiziellen Leistungsnachweis als PDF-Dokument herunter. Das Dokument
 					enthält eine Übersicht Ihrer Leistungen in den einzelnen Modulen sowie eine automatisch
 					berechnete Abschlussnote.
 				</p>
 
 				{#if certificatesEnabled || profile.role === 'ADMIN'}
-					<button
-						onclick={handleDownloadReport}
-						class="flex w-full items-center justify-center gap-4 rounded-none border-2 border-institutional-gold bg-white py-5 font-sans text-[11px] font-bold tracking-[3px] text-institutional-gold uppercase shadow-sm transition-all hover:bg-amber-50"
-					>
+					<button onclick={handleDownloadReport} class="ui-btn ui-btn-accent">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-5 w-5"
@@ -225,13 +222,11 @@
 						Zeugnis herunterladen (PDF)
 					</button>
 				{:else}
-					<div class="border border-slate-200 bg-slate-50 p-8 text-center">
-						<p
-							class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
-						>
-							Status: Gesperrt
-						</p>
-						<p class="text-xs text-slate-500">
+					<div
+						class="flex items-center gap-3 rounded-[var(--radius-ui-sm)] border border-dashed border-slate-300 bg-slate-50 p-4"
+					>
+						<span class="ui-chip">Noch gesperrt</span>
+						<p class="text-sm text-slate-600">
 							Offizielle Zeugnisse werden erst am Ende der Veranstaltung freigegeben.
 						</p>
 					</div>
@@ -239,31 +234,27 @@
 			</div>
 
 			<!-- Settings -->
-			<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
-				<h2 class="mb-10 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
-					Benutzer-Einstellungen
-				</h2>
+			<div class=" ui-card p-6 md:p-8">
+				<h2 class="mb-6 text-xl font-bold">Benutzer-Einstellungen</h2>
 
 				{#if error}
 					<div
-						class="mb-8 rounded-none border border-rose-200 bg-rose-50 p-6 font-mono text-xs text-rose-700"
+						class="mb-6 rounded-[var(--radius-ui-sm)] border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"
 					>
 						{error}
 					</div>
 				{/if}
 				{#if success}
 					<div
-						class="mb-8 rounded-none border border-green-200 bg-green-50 p-6 font-mono text-xs text-green-700"
+						class="mb-6 rounded-[var(--radius-ui-sm)] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"
 					>
 						{success}
 					</div>
 				{/if}
 
-				<div class="space-y-10">
+				<div class="space-y-5">
 					<div>
-						<label
-							for="username"
-							class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+						<label for="username" class="mb-1.5 block text-sm font-semibold text-slate-700"
 							>System-Nutzerkennung</label
 						>
 						<input
@@ -271,31 +262,22 @@
 							id="username"
 							value={profile.username}
 							disabled
-							class="w-full cursor-not-allowed rounded-none border-slate-100 bg-slate-50 px-5 py-4 font-mono text-sm text-slate-400"
+							class="ed-input mono mt-0 cursor-not-allowed bg-slate-50 text-slate-500"
 						/>
 					</div>
 
 					<div>
-						<label
-							for="displayName"
-							class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+						<label for="displayName" class="mb-1.5 block text-sm font-semibold text-slate-700"
 							>Öffentlicher Anzeigename</label
 						>
-						<input
-							bind:value={newDisplayName}
-							type="text"
-							id="displayName"
-							class="w-full rounded-none border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy transition-colors outline-none focus:border-institutional-navy"
-						/>
+						<input bind:value={newDisplayName} type="text" id="displayName" class="ed-input mt-0" />
 					</div>
 
 					<div>
-						<span
-							class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
-							>Berechtigungsstufe</span
+						<span class="mb-1.5 block text-sm font-semibold text-slate-700">Berechtigungsstufe</span
 						>
 						<span
-							class="inline-flex rounded-none border border-slate-200 bg-slate-50 px-4 py-2 font-mono text-[10px] font-black tracking-widest text-slate-600 uppercase"
+							class="inline-flex border border-slate-200 bg-slate-50 px-4 py-2 font-mono text-[11px] font-black tracking-wider text-slate-600 uppercase"
 							>{profile.role}</span
 						>
 					</div>
@@ -303,7 +285,7 @@
 					<button
 						onclick={handleSave}
 						disabled={saving || newDisplayName === profile.displayName}
-						class="w-full rounded-none bg-institutional-navy py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:opacity-90 disabled:opacity-20"
+						class="ui-btn ui-btn-primary w-full"
 					>
 						{saving ? 'Synchronisierung...' : 'Profil-Daten aktualisieren'}
 					</button>
@@ -311,44 +293,38 @@
 			</div>
 
 			<!-- Password Security Section -->
-			<div class="rounded-none border border-slate-200 bg-white p-12 shadow-sm">
-				<h2 class="mb-10 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
-					Sicherheits-Parameter
-				</h2>
+			<div class=" ui-card p-6 md:p-8">
+				<h2 class="mb-6 text-xl font-bold">Sicherheits-Parameter</h2>
 
-				<div class="space-y-10">
+				<div class="space-y-5">
 					<div>
-						<label
-							for="newPassword"
-							class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+						<label for="newPassword" class="mb-1.5 block text-sm font-semibold text-slate-700"
 							>Neues System-Passwort</label
 						>
 						<input
 							bind:value={newPassword}
 							type="password"
 							id="newPassword"
-							class="w-full rounded-none border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy transition-colors outline-none focus:border-institutional-navy"
+							class="ed-input mt-0"
 						/>
 					</div>
 
 					<div>
-						<label
-							for="confirmPassword"
-							class="mb-3 block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+						<label for="confirmPassword" class="mb-1.5 block text-sm font-semibold text-slate-700"
 							>Passwort bestätigen</label
 						>
 						<input
 							bind:value={confirmPassword}
 							type="password"
 							id="confirmPassword"
-							class="w-full rounded-none border-slate-200 bg-white px-5 py-4 font-sans text-sm font-bold text-institutional-navy transition-colors outline-none focus:border-institutional-navy"
+							class="ed-input mt-0"
 						/>
 					</div>
 
 					<button
 						onclick={handleChangePassword}
 						disabled={changingPassword || !newPassword || !confirmPassword}
-						class="w-full rounded-none bg-slate-800 py-5 font-sans text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:bg-slate-900 disabled:opacity-20"
+						class="ui-btn ui-btn-primary w-full"
 					>
 						{changingPassword ? 'Aktualisierung...' : 'System-Passwort überschreiben'}
 					</button>

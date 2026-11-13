@@ -48,7 +48,7 @@
 
 <p class="ed-label">Bild</p>
 {#if config.image}
-	<p class="mt-1 font-mono text-[10px] break-all text-slate-400">{config.image}</p>
+	<p class="mt-1 font-mono text-[11px] break-all text-slate-400">{config.image}</p>
 {/if}
 <MediaPicker
 	label={config.image ? 'Anderes Bild wählen' : 'Bild wählen oder hochladen'}
@@ -78,7 +78,7 @@
 				class="pointer-events-none absolute border-2 border-green-600 bg-green-400/25"
 				style={`left:${t.x}%;top:${t.y}%;width:${t.w}%;height:${t.h}%`}
 			>
-				<span class="bg-green-700 px-1 text-[10px] font-bold text-white">{i + 1}</span>
+				<span class="bg-green-700 px-1 text-[11px] font-bold text-white">{i + 1}</span>
 			</div>
 		{/each}
 		{#if draft}

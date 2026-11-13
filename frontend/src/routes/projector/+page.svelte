@@ -125,9 +125,9 @@
 				<Logo class="h-18 w-18 text-institutional-navy" />
 			</div>
 			<div>
-				<h1 class="text-4xl leading-none font-black tracking-tighter uppercase">CodePath Live</h1>
+				<h1 class="text-3xl leading-none font-extrabold tracking-tight">CodePath Live</h1>
 				<p
-					class="mt-1 font-mono text-sm font-bold tracking-[5px] text-institutional-gold uppercase"
+					class="mt-1 font-mono text-sm font-bold tracking-wider text-institutional-gold uppercase"
 				>
 					Berufsorientierungstag IT 2026
 				</p>
@@ -139,7 +139,7 @@
 			</p>
 			<div class="mt-2 flex items-center justify-end gap-2">
 				<div class="h-3 w-3 animate-pulse rounded-full bg-teal-500"></div>
-				<span class="text-xs font-bold tracking-[3px] text-teal-500 uppercase">System Live</span>
+				<span class="text-xs font-bold tracking-wider text-teal-500 uppercase">System Live</span>
 			</div>
 		</div>
 	</div>
@@ -153,7 +153,7 @@
 			>
 				<div class="absolute top-0 left-0 h-full w-2 bg-institutional-gold"></div>
 				<span
-					class="mb-8 block font-mono text-sm font-bold tracking-[5px] text-institutional-gold uppercase"
+					class="mb-8 block font-mono text-sm font-bold tracking-wider text-institutional-gold uppercase"
 					>Aktuelle Mitteilung der Lehrkraft</span
 				>
 
@@ -178,7 +178,7 @@
 			<div class="mb-8 flex items-end justify-between">
 				<h2 class="text-5xl font-black tracking-tighter uppercase">Live Ranking</h2>
 				<div class="flex items-center gap-4">
-					<span class="font-mono text-lg tracking-widest text-slate-500 uppercase"
+					<span class="font-mono text-lg tracking-wider text-slate-500 uppercase"
 						>Top Performance</span
 					>
 					<div class="h-px w-24 bg-slate-800"></div>
@@ -210,7 +210,7 @@
 								<span class="text-3xl font-bold tracking-tight uppercase"
 									>{entry.displayName || entry.username}</span
 								>
-								<span class="mt-1 font-mono text-xs tracking-widest text-slate-500 uppercase"
+								<span class="mt-1 font-mono text-xs tracking-wider text-slate-500 uppercase"
 									>ID: {entry.username}</span
 								>
 							</div>
@@ -221,7 +221,7 @@
 									>{entry.points}</span
 								>
 								<span
-									class="mt-1 block text-[10px] font-bold tracking-[2px] text-slate-500 uppercase"
+									class="mt-1 block text-[11px] font-bold tracking-wider text-slate-500 uppercase"
 									>Score</span
 								>
 							</div>
@@ -240,11 +240,11 @@
 		class="relative z-20 flex items-center overflow-hidden border-t border-white/5 bg-slate-950 p-6"
 	>
 		<div class="animate-ticker flex items-center gap-24 whitespace-nowrap">
-			<span class="text-xs font-bold tracking-[6px] text-slate-600 uppercase"
+			<span class="text-xs font-bold tracking-wider text-slate-600 uppercase"
 				>+++ CodePath IT-Workshop 2026 +++ Echtzeit-Leistungsdaten aktiv +++ Viel Erfolg bei den
 				Modulen +++ Updates via Message Queue +++</span
 			>
-			<span class="text-xs font-bold tracking-[6px] text-slate-600 uppercase"
+			<span class="text-xs font-bold tracking-wider text-slate-600 uppercase"
 				>+++ CodePath IT-Workshop 2026 +++ Echtzeit-Leistungsdaten aktiv +++ Viel Erfolg bei den
 				Aufgaben +++ Leaderboard Sync: 1000ms +++</span
 			>

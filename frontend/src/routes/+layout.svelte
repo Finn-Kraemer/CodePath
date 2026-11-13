@@ -134,8 +134,39 @@
 	// Helpers for special layouts
 	let isFrontpage = $derived(page.url.pathname === '/' || page.url.pathname.startsWith('/seiten/'));
 	let isProjector = $derived(page.url.pathname === '/projector');
-	// Der CodePath-Editor braucht Platz: volle Bildschirmbreite statt der Inhaltsspalte
-	let isWideEditor = $derived(/^\/admin\/codepaths\/[^/]+\/?$/.test(page.url.pathname));
+	// Admin-Bereich: eigene Seitennavigation statt Kopfzeile (siehe admin/+layout.svelte)
+	let isAdminArea = $derived(
+		auth.user?.role === 'ADMIN' && /^\/admin(\/|$)/.test(page.url.pathname)
+	);
+
+	// Handy: feste Leiste unten mit den wichtigsten Zielen, der Rest unter „Mehr“
+	const tabLinks = $derived(
+		auth.isAuthenticated
+			? [
+					{
+						name: navLinks[0].name,
+						path: '/modules',
+						icon: 'M9 4L3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14'
+					},
+					{
+						name: 'Wissen',
+						path: '/knowledge',
+						icon: 'M4 5a2 2 0 012-2h14v16H6a2 2 0 00-2 2zM4 5v16'
+					},
+					{
+						name: 'Rangliste',
+						path: '/leaderboard',
+						icon: 'M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 6H4a3 3 0 003 4M17 6h3a3 3 0 01-3 4'
+					},
+					{
+						name: 'Ich',
+						path: '/profile',
+						icon: 'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0'
+					}
+				]
+			: []
+	);
+	const initial = $derived((auth.user?.username ?? '?').charAt(0).toUpperCase());
 </script>
 
 <svelte:head>
@@ -154,70 +185,66 @@
 
 <ConnectionOverlay />
 
-<div class="flex min-h-screen flex-col bg-white text-slate-900">
-	<!-- Official Header / Sticky Nav -->
-	{#if !isProjector}
+<div
+	class="flex min-h-screen flex-col text-slate-900 {isFrontpage || isProjector
+		? 'bg-white'
+		: 'bg-canvas'}"
+>
+	{#if !isProjector && !isAdminArea}
 		<nav
-			class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 shadow-sm backdrop-blur-md transition-all"
+			class="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md"
+			aria-label="Hauptmenü"
 		>
 			<div class="container-institutional">
-				<div class="flex h-20 items-center justify-between">
-					<div class="flex items-center gap-8">
-						<!-- Logo Section -->
-						<a href="/" class="group flex items-center gap-3 rounded-none">
-							<div
-								class="flex h-10 w-10 items-center justify-center rounded-none bg-institutional-navy text-white shadow-sm transition-transform group-hover:scale-105"
+				<div class="flex h-16 items-center justify-between gap-6">
+					<div class="flex min-w-0 items-center gap-6">
+						<a href="/" class="group flex shrink-0 items-center gap-2.5">
+							<span
+								class="flex h-9 w-9 items-center justify-center rounded-[var(--radius-ui-sm)] bg-institutional-navy text-white"
 							>
 								<Logo class="h-full w-full" />
-							</div>
-							<div class="flex flex-col">
-								<span
-									class="font-sans text-xl leading-none font-black tracking-tighter text-institutional-navy uppercase"
+							</span>
+							<span class="flex flex-col leading-none">
+								<span class="text-[17px] font-extrabold tracking-tight text-institutional-navy"
+									>CodePath</span
 								>
-									CodePath
-								</span>
-								<span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase">
-									Berufsorientierung IT
-								</span>
-							</div>
+								<span class="mt-0.5 hidden text-[11px] font-medium text-slate-500 sm:block"
+									>Berufsorientierung IT</span
+								>
+							</span>
 						</a>
 
-						<!-- Desktop Nav -->
 						{#if allLinks.length || siteNavigation.links.length}
-							<div class="hidden h-10 w-px bg-slate-200 md:block"></div>
-							<div class="hidden space-x-6 lg:flex">
+							<div class="hidden items-center gap-1 lg:flex">
 								{#each allLinks as link (link.path)}
 									<a
 										href={link.path}
-										class="relative py-2 text-[10px] font-black tracking-widest uppercase transition-all
-                                        {isActive(link.path)
-											? 'text-institutional-navy'
-											: 'text-slate-500 hover:text-institutional-navy'}"
+										aria-current={isActive(link.path) ? 'page' : undefined}
+										class="rounded-[var(--radius-ui-sm)] px-3 py-2 text-sm font-semibold transition-colors {isActive(
+											link.path
+										)
+											? 'bg-slate-100 text-institutional-navy'
+											: 'text-slate-600 hover:bg-slate-50 hover:text-institutional-navy'}"
 									>
 										{link.name}
-										{#if isActive(link.path)}
-											<span
-												class="animate-in fade-in slide-in-from-left-2 absolute bottom-0 left-0 h-0.5 w-full bg-institutional-gold"
-											></span>
-										{/if}
 									</a>
 								{/each}
 								{#if siteNavigation.links.length}
 									<div class="relative" bind:this={pagesMenu}>
 										<button
 											type="button"
-											class="relative flex items-center gap-1 py-2 text-[10px] font-black tracking-widest uppercase transition-all {isActive(
+											class="flex items-center gap-1 px-3 py-2 text-sm font-semibold {isActive(
 												'/seiten'
 											)
-												? 'text-institutional-navy'
-												: 'text-slate-500 hover:text-institutional-navy'}"
+												? 'bg-slate-100 text-institutional-navy'
+												: 'text-slate-600 hover:bg-slate-50 hover:text-institutional-navy'}"
 											aria-expanded={pagesMenuOpen}
 											aria-haspopup="true"
 											onclick={() => (pagesMenuOpen = !pagesMenuOpen)}
 										>
 											Seiten
 											<svg
-												class="h-3 w-3"
+												class="h-3.5 w-3.5"
 												viewBox="0 0 20 20"
 												fill="currentColor"
 												aria-hidden="true"
@@ -230,7 +257,7 @@
 										</button>
 										{#if pagesMenuOpen}
 											<div
-												class="absolute top-full left-0 z-50 mt-3 w-72 border border-slate-200 bg-white py-2 shadow-xl"
+												class="ui-card absolute top-full left-0 z-50 mt-2 w-72 overflow-hidden py-1.5 shadow-xl"
 												role="menu"
 											>
 												{#each siteNavigation.links as link (link.slug)}
@@ -240,14 +267,14 @@
 														class="block px-4 py-2 hover:bg-slate-50 {isActive(
 															`/seiten/${link.slug}`
 														)
-															? 'border-l-4 border-institutional-gold'
+															? 'bg-slate-50'
 															: ''}"
 													>
-														<span class="block text-xs font-bold text-institutional-navy"
+														<span class="block text-sm font-semibold text-institutional-navy"
 															>{link.title}</span
 														>
 														{#if link.description}
-															<span class="block truncate text-[11px] text-slate-500"
+															<span class="block truncate text-xs text-slate-500"
 																>{link.description}</span
 															>
 														{/if}
@@ -256,7 +283,7 @@
 												<a
 													href="/seiten"
 													role="menuitem"
-													class="mt-2 block border-t border-slate-100 px-4 pt-3 pb-1 text-[10px] font-black tracking-widest text-institutional-gold uppercase hover:underline"
+													class="mt-1 block border-t border-slate-100 px-4 pt-2.5 pb-1.5 text-sm font-semibold text-institutional-gold hover:underline"
 													>Alle Seiten im Überblick →</a
 												>
 											</div>
@@ -267,159 +294,79 @@
 						{/if}
 					</div>
 
-					<div class="flex items-center gap-4">
+					<div class="flex shrink-0 items-center gap-3">
 						{#if auth.isAuthenticated}
-							<!-- Desktop Auth Info -->
-							<div class="hidden items-center gap-6 md:flex">
-								<a
-									href="/profile"
-									class="flex flex-col items-end transition-opacity hover:opacity-70"
-								>
-									<p class="text-xs leading-none font-black text-institutional-navy">
-										{auth.user?.username}
-									</p>
-									<p class="mt-1 text-[8px] font-bold tracking-widest text-slate-400 uppercase">
-										{auth.user?.role}
-									</p>
-								</a>
-
-								{#if auth.user?.role === 'ADMIN'}
-									<HelpBadge />
-									<a
-										href="/admin"
-										class="group flex items-center gap-2 rounded-none border border-institutional-navy/10 bg-slate-50 px-4 py-2.5 text-[9px] font-black tracking-widest text-institutional-navy uppercase transition-all hover:bg-institutional-navy hover:text-white"
+							{#if auth.user?.role === 'ADMIN'}
+								<div class="hidden md:block"><HelpBadge /></div>
+								<a href="/admin" class="ui-btn ui-btn-primary hidden md:inline-flex">
+									<svg
+										class="h-4 w-4"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										stroke-width="2"
+										aria-hidden="true"
+										><path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="M3 11l9-7 9 7v9H3zM9 20v-6h6v6"
+										/></svg
 									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											class="h-3 w-3"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-											/>
-										</svg>
-										Leitstand
-									</a>
-								{/if}
-
-								<button
-									onclick={handleLogout}
-									class="rounded-none bg-institutional-navy px-5 py-2.5 text-[9px] font-black tracking-[3px] text-white uppercase shadow-sm transition-all hover:bg-slate-800 hover:shadow-md"
-								>
-									Abmelden
-								</button>
-							</div>
-
-							<!-- Mobile Menu Toggle -->
-							<button
-								class="flex h-10 w-10 flex-col items-center justify-center gap-1.5 lg:hidden"
-								onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
+									Leitstand
+								</a>
+							{/if}
+							<a
+								href="/profile"
+								class="flex items-center gap-2.5 rounded-full py-1 pr-1 pl-1 hover:bg-slate-50 md:pr-3"
+								title="Mein Profil"
 							>
 								<span
-									class="h-0.5 w-6 bg-institutional-navy transition-all {mobileMenuOpen
-										? 'translate-y-2 rotate-45'
-										: ''}"
-								></span>
-								<span
-									class="h-0.5 w-6 bg-institutional-navy transition-all {mobileMenuOpen
-										? 'opacity-0'
-										: ''}"
-								></span>
-								<span
-									class="h-0.5 w-6 bg-institutional-navy transition-all {mobileMenuOpen
-										? '-translate-y-2 -rotate-45'
-										: ''}"
-								></span>
+									class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-800"
+									aria-hidden="true">{initial}</span
+								>
+								<span class="hidden flex-col leading-tight md:flex">
+									<span class="text-sm font-semibold text-institutional-navy"
+										>{auth.user?.username}</span
+									>
+									<span class="text-xs text-slate-500"
+										>{auth.user?.role === 'ADMIN' ? 'Lehrkraft' : 'Schüler:in'}</span
+									>
+								</span>
+							</a>
+							<button
+								onclick={handleLogout}
+								class="hidden h-9 w-9 items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-institutional-navy md:flex"
+								aria-label="Abmelden"
+								title="Abmelden"
+							>
+								<svg
+									class="h-[18px] w-[18px]"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="2"
+									aria-hidden="true"
+									><path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"
+									/></svg
+								>
 							</button>
 						{:else}
-							<div class="flex items-center gap-4">
-								{#if siteNavigation.links.length}
-									<!-- Auf kleinen Bildschirmen fehlt die Menüleiste: Link zur Seitenübersicht -->
-									<a
-										href="/seiten"
-										class="text-[10px] font-black tracking-widest text-slate-500 uppercase hover:text-institutional-navy lg:hidden"
-										>Seiten</a
-									>
-								{/if}
+							{#if siteNavigation.links.length}
+								<!-- Auf kleinen Bildschirmen fehlt die Menüleiste: Link zur Seitenübersicht -->
 								<a
-									href="/login"
-									class="rounded-none bg-institutional-gold px-6 py-2.5 text-[10px] font-black tracking-[3px] text-white uppercase shadow-sm transition-all hover:opacity-90"
+									href="/seiten"
+									class="text-sm font-semibold text-slate-600 hover:text-institutional-navy lg:hidden"
+									>Seiten</a
 								>
-									Anmelden
-								</a>
-							</div>
+							{/if}
+							<a href="/login" class="ui-btn ui-btn-accent">Anmelden</a>
 						{/if}
 					</div>
 				</div>
 			</div>
-
-			<!-- Mobile Navigation -->
-			{#if mobileMenuOpen && auth.isAuthenticated}
-				<div
-					class="animate-in slide-in-from-top fade-in border-t border-slate-100 bg-white p-6 duration-300 lg:hidden"
-				>
-					<div class="flex flex-col gap-4">
-						{#each allLinks as link (link.path)}
-							<a
-								href={link.path}
-								onclick={() => (mobileMenuOpen = false)}
-								class="px-4 py-3 text-[11px] font-black tracking-[2px] uppercase {isActive(
-									link.path
-								)
-									? 'border-l-4 border-institutional-gold bg-slate-50 text-institutional-navy'
-									: 'text-slate-500'}"
-							>
-								{link.name}
-							</a>
-						{/each}
-						{#if siteNavigation.links.length}
-							<a
-								href="/seiten"
-								onclick={() => (mobileMenuOpen = false)}
-								class="px-4 py-3 text-[11px] font-black tracking-[2px] uppercase {page.url
-									.pathname === '/seiten'
-									? 'border-l-4 border-institutional-gold bg-slate-50 text-institutional-navy'
-									: 'text-slate-500'}"
-							>
-								Seiten
-							</a>
-						{/if}
-
-						<div class="my-4 h-px bg-slate-100"></div>
-
-						<div class="px-4 py-2">
-							<p class="text-[10px] font-black text-institutional-navy uppercase">
-								{auth.user?.username}
-							</p>
-							<p class="text-[8px] font-bold tracking-widest text-slate-400 uppercase">
-								{auth.user?.role}
-							</p>
-						</div>
-
-						{#if auth.user?.role === 'ADMIN'}
-							<a
-								href="/admin"
-								onclick={() => (mobileMenuOpen = false)}
-								class="px-4 py-3 text-[11px] font-black tracking-[2px] text-institutional-navy uppercase"
-							>
-								Administrator-Bereich
-							</a>
-						{/if}
-
-						<button
-							onclick={handleLogout}
-							class="mt-4 w-full rounded-none bg-institutional-navy py-4 text-[10px] font-black tracking-[4px] text-white uppercase"
-						>
-							Abmelden
-						</button>
-					</div>
-				</div>
-			{/if}
 		</nav>
 	{/if}
 
@@ -427,111 +374,183 @@
 		<QuizBanner />
 	{/if}
 
-	<!-- Global Announcement Banner -->
+	<!-- Mitteilung der Lehrkraft -->
 	{#if announcement && announcement.content && !isProjector}
-		<div class="relative z-40 border-b border-white/10 bg-institutional-navy py-4 shadow-inner">
-			<div class="container-institutional flex items-center justify-between gap-8">
-				<div class="flex items-center gap-4 text-white">
-					<div
-						class="flex h-8 w-8 items-center justify-center rounded-none border border-white/20 bg-white/10 text-white shadow-sm"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-4 w-4"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
-							/>
-						</svg>
-					</div>
-					<div>
-						<p class="mb-0.5 text-[9px] font-black tracking-[3px] text-white/50 uppercase">
-							Offizielle Mitteilung der Lehrkraft
-						</p>
-						<p class="font-sans text-xs leading-relaxed font-bold whitespace-pre-line">
-							{announcement.content}
-						</p>
-					</div>
-				</div>
-				<button
-					onclick={() => (announcement = null)}
-					class="p-2 text-white/40 transition-colors hover:text-white"
+		<div class="relative z-40 border-b border-amber-200 bg-amber-50" role="status">
+			<div class="container-institutional flex items-start gap-3 py-3">
+				<span
+					class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-institutional-gold text-white"
+					aria-hidden="true"
 				>
 					<svg
-						xmlns="http://www.w3.org/2000/svg"
 						class="h-4 w-4"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
-					>
-						<path
+						stroke-width="2.2"
+						><path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							stroke-width="2"
-							d="M6 18L18 6M6 6l12 12"
-						/>
-					</svg>
+							d="M3 11v2a1 1 0 001 1h3l6 5V5L7 10H4a1 1 0 00-1 1zM17 9a4 4 0 010 6"
+						/></svg
+					>
+				</span>
+				<div class="min-w-0 flex-1 text-sm text-amber-950">
+					<p class="font-semibold">Mitteilung der Lehrkraft</p>
+					<p class="leading-relaxed whitespace-pre-line">{announcement.content}</p>
+				</div>
+				<button
+					onclick={() => (announcement = null)}
+					class="flex h-8 w-8 items-center justify-center text-amber-800 hover:bg-amber-100"
+					aria-label="Mitteilung ausblenden"
+				>
+					<svg
+						class="h-4 w-4"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+						aria-hidden="true"
+						><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg
+					>
 				</button>
 			</div>
 		</div>
 	{/if}
 
-	<!-- Main Content Area -->
-	<main class="flex-grow {isFrontpage || isProjector ? '' : isWideEditor ? 'py-4' : 'py-12'}">
-		<div
-			class={isFrontpage || isProjector
-				? ''
-				: isWideEditor
-					? 'w-full px-4 lg:px-6'
-					: 'container-institutional'}
-		>
+	<main
+		class="flex-grow {isFrontpage || isProjector || isAdminArea
+			? ''
+			: 'pt-8 pb-12'} {tabLinks.length && !isProjector && !isAdminArea ? 'pb-24 lg:pb-12' : ''}"
+	>
+		<div class={isFrontpage || isProjector || isAdminArea ? '' : 'container-institutional'}>
 			{@render children()}
 		</div>
 	</main>
 
-	<!-- Official Footer -->
-	{#if !isProjector}
-		<footer class="mt-auto border-t border-slate-200 bg-slate-50 py-16">
-			<div class="container-institutional">
-				<div class="flex flex-col items-center justify-between gap-12 md:flex-row">
-					<div class="flex flex-col gap-3">
-						<p class="text-xs font-black tracking-[5px] text-institutional-navy uppercase">
-							CodePath - IT Berufsorientierung
-						</p>
-						<p class="max-w-sm text-xs leading-relaxed text-slate-500">
-							Lerne den Beruf Informatiker kennen, entwickle deine Fähigkeiten und starte deine
-							Karriere in der IT-Branche mit CodePath.
-						</p>
-					</div>
-
-					<div
-						class="flex items-center gap-12 opacity-50 grayscale transition-all hover:grayscale-0"
+	{#if !isProjector && !isAdminArea}
+		<footer
+			class="mt-auto border-t border-slate-200 bg-white py-8 {tabLinks.length
+				? 'mb-16 lg:mb-0'
+				: ''}"
+		>
+			<div
+				class="container-institutional flex flex-col items-start justify-between gap-4 text-sm text-slate-500 md:flex-row md:items-center"
+			>
+				<p>
+					<span class="font-semibold text-institutional-navy">CodePath</span> · Lerne IT-Berufe kennen
+					und probiere sie aus.
+				</p>
+				<p class="flex gap-4">
+					<a
+						href="https://github.com/Finn-Kraemer/CodePath"
+						target="_blank"
+						rel="noopener"
+						class="hover:text-institutional-navy">Open Source auf GitHub</a
 					>
-						<a
-							href="https://github.com/Finn-Kraemer/CodePath"
-							target="_blank"
-							class="group flex flex-col items-center gap-2"
-						>
-							<span
-								class="text-[8px] font-bold tracking-widest text-slate-500 uppercase transition-colors group-hover:text-institutional-navy"
-								>Github Open Source</span
-							>
-						</a>
-					</div>
-				</div>
-
-				<div class="mt-16 border-t border-slate-200 pt-8 text-center">
-					<p class="font-mono text-[9px] tracking-[4px] text-slate-400 uppercase">
-						© 2026 CodePath · IT Berufsorientierung · Alle Rechte vorbehalten
-					</p>
-				</div>
+					<span>© 2026 CodePath</span>
+				</p>
 			</div>
 		</footer>
+	{/if}
+
+	<!-- Handy: Leiste unten statt Hamburger-Menü -->
+	{#if tabLinks.length && !isProjector && !isAdminArea}
+		<nav
+			class="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+			aria-label="Schnellnavigation"
+		>
+			<div class="flex">
+				{#each tabLinks as link (link.path)}
+					<a
+						href={link.path}
+						aria-current={isActive(link.path) ? 'page' : undefined}
+						class="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-semibold {isActive(
+							link.path
+						)
+							? 'text-institutional-navy'
+							: 'text-slate-500'}"
+					>
+						<svg
+							class="h-[22px] w-[22px]"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"><path d={link.icon} /></svg
+						>
+						{link.name}
+					</a>
+				{/each}
+				<button
+					type="button"
+					class="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-semibold {mobileMenuOpen
+						? 'text-institutional-navy'
+						: 'text-slate-500'}"
+					aria-expanded={mobileMenuOpen}
+					onclick={() => (mobileMenuOpen = !mobileMenuOpen)}
+				>
+					<svg
+						class="h-[22px] w-[22px]"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg
+					>
+					Mehr
+				</button>
+			</div>
+		</nav>
+
+		{#if mobileMenuOpen}
+			<button
+				type="button"
+				class="fixed inset-0 z-40 cursor-default bg-slate-900/30 lg:hidden"
+				aria-label="Menü schließen"
+				onclick={() => (mobileMenuOpen = false)}
+			></button>
+			<div
+				class="ui-card fixed inset-x-3 bottom-[4.5rem] z-50 flex flex-col gap-1 p-3 shadow-2xl lg:hidden"
+				role="menu"
+			>
+				{#each allLinks.filter((l) => !tabLinks.some((t) => t.path === l.path)) as link (link.path)}
+					<a
+						href={link.path}
+						role="menuitem"
+						onclick={() => (mobileMenuOpen = false)}
+						class="px-3 py-3 text-sm font-semibold {isActive(link.path)
+							? 'bg-slate-100 text-institutional-navy'
+							: 'text-slate-700'}">{link.name}</a
+					>
+				{/each}
+				{#if siteNavigation.links.length}
+					<a
+						href="/seiten"
+						role="menuitem"
+						onclick={() => (mobileMenuOpen = false)}
+						class="px-3 py-3 text-sm font-semibold text-slate-700">Seiten</a
+					>
+				{/if}
+				{#if auth.user?.role === 'ADMIN'}
+					<a
+						href="/admin"
+						role="menuitem"
+						onclick={() => (mobileMenuOpen = false)}
+						class="px-3 py-3 text-sm font-semibold text-slate-700">Leitstand</a
+					>
+				{/if}
+				<button
+					onclick={handleLogout}
+					role="menuitem"
+					class="mt-1 border-t border-slate-100 px-3 pt-3 pb-2 text-left text-sm font-semibold text-rose-700"
+				>
+					Abmelden
+				</button>
+			</div>
+		{/if}
 	{/if}
 </div>

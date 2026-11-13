@@ -33,10 +33,8 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
-	<p class="mb-6 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-		Ziehen oder mit den Pfeilen sortieren
-	</p>
+<div class="ui-card p-6 sm:p-8">
+	<p class="mb-5 text-sm font-semibold text-slate-600">Ziehen oder mit den Pfeilen sortieren</p>
 	<div
 		class="mb-10 space-y-3"
 		use:dndzone={{ items, flipDurationMs: 200, dragDisabled: disabled, dropTargetStyle: {} }}
@@ -46,7 +44,7 @@
 		{#each items as item, i (item.id)}
 			<div
 				animate:flip={{ duration: 200 }}
-				class="flex items-center gap-4 rounded-none border-2 bg-white p-4 {sol
+				class="flex items-center gap-4 border-2 bg-white p-4 {sol
 					? 'border-green-400'
 					: 'border-slate-200'}"
 			>

@@ -59,7 +59,7 @@
 	);
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
+<div class="ui-card p-6 sm:p-8">
 	<p class="mb-4 text-sm text-slate-600" data-testid="predict-breakpoint">
 		Das Programm hält an, wenn Python <strong>Zeile {cfg.breakpoint.line}</strong>
 		{hitText} als Nächstes ausführen würde (●). Welche Werte haben die Variablen in diesem Moment?
@@ -119,7 +119,7 @@
 			<button
 				type="button"
 				onclick={openSolution}
-				class="mb-4 w-full border-2 border-green-700 py-4 text-xs font-black tracking-[4px] text-green-700 uppercase"
+				class="mb-4 w-full rounded-[var(--radius-ui-sm)] border-2 border-green-700 py-4 text-sm font-semibold text-green-700"
 			>
 				Auflösung Schritt für Schritt
 			</button>

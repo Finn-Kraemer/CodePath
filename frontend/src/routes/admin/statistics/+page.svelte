@@ -43,10 +43,10 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
+			>← Leitstand</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Lernanalyse
 		</h1>
 		<p class="mt-4 text-slate-500">
@@ -63,7 +63,7 @@
 	<div class="overflow-x-auto">
 		<table class="w-full border-collapse text-sm">
 			<thead
-				class="bg-slate-50 text-left font-mono text-[10px] tracking-widest text-slate-500 uppercase"
+				class="bg-slate-50 text-left font-mono text-[11px] tracking-wider text-slate-500 uppercase"
 			>
 				<tr
 					><th class="p-3">Modul</th><th class="p-3">Aufgabe</th><th class="p-3">Typ</th><th

@@ -10,7 +10,7 @@
 <button
 	{onclick}
 	disabled={disabled || busy}
-	class="w-full rounded-none bg-institutional-navy py-5 font-sans text-xs font-black tracking-[4px] text-white uppercase shadow-lg transition-all hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+	class="ui-btn ui-btn-primary min-h-[3.25rem] w-full text-base"
 >
 	{busy ? 'Wird geprüft …' : label}
 </button>

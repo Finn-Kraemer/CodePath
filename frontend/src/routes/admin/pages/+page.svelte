@@ -69,16 +69,15 @@
 	<header class="border-b border-slate-200 pb-8">
 		<div class="mb-2 flex items-center gap-3 text-institutional-navy/40">
 			<a href="/admin" class="transition-colors hover:text-institutional-gold">
-				<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase">Admin Dashboard</span
-				>
+				<span class="font-mono text-[11px] font-bold tracking-wider uppercase">Leitstand</span>
 			</a>
 			<span class="text-slate-300">/</span>
-			<span class="font-mono text-[10px] font-bold tracking-[4px] text-institutional-gold uppercase"
+			<span class="font-mono text-[11px] font-bold tracking-wider text-institutional-gold uppercase"
 				>Seiten</span
 			>
 		</div>
 		<h1
-			class="font-sans text-5xl leading-none font-black tracking-tighter text-institutional-navy uppercase"
+			class="font-sans text-3xl leading-none font-extrabold tracking-tight text-institutional-navy"
 		>
 			Seiten
 		</h1>
@@ -96,13 +95,13 @@
 	</header>
 
 	{#if error}
-		<p class="text-[11px] font-bold tracking-widest text-rose-700 uppercase" role="alert">
+		<p class="text-[11px] font-bold tracking-wider text-rose-700 uppercase" role="alert">
 			{error}
 		</p>
 	{/if}
 
 	<form
-		class="grid grid-cols-1 items-end gap-4 border border-slate-200 bg-white p-6 md:grid-cols-[1fr_1fr_auto]"
+		class="grid grid-cols-1 items-end gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6 md:grid-cols-[1fr_1fr_auto]"
 		onsubmit={create}
 	>
 		<label class="ed-label"
@@ -123,7 +122,7 @@
 			/>
 		</label>
 		<button
-			class="bg-institutional-navy px-6 py-3 text-[11px] font-bold tracking-[3px] text-white uppercase disabled:opacity-50"
+			class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white disabled:opacity-50"
 			disabled={!title.trim() || !suggested}>Anlegen</button
 		>
 	</form>
@@ -135,7 +134,9 @@
 			Noch keine eigenen Seiten.
 		</p>
 	{:else}
-		<ul class="divide-y divide-slate-100 border border-slate-200 bg-white">
+		<ul
+			class="divide-y divide-slate-100 rounded-[var(--radius-ui)] border border-slate-200 bg-white"
+		>
 			{#each pages as page, i (page.id)}
 				<li class="flex flex-wrap items-center gap-4 p-4">
 					<div class="min-w-0 flex-1">
@@ -145,7 +146,7 @@
 						>
 						<p class="font-mono text-[11px] text-slate-400">/seiten/{page.slug}</p>
 					</div>
-					<div class="flex flex-wrap gap-2 font-mono text-[9px] tracking-widest uppercase">
+					<div class="flex flex-wrap gap-2 font-mono text-[11px] tracking-wider uppercase">
 						{#if page.published}
 							<span class="bg-teal-50 px-2 py-1 text-teal-700"
 								>{page.changed ? 'Live · Entwurf geändert' : 'Live'}</span

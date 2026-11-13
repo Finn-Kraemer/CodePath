@@ -232,21 +232,23 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase transition-colors hover:text-institutional-navy"
+			>← Leitstand</a
 		>
 		<div class="flex flex-wrap items-end justify-between gap-4">
-			<h1
-				class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase"
-			>
+			<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 				Teilnehmer-Akte: {username}
 			</h1>
-			<div class="flex border border-slate-200 bg-white" role="tablist" aria-label="Ansicht">
+			<div
+				class="flex rounded-[var(--radius-ui)] border border-slate-200 bg-white"
+				role="tablist"
+				aria-label="Ansicht"
+			>
 				<button
 					type="button"
 					role="tab"
 					aria-selected={activeTab === 'tasks'}
-					class="px-5 py-2.5 text-[10px] font-black tracking-[2px] uppercase {activeTab === 'tasks'
+					class="px-5 py-2.5 text-[11px] font-black tracking-wider uppercase {activeTab === 'tasks'
 						? 'bg-institutional-navy text-white'
 						: 'text-slate-500 hover:text-institutional-navy'}"
 					onclick={() => (activeTab = 'tasks')}
@@ -257,7 +259,7 @@
 					type="button"
 					role="tab"
 					aria-selected={activeTab === 'path'}
-					class="px-5 py-2.5 text-[10px] font-black tracking-[2px] uppercase {activeTab === 'path'
+					class="px-5 py-2.5 text-[11px] font-black tracking-wider uppercase {activeTab === 'path'
 						? 'bg-institutional-navy text-white'
 						: 'text-slate-500 hover:text-institutional-navy'}"
 					onclick={() => (activeTab = 'path')}
@@ -279,24 +281,24 @@
 			<div class="space-y-12 lg:col-span-2">
 				{#if activeTab === 'tasks'}
 					<!-- Task Checklist -->
-					<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
-						<h3 class="mb-10 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+					<div class=" rounded-[var(--radius-ui)] border border-slate-200 bg-white p-10 shadow-sm">
+						<h3 class="mb-10 font-sans text-sm font-black tracking-wider text-slate-400 uppercase">
 							Leistungshistorie nach Modulen
 						</h3>
 						<div class="space-y-8">
 							{#each Object.entries(groupedTasks) as [moduleTitle, moduleTasks] (moduleTitle)}
-								<div class="overflow-hidden rounded-none border border-slate-100">
+								<div class="overflow-hidden border border-slate-100">
 									<button
 										onclick={() => toggleModule(moduleTitle)}
 										class="flex w-full items-center justify-between bg-slate-50 p-4 transition-colors hover:bg-slate-100"
 									>
 										<h4
-											class="text-left font-sans text-[11px] font-black tracking-[3px] text-institutional-navy uppercase"
+											class="text-left font-sans text-[11px] font-black tracking-wider text-institutional-navy uppercase"
 										>
 											{moduleTitle}
 										</h4>
 										<div class="flex shrink-0 items-center gap-3">
-											<span class="font-mono text-[9px] tracking-widest text-slate-400 uppercase">
+											<span class="font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 												{moduleTasks.filter((t) => t.isCompleted).length} / {moduleTasks.length} gelöst
 											</span>
 											<svg
@@ -328,7 +330,7 @@
 												<div class="group flex w-full items-stretch gap-2">
 													<!-- Task Info Card (Status Display) -->
 													<div
-														class="flex flex-1 items-center justify-between rounded-none border p-6 text-left transition-all
+														class="flex flex-1 items-center justify-between border p-6 text-left transition-all
 													{task.isLocked
 															? 'border-red-200 bg-red-50/30'
 															: task.isCompleted
@@ -339,7 +341,7 @@
 													>
 														<div class="flex items-center gap-6">
 															<div
-																class="flex h-10 w-10 items-center justify-center rounded-none border transition-colors
+																class="flex h-10 w-10 items-center justify-center border transition-colors
 															{task.isLocked
 																	? 'border-red-600 bg-red-600 text-white'
 																	: task.isCompleted
@@ -393,7 +395,7 @@
 																	{task.title}
 																</p>
 																<p
-																	class="mt-1 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+																	class="mt-1 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 																>
 																	{task.type} · {task.pointsEarned}/{task.points} PKT {#if task.hintsUsed}·
 																		{task.hintsUsed} Hinweis(e){/if}{#if task.solutionRevealed}
@@ -402,7 +404,7 @@
 															</div>
 														</div>
 														<span
-															class="font-mono text-[10px] font-black uppercase
+															class="font-mono text-[11px] font-black uppercase
 														{task.isLocked
 																? 'text-red-600'
 																: task.isCompleted
@@ -432,7 +434,7 @@
 																? 'border-green-600 bg-green-600 text-white'
 																: 'border-slate-200 bg-white text-slate-400 hover:border-green-600 hover:text-green-600'}"
 														>
-															<span class="font-mono text-[10px] font-black">100%</span>
+															<span class="font-mono text-[11px] font-black">100%</span>
 														</button>
 														<button
 															onclick={() => toggleTask(task, true)}
@@ -443,7 +445,7 @@
 																? 'border-amber-500 bg-amber-500 text-white'
 																: 'border-slate-200 bg-white text-slate-400 hover:border-amber-500 hover:text-amber-500'}"
 														>
-															<span class="font-mono text-[10px] font-black">50%</span>
+															<span class="font-mono text-[11px] font-black">50%</span>
 														</button>
 														<button
 															onclick={() => toggleTaskLock(task)}
@@ -490,10 +492,12 @@
 						</div>
 					</div>
 				{:else}
-					<div class="space-y-8 border border-slate-200 bg-white p-10 shadow-sm">
+					<div
+						class="space-y-8 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-10 shadow-sm"
+					>
 						<div class="flex flex-wrap items-center justify-between gap-4">
 							<div>
-								<h3 class="font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+								<h3 class="font-sans text-sm font-black tracking-wider text-slate-400 uppercase">
 									CodePath-Stand &amp; Eingriffe
 								</h3>
 								{#if pathAdmin?.view}
@@ -508,7 +512,7 @@
 							{#if (pathAdmin?.paths?.length ?? 0) > 1}
 								<select
 									aria-label="CodePath auswählen"
-									class="border border-slate-200 bg-white px-3 py-2 text-sm"
+									class="rounded-[var(--radius-ui)] border border-slate-200 bg-white px-3 py-2 text-sm"
 									value={pathAdmin?.selectedSlug ?? ''}
 									onchange={(e) => fetchData((e.currentTarget as HTMLSelectElement).value)}
 								>
@@ -521,7 +525,7 @@
 
 						{#if pathMessage}
 							<div
-								class="border border-emerald-200 bg-emerald-50 p-3 font-mono text-[10px] tracking-widest text-emerald-800 uppercase"
+								class="border border-emerald-200 bg-emerald-50 p-3 font-mono text-[11px] tracking-wider text-emerald-800 uppercase"
 								role="status"
 							>
 								{pathMessage}
@@ -547,7 +551,7 @@
 							{#if (pathAdmin.choices?.length ?? 0) > 0}
 								<div class="space-y-4 border-t border-slate-100 pt-6">
 									<h4
-										class="font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
+										class="font-mono text-[11px] font-black tracking-wider text-slate-400 uppercase"
 									>
 										Entscheidungen an Weichen
 									</h4>
@@ -566,7 +570,7 @@
 														</span>
 														{#if ch.subpath}
 															<span
-																class="border border-violet-200 bg-violet-50 px-2 py-0.5 font-mono text-[9px] font-bold text-violet-800 uppercase"
+																class="border border-violet-200 bg-violet-50 px-2 py-0.5 font-mono text-[11px] font-bold text-violet-800 uppercase"
 															>
 																<PathIcon
 																	name="puzzle"
@@ -606,7 +610,7 @@
 														<button
 															type="button"
 															disabled={pathBusy}
-															class="border border-rose-300 bg-white px-3 py-1.5 font-mono text-[10px] font-bold tracking-widest text-rose-700 uppercase hover:bg-rose-50 disabled:opacity-50"
+															class="rounded-[var(--radius-ui-sm)] border border-rose-300 bg-white px-3 py-1.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-50"
 															onclick={() => resetChoice(ch.pathSlug, ch.nodeId)}
 														>
 															Wahl zurücksetzen
@@ -618,14 +622,14 @@
 											<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 												{#each ch.options ?? [] as opt (opt.to)}
 													<div
-														class="flex items-center justify-between gap-2 border border-slate-200 bg-white px-3 py-2 text-xs"
+														class="flex items-center justify-between gap-2 rounded-[var(--radius-ui)] border border-slate-200 bg-white px-3 py-2 text-xs"
 													>
 														<span class="font-bold text-slate-800">{opt.label}</span>
 														<div class="flex flex-wrap items-center gap-1.5">
 															<button
 																type="button"
 																disabled={pathBusy || opt.chosen}
-																class="border px-2.5 py-1 font-mono text-[9px] font-bold uppercase {opt.chosen
+																class="border px-2.5 py-1 font-mono text-[11px] font-bold uppercase {opt.chosen
 																	? 'border-emerald-600 bg-emerald-600 text-white'
 																	: 'border-slate-200 text-institutional-navy hover:border-institutional-navy'}"
 																onclick={() => setChoiceForStudent(ch.pathSlug, ch.nodeId, opt.to)}
@@ -636,7 +640,7 @@
 																<button
 																	type="button"
 																	disabled={pathBusy}
-																	class="border px-2.5 py-1 font-mono text-[9px] font-bold uppercase {opt.unlocked
+																	class="border px-2.5 py-1 font-mono text-[11px] font-bold uppercase {opt.unlocked
 																		? 'border-sky-600 bg-sky-600 text-white'
 																		: 'border-slate-200 text-slate-600 hover:border-sky-500 hover:text-sky-700'}"
 																	onclick={() => toggleUnlockBranch(ch.pathSlug, ch.nodeId, opt.to)}
@@ -655,7 +659,7 @@
 
 							<div class="space-y-3 border-t border-slate-100 pt-6">
 								<h4
-									class="font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
+									class="font-mono text-[11px] font-black tracking-wider text-slate-400 uppercase"
 								>
 									Stationen einzeln freischalten ({pathAdmin.view.title})
 								</h4>
@@ -669,14 +673,14 @@
 													{node.icon}
 													{node.label}
 												</span>
-												<span class="font-mono text-[9px] text-slate-400 uppercase">
+												<span class="font-mono text-[11px] text-slate-400 uppercase">
 													{node.state}
 												</span>
 											</div>
 											<button
 												type="button"
 												disabled={pathBusy}
-												class="shrink-0 border px-2.5 py-1 font-mono text-[9px] font-bold uppercase {node.teacherUnlocked
+												class="shrink-0 border px-2.5 py-1 font-mono text-[11px] font-bold uppercase {node.teacherUnlocked
 													? 'border-emerald-600 bg-emerald-600 text-white'
 													: 'border-slate-200 bg-white text-institutional-navy hover:border-institutional-navy'}"
 												onclick={() => toggleUnlockNode(pathAdmin!.selectedSlug!, node.id)}
@@ -692,7 +696,7 @@
 								<div class="space-y-3">
 									<div class="flex items-center justify-between">
 										<h4
-											class="font-sans text-[10px] font-black tracking-widest text-slate-400 uppercase"
+											class="font-sans text-[11px] font-black tracking-wider text-slate-400 uppercase"
 										>
 											Bedingte Verzweigungen, Tore &amp; Stütz-Knoten
 										</h4>
@@ -701,7 +705,7 @@
 										{#each pathAdmin.branches ?? [] as br (br.edgeKey)}
 											{@const isGate = br.edgeKey.startsWith('gate:')}
 											<div
-												class="flex items-center justify-between gap-3 border border-slate-200 bg-white p-3 text-xs"
+												class="flex items-center justify-between gap-3 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-3 text-xs"
 											>
 												<div>
 													<div class="flex items-center gap-2">
@@ -711,7 +715,7 @@
 																><PathIcon name="door" size={14} />{br.toLabel}</span
 															>
 															<span
-																class="rounded bg-purple-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-purple-900 uppercase"
+																class="rounded bg-purple-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-purple-900 uppercase"
 															>
 																Punkte-Tor
 															</span>
@@ -720,7 +724,7 @@
 																>{br.fromLabel} → {br.toLabel}</span
 															>
 															<span
-																class="rounded px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase {br.matched
+																class="rounded px-1.5 py-0.5 font-mono text-[11px] font-bold uppercase {br.matched
 																	? 'bg-amber-100 text-amber-800'
 																	: 'bg-slate-100 text-slate-500'}"
 															>
@@ -735,7 +739,7 @@
 												<button
 													type="button"
 													disabled={pathBusy}
-													class="shrink-0 cursor-pointer border border-slate-300 bg-white px-2.5 py-1 font-mono text-[9px] font-bold text-institutional-navy uppercase hover:bg-slate-50"
+													class="shrink-0 cursor-pointer rounded-[var(--radius-ui-sm)] border border-slate-300 bg-white px-2.5 py-1 text-sm font-semibold text-institutional-navy hover:bg-slate-50"
 													onclick={() => resetBranchCondition(br.pathSlug, br.edgeKey)}
 												>
 													{isGate ? 'Tor zurücksetzen' : 'Neu bewerten'}
@@ -752,24 +756,24 @@
 
 			<div class="space-y-8">
 				<!-- Stats Card -->
-				<div class="rounded-none bg-institutional-navy p-10 text-white shadow-sm">
+				<div class=" bg-institutional-navy p-10 text-white shadow-sm">
 					<h3
-						class="mb-10 font-sans text-[10px] font-black tracking-[4px] text-institutional-gold uppercase"
+						class="mb-10 font-sans text-[11px] font-black tracking-wider text-institutional-gold uppercase"
 					>
 						Kennzahlen
 					</h3>
 					<div class="grid grid-cols-1 gap-8">
-						<div class="rounded-none border-l-4 border-white/10 bg-white/5 p-6">
+						<div class=" border-l-4 border-white/10 bg-white/5 p-6">
 							<p
-								class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+								class="mb-2 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 							>
 								Gesamtpunktzahl
 							</p>
 							<p class="text-5xl font-black text-institutional-gold">{student.totalPoints}</p>
 						</div>
-						<div class="rounded-none border-l-4 border-white/10 bg-white/5 p-6">
+						<div class=" border-l-4 border-white/10 bg-white/5 p-6">
 							<p
-								class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+								class="mb-2 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 							>
 								Erledigte Aufgaben
 							</p>
@@ -778,12 +782,12 @@
 					</div>
 					<a
 						href={`/admin/students/${username}/submissions`}
-						class="mt-10 flex w-full items-center justify-center gap-3 rounded-none bg-institutional-gold py-5 text-center text-[11px] font-bold tracking-[3px] text-white uppercase shadow-lg transition-all hover:opacity-90"
+						class="mt-10 flex w-full items-center justify-center gap-3 bg-institutional-gold py-5 text-center text-[11px] font-bold tracking-wider text-white uppercase shadow-lg transition-all hover:opacity-90"
 					>
 						Abgaben verifizieren
 						{#if student.pendingSubmissionsCount > 0}
 							<span
-								class="flex h-6 min-w-[1.5rem] items-center justify-center bg-white px-2 font-mono text-[10px] font-black text-institutional-gold"
+								class="flex h-6 min-w-[1.5rem] items-center justify-center bg-white px-2 font-mono text-[11px] font-black text-institutional-gold"
 							>
 								{student.pendingSubmissionsCount}
 							</span>
@@ -792,15 +796,13 @@
 				</div>
 
 				<!-- Password Reset Card -->
-				<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
-					<h3
-						class="mb-6 font-sans text-[10px] font-black tracking-widest text-slate-400 uppercase"
-					>
+				<div class=" rounded-[var(--radius-ui)] border border-slate-200 bg-white p-10 shadow-sm">
+					<h3 class="mb-6 font-sans text-[11px] font-black tracking-wider text-slate-400 uppercase">
 						Sicherheits-Optionen
 					</h3>
 					{#if success}
 						<div
-							class="mb-6 rounded-none border border-green-100 bg-green-50 p-4 font-mono text-[10px] tracking-widest text-green-700 uppercase"
+							class="mb-6 border border-green-100 bg-green-50 p-4 font-mono text-[11px] tracking-wider text-green-700 uppercase"
 						>
 							{success}
 						</div>
@@ -809,7 +811,7 @@
 						<div>
 							<label
 								for="pwd"
-								class="mb-2 block font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+								class="mb-2 block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 								>Neues Systempasswort</label
 							>
 							<input
@@ -817,12 +819,12 @@
 								type="password"
 								id="pwd"
 								placeholder="••••••••"
-								class="w-full rounded-none border-slate-200 bg-slate-50 px-4 py-3 font-mono text-sm outline-none focus:border-institutional-navy"
+								class="w-full border-slate-200 bg-slate-50 px-4 py-3 font-mono text-sm outline-none focus:border-institutional-navy"
 							/>
 						</div>
 						<button
 							onclick={handleResetPassword}
-							class="w-full rounded-none bg-institutional-navy py-4 text-[10px] font-bold tracking-widest text-white uppercase shadow-sm transition-all hover:opacity-90"
+							class="w-full rounded-[var(--radius-ui-sm)] bg-institutional-navy py-4 text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90"
 							>Passwort überschreiben</button
 						>
 					</div>

@@ -38,7 +38,7 @@
 	role="status"
 	aria-label="Ergebnis des Imports"
 >
-	<p class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+	<p class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 		Erkannt: {report.detected}
 	</p>
 	<div class="mt-3 flex flex-wrap gap-2">
@@ -57,14 +57,14 @@
 		<input type="checkbox" bind:checked={showUnchanged} /> Unveränderte Einträge zeigen
 	</label>
 	{#each groups as [area, items] (area)}
-		<h3 class="mt-5 text-xs font-black tracking-widest text-institutional-navy uppercase">
+		<h3 class="mt-5 text-xs font-black tracking-wider text-institutional-navy uppercase">
 			{area}
 		</h3>
 		<ul class="mt-2 divide-y divide-slate-100 border border-slate-100">
 			{#each items as item, i (i)}
 				<li class="flex flex-wrap items-baseline gap-3 px-3 py-2 text-sm">
 					<span
-						class="w-24 shrink-0 text-center font-mono text-[9px] font-bold tracking-widest uppercase {STYLES[
+						class="w-24 shrink-0 text-center font-mono text-[11px] font-bold tracking-wider uppercase {STYLES[
 							item.action
 						]}">{ACTION_LABELS[item.action]}</span
 					>

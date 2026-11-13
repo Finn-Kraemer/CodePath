@@ -28,7 +28,7 @@
 {#if active && page.url.pathname !== '/quiz'}
 	<a
 		href="/quiz"
-		class="block bg-institutional-gold px-4 py-3 text-center font-mono text-xs font-black tracking-widest text-institutional-navy uppercase hover:brightness-95"
+		class="block rounded-[var(--radius-ui-sm)] bg-institutional-gold px-4 py-3 text-center text-sm font-semibold text-institutional-navy hover:brightness-95"
 		data-testid="quiz-banner"
 	>
 		🎯 Quiz läuft{title ? `: ${title}` : ''} – jetzt mitmachen →

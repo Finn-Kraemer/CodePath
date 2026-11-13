@@ -68,22 +68,20 @@
 		{#snippet header()}
 			<div class="mb-2 flex items-center gap-3 text-institutional-navy/40">
 				<a href="/admin" class="transition-colors hover:text-institutional-gold">
-					<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase"
-						>Admin Dashboard</span
-					>
+					<span class="font-mono text-[11px] font-bold tracking-wider uppercase">Leitstand</span>
 				</a>
 				<span class="text-slate-300">/</span>
 				<a href="/admin/pages" class="transition-colors hover:text-institutional-gold">
-					<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase">Seiten</span>
+					<span class="font-mono text-[11px] font-bold tracking-wider uppercase">Seiten</span>
 				</a>
 				<span class="text-slate-300">/</span>
 				<span
-					class="font-mono text-[10px] font-bold tracking-[4px] text-institutional-gold uppercase"
+					class="font-mono text-[11px] font-bold tracking-wider text-institutional-gold uppercase"
 					>{summary?.title ?? '…'}</span
 				>
 			</div>
 			<h1
-				class="font-sans text-5xl leading-none font-black tracking-tighter text-institutional-navy uppercase"
+				class="font-sans text-3xl leading-none font-extrabold tracking-tight text-institutional-navy"
 			>
 				{summary?.title ?? 'Seite'}
 			</h1>
@@ -98,7 +96,7 @@
 
 			{#if summary}
 				<form
-					class="mt-6 grid max-w-3xl grid-cols-1 gap-4 border border-slate-200 bg-white p-4 sm:grid-cols-2"
+					class="mt-6 grid max-w-3xl grid-cols-1 gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4 sm:grid-cols-2"
 					onsubmit={saveSettings}
 					aria-label="Seiteneinstellungen"
 				>

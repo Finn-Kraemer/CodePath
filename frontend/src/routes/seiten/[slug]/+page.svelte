@@ -36,7 +36,7 @@
 	<div class="min-h-[50vh]" aria-busy="true"></div>
 {:else}
 	<div class="container-institutional py-32 text-center">
-		<h1 class="font-sans text-4xl font-black tracking-tighter text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			{status === 'login' ? 'Bitte anmelden' : 'Seite nicht gefunden'}
 		</h1>
 		<p class="mt-4 text-slate-500">
@@ -46,7 +46,7 @@
 		</p>
 		<a
 			href={status === 'login' ? '/login' : '/'}
-			class="mt-8 inline-block bg-institutional-navy px-8 py-4 text-[11px] font-bold tracking-[3px] text-white uppercase"
+			class="mt-8 inline-block rounded-[var(--radius-ui-sm)] bg-institutional-navy px-8 py-4 text-sm font-semibold text-white"
 			>{status === 'login' ? 'Zum Login' : 'Zur Startseite'}</a
 		>
 	</div>

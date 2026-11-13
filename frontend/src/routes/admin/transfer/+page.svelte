@@ -43,10 +43,10 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
+			>← Leitstand</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Import &amp; Export
 		</h1>
 		<p class="mt-4 max-w-3xl text-slate-500">
@@ -64,8 +64,10 @@
 	{/if}
 
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-		<section class="flex flex-col gap-5 border border-slate-200 bg-white p-8">
-			<h2 class="text-xs font-black tracking-widest text-institutional-navy uppercase">Export</h2>
+		<section
+			class="flex flex-col gap-5 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8"
+		>
+			<h2 class="text-xs font-black tracking-wider text-institutional-navy uppercase">Export</h2>
 			<fieldset class="flex flex-col gap-3">
 				<legend class="sr-only">Bereiche</legend>
 				<label class="flex items-center gap-3 text-sm font-bold">
@@ -96,8 +98,10 @@
 			</p>
 		</section>
 
-		<section class="flex flex-col gap-5 border border-slate-200 bg-white p-8">
-			<h2 class="text-xs font-black tracking-widest text-institutional-navy uppercase">Import</h2>
+		<section
+			class="flex flex-col gap-5 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8"
+		>
+			<h2 class="text-xs font-black tracking-wider text-institutional-navy uppercase">Import</h2>
 			<label
 				class="flex min-h-48 cursor-pointer flex-col items-center justify-center gap-3 border-2 border-dashed p-8 text-center transition-colors {dragging
 					? 'border-institutional-navy bg-slate-50'

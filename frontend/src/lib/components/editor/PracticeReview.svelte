@@ -8,7 +8,7 @@
 </script>
 
 <div
-	class="tiptap-content max-h-[500px] overflow-auto rounded-none border border-slate-100 bg-slate-50 p-6 shadow-inner"
+	class="tiptap-content max-h-[500px] overflow-auto border border-slate-100 bg-slate-50 p-6 shadow-inner"
 >
 	{@html sanitized}
 </div>

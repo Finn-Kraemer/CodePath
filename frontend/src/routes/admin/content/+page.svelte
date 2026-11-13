@@ -142,10 +142,10 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
+			>← Leitstand</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Inhalte
 		</h1>
 		<p class="mt-4 text-slate-500">
@@ -181,7 +181,7 @@
 	{/if}
 
 	{#each modules as row (row.id)}
-		<section class="border border-slate-200 bg-white">
+		<section class="rounded-[var(--radius-ui)] border border-slate-200 bg-white">
 			<div class="flex items-center justify-between border-b border-slate-100 p-5">
 				<h2 class="text-lg font-bold text-institutional-navy">
 					{row.module.icon}
@@ -240,7 +240,7 @@
 								><span class="mr-3 font-mono text-xs text-slate-400">{i + 1}</span
 								>{task.title}</span
 							>
-							<span class="flex items-center gap-3 font-mono text-[10px] uppercase">
+							<span class="flex items-center gap-3 font-mono text-[11px] uppercase">
 								<span class="text-slate-400">{TYPE_LABELS[task.type] ?? task.type}</span>
 								<span>{task.points} P.</span>
 								{#if task.currentVersion}<span class="text-slate-500">v{task.currentVersion}</span

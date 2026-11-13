@@ -56,10 +56,10 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
+			>← Leitstand</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			CodePaths
 		</h1>
 		<p class="mt-4 max-w-3xl text-slate-500">
@@ -91,7 +91,7 @@
 				du im Editor selbst hinein.
 			</p>
 		{:else}
-			<ol class="flex flex-col border border-slate-200 bg-white">
+			<ol class="flex flex-col rounded-[var(--radius-ui)] border border-slate-200 bg-white">
 				{#each paths as path, i (path.id)}
 					<li class="flex flex-wrap items-center gap-3 border-b border-slate-100 p-4 last:border-0">
 						<a href="/admin/codepaths/{path.id}" class="min-w-0 flex-1">
@@ -106,24 +106,24 @@
 						</a>
 						{#if path.id === firstPublished}
 							<span
-								class="bg-amber-100 px-2 py-1 font-mono text-[9px] font-bold text-amber-800 uppercase"
+								class="bg-amber-100 px-2 py-1 font-mono text-[11px] font-bold text-amber-800 uppercase"
 								>bestimmt die Empfehlung</span
 							>
 						{/if}
 						{#if path.templateOnly}
 							<span
-								class="bg-violet-100 px-2 py-1 font-mono text-[9px] font-bold text-violet-800 uppercase"
+								class="bg-violet-100 px-2 py-1 font-mono text-[11px] font-bold text-violet-800 uppercase"
 								>Baustein</span
 							>
 						{/if}
 						{#if path.enforce}
 							<span
-								class="bg-institutional-navy/10 px-2 py-1 font-mono text-[9px] font-bold text-institutional-navy uppercase"
+								class="bg-institutional-navy/10 px-2 py-1 font-mono text-[11px] font-bold text-institutional-navy uppercase"
 								>Verbindlich</span
 							>
 						{/if}
 						<span
-							class="px-2 py-1 font-mono text-[9px] font-bold uppercase {path.published
+							class="px-2 py-1 font-mono text-[11px] font-bold uppercase {path.published
 								? 'bg-emerald-100 text-emerald-800'
 								: 'bg-slate-100 text-slate-500'}"
 							>{path.published ? 'Veröffentlicht' : 'Entwurf'}</span

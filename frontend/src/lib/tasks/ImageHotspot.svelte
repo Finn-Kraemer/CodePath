@@ -29,8 +29,8 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
-	<p class="mb-6 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+<div class="ui-card p-6 sm:p-8">
+	<p class="mb-5 text-sm font-semibold text-slate-600">
 		Klicke ins Bild, um zu markieren{cfg.count ? ` – gesucht: ${cfg.count}` : ''} · {marks.length} von
 		höchstens {cfg.maxMarks}
 	</p>

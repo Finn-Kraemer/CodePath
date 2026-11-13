@@ -36,9 +36,12 @@
 	};
 </script>
 
-<div class="border border-slate-200 bg-white" aria-label="Commit-Verlauf">
+<div
+	class="rounded-[var(--radius-ui)] border border-slate-200 bg-white"
+	aria-label="Commit-Verlauf"
+>
 	<div
-		class="flex items-center justify-between border-b border-slate-200 px-4 py-2 text-[10px] font-black tracking-[3px] text-slate-500 uppercase"
+		class="flex items-center justify-between border-b border-slate-200 px-4 py-2 text-[11px] font-black tracking-wider text-slate-500 uppercase"
 	>
 		<span>Commit-Verlauf</span>
 		<span class="font-mono tracking-normal normal-case"
@@ -87,7 +90,7 @@
 					>
 						<span class="text-amber-700">{r.id}</span>
 						{#each r.refs as ref (ref.label)}
-							<span class="px-1.5 py-0.5 text-[10px] font-bold {badge[ref.kind]}"
+							<span class="px-1.5 py-0.5 text-[11px] font-bold {badge[ref.kind]}"
 								>{ref.kind === 'head' ? 'HEAD → ' : ''}{ref.label}</span
 							>
 						{/each}

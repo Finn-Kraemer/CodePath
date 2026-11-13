@@ -164,16 +164,15 @@
 	<header class="border-b border-slate-200 pb-8">
 		<div class="mb-2 flex items-center gap-3 text-institutional-navy/40">
 			<a href="/admin" class="transition-colors hover:text-institutional-gold">
-				<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase">Admin Dashboard</span
-				>
+				<span class="font-mono text-[11px] font-bold tracking-wider uppercase">Leitstand</span>
 			</a>
 			<span class="text-slate-300">/</span>
-			<span class="font-mono text-[10px] font-bold tracking-[4px] text-institutional-gold uppercase"
+			<span class="font-mono text-[11px] font-bold tracking-wider text-institutional-gold uppercase"
 				>Wissensdatenbank</span
 			>
 		</div>
 		<h1
-			class="font-sans text-5xl leading-none font-black tracking-tighter text-institutional-navy uppercase"
+			class="font-sans text-3xl leading-none font-extrabold tracking-tight text-institutional-navy"
 		>
 			Wissensdatenbank
 		</h1>
@@ -188,12 +187,12 @@
 	</header>
 
 	{#if message}
-		<p class="text-[11px] font-bold tracking-widest text-teal-700 uppercase" role="status">
+		<p class="text-[11px] font-bold tracking-wider text-teal-700 uppercase" role="status">
 			{message}
 		</p>
 	{/if}
 	{#if error}
-		<p class="text-[11px] font-bold tracking-widest text-rose-700 uppercase" role="alert">
+		<p class="text-[11px] font-bold tracking-wider text-rose-700 uppercase" role="alert">
 			{error}
 		</p>
 	{/if}
@@ -203,7 +202,7 @@
 	{:else}
 		<div class="grid grid-cols-1 gap-8 xl:grid-cols-[20rem_1fr]">
 			<aside class="flex flex-col gap-4">
-				<ol class="flex flex-col border border-slate-200 bg-white">
+				<ol class="flex flex-col rounded-[var(--radius-ui)] border border-slate-200 bg-white">
 					{#each articles as article, i (article.id)}
 						<li
 							class="flex items-center gap-1 border-b border-slate-100 p-1 last:border-0 {selectedId ===
@@ -221,7 +220,7 @@
 									>{article.title}</span
 								>
 								{#if !article.published}
-									<span class="font-mono text-[8px] text-slate-400 uppercase">Entwurf</span>
+									<span class="font-mono text-[11px] text-slate-400 uppercase">Entwurf</span>
 								{/if}
 							</button>
 							<button
@@ -253,7 +252,9 @@
 
 			{#if form}
 				<section class="flex min-w-0 flex-col gap-4" aria-label="Artikel bearbeiten">
-					<div class="grid grid-cols-1 gap-4 border border-slate-200 bg-white p-4 md:grid-cols-4">
+					<div
+						class="grid grid-cols-1 gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4 md:grid-cols-4"
+					>
 						<label class="ed-label md:col-span-2"
 							>Titel
 							<input class="ed-input" bind:value={form.title} required />
@@ -325,7 +326,9 @@
 						</div>
 						<div>
 							<p class="ed-label">Vorschau</p>
-							<div class="mt-1 max-h-[70vh] overflow-y-auto border border-slate-200 bg-white p-6">
+							<div
+								class="mt-1 max-h-[70vh] overflow-y-auto rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6"
+							>
 								<Markdown
 									source={form.body}
 									class="prose max-w-none prose-slate prose-headings:text-institutional-navy"
@@ -336,7 +339,7 @@
 
 					<div class="flex flex-wrap items-center gap-3 border-t border-slate-200 pt-4">
 						<button
-							class="bg-institutional-navy px-6 py-3 text-[11px] font-bold tracking-[3px] text-white uppercase disabled:opacity-50"
+							class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white disabled:opacity-50"
 							onclick={save}
 							disabled={busy || !dirty}>Speichern</button
 						>

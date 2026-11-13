@@ -26,8 +26,8 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
-	<p class="mb-6 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+<div class="ui-card p-6 sm:p-8">
+	<p class="mb-5 text-sm font-semibold text-slate-600">
 		{cfg.multiple ? 'Mehrere Antworten können richtig sein' : 'Genau eine Antwort ist richtig'}
 	</p>
 	<div class="mb-10 space-y-3" role={cfg.multiple ? 'group' : 'radiogroup'}>
@@ -39,7 +39,7 @@
 				aria-checked={selected.includes(option.id)}
 				onclick={() => toggle(option.id)}
 				{disabled}
-				class="flex w-full items-start gap-4 rounded-none border-2 p-5 text-left font-sans text-sm transition-all
+				class="flex w-full items-start gap-4 rounded-[var(--radius-ui-sm)] border-2 p-4 text-left font-sans text-sm transition-all
 				{s === 'selected' ? 'border-institutional-navy bg-slate-50 font-bold' : ''}
 				{s === 'correct' ? 'border-green-500 bg-green-50' : ''}
 				{s === 'wrong' ? 'border-rose-400 bg-rose-50' : ''}

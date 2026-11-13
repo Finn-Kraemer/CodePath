@@ -96,10 +96,10 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
+			>← Leitstand</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Kurse &amp; Konten
 		</h1>
 		<p class="mt-4 text-slate-500">
@@ -118,7 +118,7 @@
 		</div>{/if}
 
 	<form
-		class="flex flex-wrap items-end gap-4 border border-slate-200 bg-white p-6"
+		class="flex flex-wrap items-end gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6"
 		onsubmit={(e) => {
 			e.preventDefault();
 			create();
@@ -140,7 +140,7 @@
 			/></label
 		>
 		<button
-			class="bg-institutional-navy px-6 py-3 text-xs font-black tracking-[3px] text-white uppercase"
+			class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white"
 			>Kurs anlegen</button
 		>
 	</form>
@@ -151,8 +151,9 @@
 				<h2 class="font-bold">
 					Neue Konten für {accounts.course} – Passwörter werden nur jetzt angezeigt
 				</h2>
-				<button onclick={() => window.print()} class="border px-4 py-2 text-xs uppercase"
-					>Drucken</button
+				<button
+					onclick={() => window.print()}
+					class="rounded-[var(--radius-ui-sm)] border px-4 py-2 text-sm">Drucken</button
 				>
 			</div>
 			<table class="w-full font-mono text-sm">
@@ -171,7 +172,10 @@
 	<section class="space-y-6">
 		{#each courses as course (course.id)}
 			<article
-				class="border border-slate-200 bg-white p-6 {course.status === 'ENDED' ? 'opacity-60' : ''}"
+				class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6 {course.status ===
+				'ENDED'
+					? 'opacity-60'
+					: ''}"
 			>
 				<div class="flex flex-wrap items-start justify-between gap-6">
 					<div>
@@ -187,10 +191,10 @@
 					</div>
 					{#if course.status === 'ACTIVE'}
 						<div class="text-right">
-							<p class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+							<p class="font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 								Beitrittscode
 							</p>
-							<p class="font-mono text-3xl font-black tracking-[6px] text-institutional-navy">
+							<p class="font-mono text-3xl font-black tracking-wider text-institutional-navy">
 								{course.joinCode}
 							</p>
 							<button
@@ -225,17 +229,18 @@
 						>
 						<button
 							onclick={() => createAccounts(course)}
-							class="border-2 border-institutional-navy px-4 py-2 text-xs font-black tracking-widest text-institutional-navy uppercase"
+							class="rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy px-4 py-2 text-sm font-semibold text-institutional-navy"
 							>Konten anlegen</button
 						>
 						<span class="flex-1"></span>
 						<button
 							onclick={() => downloadCertificates(course)}
-							class="border border-slate-300 px-4 py-2 text-xs uppercase">Zeugnisse (ZIP)</button
+							class="rounded-[var(--radius-ui-sm)] border border-slate-300 px-4 py-2 text-sm"
+							>Zeugnisse (ZIP)</button
 						>
 						<button
 							onclick={() => endCourse(course)}
-							class="border border-rose-400 px-4 py-2 text-xs text-rose-600 uppercase"
+							class="rounded-[var(--radius-ui-sm)] border border-rose-400 px-4 py-2 text-sm text-rose-600"
 							>Kurs beenden</button
 						>
 					</div>
