@@ -34,7 +34,30 @@ public class Course {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "archived_at")
+    private LocalDateTime archivedAt;
+
+    /** Archivierter Kurs: ab dann werden die Schülerdaten gelöscht. */
+    @Column(name = "purge_after")
+    private LocalDateTime purgeAfter;
+
+    /** Rangliste zählt nur Punkte ab diesem Zeitpunkt; null = alle. */
+    @Column(name = "leaderboard_since")
+    private LocalDateTime leaderboardSince;
+
+    @Column(name = "successor_id")
+    private Long successorId;
+
     public boolean isActive() {
         return status == CourseStatus.ACTIVE;
+    }
+
+    public boolean isArchived() {
+        return status == CourseStatus.ARCHIVED;
+    }
+
+    /** Die Daten sind noch da (aktiv oder archiviert) – für Auswertungen und Exporte der Lehrkraft. */
+    public boolean isReadable() {
+        return status != CourseStatus.ENDED;
     }
 }

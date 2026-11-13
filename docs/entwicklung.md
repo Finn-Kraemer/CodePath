@@ -58,6 +58,7 @@ Browser ──POST /api/modules/{modul}/{aufgabe}/submit {antwort}──▶ Stud
 | `practice_reviews` | Rubrik-Bewertung von Praxisabgaben |
 | `media` | Bilder, Schlüssel = SHA-256 + Endung ([ADR-7](adr/0007-medien-in-der-datenbank.md)) |
 | `deleted_tasks` | endgültig gelöschte Aufgaben, damit Importe sie nicht wieder anlegen |
+| `evaluation_templates`, `evaluation_rounds`, `evaluation_responses` | Bewertungsbögen: Vorlagen, Runden je Kurs, ausgefüllte Bögen |
 | `audit_events` | Audit-Log |
 
 Migrationen liegen in `backend/src/main/resources/db/migration`. **Bestehende Migrationen nie ändern** – immer eine neue Version anlegen.

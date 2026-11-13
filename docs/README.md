@@ -24,4 +24,5 @@ Die Dokumentation ist nach Zielgruppen geordnet. Wer CodePath zum ersten Mal ein
 | [Browser-Labor](browser-labor.md) | Aufgaben mit den Entwicklerwerkzeugen des Browsers: Szenarien, Codes, Sicherheit |
 | [Architekturentscheidungen](adr/) | ADR-1 bis ADR-7: Monolith, Server-Sent Events, Sessions, Sandbox, Versionierung, Umbau, Medien |
 | [Änderungsprotokoll](../CHANGELOG.md) | Was sich in welcher Version geändert hat |
+| [Lizenzhinweise](lizenzen.md) | Mitgelieferte Schriften für die PDFs und ihre Lizenzen |
 | [Historie der Überarbeitung](historie/) | Berichte zu den Phasen 0–5 von CodePath 2.0 |

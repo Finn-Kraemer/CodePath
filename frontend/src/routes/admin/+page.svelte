@@ -14,6 +14,7 @@
 	let loading = $state(true);
 	let error = $state('');
 	let sessionsMessage = $state('');
+	let purgingSoon = $state<{ id: number; name: string; purgeAfter?: string }[]>([]);
 	let pollInterval: ReturnType<typeof setInterval> | undefined;
 
 	async function json<T>(url: string, fallback: T): Promise<T> {
@@ -23,14 +24,16 @@
 
 	async function fetchData() {
 		try {
-			const [s, subs, help, st, feedback, certs] = await Promise.all([
+			const [s, subs, help, st, feedback, certs, purge] = await Promise.all([
 				json<StudentOverview[]>('/api/admin/students', []),
 				json<unknown[]>('/api/admin/submissions', []),
 				json<{ open: HelpQueueEntry[] }>('/api/admin/help', { open: [] }),
 				json<TaskStatistic[]>('/api/admin/statistics/tasks', []),
 				json<{ enabled: boolean }>('/api/feedback/status', { enabled: false }),
-				json<{ enabled: boolean }>('/api/admin/settings/certificates', { enabled: false })
+				json<{ enabled: boolean }>('/api/admin/settings/certificates', { enabled: false }),
+				json<typeof purgingSoon>('/api/admin/courses/purging-soon', [])
 			]);
+			purgingSoon = purge;
 			students = s;
 			pendingSubmissionsCount = subs.length;
 			helpOpen = help.open ?? [];
@@ -183,6 +186,20 @@
 	{#if error}
 		<div class="ui-card border-rose-200 bg-rose-50 p-4 text-sm text-rose-700" role="alert">
 			{error}
+		</div>
+	{/if}
+
+	{#if purgingSoon.length > 0}
+		<div
+			class="ui-card border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"
+			role="status"
+			data-testid="purging-soon"
+		>
+			<strong>Archivierte Kurse werden bald gelöscht:</strong>
+			{#each purgingSoon as course, i (course.id)}{i > 0 ? ', ' : ' '}„{course.name}“ am {course.purgeAfter
+					? new Date(course.purgeAfter).toLocaleDateString('de-DE')
+					: '–'}{/each}. Jetzt noch exportieren oder unter
+			<a href="/admin/courses" class="font-bold underline">Kurse &amp; Konten</a> wiederherstellen.
 		</div>
 	{/if}
 
@@ -389,15 +406,15 @@
 			</li>
 			<li class="flex flex-wrap items-center gap-4 px-5 py-4">
 				<div class="min-w-0 flex-1">
-					<p class="font-semibold">Feedback</p>
+					<p class="font-semibold">Feedback-Nachrichten</p>
 					<p class="text-sm text-slate-500">
-						Rückmeldungen der Schülerinnen und Schüler einsammeln und lesen.
+						Freie Nachrichten der Klasse; Bewertungsbögen stehen unter „Feedback &amp; Bewertung“.
 					</p>
 				</div>
 				<span class="ui-chip {feedbackEnabled ? 'ui-chip-done' : ''}"
 					>{feedbackEnabled ? 'Aktiv' : 'Aus'}</span
 				>
-				<a class="ui-btn" href="/admin/feedback">Verwalten</a>
+				<a class="ui-btn" href="/admin/feedback/messages">Verwalten</a>
 			</li>
 			<li class="flex flex-wrap items-center gap-4 px-5 py-4">
 				<div class="min-w-0 flex-1">

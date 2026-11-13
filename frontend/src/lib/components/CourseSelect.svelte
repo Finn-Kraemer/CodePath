@@ -31,7 +31,11 @@
 		>
 			{#each courseSelection.courses as course (course.id)}
 				<option value={course.id}
-					>{course.name}{course.status === 'ENDED' ? ' (beendet)' : ''}</option
+					>{course.name}{course.status === 'ENDED'
+						? ' (beendet)'
+						: course.status === 'ARCHIVED'
+							? ' (archiviert)'
+							: ''}</option
 				>
 			{/each}
 		</select>

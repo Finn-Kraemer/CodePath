@@ -12,4 +12,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     boolean existsByJoinCode(String joinCode);
 
     List<Course> findAllByOrderByCreatedAtDesc();
+
+    List<Course> findByStatusAndPurgeAfterBefore(CourseStatus status, java.time.LocalDateTime time);
 }

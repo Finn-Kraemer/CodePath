@@ -15,12 +15,13 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 
 | Paket | Inhalt |
 |---|---|
-| `identity` | Nutzer, Kurse mit Beitrittscode, Mitgliedschaften, Login/Registrierung, Sessions |
+| `identity` | Nutzer, Kurse mit Beitrittscode, Mitgliedschaften, Login/Registrierung, Sessions, Kurse archivieren/übernehmen |
 | `content` | Module, Aufgaben, unveränderliche Aufgabenversionen, Content-Pakete, Editor |
 | `engine` | Aufgabentypen: `TaskHandler` je Typ, `Evaluation`, `AttemptRules`, `CodeRunner` – kennt keine anderen Fachpakete |
 | `progress` | Fortschritt, Versuche, Punkte-Journal, Schüler-API, Rangliste, Lehrkraft-Statistik |
 | `review` | Praxisabgaben mit Rubrik-Bewertung, Peer-Review (`/api/peer-reviews`) |
-| `classroom` | Modulfreigaben und Fristen je Kurs, Ankündigungen, Feedback |
+| `classroom` | Modulfreigaben und Fristen je Kurs, Freigaben pro Person (`user_releases`), Ankündigungen, Feedback-Nachrichten |
+| `evaluation` | Bewertungsbögen: Vorlagen, Runden je Kurs mit Selbsteinschätzung, Unterrichtsbewertung und Lehrerbewertung (`/api/evaluations`, `/api/admin/evaluations`) |
 | `report` | Teilnahmebestätigungen als PDF (OpenPDF) |
 | `platform` | Fehlerbehandlung (ProblemDetail), Audit-Log, Einstellungen, Startseite, SSE, Auslieferung des Frontends |
 | `site` | Eigene Seiten (`/seiten/<slug>`) und Wissensdatenbank |
@@ -28,6 +29,10 @@ Modularer Monolith (ADR-1): Eine Spring-Boot-Anwendung liefert API, Live-Updates
 | `transfer` | Zentraler Export/Import; sammelt alle `platform.transfer.TransferSection`-Beans |
 | `help` | Stiller Hilfe-Ruf „Ich hänge fest“: Warteschlange für Lehrkräfte (`/api/help`, `/api/admin/help`), Statistik je Aufgabe |
 | `quiz` | Quiz-Runde am Beamer aus Auswahl-Aufgaben (`/api/quiz`, `/api/admin/quiz`), höchstens eine laufende Runde |
+| `attendance` | Anwesenheit je Kurs und Termin (`/api/admin/attendance`), Quote für Teilnahmebestätigung und Profil |
+| `journal` | Lerntagebuch: private Notizen je Modul/Aufgabe (`/api/journal`), Leitfragen, geteilte Einträge für die Lehrkraft |
+| `lesson` | Stundenabläufe: Schritte planen, starten, „Weiter“ (`/api/admin/lessons`), Vorlagen im Export |
+| `worksheet` | Aufgabenblätter der Lehrkraft als PDF (OpenPDF): Blöcke + Layout als JSON, Schülerfassung und Lösung (`/api/admin/worksheets`) |
 
 `ArchitectureTest` erzwingt: Repositories nur im eigenen Paket, keine Zyklen, `engine` hängt von keinem Fachpaket ab.
 
@@ -70,7 +75,11 @@ Paket `site`. **Seiten** (`pages`): Blöcke wie die Startseite (geprüft von `Bl
 
 ## Mitnehm-Paket und Berufe-Kompass
 
-Paket `report`. `ReportService.scores` liefert je sichtbarem Modul die Punkte; `compass` rankt Module mit `career` nach Anteil erreichter Punkte (Top 3 > 0 %). `GET /api/reports/take-home` (`TakeHomeService`, `TakeHomeRenderer`): PDF im Speicher mit Ergebnissen je Aufgabe, Code aus der letzten Abgabe (CODE, SQL, TERMINAL, FILL_CODE, PRACTICE), Kompass und Links (`learnMore` der Module, nach Kompass-Rang, plus allgemeine Links). Kein Speichern, kein Audit-Eintrag, `Cache-Control: no-store`. Standardschriften: Zeichen außerhalb Windows-1252 werden zu `?`.
+Paket `report`. `ReportService.scores` liefert je sichtbarem Modul die Punkte; `compass` rankt Module mit `career` nach Anteil erreichter Punkte (Top 3 > 0 %). `GET /api/reports/take-home` (`TakeHomeService`, `TakeHomeRenderer`): PDF im Speicher mit Ergebnissen je Aufgabe, Code aus der letzten Abgabe (CODE, SQL, TERMINAL, FILL_CODE, PRACTICE), Kompass und Links (`learnMore` der Module, nach Kompass-Rang, plus allgemeine Links). Kein Speichern, kein Audit-Eintrag, `Cache-Control: no-store`. Schriften: `platform.pdf.PdfFonts` (siehe unten).
+
+## Aufgabenblätter
+
+Paket `worksheet`. Tabelle `worksheets` (V35: `title`, `content` als JSON-Text). Inhalt `{settings, blocks}`; Blocktypen und Felder in `frontend/src/lib/worksheet/types.ts`, geprüft von `WorksheetContent` (bekannte Typen, höchstens 300 Blöcke, 500.000 Zeichen, Farbe `#rrggbb`, Bildschlüssel), gezeichnet von `WorksheetRenderer` (fehlende Werte → Standardwerte, Schriften aus `PdfFonts`, Serif = DejaVu Serif). Aufgaben (`task`, `choice`, `gap`, `truefalse`, `matching`, `order`, `table` mit `prompt`) werden nummeriert und summieren Punkte. `show: student|solution` blendet Blöcke je Fassung aus; gemischte Reihenfolgen hängen am Block-`id` (ersatzweise an der Position im ganzen Blatt) und sind damit in beiden Fassungen gleich. `pagebreak`/`divider`/`space` am Ende und direkt nach einem Umbruch werden übersprungen (keine leeren Seiten). API: CRUD unter `/api/admin/worksheets`, `POST …/{id}/copy`, `GET …/{id}/pdf?variant=student|solution&download=`, `POST …/preview?variant=` (ungespeicherter Stand für die Live-Vorschau). PDFs werden nicht gespeichert. Bilder meldet `WorksheetMediaUsage` (eigene Bean, sonst Zyklus mit `MediaService`), Export-Bereich `worksheets` (`WorksheetTransfer`, Abgleich über den Titel). Blatt je Person: `WorksheetRenderer.Personalization` (Name, Klasse, Datum, Kennzeichen, Seed); der Seed (`personSeed(userId, worksheetId)`, SplitMix64) mischt die Aufgaben je Abschnitt (Folgen von Aufgabenblöcken), Optionen, Aussagen, Zuordnungen und Reihenfolgen, ohne Personalisierung bleibt alles wie im Editor. `GET …/{id}/students?courseId=&solution=&format=` (Audit `WORKSHEET_EXPORTED`) und `GET …/{id}/variants?count=2..6` liefern über `PdfBundles`. Kopffelder wachsen mit vorbelegten Werten. Frontend: `/admin/worksheets`, Editor `/admin/worksheets/[id]` mit `WorksheetBlockForm.svelte`.
 
 ## CodePaths
 
@@ -78,7 +87,39 @@ CodePaths (früher Lernpfade; V24 hat die Tabelle umbenannt). Paket `pathway` (`
 
 ## Zentraler Export/Import
 
-Jedes Fachpaket stellt `TransferSection`-Beans bereit (`settings`, `modules`, `homepage`, `pages`, `knowledge`, `codepaths`; `order` legt die Importreihenfolge fest). Exportdatei: ZIP mit `codepath-export.json` (`format`, `version`, `sections`) und `media/<schlüssel>` für alle darin gefundenen Bildschlüssel. `TransferService.importFile` erkennt ZIP mit Manifest, JSON-Manifest oder Content-Paket (module.json → bisheriger Content-Import). Jeder Eintrag läuft über `ItemRunner` in einer eigenen Transaktion und landet als `TransferItem` (CREATED/UPDATED/UNCHANGED/ERROR) im Bericht; Module/Aufgaben liefert `ContentImporter.ImportReport.items`. Abgleich über den Slug, gelöscht wird nichts.
+Jedes Fachpaket stellt `TransferSection`-Beans bereit (`settings`, `modules`, `homepage`, `pages`, `knowledge`, `codepaths`, `worksheets`, `evaluation-templates`, `lessons`; `order` legt die Importreihenfolge fest). Exportdatei: ZIP mit `codepath-export.json` (`format`, `version`, `sections`) und `media/<schlüssel>` für alle darin gefundenen Bildschlüssel. `TransferService.importFile` erkennt ZIP mit Manifest, JSON-Manifest oder Content-Paket (module.json → bisheriger Content-Import). Jeder Eintrag läuft über `ItemRunner` in einer eigenen Transaktion und landet als `TransferItem` (CREATED/UPDATED/UNCHANGED/ERROR) im Bericht; Module/Aufgaben liefert `ContentImporter.ImportReport.items`. Abgleich über den Slug, gelöscht wird nichts.
+
+## Sammel-Exporte (PDF)
+
+`platform.pdf.PdfBundles` liefert mehrere `PdfFile` (Dateiname, Lesezeichen-Titel, Inhalt) einheitlich aus: `format=zip` (Standard) oder `format=pdf` (OpenPDF `PdfCopy`, Lesezeichen je Datei, mit `duplex=true` Leerseite nach ungerader Seitenzahl), `inline=true` öffnet im Browser statt herunterzuladen. Genutzt von `GET /api/admin/courses/{id}/certificates`, `GET /api/admin/courses/{id}/take-home` (Audit `TAKE_HOME_EXPORTED`) und `GET /api/admin/evaluations/rounds/{id}/export`; Frontend-Baustein `lib/components/PdfBundle.svelte` (ZIP, Eine PDF, Drucken, beidseitig). Neue Exporte „je Person“ liefern eine `List<PdfFile>` und rufen `PdfBundles.respond`.
+
+## PDF-Schriften
+
+`platform.pdf.PdfFonts` ist die einzige Schriftkonfiguration aller PDFs: DejaVu Sans/Mono/Serif als Hauptschriften (`IDENTITY_H`, eingebettet, nur benutzte Zeichen), Noto Sans JP und Noto Emoji (schwarzweiß) als Ausweichschriften. `PdfFonts.phrase`/`paragraph` setzen Text per `FontSelector` aus Haupt- und Ausweichschrift zusammen; `PdfFonts.clean` entfernt nur noch Steuerzeichen. `ArchitectureTest.allPdfsUseTheSharedFonts` verbietet `FontFactory` außerhalb von `platform.pdf`. Schriften und Lizenzen: `backend/src/main/resources/fonts/`, `docs/lizenzen.md`.
+
+## Bewertungsbögen
+
+Paket `evaluation`. `evaluation_templates` (Kriterien als JSON, `kind` SELF/LESSON/TEACHER, Export-Bereich `evaluation-templates` über `slug`), `evaluation_rounds` (Kurs, Status DRAFT/OPEN/CLOSED, optionale Frist `closes_at`, kopierte Kriterien je Teil – `null` = Teil fehlt; `teacher_uses_self_criteria`, `lesson_anonymous`, `teacher_visibility` HIDDEN/VISIBLE/AFTER_SELF, `allow_edit`), `evaluation_responses` (eindeutig je Runde, Teil und `subject_id`; bei TEACHER ist `subject_id` die bewertete Person, `author_id` die Lehrkraft). Kriterientypen: HEADING, SCALE (min/max 0–10, höchstens 11 Stufen, `labels` je Stufe, `style` NUMBERS/STARS), CHOICE (`options`, `multiple`), YES_NO, TEXT (`maxLength` ≤ 5000); `Criteria.normalize` vergibt fehlende IDs, `Criteria.answers` prüft Antworten und verwirft unbekannte Kriterien. Gleiche Kriterien-IDs in Selbsteinschätzung und Lehrerbewertung werden im Frontend verglichen; `selfScore`/`teacherScore` sind das Mittel der Skalen in Prozent. Anonyme Unterrichtsbewertungen erscheinen ohne Namen und in hash-sortierter Reihenfolge (keine Zuordnung über die Abgabezeit). PDF (`EvaluationExportService`, `EvaluationPdf`, OpenPDF, entsteht beim Abruf, wird nicht gespeichert): `GET /api/admin/evaluations/rounds/{id}/students/{userId}/pdf`, `…/summary.pdf`, `…/export?format=zip|pdf` (Klassenauswertung + `Bewertung_<benutzer>.pdf` je Person, Audit-Eintrag; `export.zip` bleibt als Kurzform), `GET /api/evaluations/{id}/pdf` für den eigenen Bogen mit denselben Sichtbarkeitsregeln wie die Oberfläche; anonyme Unterrichtsbewertungen stehen nur ohne Namen in der Klassenauswertung. Frontend: `lib/evaluation/` (`CriteriaEditor`, `EvaluationForm`, `ResultBars`), Schüler `/feedback`, `/feedback/[id]`, Lehrkraft `/admin/feedback` (Runden), `/admin/feedback/rounds/[id]` (Einstellungen, Auswertung, Schüler bewerten), `/admin/feedback/templates`, `/admin/feedback/messages` (freie Nachrichten, weiterhin `general_feedback`).
+
+## Freigaben pro Person
+
+`user_releases` (V38: `user_id`, genau eins von `module_id`/`task_id`, `mode` SHOWN/HIDDEN, `available_until`, `bonus`; mit dem Konto gelöscht). `AccessPolicy.Releases` wertet in dieser Rangfolge aus: Aufgabe der Person → Modul der Person → Aufgabe im Kurs → Modul im Kurs; eine Freigabe der Person gilt auch vor dem `PathGate`. `courseReleases(user)` enthält die Freigaben der Person, damit auch der CodePath-Status (AVAILABLE/LOCKED) sie berücksichtigt; `forCourse(courseId)` (Modul-Steuerung, Lehrkraftsicht) nicht. `UserReleaseService` (`POST /api/admin/user-releases` für mehrere Personen, `GET/DELETE /api/admin/students/{u}/releases`, `GET /api/admin/modules/{id}/user-releases?courseId=`), Audit `USER_RELEASE_SET`. Bonus: `LeaderboardService` zieht Punkte aus Aufgaben ab, die die Person nur als Bonus hat (`UserReleaseService.bonusTasks`); `TaskSummary.personal`/`bonus` für die Kennzeichnung. Frontend: `lib/components/UserReleases.svelte` (Schülerakte und Modul-Steuerung).
+
+## Stundenabläufe
+
+Paket `lesson` (V41): `lessons` mit Kurs (null = Vorlage), Titel, Datum, `steps` (JSON, `LessonStep`: RELEASE/QUIZ/WORKSHEET/EVALUATION/ANNOUNCEMENT/NOTE, `minutes`), `status` DRAFT/RUNNING/DONE, `current_step`, `step_started_at`, `restore_releases` mit `releases_snapshot` (`ReleaseService.snapshot`/`restore`) und `run_log` (`StepResult` je Schritt). `LessonService.start/next` sperren die Zeile (`findByIdForUpdate`), prüfen `expectedStep` (409 bei Doppelklick) und führen den Schritt danach in einer eigenen Transaktion aus (`TransactionTemplate`, REQUIRES_NEW) – ein Fehler (ApiException) landet als `ok=false` mit Meldung im Protokoll und bricht nicht ab. Schritte nutzen `ReleaseService.setUnlocked/setTaskMode/setDeadline`, `QuizService.start`, `EvaluationService.setStatus`, `ClassroomService.updateAnnouncement`. Audit: `LESSON_STARTED`, `LESSON_STEP_EXECUTED` (mit `ok`), `LESSON_FINISHED`. Export-Bereich `lessons` (`LessonTransfer`, als Vorlagen über den Titel). Frontend: `/admin/lessons`, Editor `/admin/lessons/[id]`, „Stunde läuft“ `/admin/lessons/[id]/run`, `lib/lesson/types.ts`.
+
+## Lerntagebuch
+
+Paket `journal` (V40): `journal_entries` (Person, Modul, optional Aufgabe, Markdown-Text, `shared`; eindeutig je Person+Modul bzw. Person+Aufgabe) und `journal_prompts` (Leitfragen je Modul). Lesen und Schreiben nur für die eigene Person und nur in sichtbaren Modulen/Aufgaben (`AccessPolicy`), höchstens 10.000 Zeichen je Modul, leerer Text löscht (204), kein Audit-Eintrag. Die Lehrkraft sieht nur `shared` Einträge (`GET /api/admin/journal/shared?courseId|username`). `TakeHomeService.collect(user, withJournal)`: der eigene Download enthält „Mein Lerntagebuch“ (Markdown vereinfacht in `TakeHomeRenderer.markdown`), der Sammel-Export der Lehrkraft nicht. Frontend: `lib/journal/` (`JournalPanel` mit Autospeichern und lokalem Entwurf, `JournalOverview` im Profil, `JournalPrompts` in der Modul-Steuerung, `SharedJournal` in der Schülerakte).
+
+## Anwesenheit
+
+Paket `attendance`. `attendance_sessions` (Kurs, Datum, Titel) und `attendance_entries` (Termin, Person, Status PRESENT/ABSENT/EXCUSED/LATE, Notiz) aus V39. Ein neuer Termin legt für alle Mitglieder PRESENT an. `activeThatDay` (Abgaben an dem Tag, per `JdbcTemplate` auf `attempts`) ist nur ein Vorschlag. Quote `AttendanceRate`: PRESENT und LATE zählen als teilgenommen. Schalter in `system_settings`: `attendance_on_certificate` (Zeile auf der Teilnahmebestätigung über `AttendanceService.certificateLine`) und `attendance_visible_to_students` (`GET /api/attendance/me` ohne Notizen, sonst 403). Exporte: `GET /api/admin/attendance/export.csv` (Semikolon, BOM, Schutz vor Formeln) und `GET /api/admin/attendance/export?format=zip|pdf` (`AttendancePdf` je Person über `PdfBundles`). Termine löscht der Listener auf `CourseEndingEvent`, Einträge zusätzlich die Konto-Löschung. Frontend: `/admin/attendance`, `lib/attendance.ts`, `AttendanceSummary.svelte` (Schülerakte, Profil).
+
+## Kurse: beenden, archivieren, übernehmen
+
+`CourseStatus` ACTIVE/ARCHIVED/ENDED (V37: `archived_at`, `purge_after`, `leaderboard_since`, `successor_id`). `CourseService.endCourse` veröffentlicht `CourseEndingEvent` und löscht die Schülerkonten. `archive(id, months)` (1–36, Standard 6): Status ARCHIVED, Sitzungen der Mitglieder enden (`SessionAdminService`), `AuthService.login` lehnt Mitglieder archivierter Kurse mit 403 ab, `activeCourseByJoinCode` lässt nur aktive Kurse zu. `Course.isReadable()` (nicht ENDED) nutzt `AccessPolicy.courseReleases`, damit Akten und Exporte der Lehrkraft für archivierte Kurse vollständig bleiben. `CourseArchiveJob` (stündlich) ruft `purgeExpired` – Löschung wie beim Beenden, Audit `COURSE_ARCHIVE_PURGED`; `GET /api/admin/courses/purging-soon` liefert Kurse mit Löschung in 14 Tagen (Hinweis im Leitstand). `promote(id, PromoteOptions)` legt einen neuen Kurs an, hängt `memberships` um, setzt den alten auf ENDED mit `successor_id` und veröffentlicht `CoursePromotedEvent`: `ReleaseService` kopiert mit `keepReleases` die Freigaben (ohne Fristen), `CodePathService` kopiert mit `copyCodePaths` die Kurs-CodePaths (Slug `…-k<kurs>`), ohne `keepProgress` löschen `CoursePromotionListener` (progress) Punkte, Versuche und Fortschritt und `CodePathService` Weichen/Overrides. „Rangliste neu starten“ setzt `leaderboard_since`; `LeaderboardService` zählt dann nur Buchungen ab diesem Zeitpunkt (`PointsService.totalsSince`). API: `POST /api/admin/courses/{id}/archive|restore|promote`. Audit: `COURSE_ARCHIVED`, `COURSE_RESTORED`, `COURSE_PROMOTED`.
 
 ## Live-Updates
 

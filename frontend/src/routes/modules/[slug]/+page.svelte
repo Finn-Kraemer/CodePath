@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { auth } from '$lib/auth.svelte';
+	import JournalPanel from '$lib/journal/JournalPanel.svelte';
 	import PathIcon from '$lib/pathway/PathIcon.svelte';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
@@ -135,6 +137,17 @@
 									<span class="text-xs font-medium text-slate-500"
 										>{TYPE_LABELS[task.type ?? ''] ?? task.type}</span
 									>
+									{#if task.bonus}
+										<span
+											class="border border-amber-300 bg-amber-50 px-2 py-0.5 font-mono text-[11px] font-bold tracking-wider text-amber-800 uppercase"
+											title="Punkte zählen nicht in der Rangliste">Zusatzaufgabe</span
+										>
+									{:else if task.personal}
+										<span
+											class="border border-sky-300 bg-sky-50 px-2 py-0.5 font-mono text-[11px] font-bold tracking-wider text-sky-800 uppercase"
+											>Für dich freigegeben</span
+										>
+									{/if}
 								</div>
 							</div>
 						</div>
@@ -160,5 +173,8 @@
 				</li>
 			{/each}
 		</ol>
+	{/if}
+	{#if detail?.module && auth.user && auth.user.role !== 'ADMIN'}
+		<div class="mt-10"><JournalPanel moduleSlug={slug} /></div>
 	{/if}
 </div>

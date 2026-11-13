@@ -35,6 +35,10 @@ export const ADMIN_ICONS = {
 	page: 'M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6',
 	image: 'M4 4h16v16H4zM4 16l5-5 4 4 3-3 4 4M15 9h.01',
 	transfer: 'M4 16v3h16v-3M12 4v11M8 11l4 4 4-4',
+	calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4M9 15l2 2 4-4',
+	lesson: 'M4 5h16v14H4zM10 9l5 3-5 3z',
+	printer:
+		'M7 17H5a2 2 0 01-2-2v-4a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2h-2M7 9V4h10v5M7 14h10v6H7z',
 	projector: 'M3 5h18v11H3zM8 21h8M12 16v5M10 9l4 2-4 2z',
 	eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6',
 	logout: 'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10',
@@ -78,6 +82,19 @@ export const ADMIN_NAV: AdminGroup[] = [
 				quick: true
 			},
 			{
+				href: '/admin/lessons',
+				title: 'Stundenabläufe',
+				text: 'Stunde vorab planen, mit einem Klick starten und weiterschalten',
+				icon: 'lesson',
+				quick: true
+			},
+			{
+				href: '/admin/attendance',
+				title: 'Anwesenheit',
+				text: 'Termine erfassen, Abweichungen anklicken, Quote und Export',
+				icon: 'calendar'
+			},
+			{
 				href: '/admin/students',
 				title: 'Teilnehmende',
 				text: 'Fortschritt einzelner Schüler:innen',
@@ -105,8 +122,8 @@ export const ADMIN_NAV: AdminGroup[] = [
 			},
 			{
 				href: '/admin/feedback',
-				title: 'Feedback',
-				text: 'Rückmeldungen einsammeln und lesen',
+				title: 'Feedback & Bewertung',
+				text: 'Selbsteinschätzung, Unterrichtsbewertung, Schüler bewerten',
 				icon: 'feedback'
 			}
 		]
@@ -127,6 +144,12 @@ export const ADMIN_NAV: AdminGroup[] = [
 				text: 'Lernwege als Karte zeichnen',
 				icon: 'map',
 				quick: true
+			},
+			{
+				href: '/admin/worksheets',
+				title: 'Aufgabenblätter',
+				text: 'Arbeitsblätter und Hausaufgaben als PDF',
+				icon: 'printer'
 			},
 			{
 				href: '/admin/knowledge',

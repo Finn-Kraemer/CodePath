@@ -13,6 +13,7 @@
 	} from '$lib/api';
 	import NextTask from '$lib/pathway/NextTask.svelte';
 	import HelpButton from '$lib/help/HelpButton.svelte';
+	import JournalPanel from '$lib/journal/JournalPanel.svelte';
 	import { auth } from '$lib/auth.svelte';
 	import Markdown from '$lib/Markdown.svelte';
 	import TaskRenderer from '$lib/tasks/TaskRenderer.svelte';
@@ -340,6 +341,9 @@
 
 				{#if auth.user && auth.user.role !== 'ADMIN'}
 					<HelpButton {task} moduleSlug={moduleSlug ?? ''} taskSlug={taskSlug ?? ''} />
+					{#key taskSlug}
+						<JournalPanel moduleSlug={moduleSlug ?? ''} taskSlug={taskSlug ?? null} />
+					{/key}
 				{/if}
 
 				<section class="ui-card space-y-3 p-5 text-sm" aria-label="Punkte und Versuche">

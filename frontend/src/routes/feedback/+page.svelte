@@ -1,22 +1,28 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { auth } from '$lib/auth.svelte';
+	import { api, type Schemas } from '$lib/api';
+	import { formatDate } from '$lib/evaluation/evaluation';
 
+	type MyRound = Schemas['MyRound'];
+
+	let rounds = $state<MyRound[]>([]);
 	let content = $state('');
 	let status = $state<{ enabled: boolean; alreadySubmitted: boolean } | null>(null);
 	let loading = $state(true);
 	let submitting = $state(false);
 	let error = $state('');
-	let success = $state(false);
 
-	async function fetchStatus() {
+	async function load() {
 		try {
-			const res = await auth.apiFetch('/api/feedback/status');
-			if (res.ok) {
-				status = await res.json();
-			}
+			const [list, res] = await Promise.all([
+				api<MyRound[]>('/api/evaluations'),
+				auth.apiFetch('/api/feedback/status')
+			]);
+			rounds = list;
+			if (res.ok) status = await res.json();
 		} catch (e) {
-			console.error(e);
+			error = (e as Error).message;
 		} finally {
 			loading = false;
 		}
@@ -24,42 +30,45 @@
 
 	async function handleSubmit() {
 		if (!content.trim()) return;
-
-		const confirmed = confirm(
-			'Sind Sie sicher? Nach dem Absenden können Sie Ihr Feedback nicht mehr ändern.'
-		);
-		if (!confirmed) return;
-
+		if (!confirm('Nach dem Absenden kannst du deine Nachricht nicht mehr ändern. Abschicken?'))
+			return;
 		submitting = true;
 		error = '';
 		try {
-			const res = await auth.apiFetch('/api/feedback', {
-				method: 'POST',
-				body: JSON.stringify({ content })
-			});
-			if (res.ok) {
-				success = true;
-				status!.alreadySubmitted = true;
-			} else {
-				error = 'Fehler beim Senden des Feedbacks.';
-			}
+			await api('/api/feedback', { method: 'POST', body: { content } });
+			if (status) status.alreadySubmitted = true;
 		} catch (e) {
-			error = 'Netzwerkfehler.';
+			error = (e as Error).message;
 		} finally {
 			submitting = false;
 		}
 	}
 
-	onMount(fetchStatus);
+	function todo(r: MyRound): number {
+		if (!r.acceptingAnswers) return 0;
+		return (r.hasSelf && !r.selfDone ? 1 : 0) + (r.hasLesson && !r.lessonDone ? 1 : 0);
+	}
+
+	onMount(load);
 </script>
 
+<svelte:head><title>Feedback | CodePath</title></svelte:head>
+
 <div class="mx-auto max-w-3xl py-12">
-	<header class="mb-12 border-b border-slate-200 pb-8 text-center md:text-left">
+	<header class="mb-10 border-b border-slate-200 pb-8">
 		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
-			Kurs-Feedback
+			Feedback
 		</h1>
-		<p class="mt-2 text-slate-500">Ihre Meinung hilft uns, den Kurs stetig zu verbessern.</p>
+		<p class="mt-2 text-slate-500">
+			Schätze dich selbst ein, bewerte den Unterricht und lies die Rückmeldung deiner Lehrkraft.
+		</p>
 	</header>
+
+	{#if error}
+		<p class="mb-6 border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700" role="alert">
+			{error}
+		</p>
+	{/if}
 
 	{#if loading}
 		<div class="flex justify-center py-24">
@@ -67,96 +76,110 @@
 				class="h-12 w-12 animate-spin border-4 border-slate-200 border-t-institutional-navy"
 			></div>
 		</div>
-	{:else if !status?.enabled}
-		<div class=" border border-dashed border-slate-200 bg-slate-50 p-24 text-center shadow-sm">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				class="mx-auto mb-6 h-12 w-12 text-slate-300"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke="currentColor"
-			>
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M12 15v2m0 0v2m0-2h2m-2 0H10m11 3a9 9 0 11-18 0 9 9 0 0118 0z"
-				/>
-			</svg>
-			<p class="font-serif text-lg text-slate-400 italic">
-				Die Feedback-Option ist zurzeit deaktiviert.
-			</p>
-			<p class="mt-2 font-mono text-xs tracking-wider text-slate-400 uppercase">
-				Bitte versuchen Sie es später erneut.
-			</p>
-		</div>
-	{:else if status?.alreadySubmitted}
-		<div class=" border border-green-200 bg-green-50 p-16 text-center shadow-sm">
-			<div
-				class="mx-auto mb-6 flex h-16 w-16 items-center justify-center border border-green-200 bg-green-100 text-green-600 shadow-inner"
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-10 w-10"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M5 13l4 4L19 7"
-					/>
-				</svg>
-			</div>
-			<h2 class="mb-2 font-sans text-2xl font-extrabold tracking-tight text-green-800">
-				Vielen Dank!
-			</h2>
-			<p
-				class="font-sans text-sm leading-relaxed font-bold tracking-wider text-green-700 uppercase"
-			>
-				Ihre Rückmeldung wurde erfolgreich erfasst.
-			</p>
-			<p class="mt-8 font-mono text-[11px] tracking-wider text-green-600/50 uppercase">
-				Feedback-Sperre aktiv: Nur eine Einreichung möglich.
-			</p>
-		</div>
 	{:else}
-		<div class=" rounded-[var(--radius-ui)] border border-slate-200 bg-white p-10 shadow-sm">
-			<div
-				class="mb-8 border-l-4 border-institutional-gold bg-slate-50 p-6 font-sans text-xs leading-relaxed tracking-wider text-slate-600 uppercase italic"
+		<section aria-labelledby="rounds" class="mb-12">
+			<h2
+				id="rounds"
+				class="mb-4 font-sans text-sm font-black tracking-wider text-institutional-navy uppercase"
 			>
-				Ihre Antwort wird Ihrem Profil zugeordnet, aber wir schätzen ehrliche und konstruktive
-				Kritik sehr.
-			</div>
-
-			<div class="space-y-6">
-				<label
-					for="feedback"
-					class="block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
-					>Ihre Nachricht an uns</label
+				Bewertungsbögen
+			</h2>
+			{#if rounds.length === 0}
+				<p
+					class="border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-slate-400"
 				>
-				<textarea
-					id="feedback"
-					bind:value={content}
-					placeholder="Was hat Ihnen gefallen? Was können wir besser machen?"
-					class="min-h-[300px] w-full border border-slate-200 p-6 font-sans text-sm shadow-inner focus:border-institutional-navy focus:outline-none"
-					disabled={submitting}
-				></textarea>
+					Zurzeit gibt es keine Bewertungsbögen.
+				</p>
+			{:else}
+				<ul class="flex flex-col gap-3">
+					{#each rounds as round (round.id)}
+						{@const open = todo(round)}
+						<li>
+							<a
+								href="/feedback/{round.id}"
+								class="group flex flex-wrap items-center gap-4 border bg-white p-5 transition-colors hover:border-institutional-navy {open
+									? 'border-institutional-gold'
+									: 'border-slate-200'}"
+							>
+								<div class="min-w-0 flex-1">
+									<p class="font-bold text-institutional-navy">{round.title}</p>
+									<p class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+										{#if round.hasSelf}
+											<span>{round.selfDone ? '✓' : '○'} Selbsteinschätzung</span>
+										{/if}
+										{#if round.hasLesson}
+											<span>{round.lessonDone ? '✓' : '○'} Unterrichtsbewertung</span>
+										{/if}
+										{#if round.teacherState === 'VISIBLE'}
+											<span class="font-bold text-emerald-700"
+												>Rückmeldung der Lehrkraft ist da</span
+											>
+										{/if}
+									</p>
+								</div>
+								<span
+									class="px-2 py-1 font-mono text-[11px] font-bold uppercase {round.acceptingAnswers
+										? open
+											? 'bg-amber-100 text-amber-800'
+											: 'bg-emerald-100 text-emerald-800'
+										: 'bg-slate-100 text-slate-500'}"
+								>
+									{round.acceptingAnswers ? (open ? `${open} offen` : 'Erledigt') : 'Abgeschlossen'}
+								</span>
+								{#if round.acceptingAnswers && round.closesAt}
+									<span class="w-full font-mono text-[11px] text-slate-400"
+										>Bis {formatDate(round.closesAt)}</span
+									>
+								{/if}
+							</a>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</section>
 
-				{#if error}
-					<p class="text-[11px] font-bold tracking-wider text-red-600 uppercase">{error}</p>
-				{/if}
-
-				<button
-					onclick={handleSubmit}
-					disabled={submitting || !content.trim()}
-					class="w-full rounded-[var(--radius-ui-sm)] bg-institutional-navy py-3 text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90 disabled:opacity-20"
+		<section aria-labelledby="message">
+			<h2
+				id="message"
+				class="mb-4 font-sans text-sm font-black tracking-wider text-institutional-navy uppercase"
+			>
+				Nachricht an die Lehrkraft
+			</h2>
+			{#if !status?.enabled}
+				<p
+					class="border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-slate-400"
 				>
-					{submitting ? 'Übermittlung läuft...' : 'Feedback jetzt verbindlich abschicken'}
-				</button>
-			</div>
-		</div>
+					Die Feedback-Nachricht ist zurzeit geschlossen.
+				</p>
+			{:else if status.alreadySubmitted}
+				<p
+					class="border border-green-200 bg-green-50 p-6 text-center text-sm font-bold text-green-800"
+				>
+					Danke! Deine Nachricht ist angekommen.
+				</p>
+			{:else}
+				<div class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6">
+					<p class="mb-4 text-sm text-slate-500">
+						Deine Nachricht wird deinem Profil zugeordnet und kann nur einmal abgeschickt werden.
+					</p>
+					<label for="feedback" class="ed-label">Deine Nachricht</label>
+					<textarea
+						id="feedback"
+						bind:value={content}
+						maxlength="5000"
+						placeholder="Was hat dir gefallen? Was können wir besser machen?"
+						class="ed-input min-h-48"
+						disabled={submitting}
+					></textarea>
+					<button
+						onclick={handleSubmit}
+						disabled={submitting || !content.trim()}
+						class="mt-4 w-full rounded-[var(--radius-ui-sm)] bg-institutional-navy py-4 text-sm font-semibold text-white disabled:opacity-30"
+					>
+						{submitting ? 'Wird gesendet …' : 'Nachricht abschicken'}
+					</button>
+				</div>
+			{/if}
+		</section>
 	{/if}
 </div>

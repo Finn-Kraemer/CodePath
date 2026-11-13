@@ -39,3 +39,14 @@ class CourseSelection {
 }
 
 export const courseSelection = new CourseSelection();
+
+/** Vorschlag beim Übernehmen: „9a“ → „10a“, „Q1 2025“ → „Q2 2025“ (erste Zahl um eins erhöhen). */
+export function nextCourseName(name: string): string {
+	const match = name.match(/\d+/);
+	if (!match || match.index === undefined) return `${name} (neu)`;
+	return (
+		name.slice(0, match.index) +
+		String(Number(match[0]) + 1) +
+		name.slice(match.index + match[0].length)
+	);
+}

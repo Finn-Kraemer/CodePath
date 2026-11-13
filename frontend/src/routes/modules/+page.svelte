@@ -127,7 +127,7 @@
 
 	<header class="flex flex-wrap items-end justify-between gap-4">
 		<div>
-			<h1 class="ui-title sm:text-4xl">{isFocus ? 'CodePath' : 'Lernmodule'}</h1>
+			<h1 class="ui-title sm:text-3xl">{isFocus ? 'CodePath' : 'Lernmodule'}</h1>
 			<p class="mt-2 text-base text-slate-600">
 				{isFocus
 					? 'Folge deinem CodePath, um alle Stationen abzuschließen.'
@@ -143,15 +143,14 @@
 				aria-label="Ansicht"
 			>
 				<button
-					class="flex min-h-10 items-center gap-2 rounded-none px-4 text-sm font-semibold {view ===
-					'map'
+					class="flex min-h-10 items-center gap-2 px-4 text-sm font-semibold {view === 'map'
 						? 'bg-institutional-navy text-white'
 						: 'text-slate-600 hover:bg-slate-50'}"
 					aria-pressed={view === 'map'}
 					onclick={() => setView('map')}><PathIcon name="map" size={16} />CodePath</button
 				>
 				<button
-					class="flex min-h-10 items-center gap-2 rounded-none border-l border-slate-300 px-4 text-sm font-semibold {view ===
+					class="flex min-h-10 items-center gap-2 border-l border-slate-300 px-4 text-sm font-semibold {view ===
 					'list'
 						? 'bg-institutional-navy text-white'
 						: 'text-slate-600 hover:bg-slate-50'}"

@@ -1,6 +1,8 @@
 package de.codepath.backend.progress;
 
+import de.codepath.backend.classroom.UserReleaseService;
 import de.codepath.backend.identity.Course;
+import de.codepath.backend.identity.CourseService;
 import de.codepath.backend.identity.User;
 import de.codepath.backend.identity.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,16 +19,28 @@ public class LeaderboardService {
 
     private final UserService userService;
     private final PointsService pointsService;
+    private final CourseService courseService;
+    private final UserReleaseService userReleaseService;
 
     public TaskViews.Leaderboard leaderboard(User viewer, Long requestedCourseId) {
         List<Long> ids;
+        java.time.LocalDateTime since = null;
         if (viewer.isTeacher()) {
             ids = requestedCourseId != null ? userService.memberIds(requestedCourseId)
                     : userService.students().stream().map(User::getId).toList();
+            if (requestedCourseId != null) since = courseService.get(requestedCourseId).getLeaderboardSince();
         } else {
-            ids = userService.courseOf(viewer.getId()).map(Course::getId).map(userService::memberIds).orElse(List.of(viewer.getId()));
+            Optional<Course> course = userService.courseOf(viewer.getId());
+            ids = course.map(Course::getId).map(userService::memberIds).orElse(List.of(viewer.getId()));
+            since = course.map(Course::getLeaderboardSince).orElse(null);
         }
-        Map<Long, Long> totals = pointsService.totals(ids);
+        // Rangliste neu gestartet (z. B. nach der Übernahme ins nächste Schuljahr): nur neue Punkte zählen
+        Map<Long, Long> totals = new HashMap<>(pointsService.totalsSince(ids, since));
+        // Zusatzaufgaben „Bonus ohne Ranglistenwirkung“ zählen nicht mit
+        Map<Long, Set<Long>> bonus = userReleaseService.bonusTasks(ids);
+        if (!bonus.isEmpty()) {
+            pointsService.byTaskSince(bonus, since).forEach((userId, points) -> totals.merge(userId, -points, Long::sum));
+        }
         List<User> users = new ArrayList<>();
         for (Long id : ids) userService.byId(id).ifPresent(users::add);
         users.sort(Comparator.<User>comparingLong(u -> -totals.getOrDefault(u.getId(), 0L)).thenComparing(User::getUsername));
@@ -41,7 +55,8 @@ public class LeaderboardService {
             ranked.add(new TaskViews.LeaderboardEntry(users.get(i).getUsername(), users.get(i).getVisibleName(), points, rank));
         }
         TaskViews.LeaderboardEntry own = ranked.stream().filter(e -> e.username().equals(viewer.getUsername())).findFirst()
-                .orElse(new TaskViews.LeaderboardEntry(viewer.getUsername(), viewer.getVisibleName(), pointsService.total(viewer.getId()), 0));
+                .orElse(new TaskViews.LeaderboardEntry(viewer.getUsername(), viewer.getVisibleName(),
+                        totals.getOrDefault(viewer.getId(), 0L), 0));
         return new TaskViews.Leaderboard(ranked.subList(0, Math.min(3, ranked.size())),
                 ranked.subList(0, Math.min(MAX_ENTRIES, ranked.size())), own);
     }

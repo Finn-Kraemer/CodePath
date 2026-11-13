@@ -3,10 +3,14 @@ package de.codepath.backend.report;
 import de.codepath.backend.content.PublishedTask;
 import de.codepath.backend.engine.TaskType;
 import de.codepath.backend.identity.Course;
+import de.codepath.backend.journal.JournalService;
 import de.codepath.backend.identity.User;
 import de.codepath.backend.identity.UserService;
 import de.codepath.backend.progress.ProgressService;
 import de.codepath.backend.progress.ProgressStatus;
+import de.codepath.backend.identity.CourseService;
+import de.codepath.backend.platform.audit.AuditService;
+import de.codepath.backend.platform.pdf.PdfFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,15 +37,35 @@ public class TakeHomeService {
     private final ReportService reportService;
     private final ProgressService progressService;
     private final UserService userService;
+    private final CourseService courseService;
+    private final AuditService auditService;
+    private final JournalService journalService;
     private final TakeHomeRenderer renderer = new TakeHomeRenderer();
 
+    /**
+     * Mitnehm-Pakete aller Schülerinnen und Schüler eines Kurses, z. B. zum Ausdrucken vor dem Kursende.
+     * Anders als beim eigenen Abruf protokolliert, weil die Lehrkraft Daten vieler Personen auf einmal exportiert.
+     */
+    @Transactional
+    public List<PdfFile> course(Long courseId) {
+        Course course = courseService.get(courseId);
+        List<PdfFile> files = reportService.members(course).stream()
+                // Ohne Lerntagebuch: das ist privat und nur im eigenen Download enthalten
+                .map(user -> new PdfFile("Mitnehm-Paket_" + user.getUsername() + ".pdf", user.getVisibleName(),
+                        renderer.render(collect(user, false))))
+                .toList();
+        auditService.log("TAKE_HOME_EXPORTED", "course:" + courseId, Map.of("count", files.size()));
+        return files;
+    }
+
+    /** Das eigene Mitnehm-Paket, mit Lerntagebuch. */
     @Transactional(readOnly = true)
     public byte[] render(User user) {
-        return renderer.render(collect(user));
+        return renderer.render(collect(user, true));
     }
 
     @Transactional(readOnly = true)
-    public TakeHomeRenderer.TakeHome collect(User user) {
+    public TakeHomeRenderer.TakeHome collect(User user, boolean withJournal) {
         List<ReportService.ModuleScore> scores = reportService.scores(user);
         ReportService.Compass compass = ReportService.compass(scores);
         Map<Long, ProgressStatus> status = progressService.statusByTask(user.getId());
@@ -65,7 +89,10 @@ public class TakeHomeService {
         }
 
         return new TakeHomeRenderer.TakeHome(user.getVisibleName(), userService.courseOf(user.getId()).map(Course::getName).orElse(null),
-                LocalDate.now(), compass, modules, code, links(scores, compass));
+                LocalDate.now(), compass, modules, code, links(scores, compass),
+                withJournal ? journalService.forTakeHome(user).stream()
+                        .map(e -> new TakeHomeRenderer.JournalNote(e.moduleTitle(), e.taskTitle(), e.text())).toList()
+                        : List.of());
     }
 
     /** Links der Module, in denen die Person am stärksten war, zuerst; doppelte nur einmal. */

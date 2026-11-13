@@ -24,6 +24,15 @@ public class IdentityAdminController {
     public record CreateAccountsRequest(String prefix, int count) {
     }
 
+    /** months: Frist bis zur automatischen Löschung, Standard 6 */
+    public record ArchiveRequest(Integer months) {
+    }
+
+    /** Fehlende Schalter gelten als „nein“. */
+    public record PromoteRequest(@NotBlank String name, LocalDate endsOn, Boolean keepProgress, Boolean keepReleases,
+                                 Boolean copyCodePaths, Boolean restartLeaderboard) {
+    }
+
     @GetMapping("/courses")
     public List<CourseService.CourseSummary> courses() {
         return courseService.list();
@@ -47,6 +56,30 @@ public class IdentityAdminController {
     @PostMapping("/courses/{id}/end")
     public Map<String, Integer> endCourse(@PathVariable("id") Long id) {
         return Map.of("deletedAccounts", courseService.endCourse(id));
+    }
+
+    @PostMapping("/courses/{id}/archive")
+    public CourseService.CourseSummary archive(@PathVariable("id") Long id, @RequestBody(required = false) ArchiveRequest request) {
+        return courseService.archive(id, request == null ? null : request.months());
+    }
+
+    @PostMapping("/courses/{id}/restore")
+    public CourseService.CourseSummary restore(@PathVariable("id") Long id) {
+        return courseService.restore(id);
+    }
+
+    /** Neuer Kurs mit denselben Mitgliedern (z. B. ins nächste Schuljahr); liefert den neuen Kurs. */
+    @PostMapping("/courses/{id}/promote")
+    public CourseService.CourseSummary promote(@PathVariable("id") Long id, @RequestBody PromoteRequest request) {
+        return courseService.promote(id, new CourseService.PromoteOptions(request.name(), request.endsOn(),
+                Boolean.TRUE.equals(request.keepProgress()), Boolean.TRUE.equals(request.keepReleases()),
+                Boolean.TRUE.equals(request.copyCodePaths()), Boolean.TRUE.equals(request.restartLeaderboard())));
+    }
+
+    /** Archivierte Kurse, deren Daten in den nächsten 14 Tagen gelöscht werden. */
+    @GetMapping("/courses/purging-soon")
+    public List<CourseService.CourseSummary> purgingSoon() {
+        return courseService.purgingSoon(14);
     }
 
     @PostMapping("/sessions/logout-students")
