@@ -71,9 +71,12 @@
 </script>
 
 {#if peer?.enabled}
-	<section class="mt-8 border border-slate-200 bg-white p-8 shadow-sm" data-testid="peer-review">
+	<section
+		class="mt-8 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8 shadow-sm"
+		data-testid="peer-review"
+	>
 		<h2
-			class="mb-2 font-mono text-[10px] font-black tracking-widest text-institutional-navy uppercase"
+			class="mb-2 font-mono text-[11px] font-black tracking-wider text-institutional-navy uppercase"
 		>
 			Peer-Review
 		</h2>
@@ -140,7 +143,7 @@
 						</label>
 						<button
 							type="button"
-							class="bg-institutional-navy px-6 py-3 font-mono text-[10px] font-black tracking-widest text-white uppercase disabled:opacity-40"
+							class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white disabled:opacity-40"
 							disabled={busy}
 							onclick={() => send(assignment.id)}
 						>
@@ -156,7 +159,7 @@
 		{#if peer.canReview}
 			<button
 				type="button"
-				class="border-2 border-institutional-navy px-6 py-3 font-mono text-[10px] font-black tracking-widest text-institutional-navy uppercase disabled:opacity-40"
+				class="rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy px-6 py-3 text-sm font-semibold text-institutional-navy disabled:opacity-40"
 				disabled={busy}
 				onclick={assign}
 			>

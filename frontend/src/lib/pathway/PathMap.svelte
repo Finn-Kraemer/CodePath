@@ -63,12 +63,12 @@
 	};
 
 	const STATE_STYLES: Record<string, string> = {
-		DONE: 'border-emerald-300 bg-emerald-50',
-		AVAILABLE: 'border-institutional-navy bg-white shadow-md',
+		DONE: 'border-emerald-300 bg-white',
+		AVAILABLE: 'border-slate-400 bg-white shadow-sm',
 		BLOCKED: 'border-amber-300 bg-amber-50/40 opacity-85',
-		UPCOMING: 'border-slate-200 bg-white',
+		UPCOMING: 'border-slate-300 bg-white',
 		CLOSED: 'border-slate-200 bg-slate-50 opacity-70',
-		LOCKED: 'border-dashed border-slate-300 bg-slate-50 opacity-60',
+		LOCKED: 'border-dashed border-slate-400 bg-slate-100 text-slate-600',
 		EXCLUDED: 'border-dashed border-slate-300 bg-slate-100/80 opacity-60 grayscale',
 		SKIPPED: 'border-dashed border-sky-300 bg-sky-50/70 text-slate-700'
 	};
@@ -97,7 +97,7 @@
 			if (isMobile) viewMode = 'list';
 		}
 		setTimeout(() => {
-			centerOnRecommendedOrFit();
+			initialView();
 		}, 80);
 	});
 
@@ -105,10 +105,29 @@
 		void currentPath.slug;
 		if (viewportEl) {
 			setTimeout(() => {
-				centerOnRecommendedOrFit();
+				initialView();
 			}, 50);
 		}
 	});
+
+	/** Start-Ansicht: passt der ganze CodePath gut lesbar hinein, alles zeigen – sonst die aktuelle Station */
+	function initialView() {
+		if (!viewportEl) return;
+		const vpWidth = viewportEl.clientWidth || 800;
+		const vpHeight = viewportEl.clientHeight || 500;
+		const pad = 40;
+		const fitScale = Math.min(
+			(vpWidth - pad) / Math.max(size.width, 100),
+			(vpHeight - pad) / Math.max(size.height, 100)
+		);
+		if (fitScale >= 0.8) {
+			zoom = Math.min(1, +fitScale.toFixed(2));
+			panX = Math.round((vpWidth - size.width * zoom) / 2);
+			panY = Math.round((vpHeight - size.height * zoom) / 2);
+		} else {
+			centerOnRecommendedOrFit();
+		}
+	}
 
 	function centerOnRecommendedOrFit() {
 		if (!viewportEl) return;
@@ -279,14 +298,14 @@
 {#if breadcrumbs.length > 0}
 	{@const parent = breadcrumbs[breadcrumbs.length - 1]}
 	<div
-		class="mb-3 flex flex-wrap items-center justify-between gap-3 border border-violet-200 bg-violet-50/70 px-4 py-2.5 text-xs"
+		class="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-ui)] border border-violet-200 bg-violet-50/70 px-4 py-2.5 text-sm"
 		role="navigation"
 		aria-label="Baustein-Navigation"
 	>
 		<div class="flex items-center gap-2">
 			<button
 				type="button"
-				class="font-mono text-[10px] font-black tracking-widest text-institutional-navy uppercase hover:underline"
+				class="font-mono text-[11px] font-black tracking-wider text-institutional-navy uppercase hover:underline"
 				onclick={() => goBackTo(breadcrumbs.length - 1)}
 			>
 				← Zurück zu {parent.title}
@@ -296,29 +315,32 @@
 				><PathIcon name="puzzle" size={14} />{currentPath.title}</span
 			>
 		</div>
-		<span class="font-mono text-[10px] font-bold text-violet-800 uppercase">
+		<span class="font-mono text-[11px] font-bold text-violet-800 uppercase">
 			{currentPath.stationsDone}/{currentPath.stations} erledigt
 		</span>
 	</div>
 {/if}
 
 {#if choiceError}
-	<div class="mb-3 border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700" role="alert">
+	<div
+		class="mb-3 rounded-[var(--radius-ui)] border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700"
+		role="alert"
+	>
 		{choiceError}
 	</div>
 {/if}
 
 {#each openChoices as choiceNode (choiceNode.id)}
 	<div
-		class="mb-4 border-2 border-institutional-navy bg-white p-5 shadow-sm"
+		class="mb-4 rounded-[var(--radius-ui)] border-2 border-institutional-navy bg-white p-5 shadow-[0_0_0_5px_rgba(180,83,9,0.15)]"
 		role="region"
 		aria-label="Weiche: {choiceNode.label}"
 	>
 		<div class="mb-3 flex items-center gap-2">
 			<PathIcon name="split" size={22} class="text-institutional-navy" />
 			<div>
-				<h3 class="text-sm font-black tracking-wide text-institutional-navy uppercase">
-					{choiceNode.label}: Wähle deinen Weg
+				<h3 class="text-base font-bold text-institutional-navy">
+					{choiceNode.label}
 				</h3>
 				<p class="text-xs text-slate-500">
 					Entscheide dich für einen Weg. Die anderen Wege sind danach gesperrt.
@@ -327,13 +349,15 @@
 		</div>
 		<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 			{#each choiceNode.options ?? [] as opt (opt.to)}
-				<div class="flex flex-col justify-between gap-3 border border-slate-200 bg-slate-50/60 p-4">
+				<div
+					class="flex flex-col justify-between gap-3 rounded-[var(--radius-ui-sm)] border border-slate-200 bg-slate-50 p-4"
+				>
 					<div>
 						<div class="flex items-start justify-between gap-2">
 							<span class="block text-sm font-bold text-institutional-navy">{opt.label}</span>
 							{#if opt.bonusPoints && opt.bonusPoints > 0}
 								<span
-									class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800"
+									class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-amber-800"
 								>
 									+{opt.bonusPoints} P.
 								</span>
@@ -345,7 +369,7 @@
 					</div>
 					<button
 						type="button"
-						class="bg-institutional-navy px-4 py-2 text-[10px] font-black tracking-widest text-white uppercase transition-colors hover:bg-slate-800 disabled:opacity-50"
+						class="ui-btn ui-btn-primary w-full"
 						disabled={choosing}
 						onclick={() => chooseBranch(choiceNode.id, opt.to, opt.label)}
 					>
@@ -359,7 +383,9 @@
 
 <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
 	<!-- View Switcher (Karte / Liste) -->
-	<div class="inline-flex rounded border border-slate-200 bg-white p-0.5 text-xs font-semibold">
+	<div
+		class="inline-flex rounded-[var(--radius-ui-sm)] border border-slate-300 bg-white p-0.5 text-sm font-semibold"
+	>
 		<button
 			type="button"
 			class="rounded px-3 py-1 transition-colors {viewMode === 'map'
@@ -383,10 +409,28 @@
 		</button>
 	</div>
 
+	<!-- Legende: was die Farben der Stationen bedeuten -->
+	<ul class="hidden flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-slate-600 md:flex">
+		<li class="flex items-center gap-1.5">
+			<span class="h-2.5 w-2.5 rounded-[3px] bg-emerald-500"></span>Erledigt
+		</li>
+		<li class="flex items-center gap-1.5">
+			<span class="h-2.5 w-2.5 rounded-[3px] bg-institutional-gold"></span>Empfohlen
+		</li>
+		<li class="flex items-center gap-1.5">
+			<span class="h-2.5 w-2.5 rounded-[3px] border-[1.5px] border-slate-500 bg-white"></span>Offen
+		</li>
+		<li class="flex items-center gap-1.5">
+			<span
+				class="h-2.5 w-2.5 rounded-[3px] border-[1.5px] border-dashed border-slate-500 bg-slate-200"
+			></span>Gesperrt
+		</li>
+	</ul>
+
 	<!-- Canvas Controls only visible when viewMode === 'map' -->
 	{#if viewMode === 'map'}
 		<div
-			class="inline-flex items-center gap-1 rounded border border-slate-200 bg-white p-1 text-xs shadow-sm"
+			class="inline-flex items-center gap-1 rounded-[var(--radius-ui-sm)] border border-slate-300 bg-white p-1 text-[13px]"
 			role="toolbar"
 			aria-label="Karten-Steuerung"
 		>
@@ -434,7 +478,7 @@
 
 {#if currentPath.nodes.some((n) => n.state === 'SKIPPED')}
 	<div
-		class="mb-3 flex items-center gap-2 rounded border border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 shadow-sm"
+		class="mb-3 flex items-center gap-2 rounded-[var(--radius-ui)] border border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 shadow-sm"
 		data-testid="fast-track-banner"
 	>
 		<PathIcon name="bolt" size={16} />
@@ -453,8 +497,10 @@
 			{@const blocked = node.state === 'BLOCKED'}
 			{@const excluded = node.state === 'EXCLUDED'}
 			<div
-				class="border-2 p-4 transition-all {STATE_STYLES[node.state]} {node.recommended
-					? 'ring-4 ring-institutional-gold/40'
+				class="rounded-[var(--radius-ui)] border-2 p-4 transition-all {STATE_STYLES[
+					node.state
+				]} {node.recommended
+					? '!border-institutional-navy !shadow-[0_0_0_5px_rgba(180,83,9,0.22),0_10px_24px_rgba(15,23,42,0.12)]'
 					: ''}"
 			>
 				<div class="flex items-start justify-between gap-3">
@@ -485,14 +531,14 @@
 								</h4>
 								{#if node.boss}
 									<span
-										class="rounded bg-amber-200 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-900 uppercase"
+										class="rounded bg-amber-200 px-1.5 py-0.5 font-mono text-[11px] font-black text-amber-900 uppercase"
 									>
 										<PathIcon name="crown" size={11} class="mr-0.5 inline align-[-1px]" />Boss
 									</span>
 								{/if}
 								{#if node.recommended}
 									<span
-										class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-800 uppercase"
+										class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[11px] font-black text-amber-800 uppercase"
 									>
 										Empfohlen
 									</span>
@@ -552,7 +598,7 @@
 					</div>
 					<div class="flex shrink-0 flex-col items-end gap-1">
 						<span
-							class="rounded px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider uppercase {done
+							class="rounded px-2 py-0.5 font-mono text-[11px] font-bold tracking-wider uppercase {done
 								? 'bg-emerald-100 text-emerald-800'
 								: available
 									? 'bg-institutional-navy text-white'
@@ -571,12 +617,14 @@
 				{#if node.kind === 'CHOICE' && node.state === 'AVAILABLE' && node.options?.length}
 					<div class="mt-3 grid grid-cols-1 gap-2 border-t border-slate-200 pt-3 sm:grid-cols-2">
 						{#each node.options as opt (opt.to)}
-							<div class="flex flex-col justify-between gap-2 border border-slate-200 bg-white p-3">
+							<div
+								class="flex flex-col justify-between gap-2 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-3"
+							>
 								<div class="flex items-start justify-between gap-1">
 									<span class="text-xs font-bold text-institutional-navy">{opt.label}</span>
 									{#if opt.bonusPoints && opt.bonusPoints > 0}
 										<span
-											class="rounded bg-amber-100 px-1 font-mono text-[9px] font-bold text-amber-800"
+											class="rounded bg-amber-100 px-1 font-mono text-[11px] font-bold text-amber-800"
 										>
 											+{opt.bonusPoints} P.
 										</span>
@@ -587,7 +635,7 @@
 								{/if}
 								<button
 									type="button"
-									class="mt-1 bg-institutional-navy px-3 py-1.5 text-[10px] font-black tracking-wider text-white uppercase hover:bg-slate-800 disabled:opacity-50"
+									class="mt-1 rounded-[var(--radius-ui-sm)] bg-institutional-navy px-3 py-1.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
 									disabled={choosing}
 									onclick={() => chooseBranch(node.id, opt.to, opt.label)}
 								>
@@ -600,7 +648,7 @@
 					<div class="mt-3 border-t border-slate-200 pt-2">
 						<button
 							type="button"
-							class="w-full bg-violet-700 px-3 py-2 text-center text-xs font-bold tracking-wide text-white uppercase hover:bg-violet-800"
+							class="w-full rounded-[var(--radius-ui-sm)] bg-violet-700 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-violet-800"
 							onclick={() => openSubpath(node.path!)}
 						>
 							CodePath-Baustein öffnen →
@@ -610,7 +658,7 @@
 					<div class="mt-3 border-t border-slate-200 pt-2">
 						<a
 							href={node.href}
-							class="block w-full bg-institutional-navy px-3 py-2 text-center text-xs font-bold tracking-wide text-white uppercase hover:bg-slate-800"
+							class="block w-full rounded-[var(--radius-ui-sm)] bg-institutional-navy px-3 py-2 text-center text-sm font-semibold text-white hover:bg-slate-800"
 						>
 							Öffnen →
 						</a>
@@ -624,7 +672,7 @@
 		bind:this={viewportEl}
 		role="region"
 		aria-label="CodePath-Netzwerkkarte"
-		class="relative h-[calc(100vh-320px)] max-h-[820px] min-h-[480px] w-full cursor-grab touch-none overflow-hidden border border-slate-200 bg-slate-50/60 select-none active:cursor-grabbing"
+		class="relative h-[calc(100vh-320px)] max-h-[820px] min-h-[480px] w-full cursor-grab touch-none overflow-hidden rounded-[var(--radius-ui)] border border-slate-200 bg-[#fafbfc] bg-[radial-gradient(#d5dbe3_1px,transparent_1px)] [background-size:22px_22px] select-none active:cursor-grabbing"
 		data-testid="path-map"
 		onpointerdown={handlePointerDown}
 		onpointermove={handlePointerMove}
@@ -679,7 +727,7 @@
 						<path
 							d={edgePath(from, to, slot.index, slot.count)}
 							fill="none"
-							stroke-width="2.5"
+							stroke-width="3"
 							class={done
 								? 'stroke-emerald-500'
 								: required
@@ -736,21 +784,19 @@
 								size={20}
 								class="text-amber-700"
 							/>
-							<span
-								class="max-w-full truncate text-xs font-black tracking-wide text-institutional-navy uppercase"
-							>
+							<span class="max-w-full truncate text-[13px] font-bold text-institutional-navy">
 								{node.label}
 							</span>
 							{#if node.gateProgress}
 								<div
-									class="flex items-center gap-1 font-mono text-[9px] font-bold {node.gateProgress
+									class="flex items-center gap-1 font-mono text-[11px] font-bold {node.gateProgress
 										.satisfied
 										? 'text-emerald-700'
 										: 'text-amber-800'}"
 								>
 									<span>{node.gateProgress.percent}% / {node.requirement?.minPercent}%</span>
 									{#if node.gateProgress.missingPoints > 0}
-										<span class="rounded bg-amber-200 px-1 text-[8px]"
+										<span class="rounded bg-amber-200 px-1 text-[11px]"
 											>-{node.gateProgress.missingPoints}P</span
 										>
 									{/if}
@@ -777,19 +823,18 @@
 								size={20}
 								class={node.state === 'DONE' ? 'text-institutional-gold' : 'text-slate-500'}
 							/>
-							<span
-								class="max-w-full truncate text-xs font-black tracking-wide text-institutional-navy uppercase"
-							>
+							<span class="max-w-full truncate text-[13px] font-bold text-institutional-navy">
 								{node.label}
 							</span>
 						</div>
 					{/if}
 				{:else if node.kind === 'CHOICE'}
 					<div
-						class="absolute flex flex-col justify-between border-2 p-3 {node.state === 'DONE'
+						class="absolute flex flex-col justify-between overflow-hidden rounded-[var(--radius-ui)] border-2 p-3 {node.state ===
+						'DONE'
 							? 'border-emerald-400 bg-emerald-50'
 							: node.state === 'AVAILABLE'
-								? 'border-institutional-navy bg-white shadow-md ring-4 ring-institutional-gold/40'
+								? '!border-institutional-navy border-institutional-navy bg-white shadow-[0_0_0_5px_rgba(180,83,9,0.22),0_10px_24px_rgba(15,23,42,0.12)] shadow-md'
 								: 'border-amber-300 bg-amber-50/50'}"
 						{style}
 						title={node.reason ?? undefined}
@@ -801,15 +846,12 @@
 								size={20}
 								class="text-institutional-navy"
 							/>
-							<span
-								class="line-clamp-2 text-xs font-black tracking-wide text-institutional-navy uppercase"
-							>
+							<span class="line-clamp-2 text-[13px] font-bold text-institutional-navy">
 								{node.label}
 							</span>
 						</div>
 						<span
-							class="line-clamp-1 font-mono text-[9px] font-bold tracking-widest uppercase {node.state ===
-							'DONE'
+							class="line-clamp-1 text-xs font-semibold {node.state === 'DONE'
 								? 'text-emerald-700'
 								: node.state === 'AVAILABLE'
 									? 'text-institutional-navy'
@@ -820,7 +862,8 @@
 					</div>
 				{:else if node.kind === 'BONUS'}
 					<div
-						class="absolute flex flex-col justify-between border-2 p-3 {node.state === 'DONE'
+						class="absolute flex flex-col justify-between overflow-hidden rounded-[var(--radius-ui)] border-2 p-3 {node.state ===
+						'DONE'
 							? 'border-amber-400 bg-amber-50 shadow-sm'
 							: node.state === 'BLOCKED'
 								? 'border-amber-300 bg-amber-50/40 opacity-85'
@@ -832,20 +875,21 @@
 						<div class="flex items-start justify-between gap-2">
 							<div class="flex items-center gap-2">
 								<PathIcon name="star" size={20} class="text-amber-600" />
-								<span class="line-clamp-2 text-sm leading-tight font-bold text-institutional-navy">
+								<span
+									class="line-clamp-2 text-[13.5px] leading-tight font-bold tracking-tight text-institutional-navy"
+								>
 									{node.label}
 								</span>
 							</div>
 							<span
-								class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800"
+								class="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-amber-800"
 							>
 								+{node.points ?? 10} P.
 							</span>
 						</div>
 						<div class="flex items-center justify-between gap-2">
 							<span
-								class="line-clamp-1 font-mono text-[9px] font-bold tracking-widest uppercase {node.state ===
-								'DONE'
+								class="line-clamp-1 text-xs font-semibold {node.state === 'DONE'
 									? 'text-amber-700'
 									: 'text-slate-400'}"
 							>
@@ -859,7 +903,8 @@
 				{:else if node.kind === 'AND' || node.kind === 'OR'}
 					{@const needed = node.kind === 'OR' ? (node.min ?? 1) : node.total}
 					<div
-						class="absolute flex flex-col justify-between border-2 p-3 {node.state === 'DONE'
+						class="absolute flex flex-col justify-between overflow-hidden rounded-[var(--radius-ui)] border-2 p-3 {node.state ===
+						'DONE'
 							? 'border-emerald-400 bg-emerald-50'
 							: node.state === 'BLOCKED'
 								? 'border-amber-300 bg-amber-50/50'
@@ -875,19 +920,16 @@
 								{node.icon}
 							</span>
 							<div class="min-w-0">
-								<span
-									class="block truncate text-xs font-black tracking-wide text-institutional-navy uppercase"
-								>
+								<span class="block truncate text-[13px] font-bold text-institutional-navy">
 									{node.label}
 								</span>
-								<span class="block font-mono text-[10px] font-bold text-slate-600">
+								<span class="block font-mono text-[11px] font-bold text-slate-600">
 									{node.done} von {needed} erfüllt
 								</span>
 							</div>
 						</div>
 						<span
-							class="line-clamp-1 font-mono text-[9px] font-bold tracking-widest uppercase {node.state ===
-							'DONE'
+							class="line-clamp-1 text-xs font-semibold {node.state === 'DONE'
 								? 'text-emerald-700'
 								: 'text-amber-700'}"
 						>
@@ -901,11 +943,13 @@
 						type={canOpen ? 'button' : undefined}
 						role={canOpen ? undefined : 'group'}
 						onclick={canOpen ? () => openSubpath(node.path!) : undefined}
-						class="absolute flex flex-col justify-between border-2 p-3 text-left transition-all {STATE_STYLES[
+						class="absolute flex flex-col justify-between overflow-hidden rounded-[var(--radius-ui)] border-2 p-3 text-left transition-all {STATE_STYLES[
 							node.state
 						]} {canOpen
 							? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-lg'
-							: ''} {node.recommended ? 'ring-4 ring-institutional-gold/40' : ''}"
+							: ''} {node.recommended
+							? '!border-institutional-navy !shadow-[0_0_0_5px_rgba(180,83,9,0.22),0_10px_24px_rgba(15,23,42,0.12)]'
+							: ''}"
 						{style}
 						title={node.reason ?? undefined}
 						aria-label="{node.label}: {node.state === 'EXCLUDED'
@@ -922,13 +966,14 @@
 								size={20}
 								class="text-violet-800"
 							/>
-							<span class="line-clamp-2 text-sm leading-tight font-bold text-institutional-navy"
+							<span
+								class="line-clamp-2 text-[13.5px] leading-tight font-bold tracking-tight text-institutional-navy"
 								>{node.state === 'EXCLUDED' ? `${node.label} – nicht gewählt` : node.label}</span
 							>
 						</div>
 						<div class="flex items-center justify-between gap-2">
 							<span
-								class="line-clamp-1 font-mono text-[9px] font-bold tracking-widest uppercase {node.recommended
+								class="line-clamp-1 text-xs font-semibold {node.recommended
 									? 'text-institutional-gold'
 									: node.state === 'DONE'
 										? 'text-emerald-700'
@@ -945,7 +990,7 @@
 											: STATE_LABELS[node.state]}
 							</span>
 							{#if node.total > 0}
-								<span class="shrink-0 font-mono text-[9px] text-slate-400"
+								<span class="shrink-0 font-mono text-[11px] text-slate-400"
 									>{node.done}/{node.total}</span
 								>
 							{/if}
@@ -965,13 +1010,15 @@
 					<svelte:element
 						this={node.href ? 'a' : 'div'}
 						href={node.href ?? undefined}
-						class="absolute flex flex-col justify-between border-2 p-3 transition-all {isBoss
+						class="absolute flex flex-col justify-between overflow-hidden rounded-[var(--radius-ui)] border-2 p-3 transition-all {isBoss
 							? node.state === 'DONE'
 								? 'border-amber-400 bg-amber-50 shadow-sm ring-2 ring-amber-300'
 								: 'border-purple-600 bg-purple-50/40 shadow-sm ring-2 ring-purple-400/40'
 							: STATE_STYLES[node.state]} {node.href
 							? 'hover:-translate-y-0.5 hover:shadow-lg'
-							: ''} {node.recommended ? 'ring-4 ring-institutional-gold/40' : ''}"
+							: ''} {node.recommended
+							? '!border-institutional-navy !shadow-[0_0_0_5px_rgba(180,83,9,0.22),0_10px_24px_rgba(15,23,42,0.12)]'
+							: ''}"
 						{style}
 						title={node.reason ?? undefined}
 						aria-label="{node.label}: {node.state === 'EXCLUDED'
@@ -983,7 +1030,7 @@
 								class="mb-1 flex w-full items-center justify-between gap-1 border-b border-purple-200/60 pb-1"
 							>
 								<span
-									class="inline-flex items-center gap-1 rounded bg-amber-200/90 px-1.5 py-0.5 font-mono text-[9px] font-black text-amber-900 uppercase"
+									class="inline-flex items-center gap-1 rounded bg-amber-200/90 px-1.5 py-0.5 font-mono text-[11px] font-black text-amber-900 uppercase"
 								>
 									<PathIcon name="crown" size={11} />Boss
 								</span>
@@ -995,7 +1042,7 @@
 											e.stopPropagation();
 											activeGateNode = node;
 										}}
-										class="cursor-pointer rounded bg-purple-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-purple-900 hover:bg-purple-200"
+										class="cursor-pointer rounded bg-purple-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-purple-900 hover:bg-purple-200"
 										title="Punkte-Details anzeigen"
 									>
 										{node.gateProgress.percent}% / {node.requirement?.minPercent}% ℹ
@@ -1019,13 +1066,14 @@
 									class="text-institutional-navy"
 								/>
 							{/if}
-							<span class="line-clamp-2 text-sm leading-tight font-bold text-institutional-navy"
+							<span
+								class="line-clamp-2 text-[13.5px] leading-tight font-bold tracking-tight text-institutional-navy"
 								>{node.state === 'EXCLUDED' ? `${node.label} – nicht gewählt` : node.label}</span
 							>
 						</div>
 						<div class="flex items-center justify-between gap-2">
 							<span
-								class="line-clamp-1 font-mono text-[9px] font-bold tracking-widest uppercase {node.recommended
+								class="line-clamp-1 text-xs font-semibold {node.recommended
 									? 'text-institutional-gold'
 									: node.state === 'DONE'
 										? 'text-emerald-700'
@@ -1047,13 +1095,13 @@
 										e.stopPropagation();
 										activeGateNode = node;
 									}}
-									class="shrink-0 cursor-pointer rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-900 hover:bg-amber-200"
+									class="shrink-0 cursor-pointer rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-amber-900 hover:bg-amber-200"
 									title="Punkte-Details anzeigen"
 								>
 									{node.gateProgress.percent}% / {node.requirement?.minPercent}%
 								</button>
 							{:else if node.kind === 'MODULE' && node.total > 0}
-								<span class="shrink-0 font-mono text-[9px] text-slate-400"
+								<span class="shrink-0 font-mono text-[11px] text-slate-400"
 									>{node.done}/{node.total}</span
 								>
 							{/if}
@@ -1187,17 +1235,17 @@
 								>
 									<div class="min-w-0">
 										<p class="truncate text-xs font-bold text-slate-800">{t.title}</p>
-										<p class="font-mono text-[10px] text-slate-500">Modul: {t.moduleSlug}</p>
+										<p class="font-mono text-[11px] text-slate-500">Modul: {t.moduleSlug}</p>
 									</div>
 									<div class="flex shrink-0 items-center gap-2">
 										<span
-											class="rounded bg-amber-100 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-800"
+											class="rounded bg-amber-100 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-800"
 										>
 											+{t.potentialPoints} P.
 										</span>
 										<a
 											href="/modules/{t.moduleSlug}/{t.taskSlug}"
-											class="rounded bg-institutional-navy px-2 py-1 text-[10px] font-bold text-white hover:bg-slate-800"
+											class="rounded bg-institutional-navy px-2 py-1 text-[11px] font-bold text-white hover:bg-slate-800"
 										>
 											Öffnen →
 										</a>
@@ -1217,7 +1265,7 @@
 				<div class="flex justify-end border-t border-slate-200 pt-2">
 					<button
 						type="button"
-						class="cursor-pointer rounded bg-slate-200 px-4 py-1.5 text-xs font-bold tracking-wider text-slate-800 uppercase hover:bg-slate-300"
+						class="cursor-pointer rounded bg-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-800 hover:bg-slate-300"
 						onclick={() => (activeGateNode = null)}
 					>
 						Schließen

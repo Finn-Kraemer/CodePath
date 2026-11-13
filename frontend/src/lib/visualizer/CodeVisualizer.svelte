@@ -164,7 +164,7 @@
 	data-testid="code-visualizer"
 >
 	<div class="mb-4 flex items-center justify-between gap-4">
-		<h3 class="font-sans text-xs font-black tracking-[3px] text-institutional-navy uppercase">
+		<h3 class="font-sans text-xs font-black tracking-wider text-institutional-navy uppercase">
 			{title}
 		</h3>
 		{#if onclose}
@@ -239,9 +239,7 @@
 
 				<div class="space-y-4">
 					<div>
-						<p
-							class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
-						>
+						<p class="mb-2 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 							Aufrufstapel und Variablen
 						</p>
 						<div class="space-y-2" data-testid="visualizer-frames">
@@ -255,7 +253,7 @@
 								>
 									<p class="mb-1 font-mono text-[11px] font-bold text-institutional-navy">
 										{frame.func === '<module>' ? 'Hauptprogramm' : `${frame.func}()`}
-										{#if active}<span class="ml-2 text-[9px] text-slate-400 uppercase">aktiv</span
+										{#if active}<span class="ml-2 text-[11px] text-slate-400 uppercase">aktiv</span
 											>{/if}
 									</p>
 									{#if Object.keys(frame.locals).length === 0}
@@ -270,7 +268,7 @@
 													<td class="py-0.5 text-slate-900"
 														>{label(value)}
 														{#if isNew}<span
-																class="ml-1 border border-amber-400 px-1 text-[9px] font-black text-amber-700 uppercase"
+																class="ml-1 border border-amber-400 px-1 text-[11px] font-black text-amber-700 uppercase"
 																>neu</span
 															>{/if}</td
 													>
@@ -291,7 +289,7 @@
 					{#if objects.length}
 						<div>
 							<p
-								class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+								class="mb-2 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 							>
 								Listen und andere Objekte
 							</p>
@@ -320,7 +318,7 @@
 														: 'border-slate-300 bg-white'}"
 												>
 													{#if object.k === 'list' || object.k === 'tuple'}
-														<span class="block text-[9px] text-slate-400">{i}</span>
+														<span class="block text-[11px] text-slate-400">{i}</span>
 													{/if}
 													{#if Array.isArray(item)}
 														{formatValue(item[0], step?.heap ?? {})}: {formatValue(
@@ -349,9 +347,7 @@
 					{/if}
 
 					<div>
-						<p
-							class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
-						>
+						<p class="mb-2 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 							Ausgabe
 						</p>
 						<pre

@@ -86,7 +86,7 @@
 </script>
 
 <div
-	class="flex flex-col rounded-none border border-slate-200
+	class="flex flex-col border border-slate-200
             {disabled ? 'pointer-events-none opacity-60' : ''}"
 >
 	<EditorToolbar {editor} />

@@ -79,7 +79,7 @@
 
 	<div class="grid gap-6 lg:grid-cols-[1fr_auto]">
 		<section aria-label="Gatter">
-			<h3 class="mb-3 text-xs font-black tracking-widest text-slate-500 uppercase">
+			<h3 class="mb-3 text-xs font-black tracking-wider text-slate-500 uppercase">
 				Gatter ({circuit.gates.length} von höchstens {maxGates})
 			</h3>
 			<div class="space-y-2">
@@ -147,7 +147,7 @@
 		</section>
 
 		<section aria-label="Wahrheitstabelle">
-			<h3 class="mb-3 text-xs font-black tracking-widest text-slate-500 uppercase">
+			<h3 class="mb-3 text-xs font-black tracking-wider text-slate-500 uppercase">
 				Wahrheitstabelle
 			</h3>
 			<table class="border-collapse font-mono text-sm">

@@ -95,10 +95,10 @@
 	<header class="border-b border-slate-200 pb-8">
 		<a
 			href="/admin"
-			class="mb-6 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-institutional-navy"
-			>← Zurück zur Administration</a
+			class="mb-6 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase transition-colors hover:text-institutional-navy"
+			>← Leitstand</a
 		>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+		<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 			Modul-Steuerung
 		</h1>
 		<p class="mt-4 text-slate-500">
@@ -126,7 +126,7 @@
 			{#each modules as mod (mod.id)}
 				<div
 					data-module={mod.slug}
-					class="flex flex-col rounded-none border border-slate-200 bg-white shadow-sm transition-all hover:border-slate-300"
+					class="flex flex-col rounded-[var(--radius-ui)] border border-slate-200 bg-white shadow-sm transition-all hover:border-slate-300"
 				>
 					<div class="flex items-center justify-between border-b border-slate-50 p-8">
 						<div class="flex items-center gap-6">
@@ -138,12 +138,12 @@
 									{mod.title}
 								</h3>
 								<p
-									class="mt-1 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+									class="mt-1 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 								>
 									REF: {mod.slug} · {mod.taskCount} Aufgaben · {mod.maxPoints} P.
 								</p>
 								{#if mod.adjustedTasks > 0}
-									<p class="mt-1 text-[10px] font-bold text-amber-700" data-adjusted>
+									<p class="mt-1 text-[11px] font-bold text-amber-700" data-adjusted>
 										{mod.adjustedTasks}
 										{mod.adjustedTasks === 1 ? 'Aufgabe' : 'Aufgaben'} einzeln eingestellt
 									</p>
@@ -155,7 +155,7 @@
 							<button
 								onclick={() => toggleModule(mod)}
 								disabled={processingIds.has(mod.id)}
-								class="rounded-none border border-rose-200 bg-rose-50 px-5 py-2.5 text-[10px] font-black tracking-widest text-rose-700 uppercase transition-all hover:bg-rose-100 disabled:opacity-50"
+								class="rounded-[var(--radius-ui-sm)] border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-semibold text-rose-700 transition-all hover:bg-rose-100 disabled:opacity-50"
 							>
 								{processingIds.has(mod.id) ? '...' : 'Sperren'}
 							</button>
@@ -163,7 +163,7 @@
 							<button
 								onclick={() => toggleModule(mod)}
 								disabled={processingIds.has(mod.id)}
-								class="rounded-none border border-teal-200 bg-teal-50 px-5 py-2.5 text-[10px] font-black tracking-widest text-teal-700 uppercase transition-all hover:bg-teal-100 disabled:opacity-50"
+								class="rounded-[var(--radius-ui-sm)] border border-teal-200 bg-teal-50 px-5 py-2.5 text-sm font-semibold text-teal-700 transition-all hover:bg-teal-100 disabled:opacity-50"
 							>
 								{processingIds.has(mod.id) ? '...' : 'Freigeben'}
 							</button>
@@ -172,7 +172,7 @@
 
 					<div class="space-y-4 bg-slate-50/50 p-8">
 						<label
-							class="block font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+							class="block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 							>End-Uhrzeit (Heute)</label
 						>
 						<div class="flex gap-2">
@@ -180,17 +180,17 @@
 								type="time"
 								value={mod.availableUntil ? formatTime(mod.availableUntil) : ''}
 								onchange={(e) => setDeadline(mod, e.currentTarget.value)}
-								class="flex-1 rounded-none border border-slate-200 bg-white px-4 py-2 font-mono text-xs transition-all outline-none focus:border-institutional-navy"
+								class="flex-1 rounded-[var(--radius-ui)] border border-slate-200 bg-white px-4 py-2 font-mono text-xs transition-all outline-none focus:border-institutional-navy"
 							/>
 							{#if mod.availableUntil}
 								<button
 									onclick={() => setDeadline(mod, '')}
-									class="px-4 text-[10px] font-bold text-rose-600 uppercase transition-all hover:bg-rose-50"
+									class="rounded-[var(--radius-ui-sm)] px-4 text-sm font-semibold text-rose-600 transition-all hover:bg-rose-50"
 									>Entfernen</button
 								>
 							{/if}
 						</div>
-						<p class="text-[10px] text-slate-400 italic">
+						<p class="text-[11px] text-slate-400 italic">
 							Geben Sie nur die Uhrzeit an. Das Datum wird automatisch auf den heutigen Tag gesetzt.
 						</p>
 					</div>

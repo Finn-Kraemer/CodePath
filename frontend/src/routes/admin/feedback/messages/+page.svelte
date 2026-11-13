@@ -61,10 +61,10 @@
 <div class="mx-auto flex max-w-7xl flex-col pb-24">
 	<a
 		href="/admin"
-		class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+		class="mb-6 inline-flex font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 		>← Leitstand</a
 	>
-	<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+	<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 		Feedback &amp; Bewertung
 	</h1>
 	<p class="mt-2 mb-8 text-sm text-slate-500">
@@ -74,7 +74,7 @@
 
 	<div class="mb-8 flex flex-wrap items-center gap-6 border border-slate-200 bg-slate-50 p-6">
 		<div class="flex flex-1 flex-col">
-			<span class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+			<span class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 				>Nachrichten-Runde</span
 			>
 			<span
@@ -88,7 +88,7 @@
 		<button
 			onclick={toggleStatus}
 			disabled={toggling}
-			class="px-6 py-3 font-mono text-[10px] font-bold tracking-widest text-white uppercase disabled:opacity-50 {enabled
+			class="px-6 py-3 font-mono text-[11px] font-bold tracking-wider text-white uppercase disabled:opacity-50 {enabled
 				? 'bg-rose-600 hover:bg-rose-700'
 				: 'bg-teal-600 hover:bg-teal-700'}"
 		>
@@ -106,18 +106,18 @@
 		<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
 			{#each feedbacks as f (f.id)}
 				<div
-					class="flex h-full flex-col rounded-none border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md"
+					class="flex h-full flex-col rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md"
 				>
 					<div class="mb-6 flex items-center justify-between border-b border-slate-50 pb-4">
 						<div class="flex flex-col">
 							<span class="font-sans text-sm font-bold text-institutional-navy"
 								>{f.displayName || f.username}</span
 							>
-							<span class="font-mono text-[9px] tracking-widest text-slate-400 uppercase"
+							<span class="font-mono text-[11px] tracking-wider text-slate-400 uppercase"
 								>@{f.username}</span
 							>
 						</div>
-						<span class="font-mono text-[9px] text-slate-400">{formatDate(f.submittedAt)}</span>
+						<span class="font-mono text-[11px] text-slate-400">{formatDate(f.submittedAt)}</span>
 					</div>
 					<div class="prose prose-sm flex-grow">
 						<p class="font-serif leading-relaxed whitespace-pre-line text-slate-600 italic">

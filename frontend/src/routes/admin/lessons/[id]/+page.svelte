@@ -164,7 +164,7 @@
 		<div class="flex-1">
 			<a
 				href="/admin/lessons"
-				class="mb-4 inline-block font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+				class="mb-4 inline-block font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 				>← Alle Abläufe</a
 			>
 			<input
@@ -177,21 +177,21 @@
 			/>
 		</div>
 		<div class="flex items-center gap-3">
-			<span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase"
+			<span class="font-mono text-[11px] tracking-wider text-slate-400 uppercase"
 				>{dirty ? 'Ungespeichert' : 'Gespeichert'}</span
 			>
 			<button class="ed-button bg-white" onclick={save} data-testid="lesson-save">Speichern</button>
 			{#if lesson?.status === 'RUNNING'}
 				<a
 					href="/admin/lessons/{id}/run"
-					class="bg-emerald-700 px-6 py-3 text-xs font-black tracking-widest text-white uppercase"
+					class="rounded-[var(--radius-ui-sm)] bg-emerald-700 px-6 py-3 text-sm font-semibold text-white"
 					>Zur laufenden Stunde</a
 				>
 			{:else}
 				<button
 					onclick={startLesson}
 					disabled={!courseId || steps.length === 0}
-					class="bg-institutional-navy px-6 py-3 text-xs font-black tracking-widest text-white uppercase disabled:opacity-40"
+					class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white disabled:opacity-40"
 					data-testid="lesson-start">Stunde starten</button
 				>
 			{/if}
@@ -203,7 +203,9 @@
 		</div>{/if}
 	{#if message}<p class="text-xs text-emerald-700" role="status">{message}</p>{/if}
 
-	<section class="flex flex-wrap items-end gap-4 border border-slate-200 bg-white p-6 text-sm">
+	<section
+		class="flex flex-wrap items-end gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6 text-sm"
+	>
 		<label
 			>Kurs<br /><select
 				bind:value={courseId}
@@ -235,11 +237,11 @@
 
 	<ol class="space-y-3" data-testid="lesson-steps">
 		{#each steps as step, i (step)}
-			<li class="border border-slate-200 bg-white p-4 text-sm">
+			<li class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4 text-sm">
 				<div class="mb-3 flex flex-wrap items-center gap-3">
 					<span class="font-mono text-xs font-black text-slate-400">{i + 1}</span>
 					<span
-						class="bg-slate-100 px-2 py-0.5 font-mono text-[10px] font-bold tracking-widest uppercase"
+						class="bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-bold tracking-wider uppercase"
 						>{TYPE_LABEL[step.type]}</span
 					>
 					<input

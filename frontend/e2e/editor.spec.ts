@@ -41,7 +41,7 @@ test('Aufgabe im Editor anlegen und veröffentlichen', async ({ page }) => {
 	await expect(page.getByText('Prüfung bestanden')).toBeVisible();
 	await page.getByRole('button', { name: 'Veröffentlichen' }).click();
 	await expect(page.getByRole('status')).toContainText('Veröffentlicht');
-	await expect(page.getByText(/veröffentlicht: v1/)).toBeVisible();
+	await expect(page.getByText(/Veröffentlicht · v1/)).toBeVisible();
 
 	// Lehrkraft sieht die Aufgabe sofort in der Schüleransicht
 	await page.goto(`/modules/git/${slug}`);

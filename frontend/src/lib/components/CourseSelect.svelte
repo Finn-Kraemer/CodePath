@@ -18,7 +18,7 @@
 	>
 {:else}
 	<label
-		class="flex items-center gap-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+		class="flex items-center gap-3 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 	>
 		Kurs
 		<select

@@ -1071,31 +1071,31 @@
 	<header class="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-slate-200 pb-3">
 		<a
 			href="/admin/codepaths"
-			class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+			class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 			>← CodePaths</a
 		>
 		<h1
-			class="min-w-0 truncate font-sans text-xl font-extrabold tracking-tight text-institutional-navy uppercase"
+			class="min-w-0 truncate font-sans text-xl font-extrabold tracking-tight text-institutional-navy"
 		>
 			{form.title || 'CodePath'}
 		</h1>
 		{#if saved}
 			<span
-				class="border px-2 py-0.5 font-mono text-[10px] font-bold tracking-widest uppercase {form.published
+				class="border px-2 py-0.5 font-mono text-[11px] font-bold tracking-wider uppercase {form.published
 					? 'border-emerald-300 bg-emerald-50 text-emerald-800'
 					: 'border-slate-300 text-slate-500'}"
 				>{form.published ? 'Veröffentlicht' : 'Entwurf'}</span
 			>
-			<span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase"
+			<span class="font-mono text-[11px] tracking-wider text-slate-400 uppercase"
 				>{courseName ? `Kurs ${courseName}` : 'Alle Kurse'} · {nodes.length} Stationen</span
 			>
 			<span class="flex-1"></span>
 			{#if message}
-				<span class="text-[11px] font-bold tracking-widest text-teal-700 uppercase" role="status"
+				<span class="text-[11px] font-bold tracking-wider text-teal-700 uppercase" role="status"
 					>{message}</span
 				>
 			{:else if dirty}
-				<span class="text-[11px] font-bold tracking-widest text-amber-700 uppercase"
+				<span class="text-[11px] font-bold tracking-wider text-amber-700 uppercase"
 					>Ungespeichert</span
 				>
 			{/if}
@@ -1132,7 +1132,10 @@
 			style="--shell-h: {shellHeight}px"
 		>
 			<!-- Bausteine -->
-			<aside class="flex min-h-0 flex-col border border-slate-200 bg-white" aria-label="Bausteine">
+			<aside
+				class="flex min-h-0 flex-col rounded-[var(--radius-ui)] border border-slate-200 bg-white"
+				aria-label="Bausteine"
+			>
 				<div class="border-b border-slate-100 p-3">
 					<h2 class="ed-label">Bausteine</h2>
 					<ul class="mt-2 flex flex-col gap-1.5">
@@ -1254,7 +1257,7 @@
 											>{m.module.title}</span
 										>
 										{#if count}<span
-												class="font-mono text-[10px] text-slate-400"
+												class="font-mono text-[11px] text-slate-400"
 												title="{count}× im CodePath">{count}×</span
 											>{/if}
 									</button>
@@ -1461,7 +1464,7 @@
 								{#if from && to && text}
 									<button
 										type="button"
-										class="absolute max-w-36 -translate-x-1/2 -translate-y-1/2 truncate border px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase {edge
+										class="absolute max-w-36 -translate-x-1/2 -translate-y-1/2 truncate border px-1.5 py-0.5 font-mono text-[11px] font-bold uppercase {edge
 											.condition?.rule
 											? 'border-sky-300 bg-sky-50 text-sky-800'
 											: 'border-slate-300 bg-white text-slate-600'}"
@@ -1548,7 +1551,7 @@
 										>
 									</div>
 									<span
-										class="font-mono text-[9px] font-bold tracking-widest uppercase {open
+										class="font-mono text-[11px] font-bold tracking-wider uppercase {open
 											? 'text-amber-700'
 											: 'text-slate-400'}"
 										>{open
@@ -1611,7 +1614,7 @@
 
 			<!-- Eigenschaften -->
 			<aside
-				class="flex min-h-0 flex-col overflow-y-auto border border-slate-200 bg-white"
+				class="flex min-h-0 flex-col overflow-y-auto rounded-[var(--radius-ui)] border border-slate-200 bg-white"
 				aria-label="Eigenschaften"
 			>
 				{#if selectedEdge}
@@ -1817,7 +1820,7 @@
 							<legend class="ed-label mb-1.5">Art</legend>
 							{#each [{ title: 'Inhalt', list: CONTENT_VARIANTS }, { title: 'Steuerung', list: FLOW_VARIANTS }] as group (group.title)}
 								<span
-									class="mt-1 font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+									class="mt-1 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 									>{group.title}</span
 								>
 								<div class="grid grid-cols-2 gap-1.5">
@@ -2037,8 +2040,10 @@
 
 						{#if v === 'MODULE' || v === 'PART' || v === 'TASK' || v === 'MILESTONE'}
 							{@const req = node.requirement}
-							<fieldset class="flex flex-col gap-2 border border-slate-200 bg-slate-50/60 p-3">
-								<legend class="ed-label px-1">Punkte-Tor</legend>
+							<fieldset
+								class="flex flex-col gap-2 rounded-[var(--radius-ui)] border border-slate-200 bg-slate-50/60 bg-white p-3"
+							>
+								<legend class="ed-label px-1.5 !text-institutional-navy">Punkte-Tor</legend>
 								<label class="flex items-center gap-2 text-xs text-slate-800"
 									><input
 										type="checkbox"
@@ -2153,7 +2158,7 @@
 													: 'alle Vorgänger'})</summary
 											>
 											<div
-												class="mt-1.5 flex max-h-36 flex-col gap-1 overflow-y-auto border border-slate-200 bg-white p-2"
+												class="mt-1.5 flex max-h-36 flex-col gap-1 overflow-y-auto rounded-[var(--radius-ui)] border border-slate-200 bg-white p-2"
 											>
 												{#each scopeCandidates as cand (cand.id)}
 													<label class="flex items-center gap-2"
@@ -2215,7 +2220,7 @@
 											}}
 											title="Verbindung bearbeiten"
 											>→ {label(byId.get(edge.to)!)}{#if edge.condition?.rule}<span
-													class="ml-1 font-mono text-[10px] text-sky-700 uppercase"
+													class="ml-1 font-mono text-[11px] text-sky-700 uppercase"
 													>· {CONDITION_LABELS[edge.condition.rule]}</span
 												>{/if}</button
 										>
@@ -2409,20 +2414,20 @@
 									>
 										<span class="flex items-center gap-1 font-bold text-institutional-navy"
 											><PathIcon name="split" size={13} />{stat.nodeLabel}{#if stat.subpath}<span
-													class="ml-1 font-mono text-[9px] text-violet-700 uppercase"
+													class="ml-1 font-mono text-[11px] text-violet-700 uppercase"
 													>· {stat.pathTitle}</span
 												>{/if}</span
 										>
 										{#each stat.branches ?? [] as b (b.to)}
 											<div
-												class="flex items-center justify-between gap-2 border border-slate-200 bg-white px-2 py-1"
+												class="flex items-center justify-between gap-2 rounded-[var(--radius-ui)] border border-slate-200 bg-white px-2 py-1"
 											>
 												<span class="truncate">{b.label} ({b.count}/{stat.totalStudents})</span>
 												<span class="flex shrink-0 gap-1">
 													<button
 														type="button"
 														disabled={busy}
-														class="border border-slate-200 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase hover:border-institutional-navy"
+														class="rounded-[var(--radius-ui-sm)] border border-slate-200 px-1.5 py-0.5 text-sm font-semibold hover:border-institutional-navy"
 														onclick={() =>
 															runCourseAction({
 																action: 'SET_CHOICE',
@@ -2434,7 +2439,7 @@
 													<button
 														type="button"
 														disabled={busy}
-														class="border border-slate-200 px-1.5 py-0.5 font-mono text-[9px] font-bold text-sky-700 uppercase hover:border-sky-500"
+														class="rounded-[var(--radius-ui-sm)] border border-slate-200 px-1.5 py-0.5 text-sm font-semibold text-sky-700 hover:border-sky-500"
 														onclick={() =>
 															runCourseAction({
 																action: 'UNLOCK_BRANCH',
@@ -2461,7 +2466,7 @@
 											<button
 												type="button"
 												disabled={busy}
-												class="border border-rose-200 bg-white px-2 py-0.5 font-mono text-[9px] font-bold text-rose-700 uppercase hover:bg-rose-50"
+												class="rounded-[var(--radius-ui-sm)] border border-rose-200 bg-white px-2 py-0.5 text-sm font-semibold text-rose-700 hover:bg-rose-50"
 												onclick={() =>
 													runCourseAction({
 														action: 'RESET_CHOICE',
@@ -2488,7 +2493,7 @@
 											<span class="font-bold text-institutional-navy"
 												>{stats[0]?.nodeLabel ?? gateId}</span
 											>
-											<span class="ml-1 font-mono text-[10px] text-slate-500"
+											<span class="ml-1 font-mono text-[11px] text-slate-500"
 												>≥ {stats[0]?.minPercent ?? 80} % · {stats.filter((s) => s.open)
 													.length}/{stats.length}
 												offen{#if stuck}<span class="text-rose-700">
@@ -2499,13 +2504,13 @@
 										<ul class="mt-1.5 flex flex-col gap-1">
 											{#each stats as st (st.username)}
 												<li
-													class="flex items-center justify-between gap-2 border border-slate-200 bg-white px-2 py-1"
+													class="flex items-center justify-between gap-2 rounded-[var(--radius-ui)] border border-slate-200 bg-white px-2 py-1"
 												>
 													<a href="/admin/students/{st.username}" class="truncate hover:underline"
 														>{st.displayName} ({st.percent} %)</a
 													>
 													<span
-														class="shrink-0 font-mono text-[9px] font-bold uppercase {st.open
+														class="shrink-0 font-mono text-[11px] font-bold uppercase {st.open
 															? 'text-emerald-700'
 															: st.unreachable
 																? 'text-rose-700'
@@ -2550,7 +2555,7 @@
 						<label class="flex items-center gap-2 text-xs font-bold text-institutional-navy"
 							>Ansehen als
 							<select
-								class="border border-slate-200 bg-white px-2 py-1 text-xs font-normal"
+								class="rounded-[var(--radius-ui)] border border-slate-200 bg-white px-2 py-1 text-xs font-normal"
 								bind:value={previewStudent}
 								onchange={showPreview}
 							>

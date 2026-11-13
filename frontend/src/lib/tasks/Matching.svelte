@@ -22,10 +22,8 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
-	<p class="mb-6 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-		Ordne jedem Begriff das Passende zu
-	</p>
+<div class="ui-card p-6 sm:p-8">
+	<p class="mb-5 text-sm font-semibold text-slate-600">Ordne jedem Begriff das Passende zu</p>
 	<div class="mb-10 space-y-3">
 		{#each cfg.left as left (left.id)}
 			{@const s = rowState(left.id)}

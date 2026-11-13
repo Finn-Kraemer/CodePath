@@ -84,7 +84,7 @@
 
 	{#if preview}
 		<div class="border border-dashed border-slate-300 bg-slate-50 p-4">
-			<p class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+			<p class="mb-3 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 				So sieht der Bogen aus
 			</p>
 			<EvaluationForm {criteria} bind:answers={previewAnswers} />
@@ -95,7 +95,7 @@
 				<li class="border bg-white {open === c ? 'border-institutional-navy' : 'border-slate-200'}">
 					<div class="flex flex-wrap items-center gap-2 p-3">
 						<span
-							class="bg-slate-100 px-2 py-1 font-mono text-[9px] font-bold tracking-widest text-slate-500 uppercase"
+							class="bg-slate-100 px-2 py-1 font-mono text-[11px] font-bold tracking-wider text-slate-500 uppercase"
 							>{TYPE_LABELS[c.type]}</span
 						>
 						<button
@@ -108,7 +108,7 @@
 						>
 							{c.label || '(ohne Beschriftung)'}
 							{#if c.required}<span class="text-rose-600">*</span>{/if}
-							<span class="ml-2 font-mono text-[10px] font-normal text-slate-400">{summary(c)}</span
+							<span class="ml-2 font-mono text-[11px] font-normal text-slate-400">{summary(c)}</span
 							>
 						</button>
 						<div class="flex gap-1">
@@ -282,7 +282,7 @@
 		</ol>
 
 		<div class="flex flex-wrap items-center gap-2">
-			<span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+			<span class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 				>Hinzufügen:</span
 			>
 			{#each types as t (t)}

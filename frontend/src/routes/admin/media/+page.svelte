@@ -196,16 +196,15 @@
 	<header class="border-b border-slate-200 pb-8">
 		<div class="mb-2 flex items-center gap-3 text-institutional-navy/40">
 			<a href="/admin" class="transition-colors hover:text-institutional-gold">
-				<span class="font-mono text-[10px] font-bold tracking-[4px] uppercase">Admin Dashboard</span
-				>
+				<span class="font-mono text-[11px] font-bold tracking-wider uppercase">Leitstand</span>
 			</a>
 			<span class="text-slate-300">/</span>
-			<span class="font-mono text-[10px] font-bold tracking-[4px] text-institutional-gold uppercase"
+			<span class="font-mono text-[11px] font-bold tracking-wider text-institutional-gold uppercase"
 				>Medien</span
 			>
 		</div>
 		<h1
-			class="font-sans text-5xl leading-none font-black tracking-tighter text-institutional-navy uppercase"
+			class="font-sans text-3xl leading-none font-extrabold tracking-tight text-institutional-navy"
 		>
 			Medien
 		</h1>
@@ -215,7 +214,7 @@
 			die nirgends mehr verwendet werden.
 		</p>
 		{#if !loading}
-			<dl class="mt-5 flex flex-wrap gap-6 font-mono text-[11px] tracking-widest uppercase">
+			<dl class="mt-5 flex flex-wrap gap-6 font-mono text-[11px] tracking-wider uppercase">
 				<div>
 					<dt class="text-slate-400">Bilder</dt>
 					<dd class="text-lg font-bold text-institutional-navy">{items.length}</dd>
@@ -233,12 +232,12 @@
 	</header>
 
 	{#if error}
-		<p class="text-[11px] font-bold tracking-widest text-rose-700 uppercase" role="alert">
+		<p class="text-[11px] font-bold tracking-wider text-rose-700 uppercase" role="alert">
 			{error}
 		</p>
 	{/if}
 	{#if message}
-		<p class="text-[11px] font-bold tracking-widest text-teal-700 uppercase" role="status">
+		<p class="text-[11px] font-bold tracking-wider text-teal-700 uppercase" role="status">
 			{message}
 		</p>
 	{/if}
@@ -271,7 +270,9 @@
 		{/if}
 	</label>
 
-	<div class="flex flex-wrap items-end gap-4 border border-slate-200 bg-white p-4">
+	<div
+		class="flex flex-wrap items-end gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4"
+	>
 		<label class="ed-label min-w-48 flex-1"
 			>Suchen
 			<input
@@ -319,7 +320,7 @@
 	{:else}
 		<ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
 			{#each visible as item (item.key)}
-				<li class="flex flex-col border border-slate-200 bg-white">
+				<li class="flex flex-col rounded-[var(--radius-ui)] border border-slate-200 bg-white">
 					<button
 						type="button"
 						class="flex h-36 items-center justify-center bg-slate-50 p-2 hover:bg-slate-100"
@@ -340,13 +341,13 @@
 							title={item.originalName ?? item.key}
 							onclick={() => open(item)}>{item.originalName ?? item.key.slice(0, 12)}</button
 						>
-						<p class="font-mono text-[10px] text-slate-400">
+						<p class="font-mono text-[11px] text-slate-400">
 							{item.width && item.height ? `${item.width}×${item.height} · ` : ''}{formatBytes(
 								item.size
 							)} · {date(item.createdAt)}
 						</p>
 						<div
-							class="mt-auto flex flex-wrap gap-1 pt-2 font-mono text-[9px] tracking-widest uppercase"
+							class="mt-auto flex flex-wrap gap-1 pt-2 font-mono text-[11px] tracking-wider uppercase"
 						>
 							{#if item.usages.length === 0}
 								<span class="bg-slate-100 px-2 py-1 text-slate-500">Unbenutzt</span>
@@ -371,7 +372,7 @@
 	{#if selected}
 		<div class="flex flex-col gap-5 p-6">
 			<div class="flex items-start justify-between gap-4">
-				<h2 class="text-xl font-black break-all text-institutional-navy">
+				<h2 class="text-xl font-extrabold break-all text-institutional-navy">
 					{selected.originalName ?? selected.key}
 				</h2>
 				<button class="ed-button" onclick={close} aria-label="Schließen">✕</button>
@@ -422,7 +423,7 @@
 						{#each selected.usages as usage (usage.kind + usage.href + usage.label)}
 							<li class="flex items-center gap-3 px-3 py-2 text-sm">
 								<span
-									class="bg-slate-100 px-2 py-0.5 font-mono text-[9px] tracking-widest text-slate-500 uppercase"
+									class="bg-slate-100 px-2 py-0.5 font-mono text-[11px] tracking-wider text-slate-500 uppercase"
 									>{mediaKinds[usage.kind as keyof typeof mediaKinds] ?? usage.kind}</span
 								>
 								<a href={usage.href} class="min-w-0 flex-1 truncate hover:underline"

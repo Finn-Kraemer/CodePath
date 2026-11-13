@@ -115,10 +115,10 @@
 <div class="mx-auto max-w-7xl pb-24">
 	<a
 		href="/admin"
-		class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+		class="mb-6 inline-flex font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 		>← Leitstand</a
 	>
-	<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+	<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 		Feedback &amp; Bewertung
 	</h1>
 	<p class="mt-2 mb-8 max-w-3xl text-sm text-slate-500">
@@ -141,7 +141,7 @@
 				<section>
 					<div class="mb-2 flex items-center justify-between border-b border-slate-100 pb-1">
 						<h2
-							class="font-sans text-xs font-black tracking-[2px] text-institutional-navy uppercase"
+							class="font-sans text-xs font-black tracking-wider text-institutional-navy uppercase"
 						>
 							{PART_LABELS[kind]}
 						</h2>
@@ -214,7 +214,7 @@
 						<button
 							type="submit"
 							disabled={busy}
-							class="bg-institutional-navy px-6 py-3 font-mono text-xs font-black tracking-widest text-white uppercase disabled:opacity-40"
+							class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white disabled:opacity-40"
 							>{draft.id ? 'Speichern' : 'Vorlage anlegen'}</button
 						>
 						<button type="button" class="ed-button" onclick={() => (draft = null)}>Schließen</button

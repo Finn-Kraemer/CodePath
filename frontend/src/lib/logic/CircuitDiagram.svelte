@@ -84,7 +84,7 @@
 	);
 </script>
 
-<div class="overflow-x-auto border border-slate-200 bg-white">
+<div class="overflow-x-auto rounded-[var(--radius-ui)] border border-slate-200 bg-white">
 	<svg
 		width={layout.width}
 		height={layout.height}

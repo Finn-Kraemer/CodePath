@@ -34,7 +34,7 @@
 	}}
 >
 	<summary
-		class="cursor-pointer px-8 py-4 font-mono text-[10px] font-bold tracking-widest text-slate-500 uppercase hover:text-institutional-navy"
+		class="cursor-pointer px-8 py-4 font-mono text-[11px] font-bold tracking-wider text-slate-500 uppercase hover:text-institutional-navy"
 	>
 		Leitfragen fürs Lerntagebuch
 	</summary>
@@ -54,7 +54,7 @@
 		<button
 			type="button"
 			onclick={save}
-			class="bg-institutional-navy px-4 py-2 text-[10px] font-black tracking-widest text-white uppercase"
+			class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-4 py-2 text-sm font-semibold text-white"
 			>Speichern</button
 		>
 		{#if message}<span class="ml-2 text-slate-500" role="status">{message}</span>{/if}

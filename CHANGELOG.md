@@ -32,6 +32,13 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 - Migration V38 legt `user_releases` für Freigaben pro Person an (wird mit den Schülerkonten gelöscht).
 - Migration V37 ergänzt `courses` um `archived_at`, `purge_after`, `leaderboard_since` und `successor_id` (Archivieren und Übernehmen). Bestehende Kurse bleiben unverändert aktiv bzw. beendet.
 
+### Verbessert
+- **Neue Oberfläche:** Ruhigere Typografie ohne Versalien und Sperrschrift, leicht gerundete Ecken, Karten auf hellgrauem Grund und Status-Farben mit Bedeutung (erledigt, jetzt dran, gesperrt). Der Eckenradius steht zentral in `layout.css` (`--radius-ui`, `--radius-ui-sm`); 0 ergibt den früheren kantigen Look.
+- **Administration mit Seitennavigation:** Alle Bereiche stehen links in einer festen Leiste (Unterricht, Inhalte, Website) mit Zählern für Hilfe-Rufe und offene Abgaben. In CodePath- und Aufgaben-Editor schrumpft sie zur Icon-Leiste. Der Leitstand zeigt Kennzahlen, wartende Hilfe-Rufe, die Rangliste, „Wo hakt es?“ (Aufgaben mit den meisten Fehlversuchen) und Schalter für Zeugnisse.
+- **CodePath-Ansicht:** Fortschrittskopf mit Ring, Band „Weitermachen“, Legende, Punktraster, hervorgehobene nächste Station; passt der ganze Weg auf den Bildschirm, wird er beim Öffnen komplett gezeigt. Modulkarten mit Status, Fortschritt und Frist.
+- **Aufgabenseite, Modulseite, Profil und Live-Mitteilung** im neuen Stil; die Live-Mitteilung hat Vorlagen und eine Vorschau.
+- **Handy:** Leiste unten mit CodePath, Wissen, Rangliste und Profil statt Hamburger-Menü.
+
 ## 2.3.0
 
 ### Neu

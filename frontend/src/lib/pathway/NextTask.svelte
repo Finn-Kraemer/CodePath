@@ -12,33 +12,47 @@
 
 <a
 	href="/modules/{next.moduleSlug}/{next.taskSlug}"
-	class="group flex items-center gap-5 border-2 border-institutional-gold bg-amber-50/60 transition-all hover:bg-amber-50 hover:shadow-md {compact
-		? 'p-4'
-		: 'p-6'}"
+	class="group flex flex-wrap items-center gap-x-5 gap-y-3 rounded-[var(--radius-ui)] transition-shadow hover:shadow-lg {compact
+		? 'ui-card p-4 hover:border-slate-300'
+		: 'bg-institutional-navy p-5 text-white sm:px-6'}"
 	data-testid="next-task"
 	data-sveltekit-reload={reload ? '' : undefined}
 >
 	<span
-		class="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-institutional-gold/60 bg-white text-institutional-navy"
+		class="flex shrink-0 items-center justify-center rounded-[var(--radius-ui-sm)] text-white {compact
+			? 'h-10 w-10 bg-institutional-navy'
+			: 'h-12 w-12 bg-institutional-gold'}"
 	>
-		<PathIcon
-			emoji={next.moduleIcon}
-			name={next.moduleIcon ? null : 'task'}
-			title={next.taskTitle}
-			size={24}
-		/>
-	</span>
-	<span class="flex min-w-0 flex-1 flex-col gap-1">
-		<span class="font-mono text-[9px] font-black tracking-[3px] text-institutional-gold uppercase"
-			>Empfohlen als Nächstes</span
+		<svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+			><path d="M8 5v14l11-7z" /></svg
 		>
-		<span class="text-lg leading-tight font-bold text-institutional-navy">{next.taskTitle}</span>
-		<span class="text-xs text-slate-500">{next.reason}</span>
+	</span>
+	<span class="flex min-w-0 flex-1 basis-64 flex-col gap-0.5">
+		<span
+			class="font-mono text-[11px] font-bold tracking-wider uppercase {compact
+				? 'text-institutional-gold'
+				: 'text-amber-300'}">{compact ? 'Als Nächstes' : 'Weitermachen'}</span
+		>
+		<span
+			class="flex items-center gap-2 text-lg leading-tight font-bold {compact
+				? 'text-institutional-navy'
+				: 'text-white'}"
+		>
+			{#if next.moduleIcon}<PathIcon
+					emoji={next.moduleIcon}
+					title={next.taskTitle}
+					size={18}
+				/>{/if}
+			{next.taskTitle}
+		</span>
+		<span class="text-[13px] {compact ? 'text-slate-500' : 'text-slate-300'}">{next.reason}</span>
 		{#if next.articleSlug}
-			<span class="mt-1 text-xs">
+			<span class="mt-1 text-[13px]">
 				<button
 					type="button"
-					class="cursor-pointer text-left font-bold text-institutional-navy underline hover:text-institutional-gold"
+					class="cursor-pointer text-left font-semibold underline {compact
+						? 'text-institutional-navy hover:text-institutional-gold'
+						: 'text-white hover:text-amber-300'}"
 					onclick={(e) => {
 						e.preventDefault();
 						e.stopPropagation();
@@ -51,7 +65,8 @@
 		{/if}
 	</span>
 	<span
-		class="shrink-0 bg-institutional-navy px-5 py-3 text-[10px] font-black tracking-[3px] text-white uppercase group-hover:bg-slate-800"
-		>Los</span
+		class="inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-ui-sm)] px-5 text-sm font-semibold {compact
+			? 'bg-institutional-navy text-white group-hover:bg-slate-800'
+			: 'bg-white text-institutional-navy group-hover:bg-amber-50'}">Los →</span
 	>
 </a>

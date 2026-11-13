@@ -44,7 +44,7 @@
 {#snippet badge(text: string, theme: Theme)}
 	{#if text}
 		<span
-			class="mb-4 inline-block font-mono text-[10px] font-bold tracking-[4px] uppercase {BADGE[
+			class="mb-4 inline-block font-mono text-[11px] font-bold tracking-wider uppercase {BADGE[
 				theme
 			]}">{text}</span
 		>
@@ -66,12 +66,12 @@
 		{#if standard && !auth.isAuthenticated}
 			<a
 				href="/login"
-				class="rounded-none bg-institutional-gold px-10 py-5 text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:bg-amber-600 hover:shadow-xl"
+				class="rounded-[var(--radius-ui-sm)] bg-institutional-gold px-10 py-5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-amber-600 hover:shadow-xl"
 				>Login</a
 			>
 			<a
 				href="/register"
-				class="rounded-none border-2 px-10 py-5 text-[11px] font-bold tracking-[3px] uppercase transition-all {theme ===
+				class=" border-2 px-10 py-5 text-[11px] font-bold tracking-wider uppercase transition-all {theme ===
 				'dark'
 					? 'border-white/20 text-white hover:bg-white/10'
 					: 'border-institutional-navy/20 text-institutional-navy hover:bg-institutional-navy/5'}"
@@ -80,7 +80,7 @@
 		{:else if standard}
 			<a
 				href="/modules"
-				class="rounded-none bg-institutional-gold px-10 py-5 text-[11px] font-bold tracking-[3px] text-white uppercase shadow-sm transition-all hover:bg-amber-600 hover:shadow-xl"
+				class="rounded-[var(--radius-ui-sm)] bg-institutional-gold px-10 py-5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-amber-600 hover:shadow-xl"
 				>Zu den Lernmodulen</a
 			>
 		{/if}
@@ -92,7 +92,7 @@
 					{href}
 					target={link.newTab ? '_blank' : undefined}
 					rel={isExternal(href) ? 'noopener noreferrer' : undefined}
-					class="rounded-none px-10 py-5 text-[11px] font-bold tracking-[3px] uppercase transition-all {i ===
+					class=" px-10 py-5 text-[11px] font-bold tracking-wider uppercase transition-all {i ===
 						0 && !standard
 						? 'bg-institutional-gold text-white shadow-sm hover:bg-amber-600 hover:shadow-xl'
 						: theme === 'dark'
@@ -122,7 +122,7 @@
 				<div class="animate-in max-w-4xl">
 					{@render badge(block.badge, block.theme === 'light' ? 'muted' : block.theme)}
 					<h1
-						class="mb-8 font-sans text-4xl leading-tight font-extrabold tracking-tight uppercase sm:text-7xl"
+						class="mb-8 font-sans text-3xl leading-tight font-extrabold tracking-tight sm:text-7xl"
 					>
 						{block.title}
 						{#if block.highlight}<span class="text-institutional-gold">{block.highlight}</span>{/if}
@@ -191,7 +191,7 @@
 				<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
 					{#each block.items as card, i (i)}
 						<div
-							class="group border border-slate-200 bg-white p-10 shadow-sm transition-all duration-300 hover:border-institutional-navy hover:shadow-xl"
+							class="group rounded-[var(--radius-ui)] border border-slate-200 bg-white p-10 shadow-sm transition-all duration-300 hover:border-institutional-navy hover:shadow-xl"
 						>
 							{#if card.icon}
 								<div
@@ -251,7 +251,7 @@
 						>
 							{#if block.boxTitle}
 								<h3
-									class="mb-8 border-b pb-4 font-sans text-sm font-black tracking-[3px] text-institutional-gold uppercase {block.theme ===
+									class="mb-8 border-b pb-4 font-sans text-sm font-black tracking-wider text-institutional-gold uppercase {block.theme ===
 									'dark'
 										? 'border-white/10'
 										: 'border-slate-100'}"
@@ -327,13 +327,15 @@
 						{@render heading(block.title, '', 'mb-8')}
 						<Markdown source={block.body} class="text-lg leading-relaxed {BODY[block.theme]}" />
 					</div>
-					<div class="relative overflow-hidden border border-slate-200 bg-white p-10 shadow-2xl">
+					<div
+						class="relative overflow-hidden rounded-[var(--radius-ui)] border border-slate-200 bg-white p-10 shadow-2xl"
+					>
 						<div
 							class="absolute top-0 right-0 h-32 w-32 translate-x-16 -translate-y-16 -rotate-45 bg-institutional-gold/5"
 						></div>
 						{#if block.boxTitle}
 							<h3
-								class="mb-8 border-b border-slate-100 pb-4 font-sans text-xs font-black tracking-[3px] text-slate-400 uppercase"
+								class="mb-8 border-b border-slate-100 pb-4 font-sans text-xs font-black tracking-wider text-slate-400 uppercase"
 							>
 								{block.boxTitle}
 							</h3>

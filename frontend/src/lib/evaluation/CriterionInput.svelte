@@ -40,13 +40,16 @@
 
 {#if c.type === 'HEADING'}
 	<div class="border-b-2 border-institutional-navy pt-4 pb-1">
-		<h3 class="font-sans text-sm font-black tracking-[3px] text-institutional-navy uppercase">
+		<h3 class="font-sans text-sm font-black tracking-wider text-institutional-navy uppercase">
 			{c.label}
 		</h3>
 		{#if c.help}<p class="mt-1 text-sm text-slate-500">{c.help}</p>{/if}
 	</div>
 {:else}
-	<fieldset class="border border-slate-200 bg-white p-5" data-criterion={c.id}>
+	<fieldset
+		class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-5"
+		data-criterion={c.id}
+	>
 		<legend class="sr-only">{c.label}</legend>
 		<p class="font-bold text-institutional-navy" aria-hidden="true">
 			{c.label}{#if c.required && !readonly}<span class="text-rose-600" title="Pflichtfrage">
@@ -99,7 +102,7 @@
 					</div>
 				{/if}
 				{#if (c.minLabel || c.maxLabel) && !hasLabels}
-					<div class="mt-1 flex justify-between gap-4 font-mono text-[10px] text-slate-400">
+					<div class="mt-1 flex justify-between gap-4 font-mono text-[11px] text-slate-400">
 						<span>{c.min}: {c.minLabel ?? ''}</span>
 						<span>{c.max}: {c.maxLabel ?? ''}</span>
 					</div>
@@ -156,7 +159,7 @@
 							value = text === '' ? undefined : text;
 						}}
 					></textarea>
-					<p class="mt-1 text-right font-mono text-[10px] text-slate-400">
+					<p class="mt-1 text-right font-mono text-[11px] text-slate-400">
 						{typeof value === 'string' ? value.length : 0} / {c.maxLength ?? 1000}
 					</p>
 				{/if}
@@ -167,7 +170,7 @@
 			<p
 				class="mt-3 border-l-4 border-institutional-gold bg-amber-50 px-3 py-2 text-sm text-slate-700"
 			>
-				<span class="font-mono text-[10px] font-bold tracking-widest text-slate-500 uppercase"
+				<span class="font-mono text-[11px] font-bold tracking-wider text-slate-500 uppercase"
 					>{compareLabel}:</span
 				>
 				<span class="whitespace-pre-line">{formatAnswer(c, compare)}</span>

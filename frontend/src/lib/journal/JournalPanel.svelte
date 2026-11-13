@@ -83,14 +83,14 @@
 </script>
 
 <details
-	class="border border-slate-200 bg-white shadow-sm"
+	class="rounded-[var(--radius-ui)] border border-slate-200 bg-white shadow-sm"
 	data-testid="journal-panel"
 	ontoggle={(e) => {
 		if (e.currentTarget.open && !journal) load();
 	}}
 >
 	<summary
-		class="cursor-pointer px-6 py-4 font-mono text-[10px] font-bold tracking-widest text-institutional-navy uppercase"
+		class="cursor-pointer px-6 py-4 font-mono text-[11px] font-bold tracking-wider text-institutional-navy uppercase"
 	>
 		Mein Lerntagebuch{taskSlug ? ' zu dieser Aufgabe' : ''}
 	</summary>

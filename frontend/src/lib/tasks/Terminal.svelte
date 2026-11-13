@@ -107,7 +107,7 @@
 	}
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
+<div class="ui-card p-6 sm:p-8">
 	<!-- Klick irgendwo ins Terminal setzt den Cursor in die Eingabezeile -->
 	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 	<div
@@ -144,7 +144,7 @@
 
 	<details class="mb-6 border border-slate-200 bg-slate-50 text-sm">
 		<summary
-			class="cursor-pointer px-4 py-3 text-xs font-black tracking-[3px] text-slate-500 uppercase"
+			class="cursor-pointer px-4 py-3 text-xs font-black tracking-wider text-slate-500 uppercase"
 			>Spickzettel</summary
 		>
 		<pre class="overflow-x-auto px-4 pb-4 font-mono text-xs text-slate-700">{HELP}{showGit
@@ -154,7 +154,7 @@
 
 	{#if cfg.answerLabel}
 		<label class="mb-6 block">
-			<span class="mb-2 block text-xs font-black tracking-[3px] text-slate-500 uppercase"
+			<span class="mb-2 block text-xs font-black tracking-wider text-slate-500 uppercase"
 				>{cfg.answerLabel}</span
 			>
 			<input
@@ -177,7 +177,7 @@
 		<button
 			onclick={reset}
 			{disabled}
-			class="border-2 border-slate-300 py-5 text-xs font-black tracking-[3px] text-slate-500 uppercase disabled:opacity-40"
+			class="rounded-[var(--radius-ui-sm)] border-2 border-slate-300 py-3 text-sm font-semibold text-slate-500 disabled:opacity-40"
 			>Zurücksetzen</button
 		>
 		<div class="md:col-span-2">

@@ -39,28 +39,56 @@
 <svelte:head><title>{detail?.module?.title ?? 'Modul'} | CodePath</title></svelte:head>
 
 <div class="mx-auto max-w-5xl">
-	<div class="mb-12 border-b border-slate-200 pb-8">
+	<div class="mb-6">
 		<a
 			href="/modules"
-			class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+			class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-institutional-navy"
 		>
-			← Zurück zur Übersicht
+			<svg
+				class="h-4 w-4"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2.2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg
+			>
+			Übersicht
 		</a>
-		<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
-			{detail?.module?.icon ?? ''}
-			{detail?.module?.title ?? ''}
-		</h1>
-		{#if detail?.module}
-			<p class="mt-4 text-slate-500">{detail.module.description}</p>
-			<p class="mt-2 font-mono text-xs text-slate-400">
-				{detail.module.completedTasks}/{detail.module.totalTasks} gelöst · {detail.module
-					.pointsEarned} von {detail.module.maxPoints} Punkten
-			</p>
-		{/if}
+		<div class="ui-card mt-3 flex flex-wrap items-center gap-5 p-6">
+			{#if detail?.module}
+				<span
+					class="flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-ui)] bg-institutional-navy text-white"
+				>
+					<PathIcon emoji={detail.module.icon} title={detail.module.title} size={28} />
+				</span>
+			{/if}
+			<div class="min-w-0 flex-1 basis-72">
+				<h1 class="ui-title">{detail?.module?.title ?? ''}</h1>
+				{#if detail?.module}
+					<p class="mt-1 text-[15px] text-slate-600">{detail.module.description}</p>
+				{/if}
+			</div>
+			{#if detail?.module}
+				{@const pct = Math.round(
+					((detail.module.completedTasks ?? 0) / (detail.module.totalTasks || 1)) * 100
+				)}
+				<div class="w-full sm:w-56">
+					<div class="mb-1.5 flex justify-between text-[13px] text-slate-600">
+						<span>{detail.module.completedTasks}/{detail.module.totalTasks} gelöst</span>
+						<span class="font-mono text-xs"
+							>{detail.module.pointsEarned}/{detail.module.maxPoints} P.</span
+						>
+					</div>
+					<div class="ui-bar h-2"><span style="width: {pct}%"></span></div>
+				</div>
+			{/if}
+		</div>
 	</div>
 
 	{#if error}
-		<div class="border border-red-200 bg-red-50 p-8 font-mono text-sm text-red-700">{error}</div>
+		<div class="ui-card border-rose-200 bg-rose-50 p-6 text-sm text-rose-700">{error}</div>
 	{:else if !detail}
 		<div class="flex justify-center py-24">
 			<div
@@ -68,23 +96,23 @@
 			></div>
 		</div>
 	{:else}
-		<ol class="space-y-4">
+		<ol class="space-y-3">
 			{#each detail.tasks ?? [] as task, i (task.slug)}
 				<li>
 					<svelte:element
 						this={task.isBlocked ? 'div' : 'a'}
 						href={task.isBlocked ? undefined : `/modules/${slug}/${task.slug}`}
-						class="group flex items-center justify-between rounded-none border p-6 transition-all {tone(
+						class="group flex items-center justify-between gap-4 rounded-[var(--radius-ui)] border px-5 py-4 transition-all {tone(
 							task.status,
 							task.isLocked,
 							task.isBlocked
 						)}"
 					>
-						<div class="flex items-center gap-6">
+						<div class="flex min-w-0 items-center gap-4">
 							<div
-								class="flex h-12 w-12 items-center justify-center font-mono text-[11px] font-black {task.status ===
+								class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-mono text-sm font-bold {task.status ===
 								'SOLVED'
-									? 'bg-green-600 text-white'
+									? 'bg-emerald-600 text-white'
 									: task.isBlocked
 										? 'bg-amber-100 text-amber-800'
 										: 'bg-slate-100 text-slate-500 group-hover:bg-institutional-navy group-hover:text-white'}"
@@ -95,39 +123,38 @@
 									/>{:else}{i + 1}{/if}
 							</div>
 							<div>
-								<h2
-									class="font-sans text-lg font-bold tracking-tight text-institutional-navy uppercase"
-								>
+								<h2 class="text-base font-bold tracking-tight text-institutional-navy sm:text-lg">
 									{task.title}
 								</h2>
-								<div class="mt-2 flex flex-wrap items-center gap-3">
+								<div class="mt-1.5 flex flex-wrap items-center gap-2">
 									<span
-										class="border px-2 py-0.5 font-mono text-[9px] font-bold tracking-widest uppercase {difficultyColors[
+										class="rounded-full border px-2 py-0.5 text-xs font-semibold {difficultyColors[
 											task.difficulty ?? ''
 										]}"
 									>
 										{DIFFICULTY_LABELS[task.difficulty ?? ''] ?? task.difficulty}
 									</span>
-									<span
-										class="font-mono text-[9px] font-bold tracking-widest text-slate-400 uppercase"
+									<span class="text-xs font-medium text-slate-500"
 										>{TYPE_LABELS[task.type ?? ''] ?? task.type}</span
 									>
 									{#if task.bonus}
 										<span
-											class="border border-amber-300 bg-amber-50 px-2 py-0.5 font-mono text-[9px] font-bold tracking-widest text-amber-800 uppercase"
+											class="border border-amber-300 bg-amber-50 px-2 py-0.5 font-mono text-[11px] font-bold tracking-wider text-amber-800 uppercase"
 											title="Punkte zählen nicht in der Rangliste">Zusatzaufgabe</span
 										>
 									{:else if task.personal}
 										<span
-											class="border border-sky-300 bg-sky-50 px-2 py-0.5 font-mono text-[9px] font-bold tracking-widest text-sky-800 uppercase"
+											class="border border-sky-300 bg-sky-50 px-2 py-0.5 font-mono text-[11px] font-bold tracking-wider text-sky-800 uppercase"
 											>Für dich freigegeben</span
 										>
 									{/if}
 								</div>
 							</div>
 						</div>
-						<div class="text-right font-mono text-[10px] font-black tracking-widest uppercase">
-							<div class="text-slate-500">{task.pointsEarned}/{task.points} P.</div>
+						<div class="shrink-0 text-right text-[13px] font-semibold">
+							<div class="font-mono text-xs text-slate-500">
+								{task.pointsEarned}/{task.points} P.
+							</div>
 							<div
 								class="mt-1 {task.status === 'SOLVED'
 									? 'text-green-600'

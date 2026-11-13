@@ -16,7 +16,7 @@
 </script>
 
 <div class="flex flex-wrap items-center gap-2" role="group" aria-label={label} data-testid={testid}>
-	<span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+	<span class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase"
 		>{label}</span
 	>
 	<a class="ed-button" href={href({ format: 'zip' })} download>ZIP</a>

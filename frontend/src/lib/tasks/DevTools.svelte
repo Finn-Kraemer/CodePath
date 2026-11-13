@@ -16,8 +16,8 @@
 	const labUrl = $derived(`/api/lab/${task.id}/`);
 </script>
 
-<div class="rounded-none border border-slate-200 bg-white p-10 shadow-sm">
-	<p class="mb-6 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+<div class="ui-card p-6 sm:p-8">
+	<p class="mb-5 text-sm font-semibold text-slate-600">
 		Browser-Labor · Werkzeuge: {cfg.tools.join(', ')}
 	</p>
 
@@ -30,17 +30,17 @@
 		href={labUrl}
 		target="_blank"
 		rel="noopener"
-		class="mb-10 inline-block border-2 border-institutional-navy px-6 py-3 text-xs font-black tracking-widest text-institutional-navy uppercase hover:bg-institutional-navy hover:text-white"
+		class="mb-10 inline-block rounded-[var(--radius-ui-sm)] border-2 border-institutional-navy px-6 py-3 text-sm font-semibold text-institutional-navy hover:bg-institutional-navy hover:text-white"
 		>{cfg.title} öffnen ↗</a
 	>
 
 	<label
-		class="mb-2 block text-xs font-black tracking-widest text-slate-500 uppercase"
+		class="mb-2 block text-xs font-black tracking-wider text-slate-500 uppercase"
 		for="lab-code">Dein Code ({cfg.parts} Teile)</label
 	>
 	<input
 		id="lab-code"
-		class="mb-3 w-full border-2 border-slate-200 p-3 font-mono text-xl tracking-[4px] uppercase"
+		class="mb-3 w-full border-2 border-slate-200 p-3 font-mono text-xl tracking-wider uppercase"
 		bind:value={code}
 		placeholder={cfg.format}
 		autocomplete="off"

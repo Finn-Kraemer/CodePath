@@ -22,8 +22,11 @@
 </script>
 
 {#if entries.length > 0}
-	<section class="border border-slate-200 bg-white p-8 shadow-sm" data-testid="shared-journal">
-		<h3 class="mb-4 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
+	<section
+		class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-8 shadow-sm"
+		data-testid="shared-journal"
+	>
+		<h3 class="mb-4 font-sans text-sm font-black tracking-wider text-slate-400 uppercase">
 			Geteilt aus dem Lerntagebuch
 		</h3>
 		<ul class="space-y-4">

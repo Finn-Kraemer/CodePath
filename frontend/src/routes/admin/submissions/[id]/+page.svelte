@@ -70,7 +70,7 @@
 <div class="mx-auto flex max-w-6xl flex-col gap-10 pb-24">
 	<a
 		href="/admin/submissions"
-		class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+		class="font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 		>← Zurück zu den Abgaben</a
 	>
 	{#if error}<div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">
@@ -78,12 +78,10 @@
 		</div>{/if}
 	{#if submission}
 		<header class="border-b border-slate-200 pb-6">
-			<p class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">
+			<p class="font-mono text-[11px] tracking-wider text-slate-400 uppercase">
 				{submission.moduleTitle}
 			</p>
-			<h1
-				class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy uppercase"
-			>
+			<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 				{submission.taskTitle}
 			</h1>
 			<p class="mt-2 text-sm text-slate-500">
@@ -97,16 +95,17 @@
 
 		<div class="grid grid-cols-1 gap-10 lg:grid-cols-5">
 			<div class="space-y-6 lg:col-span-3">
-				<details class="border border-slate-200 bg-white p-6 text-sm">
+				<details class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6 text-sm">
 					<summary class="cursor-pointer font-bold">Aufgabenstellung</summary>
 					<Markdown source={submission.instructions} class="mt-4" />
 				</details>
 				<PracticeReview content={submission.content} />
 				{#if submission.code}
-					<section class="border border-slate-200 bg-white p-6" aria-label="Abgegebener Code">
-						<p
-							class="mb-3 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase"
-						>
+					<section
+						class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6"
+						aria-label="Abgegebener Code"
+					>
+						<p class="mb-3 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 							Abgegebener Code – hier ausprobieren, Änderungen werden nicht gespeichert
 						</p>
 						<PythonWorkbench initialCode={submission.code} />
@@ -115,10 +114,8 @@
 			</div>
 
 			<div class="space-y-6 lg:col-span-2">
-				<div class="border border-slate-200 bg-white p-6">
-					<h2
-						class="mb-4 font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
-					>
+				<div class="rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6">
+					<h2 class="mb-4 font-mono text-[11px] font-black tracking-wider text-slate-400 uppercase">
 						Bewertung nach Rubrik
 					</h2>
 					<div class="space-y-4">
@@ -149,7 +146,7 @@
 						data-testid="peer-reviews"
 					>
 						<h2
-							class="mb-3 font-mono text-[10px] font-black tracking-widest text-amber-800 uppercase"
+							class="mb-3 font-mono text-[11px] font-black tracking-wider text-amber-800 uppercase"
 						>
 							Peer-Review ({peers.length}) – Ø {Math.round(
 								peers.reduce((a, p) => a + p.total, 0) / peers.length
@@ -167,7 +164,7 @@
 					</div>
 				{/if}
 				<label class="block text-sm">
-					<span class="font-mono text-[10px] font-black tracking-widest text-slate-400 uppercase"
+					<span class="font-mono text-[11px] font-black tracking-wider text-slate-400 uppercase"
 						>Kommentar für die Schülerin, den Schüler</span
 					>
 					<textarea bind:value={comment} rows="4" class="mt-2 w-full border-slate-200"></textarea>
@@ -175,7 +172,7 @@
 				<button
 					onclick={approve}
 					disabled={busy}
-					class="w-full bg-green-700 py-4 text-xs font-black tracking-[3px] text-white uppercase disabled:opacity-50"
+					class="w-full rounded-[var(--radius-ui-sm)] bg-green-700 py-4 text-sm font-semibold text-white disabled:opacity-50"
 					>Annehmen ({total} Punkte)</button
 				>
 				<div class="border border-rose-200 p-4">
@@ -185,7 +182,7 @@
 					<button
 						onclick={reject}
 						disabled={busy || submission.status === 'APPROVED'}
-						class="w-full border-2 border-rose-500 py-3 text-xs font-black tracking-[3px] text-rose-600 uppercase disabled:opacity-40"
+						class="w-full rounded-[var(--radius-ui-sm)] border-2 border-rose-500 py-3 text-sm font-semibold text-rose-600 disabled:opacity-40"
 						>Zur Überarbeitung zurückgeben</button
 					>
 				</div>

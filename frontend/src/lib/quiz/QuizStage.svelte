@@ -26,15 +26,15 @@
 
 	const button = $derived(
 		dark
-			? 'border-2 border-white/40 px-6 py-3 font-mono text-xs font-black tracking-widest uppercase hover:bg-white/10'
-			: 'border-2 border-institutional-navy px-6 py-3 font-mono text-xs font-black tracking-widest text-institutional-navy uppercase hover:bg-slate-50'
+			? 'border-2 border-white/40 px-6 py-3 font-mono text-xs font-black tracking-wider uppercase hover:bg-white/10'
+			: 'border-2 border-institutional-navy px-6 py-3 font-mono text-xs font-black tracking-wider text-institutional-navy uppercase hover:bg-slate-50'
 	);
 </script>
 
 <section data-testid="quiz-stage" class={dark ? 'text-white' : 'text-slate-900'}>
 	<div class="mb-6 flex flex-wrap items-baseline justify-between gap-4">
 		<p
-			class="font-mono text-sm font-bold tracking-[4px] uppercase {dark
+			class="font-mono text-sm font-bold tracking-wider uppercase {dark
 				? 'text-institutional-gold'
 				: 'text-slate-500'}"
 		>

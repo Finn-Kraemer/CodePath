@@ -345,7 +345,7 @@
 <svelte:head><title>{round?.title ?? 'Neue Bewertungsrunde'} | CodePath</title></svelte:head>
 
 {#snippet partCard(part: PartKey, description: string)}
-	<section class="border border-slate-200 bg-white">
+	<section class="rounded-[var(--radius-ui)] border border-slate-200 bg-white">
 		<header class="flex flex-wrap items-center gap-3 border-b border-slate-100 p-4">
 			<label class="flex min-w-0 flex-1 items-center gap-3">
 				<input type="checkbox" bind:checked={form.enabled[part]} />
@@ -443,10 +443,10 @@
 <div class="mx-auto max-w-7xl pb-24">
 	<a
 		href="/admin/feedback"
-		class="mb-6 inline-flex font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase hover:text-institutional-navy"
+		class="mb-6 inline-flex font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase hover:text-institutional-navy"
 		>← Bewertungsrunden</a
 	>
-	<h1 class="font-sans text-4xl font-extrabold tracking-tight text-institutional-navy uppercase">
+	<h1 class="font-sans text-3xl font-extrabold tracking-tight text-institutional-navy">
 		{isNew ? 'Neue Bewertungsrunde' : (round?.title ?? '…')}
 	</h1>
 	<div class="mt-2 mb-8">
@@ -461,7 +461,7 @@
 						? 'Frist abgelaufen – die Klasse kann nichts mehr abgeben'
 						: STATUS_LABEL[round.status]}
 				</p>
-				<p class="font-mono text-[10px] text-slate-500">
+				<p class="font-mono text-[11px] text-slate-500">
 					{round.courseName} · Selbst {round.counts.self}/{round.counts.students} · Unterricht {round
 						.counts.lesson}/{round.counts.students} · Bewertet {round.counts.teacher}/{round.counts
 						.students}
@@ -526,7 +526,9 @@
 				save();
 			}}
 		>
-			<section class="grid grid-cols-1 gap-4 border border-slate-200 bg-white p-6 md:grid-cols-3">
+			<section
+				class="grid grid-cols-1 gap-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-6 md:grid-cols-3"
+			>
 				<label class="ed-label md:col-span-2"
 					>Titel
 					<input class="ed-input" bind:value={form.title} required maxlength="200" /></label
@@ -571,7 +573,7 @@
 				<button
 					type="submit"
 					disabled={busy}
-					class="bg-institutional-navy px-8 py-4 font-mono text-xs font-black tracking-widest text-white uppercase disabled:opacity-40"
+					class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-8 py-4 text-sm font-semibold text-white disabled:opacity-40"
 					>{isNew ? 'Runde anlegen' : 'Speichern'}</button
 				>
 				{#if isNew}
@@ -593,13 +595,13 @@
 
 		<section class="mb-10">
 			<h2
-				class="mb-3 font-sans text-sm font-black tracking-[3px] text-institutional-navy uppercase"
+				class="mb-3 font-sans text-sm font-black tracking-wider text-institutional-navy uppercase"
 			>
 				Klasse
 			</h2>
-			<div class="overflow-x-auto border border-slate-200 bg-white">
+			<div class="overflow-x-auto rounded-[var(--radius-ui)] border border-slate-200 bg-white">
 				<table class="w-full text-left text-sm">
-					<thead class="bg-slate-50 font-mono text-[10px] tracking-widest text-slate-500 uppercase">
+					<thead class="bg-slate-50 font-mono text-[11px] tracking-wider text-slate-500 uppercase">
 						<tr>
 							<th class="p-3">Name</th>
 							{#if round.selfCriteria}<th class="p-3">Selbst</th>{/if}
@@ -616,7 +618,7 @@
 							<tr>
 								<td class="p-3">
 									<span class="font-bold text-institutional-navy">{s.displayName}</span>
-									<span class="block font-mono text-[10px] text-slate-400">@{s.username}</span>
+									<span class="block font-mono text-[11px] text-slate-400">@{s.username}</span>
 								</td>
 								{#if round.selfCriteria}
 									<td class="p-3"
@@ -633,7 +635,7 @@
 										{s.selfScore ?? '–'} % / {s.teacherScore ?? '–'} %
 										{#if s.selfScore != null && s.teacherScore != null && Math.abs(s.selfScore - s.teacherScore) >= 25}
 											<span
-												class="ml-1 bg-amber-100 px-1 text-[10px] text-amber-800"
+												class="ml-1 bg-amber-100 px-1 text-[11px] text-amber-800"
 												title="Selbst- und Fremdbild liegen weit auseinander">Abweichung</span
 											>
 										{/if}
@@ -672,7 +674,7 @@
 			{#if stats}
 				<section class="mb-10">
 					<h2
-						class="mb-1 font-sans text-sm font-black tracking-[3px] text-institutional-navy uppercase"
+						class="mb-1 font-sans text-sm font-black tracking-wider text-institutional-navy uppercase"
 					>
 						{PART_LABELS[PART_OF[key]]}
 					</h2>
@@ -685,7 +687,7 @@
 						{#each stats.criteria as c (c.id)}
 							{#if c.type === 'HEADING'}
 								<h3
-									class="pt-2 font-sans text-xs font-black tracking-[2px] text-slate-500 uppercase lg:col-span-2"
+									class="pt-2 font-sans text-xs font-black tracking-wider text-slate-500 uppercase lg:col-span-2"
 								>
 									{c.label}
 								</h3>
@@ -700,7 +702,7 @@
 	{:else if tab === 'rate' && results && round}
 		<div class="grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr]">
 			<aside>
-				<p class="mb-2 font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+				<p class="mb-2 font-mono text-[11px] font-bold tracking-wider text-slate-400 uppercase">
 					{results.students.filter((s) => s.teacherRatedAt).length} von {results.students.length} bewertet
 				</p>
 				<ul class="flex max-h-[70vh] flex-col gap-1 overflow-y-auto">
@@ -718,7 +720,7 @@
 								>
 								<span class="min-w-0 flex-1 truncate">{s.displayName}</span>
 								{#if s.selfSubmittedAt}<span
-										class="font-mono text-[9px] text-slate-400"
+										class="font-mono text-[11px] text-slate-400"
 										title="Selbsteinschätzung abgegeben">S</span
 									>{/if}
 							</button>
@@ -733,8 +735,8 @@
 				<section>
 					<div class="mb-4 flex flex-wrap items-center gap-3 border-b border-slate-200 pb-4">
 						<div class="min-w-0 flex-1">
-							<h2 class="text-2xl font-black text-institutional-navy">{current.displayName}</h2>
-							<p class="font-mono text-[10px] text-slate-400">
+							<h2 class="text-2xl font-extrabold text-institutional-navy">{current.displayName}</h2>
+							<p class="font-mono text-[11px] text-slate-400">
 								@{current.username}
 								{#if current.teacherRatedAt}· zuletzt bewertet {formatDate(
 										current.teacherRatedAt
@@ -790,7 +792,7 @@
 								c.type !== 'HEADING' && !(current?.teacherCriteria ?? []).some((t) => t.id === c.id)
 						)}
 						{#if others.length}
-							<details class="mt-4 border border-slate-200 bg-white p-4">
+							<details class="mt-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4">
 								<summary class="cursor-pointer text-sm font-bold text-institutional-navy"
 									>Weitere Antworten der Selbsteinschätzung</summary
 								>
@@ -802,7 +804,7 @@
 					{/if}
 
 					{#if current.lessonAnswers && current.lessonCriteria}
-						<div class="mt-4 border border-slate-200 bg-white p-4">
+						<div class="mt-4 rounded-[var(--radius-ui)] border border-slate-200 bg-white p-4">
 							<button
 								class="text-sm font-bold text-institutional-navy"
 								onclick={() => (showLesson = !showLesson)}
@@ -832,7 +834,7 @@
 
 					<div class="mt-6 flex flex-wrap gap-3">
 						<button
-							class="bg-institutional-navy px-6 py-3 font-mono text-xs font-black tracking-widest text-white uppercase disabled:opacity-40"
+							class="rounded-[var(--radius-ui-sm)] bg-institutional-navy px-6 py-3 text-sm font-semibold text-white disabled:opacity-40"
 							disabled={busy}
 							onclick={() => saveRating(true)}>Speichern &amp; weiter</button
 						>

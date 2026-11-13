@@ -85,7 +85,7 @@
 		<button
 			type="button"
 			onclick={btn.action}
-			class="flex h-8 min-w-[2rem] items-center justify-center rounded-none border px-2 font-mono
+			class="flex h-8 min-w-[2rem] items-center justify-center border px-2 font-mono
              text-xs font-bold transition-colors
              {btn.isActive?.()
 				? 'border-teal-700 bg-teal-700 text-white'
@@ -103,7 +103,7 @@
 	<button
 		type="button"
 		onclick={uploadImage}
-		class="flex h-8 items-center gap-1.5 rounded-none border border-slate-200 bg-white
+		class="flex h-8 items-center gap-1.5 rounded-[var(--radius-ui)] border border-slate-200 bg-white
            px-3 font-mono text-xs font-bold text-slate-600 transition-colors
            hover:border-slate-400 hover:text-slate-900"
 		title="Bild einfügen"
@@ -125,7 +125,7 @@
 		type="button"
 		onclick={() => editor?.chain().focus().undo().run()}
 		disabled={!editor?.can().undo()}
-		class="flex h-8 w-8 items-center justify-center rounded-none border border-slate-200
+		class="flex h-8 w-8 items-center justify-center border border-slate-200
            bg-white font-mono text-xs text-slate-600 transition-colors
            hover:border-slate-400 disabled:opacity-30"
 		title="Rückgängig">↩</button
@@ -134,7 +134,7 @@
 		type="button"
 		onclick={() => editor?.chain().focus().redo().run()}
 		disabled={!editor?.can().redo()}
-		class="flex h-8 w-8 items-center justify-center rounded-none border border-slate-200
+		class="flex h-8 w-8 items-center justify-center border border-slate-200
            bg-white font-mono text-xs text-slate-600 transition-colors
            hover:border-slate-400 disabled:opacity-30"
 		title="Wiederholen">↪</button

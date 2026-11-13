@@ -24,7 +24,7 @@
 {#if count > 0}
 	<a
 		href="/admin/help"
-		class="flex items-center gap-2 border border-amber-300 bg-amber-50 px-3 py-2.5 text-[9px] font-black tracking-widest text-amber-800 uppercase hover:bg-amber-100"
+		class="flex items-center gap-2 rounded-[var(--radius-ui-sm)] border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm font-semibold text-amber-800 hover:bg-amber-100"
 		data-testid="help-badge"
 		aria-label={`Hilfe-Rufe: ${count} warten`}
 	>

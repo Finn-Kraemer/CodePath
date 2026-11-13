@@ -4,18 +4,16 @@
 	let { compass }: { compass: Compass } = $props();
 </script>
 
-<section class="border border-slate-200 bg-white p-8 shadow-sm md:p-12" aria-label="Berufe-Kompass">
-	<h2 class="mb-2 font-sans text-sm font-black tracking-widest text-slate-400 uppercase">
-		Mein Berufe-Kompass
-	</h2>
-	<p class="mb-8 text-sm leading-relaxed text-slate-500">
+<section class="ui-card p-6 md:p-8" aria-label="Berufe-Kompass">
+	<h2 class="mb-2 text-xl font-bold text-institutional-navy">Mein Berufe-Kompass</h2>
+	<p class="mb-6 text-[15px] leading-relaxed text-slate-600">
 		Jedes Modul steht für ein Berufsfeld. Je mehr Punkte du in einem Modul holst, desto stärker
 		zeigt der Kompass in diese Richtung.
 	</p>
 
 	{#if compass.top.length}
-		<div class="mb-8 border-2 border-institutional-gold bg-amber-50/60 p-6">
-			<p class="font-mono text-[9px] font-black tracking-[3px] text-institutional-gold uppercase">
+		<div class="mb-6 rounded-[var(--radius-ui)] border border-amber-200 bg-amber-50 p-5">
+			<p class="font-mono text-[11px] font-black tracking-wider text-institutional-gold uppercase">
 				Dein Kompass zeigt Richtung
 			</p>
 			<ol class="mt-3 flex flex-col gap-2">
@@ -32,7 +30,9 @@
 			</ol>
 		</div>
 	{:else}
-		<p class="mb-8 border border-dashed border-slate-200 p-6 text-sm text-slate-500">
+		<p
+			class="mb-6 rounded-[var(--radius-ui-sm)] border border-dashed border-slate-300 p-5 text-sm text-slate-600"
+		>
 			Noch keine Richtung – löse ein paar Aufgaben, dann zeigt dein Kompass, welche Berufe zu dir
 			passen könnten.
 		</p>
@@ -45,9 +45,9 @@
 					>{entry.icon} {entry.moduleTitle}</span
 				>
 				<span class="flex flex-col gap-1">
-					<span class="h-2 w-full bg-slate-100">
+					<span class="h-2 w-full overflow-hidden rounded-full bg-slate-100">
 						<span
-							class="block h-full bg-institutional-gold transition-all duration-700"
+							class="block h-full rounded-full bg-institutional-gold transition-all duration-700"
 							style="width: {entry.percent}%"
 						></span>
 					</span>
