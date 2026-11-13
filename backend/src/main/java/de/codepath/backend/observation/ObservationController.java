@@ -44,9 +44,16 @@ public class ObservationController {
     public record ApplyRequest(Long sourceId, boolean room, boolean criteria) {
     }
 
+    /** Nur lesen – legt nichts an. Zum Bearbeiten öffnet die Seite den Bogen mit POST …/open. */
     @GetMapping
     public ObservationService.BoardView observationBoard(@RequestParam(name = "courseId", required = false) Long courseId) {
-        return service.board(resolveCourse(courseId));
+        return service.snapshot(resolveCourse(courseId));
+    }
+
+    /** Legt den Bogen beim ersten Mal an und ergänzt neue Kursmitglieder (schreibend, daher POST mit CSRF-Schutz). */
+    @PostMapping("/{courseId}/open")
+    public ObservationService.BoardView observationOpen(@PathVariable("courseId") Long courseId) {
+        return service.open(courseId);
     }
 
     @PutMapping("/{courseId}/layout")

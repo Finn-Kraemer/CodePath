@@ -127,8 +127,11 @@
 		highlightId = null;
 		selectedSeatId = null;
 		armedPersonId = null;
+		const id = courseSelection.selectedId;
+		if (id == null) return;
+		// Öffnen legt den Bogen beim ersten Mal an und ergänzt neue Kursmitglieder (daher POST)
 		const view = await run(() =>
-			api<BoardView>(`/api/admin/observations${courseSelection.query()}`)
+			api<BoardView>(`/api/admin/observations/${id}/open`, { method: 'POST' })
 		);
 		if (view) {
 			show(view);

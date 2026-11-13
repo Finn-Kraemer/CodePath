@@ -48,7 +48,7 @@ public class ObservationExchange {
 
     @Transactional
     public BoardExport export(Long courseId) {
-        ObservationService.BoardView view = service.board(courseId);
+        ObservationService.BoardView view = service.snapshot(courseId);
         Map<Long, String> names = new HashMap<>();
         List<ExportCriterion> criteria = new ArrayList<>();
         for (ObservationService.CriterionView c : view.criteria()) {
@@ -161,7 +161,7 @@ public class ObservationExchange {
     /** Eine Zeile je Person in Sitzplan-Reihenfolge: Name, Benutzername, Platz, Kriterien, Notizen. */
     @Transactional
     public String csv(Long courseId) {
-        ObservationService.BoardView view = service.board(courseId);
+        ObservationService.BoardView view = service.snapshot(courseId);
         Map<String, String> seatLabels = seatLabels(view.layout());
         StringBuilder sb = new StringBuilder("﻿");
         sb.append("Name;Benutzername;Platz");
@@ -190,7 +190,7 @@ public class ObservationExchange {
     /** Sitzplan und Tabelle, optional eine Seite je Person. */
     @Transactional
     public PdfFile pdf(Long courseId, boolean perPerson) {
-        ObservationService.BoardView view = service.board(courseId);
+        ObservationService.BoardView view = service.snapshot(courseId);
         byte[] content = ObservationPdf.render(view, ordered(view), seatLabels(view.layout()), perPerson, LocalDate.now());
         auditService.log("OBSERVATION_EXPORTED", "course:" + courseId, Map.of("format", "pdf", "perPerson", perPerson));
         return new PdfFile("Beobachtungsbogen_Kurs_" + courseId + ".pdf", "Beobachtungsbogen " + view.courseName(), content);

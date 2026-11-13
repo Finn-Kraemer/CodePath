@@ -74,10 +74,38 @@ public class ObservationService {
 
     // ------------------------------------------------------------------ Lesen
 
-    /** Bogen des Kurses; legt ihn beim ersten Aufruf an und ergänzt neue Kursmitglieder. */
+    /** Öffnet den Bogen zum Bearbeiten: legt ihn beim ersten Aufruf an und ergänzt neue Kursmitglieder. */
     @Transactional
-    public BoardView board(Long courseId) {
+    public BoardView open(Long courseId) {
         return view(boardFor(courseId));
+    }
+
+    /**
+     * Stand des Bogens nur lesend (für GET und Exporte – schreibt nichts): ohne Bogen ein leerer Raum,
+     * Kursmitglieder ohne eigene Zeile erscheinen leer (ohne ID), Personen außerhalb des Kurses fehlen.
+     */
+    @Transactional(readOnly = true)
+    public BoardView snapshot(Long courseId) {
+        Course course = courseService.get(courseId);
+        Set<Long> members = new LinkedHashSet<>(userService.memberIds(courseId));
+        Optional<ObservationBoard> board = boardRepository.findByCourseId(courseId);
+        BoardView base = board.map(this::view).orElseGet(() -> new BoardView(course.getId(), course.getName(),
+                course.isReadable(), RoomLayout.empty(), null, List.of(), List.of()));
+        List<PersonView> people = new ArrayList<>();
+        Set<Long> present = new HashSet<>();
+        for (PersonView p : base.people()) {
+            if (p.userId() != null && !members.contains(p.userId())) continue;
+            if (p.userId() != null) present.add(p.userId());
+            people.add(p);
+        }
+        for (Long userId : members) {
+            if (present.contains(userId)) continue;
+            userService.byId(userId).ifPresent(u -> people.add(new PersonView(null, userId, u.getUsername(), u.getVisibleName(),
+                    null, null, Map.of(), null)));
+        }
+        people.sort(Comparator.comparing(PersonView::name, String.CASE_INSENSITIVE_ORDER));
+        return new BoardView(base.courseId(), base.courseName(), base.editable(), base.layout(), base.updatedAt(),
+                base.criteria(), people);
     }
 
     @Transactional(readOnly = true)
@@ -100,7 +128,8 @@ public class ObservationService {
                     user == null ? p.getName() : user.getVisibleName(), p.getSeatId(), p.getNote(),
                     ratings.getOrDefault(p.getId(), Map.of()), p.getUpdatedAt()));
         }
-        views.sort(Comparator.comparing(PersonView::name, String.CASE_INSENSITIVE_ORDER).thenComparing(PersonView::id));
+        views.sort(Comparator.comparing(PersonView::name, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(PersonView::id, Comparator.nullsLast(Comparator.naturalOrder())));
         return new BoardView(course.getId(), course.getName(), course.isReadable(), layout(board), board.getUpdatedAt(),
                 criteria, views);
     }

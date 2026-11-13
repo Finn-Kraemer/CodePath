@@ -41,7 +41,7 @@ class ObservationTest extends IntegrationTestBase {
     }
 
     JsonNode board(Course course) throws Exception {
-        return body(getAs(teacher(), BASE + "?courseId=" + course.getId()).andExpect(status().isOk()));
+        return body(postAs(teacher(), BASE + "/" + course.getId() + "/open", null).andExpect(status().isOk()));
     }
 
     static JsonNode person(JsonNode board, String name) {
@@ -146,12 +146,31 @@ class ObservationTest extends IntegrationTestBase {
     }
 
     @Test
+    void readingAndExportingWriteNothing() throws Exception {
+        Course course = course("8a");
+        student("mia", course);
+        String url = BASE + "/" + course.getId();
+        JsonNode snapshot = body(getAs(teacher(), BASE + "?courseId=" + course.getId()).andExpect(status().isOk()));
+        assertEquals(1, snapshot.get("people").size(), "Mitglieder erscheinen auch ohne Zeile");
+        assertTrue(snapshot.get("people").get(0).get("id").isNull());
+        getAs(teacher(), url + "/export.json").andExpect(status().isOk());
+        getAs(teacher(), url + "/export.csv").andExpect(status().isOk());
+        getAs(teacher(), url + "/pdf").andExpect(status().isOk());
+        assertEquals(0, jdbc.queryForObject("select count(*) from observation_boards", Integer.class));
+        assertEquals(0, jdbc.queryForObject("select count(*) from observation_people", Integer.class));
+        // Erst das Öffnen (POST) legt Bogen und Zeilen an
+        assertNotNull(board(course).get("people").get(0).get("id").asLong());
+        assertEquals(1, jdbc.queryForObject("select count(*) from observation_people", Integer.class));
+    }
+
+    @Test
     void studentsSeeNothing() throws Exception {
         Course course = course("8a");
         User mia = student("mia", course);
         setUp(course, mia);
         String url = BASE + "/" + course.getId();
         getAs(as(mia), BASE + "?courseId=" + course.getId()).andExpect(status().isForbidden());
+        postAs(as(mia), url + "/open", null).andExpect(status().isForbidden());
         getAs(as(mia), url + "/export.json").andExpect(status().isForbidden());
         getAs(as(mia), url + "/pdf").andExpect(status().isForbidden());
         putAs(as(mia), url + "/people/1/note", Map.of("note", "x")).andExpect(status().isForbidden());

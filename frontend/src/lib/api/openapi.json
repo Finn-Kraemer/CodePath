@@ -3708,6 +3708,33 @@
         "tags" : [ "observation-controller" ]
       }
     },
+    "/api/admin/observations/{courseId}/open" : {
+      "post" : {
+        "operationId" : "observationOpen",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoardView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "observation-controller" ]
+      }
+    },
     "/api/admin/observations/{courseId}/pdf" : {
       "get" : {
         "operationId" : "observationPdf",

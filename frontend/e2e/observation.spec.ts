@@ -10,7 +10,9 @@ test('Klassenraum mit Sitzplan und Beobachtungsbogen', async ({ browser }) => {
 
 	await teacher.goto('/admin/classroom');
 	const [loaded] = await Promise.all([
-		teacher.waitForResponse((r) => r.url().includes('/api/admin/observations?courseId=') && r.ok()),
+		teacher.waitForResponse(
+			(r) => /\/api\/admin\/observations\/\d+\/open$/.test(r.url()) && r.ok()
+		),
 		teacher.getByLabel('Kurs').selectOption({ label: courseName })
 	]);
 	const courseId = (await loaded.json()).courseId as number;

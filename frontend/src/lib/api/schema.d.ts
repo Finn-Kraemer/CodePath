@@ -1588,6 +1588,22 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/observations/{courseId}/open': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['observationOpen'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/observations/{courseId}/pdf': {
 		parameters: {
 			query?: never;
@@ -8152,6 +8168,28 @@ export interface operations {
 				'application/json': components['schemas']['RoomLayout'];
 			};
 		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationOpen: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
 		responses: {
 			/** @description OK */
 			200: {

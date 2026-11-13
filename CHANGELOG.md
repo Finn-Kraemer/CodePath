@@ -6,6 +6,8 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 
 ## Unveröffentlicht
 
+## 2.5.0
+
 ### Neu
 - **Klassenraum mit Sitzplan und Beobachtungsbogen** (#72, *Leitstand → Klassenraum*): Je Kurs den Raum mit Tischen, Sitzplätzen, Lehrerpult und Tafel frei anlegen, verschieben und drehen. Plätze per Ziehen (auch am Tablet) oder Antippen Schülerkonten oder frei eingetragenen Namen zuweisen; ein Klick auf einen belegten Platz springt zur Zeile im Beobachtungsbogen. Im Bogen eigene Kriterien als Zahl (optional mit Bereich) oder Auswahlliste mit Wert und Beschreibung anlegen, umbenennen, sortieren und löschen; Bewertungen und Notizen werden im Unterricht ohne Extra-Klick gespeichert, Enter springt zur nächsten Zeile. Raum und Kriterien lassen sich als Vorlage speichern und in anderen Kursen übernehmen (auch über Import & Export). Export als PDF (Sitzplan plus Tabelle, optional eine Seite je Person), CSV und JSON, Import aus JSON. Nur Lehrkräfte sehen die Seite; alles wird beim Beenden des Kurses gelöscht.
 
