@@ -5,7 +5,7 @@
 # Zielplattform. Sonst laufen pnpm und Maven für arm64 unter QEMU-Emulation – das dauert ein Vielfaches
 # und blieb beim Release 2.4.0 in "pnpm install" hängen, bis der Job nach 60 Minuten abbrach.
 
-FROM --platform=$BUILDPLATFORM node:22-alpine AS frontend
+FROM --platform=$BUILDPLATFORM node:25-alpine AS frontend
 WORKDIR /build/frontend
 RUN corepack enable
 COPY frontend/package.json frontend/pnpm-lock.yaml frontend/pnpm-workspace.yaml frontend/.npmrc ./
