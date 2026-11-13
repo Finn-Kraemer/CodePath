@@ -36,6 +36,7 @@ export const ADMIN_ICONS = {
 	image: 'M4 4h16v16H4zM4 16l5-5 4 4 3-3 4 4M15 9h.01',
 	transfer: 'M4 16v3h16v-3M12 4v11M8 11l4 4 4-4',
 	calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4M9 15l2 2 4-4',
+	classroom: 'M3 9h18v4H3zM6 13v6M18 13v6M8 5h3M13 5h3',
 	lesson: 'M4 5h16v14H4zM10 9l5 3-5 3z',
 	printer:
 		'M7 17H5a2 2 0 01-2-2v-4a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2h-2M7 9V4h10v5M7 14h10v6H7z',
@@ -93,6 +94,12 @@ export const ADMIN_NAV: AdminGroup[] = [
 				title: 'Anwesenheit',
 				text: 'Termine erfassen, Abweichungen anklicken, Quote und Export',
 				icon: 'calendar'
+			},
+			{
+				href: '/admin/classroom',
+				title: 'Klassenraum',
+				text: 'Sitzplan anlegen, im Unterricht bewerten und Notizen machen',
+				icon: 'classroom'
 			},
 			{
 				href: '/admin/students',

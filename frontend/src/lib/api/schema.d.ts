@@ -1412,6 +1412,310 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	'/api/admin/observations': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['observationBoard'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/templates': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['observationTemplates'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/templates/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post?: never;
+		delete: operations['observationDeleteTemplate'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/apply': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['observationApply'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/criteria': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['observationCreateCriterion'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/criteria-order': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['observationReorder'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/criteria/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['observationUpdateCriterion'];
+		post?: never;
+		delete: operations['observationDeleteCriterion'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/export.csv': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['observationCsv'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/export.json': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['observationExportJson'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/import': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['observationImportJson'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/layout': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['observationLayout'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/open': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['observationOpen'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/pdf': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: operations['observationPdf'];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/people': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['observationAddPerson'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/people/{id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['observationRenamePerson'];
+		post?: never;
+		delete: operations['observationDeletePerson'];
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/people/{id}/note': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['observationNote'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/people/{id}/ratings/{criterionId}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['observationRate'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/people/{id}/seat': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put: operations['observationSeat'];
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/api/admin/observations/{courseId}/templates': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		post: operations['observationSaveTemplate'];
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	'/api/admin/pages': {
 		parameters: {
 			query?: never;
@@ -3037,6 +3341,12 @@ export interface components {
 			index?: number;
 			selected?: string[];
 		};
+		ApplyRequest: {
+			criteria?: boolean;
+			room?: boolean;
+			/** Format: int64 */
+			sourceId?: number;
+		};
 		ApproveRequest: {
 			comment?: string;
 			halfPoints?: boolean;
@@ -3205,6 +3515,26 @@ export interface components {
 			displayName: string;
 			role: string;
 			username: string;
+		};
+		BoardExport: {
+			course: string;
+			criteria: components['schemas']['ExportCriterion'][];
+			format: string;
+			layout: components['schemas']['RoomLayout'];
+			people: components['schemas']['ExportPerson'][];
+			/** Format: int32 */
+			version: number;
+		};
+		BoardView: {
+			/** Format: int64 */
+			courseId: number;
+			courseName: string;
+			criteria: components['schemas']['CriterionView'][];
+			editable: boolean;
+			layout: components['schemas']['RoomLayout'];
+			people: components['schemas']['PersonView'][];
+			/** Format: date-time */
+			updatedAt: string;
 		};
 		BranchConditionStats: {
 			edgeKey: string;
@@ -3377,6 +3707,14 @@ export interface components {
 			/** Format: int32 */
 			points: number;
 		};
+		CriterionRequest: {
+			/** @enum {string} */
+			kind?: 'NUMBER' | 'CHOICE';
+			max?: number;
+			min?: number;
+			name?: string;
+			options?: components['schemas']['ObservationOption'][];
+		};
 		CriterionStats: {
 			/** Format: int64 */
 			answered: number;
@@ -3388,6 +3726,16 @@ export interface components {
 			texts: components['schemas']['TextAnswer'][];
 			/** @enum {string} */
 			type: 'HEADING' | 'SCALE' | 'CHOICE' | 'YES_NO' | 'TEXT';
+		};
+		CriterionView: {
+			/** Format: int64 */
+			id: number;
+			/** @enum {string} */
+			kind: 'NUMBER' | 'CHOICE';
+			max: number;
+			min: number;
+			name: string;
+			options: components['schemas']['ObservationOption'][];
 		};
 		DeleteImpact: {
 			archived: boolean;
@@ -3456,6 +3804,23 @@ export interface components {
 			style: string;
 			/** @enum {string} */
 			type: 'HEADING' | 'SCALE' | 'CHOICE' | 'YES_NO' | 'TEXT';
+		};
+		ExportCriterion: {
+			/** @enum {string} */
+			kind: 'NUMBER' | 'CHOICE';
+			max: number;
+			min: number;
+			name: string;
+			options: components['schemas']['ObservationOption'][];
+		};
+		ExportPerson: {
+			name: string;
+			note: string;
+			ratings: {
+				[key: string]: string;
+			};
+			seatId: string;
+			username: string;
 		};
 		GateProgress: {
 			/** Format: int32 */
@@ -3545,6 +3910,14 @@ export interface components {
 			unchanged: number;
 			/** Format: int32 */
 			versionsPublished: number;
+		};
+		ImportResult: {
+			board: components['schemas']['BoardView'];
+			/** Format: int32 */
+			criteria: number;
+			/** Format: int32 */
+			people: number;
+			warnings: string[];
 		};
 		JournalEntryView: {
 			/** Format: int64 */
@@ -3843,6 +4216,9 @@ export interface components {
 			teacherState: 'NONE' | 'HIDDEN' | 'AFTER_SELF' | 'PENDING' | 'VISIBLE';
 			title: string;
 		};
+		NameRequest: {
+			name?: string;
+		};
 		NavLink: {
 			description: string;
 			showInNav: boolean;
@@ -3937,6 +4313,13 @@ export interface components {
 			/** Format: int32 */
 			y: number;
 		};
+		NoteRequest: {
+			note?: string;
+		};
+		ObservationOption: {
+			description: string;
+			value: string;
+		};
 		OpenTaskView: {
 			moduleSlug: string;
 			/** Format: int32 */
@@ -3948,6 +4331,9 @@ export interface components {
 			id: string;
 			label: string;
 			text: string;
+		};
+		OrderRequest: {
+			ids?: number[];
 		};
 		PageDetail: {
 			draft: components['schemas']['JsonNode'];
@@ -4065,6 +4451,21 @@ export interface components {
 			reason: string;
 			received: components['schemas']['Received'][];
 			rubric: components['schemas']['Criterion'][];
+		};
+		PersonView: {
+			/** Format: int64 */
+			id: number;
+			name: string;
+			note: string;
+			ratings: {
+				[key: string]: string;
+			};
+			seatId: string;
+			/** Format: date-time */
+			updatedAt: string;
+			/** Format: int64 */
+			userId: number;
+			username: string;
 		};
 		Profile: {
 			/** Format: int64 */
@@ -4208,6 +4609,31 @@ export interface components {
 		ReorderRequest: {
 			taskIds?: number[];
 		};
+		RoomItem: {
+			/** Format: double */
+			height: number;
+			id: string;
+			/** @enum {string} */
+			kind: 'TABLE' | 'TEACHER' | 'BOARD';
+			label: string;
+			/** Format: int32 */
+			rotation: number;
+			seats: components['schemas']['RoomSeat'][];
+			/** Format: double */
+			width: number;
+			/** Format: double */
+			x: number;
+			/** Format: double */
+			y: number;
+		};
+		RoomLayout: {
+			items: components['schemas']['RoomItem'][];
+		};
+		RoomSeat: {
+			id: string;
+			/** @enum {string} */
+			side: 'TOP' | 'BOTTOM' | 'LEFT' | 'RIGHT';
+		};
 		RoundAdmin: {
 			acceptingAnswers: boolean;
 			allowEdit: boolean;
@@ -4281,6 +4707,9 @@ export interface components {
 			slug: string;
 			snippet: string;
 			title: string;
+		};
+		SeatRequest: {
+			seatId?: string;
 		};
 		SectionInfo: {
 			key: string;
@@ -4747,6 +5176,19 @@ export interface components {
 			kind?: 'SELF' | 'LESSON' | 'TEACHER';
 			name?: string;
 		};
+		TemplateSummary: {
+			/** Format: int64 */
+			courseId: number;
+			/** Format: int32 */
+			criteria: number;
+			/** Format: int64 */
+			id: number;
+			name: string;
+			/** Format: int32 */
+			seats: number;
+			/** Format: int32 */
+			tables: number;
+		};
 		TemplateView: {
 			criteria: components['schemas']['EvaluationCriterion'][];
 			description: string;
@@ -4816,6 +5258,9 @@ export interface components {
 			taskSlug: string;
 			taskTitle: string;
 			username: string;
+		};
+		ValueRequest: {
+			value?: string;
 		};
 		VersionRow: {
 			/** Format: int64 */
@@ -7445,6 +7890,523 @@ export interface operations {
 				};
 				content: {
 					'*/*': components['schemas']['UserReleaseView'][];
+				};
+			};
+		};
+	};
+	observationBoard: {
+		parameters: {
+			query?: {
+				courseId?: number;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationTemplates: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TemplateSummary'][];
+				};
+			};
+		};
+	};
+	observationDeleteTemplate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content?: never;
+			};
+		};
+	};
+	observationApply: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ApplyRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationCreateCriterion: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['CriterionRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationReorder: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['OrderRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationUpdateCriterion: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['CriterionRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationDeleteCriterion: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationCsv: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	observationExportJson: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardExport'];
+				};
+			};
+		};
+	};
+	observationImportJson: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['BoardExport'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['ImportResult'];
+				};
+			};
+		};
+	};
+	observationLayout: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['RoomLayout'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationOpen: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationPdf: {
+		parameters: {
+			query?: {
+				perPerson?: boolean;
+				inline?: boolean;
+			};
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': string;
+				};
+			};
+		};
+	};
+	observationAddPerson: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['NameRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationRenamePerson: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['NameRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationDeletePerson: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationNote: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['NoteRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PersonView'];
+				};
+			};
+		};
+	};
+	observationRate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+				id: number;
+				criterionId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['ValueRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['PersonView'];
+				};
+			};
+		};
+	};
+	observationSeat: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+				id: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['SeatRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['BoardView'];
+				};
+			};
+		};
+	};
+	observationSaveTemplate: {
+		parameters: {
+			query?: never;
+			header?: never;
+			path: {
+				courseId: number;
+			};
+			cookie?: never;
+		};
+		requestBody: {
+			content: {
+				'application/json': components['schemas']['NameRequest'];
+			};
+		};
+		responses: {
+			/** @description OK */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					'*/*': components['schemas']['TemplateSummary'];
 				};
 			};
 		};
