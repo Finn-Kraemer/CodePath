@@ -65,12 +65,43 @@ test('Klassenraum mit Sitzplan und Beobachtungsbogen', async ({ browser }) => {
 	]);
 	await expect(teacher.getByText('gespeichert ✓')).toBeVisible();
 
+	// Mehrfachauswahl: zwei Optionen gleichzeitig
+	await teacher.getByRole('button', { name: '+ Kriterium' }).click();
+	await form.getByLabel('Name').fill('Beobachtet');
+	await form.getByTestId('criterion-multiple').check();
+	await form.getByLabel('Beschreibung der Option 1').fill('Fragt nach');
+	await form.getByLabel('Beschreibung der Option 2').fill('Hilft anderen');
+	await Promise.all([
+		teacher.waitForResponse((r) => r.url().endsWith('/criteria') && r.ok()),
+		form.getByRole('button', { name: 'Speichern' }).click()
+	]);
+	const observed = teacher.getByRole('group', { name: `Beobachtet für mia-${suffix}` });
+	for (const value of ['1', '2']) {
+		await Promise.all([
+			teacher.waitForResponse((r) => r.url().includes('/ratings/') && r.ok()),
+			observed.getByRole('button', { name: value, exact: true }).click()
+		]);
+	}
+	await expect(observed.getByRole('button', { name: '1', exact: true })).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
+	await expect(observed.getByRole('button', { name: '2', exact: true })).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
+
 	// Nach dem Neuladen ist alles da
 	await teacher.reload();
 	await expect(teacher.getByLabel(`Interesse für mia-${suffix}`)).toHaveValue('1');
 	await expect(teacher.getByLabel(`Notizen zu mia-${suffix}`)).toHaveValue(
 		'Fragt viel zu Ausbildungswegen'
 	);
+	await expect(
+		teacher
+			.getByRole('group', { name: `Beobachtet für mia-${suffix}` })
+			.getByRole('button', { name: '2', exact: true })
+	).toHaveAttribute('aria-pressed', 'true');
 
 	// Klick auf den belegten Platz springt zur Zeile
 	await teacher.locator('[data-seat-id]').first().click();
@@ -84,6 +115,7 @@ test('Klassenraum mit Sitzplan und Beobachtungsbogen', async ({ browser }) => {
 	const data = await exported.json();
 	expect(data.criteria[0].options[0].description).toBe('Neugier durch Fragen zum Beruf');
 	expect(data.people[0].ratings.Interesse).toBe('1');
+	expect(data.people[0].ratings.Beobachtet).toBe('1, 2');
 	const csv = await teacher.request.get(`/api/admin/observations/${courseId}/export.csv`);
 	expect(await csv.text()).toContain('Fragt viel zu Ausbildungswegen');
 

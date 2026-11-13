@@ -250,7 +250,7 @@ final class ObservationPdf {
             for (ObservationService.ObservationOption o : c.options()) {
                 joiner.add(o.description() == null ? o.value() : o.value() + " = " + o.description());
             }
-            return joiner.toString();
+            return (c.multiple() ? "mehrere möglich: " : "") + joiner;
         }
         if (c.min() == null && c.max() == null) return null;
         if (c.min() != null && c.max() != null) {
@@ -284,8 +284,9 @@ final class ObservationPdf {
             table.addCell(cell(value == null ? "–" : value, false));
             String meaning = "";
             if (value != null && c.kind() == ObservationCriterion.Kind.CHOICE) {
-                meaning = c.options().stream().filter(o -> o.value().equals(value)).map(ObservationService.ObservationOption::description)
-                        .filter(Objects::nonNull).findFirst().orElse("");
+                Set<String> chosen = c.multiple() ? new HashSet<>(Arrays.stream(value.split(",")).map(String::strip).toList()) : Set.of(value);
+                meaning = String.join("\n", c.options().stream().filter(o -> chosen.contains(o.value()) && o.description() != null)
+                        .map(o -> c.multiple() ? o.value() + " – " + o.description() : o.description()).toList());
             } else if (c.kind() == ObservationCriterion.Kind.NUMBER && (c.min() != null || c.max() != null)) {
                 meaning = describe(c);
             }

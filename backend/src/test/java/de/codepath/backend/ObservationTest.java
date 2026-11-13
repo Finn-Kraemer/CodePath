@@ -146,6 +146,48 @@ class ObservationTest extends IntegrationTestBase {
     }
 
     @Test
+    void multipleChoiceKeepsSeveralOptions() throws Exception {
+        Course course = course("8a");
+        student("mia", course);
+        String url = BASE + "/" + course.getId();
+        board(course);
+        Map<String, Object> interest = new HashMap<>(interest());
+        interest.put("options", List.of(Map.of("value", "1", "description", "Neugier durch Fragen zum Beruf"),
+                Map.of("value", "2", "description", "Wirkt motiviert und aufgeweckt"), Map.of("value", "3")));
+        interest.put("multiple", true);
+        JsonNode b = body(postAs(teacher(), url + "/criteria", interest).andExpect(status().isOk()));
+        assertTrue(b.get("criteria").get(0).get("multiple").asBoolean());
+        long id = criterion(b, "Interesse");
+        long mia = person(b, "mia").get("id").asLong();
+        String rating = url + "/people/" + mia + "/ratings/" + id;
+
+        // Reihenfolge der Optionen, ohne Doppelte
+        JsonNode p = body(putAs(teacher(), rating, Map.of("value", "2,1, 2")).andExpect(status().isOk()));
+        assertEquals("1, 2", p.get("ratings").get(String.valueOf(id)).asString());
+        putAs(teacher(), rating, Map.of("value", "1, 9")).andExpect(status().isBadRequest());
+        p = body(putAs(teacher(), rating, Map.of("value", " , ")).andExpect(status().isOk()));
+        assertFalse(p.get("ratings").has(String.valueOf(id)), "Nichts gewählt = kein Wert");
+        putAs(teacher(), rating, Map.of("value", "1, 2")).andExpect(status().isOk());
+
+        // Export und PDF zeigen beide Optionen
+        JsonNode exported = body(getAs(teacher(), url + "/export.json"));
+        assertTrue(exported.get("criteria").get(0).get("multiple").asBoolean());
+        assertEquals("1, 2", exported.get("people").get(0).get("ratings").get("Interesse").asString());
+        String text = TakeHomeTest.text(getAs(teacher(), url + "/pdf?perPerson=true").andReturn().getResponse().getContentAsByteArray());
+        assertTrue(text.contains("1 – Neugier durch Fragen zum Beruf") && text.contains("2 – Wirkt motiviert und aufgeweckt"), text);
+
+        // Kommas in Werten gehen bei Mehrfachauswahl nicht
+        Map<String, Object> comma = new HashMap<>(interest);
+        comma.put("options", List.of(Map.of("value", "1,5")));
+        putAs(teacher(), url + "/criteria/" + id, comma).andExpect(status().isBadRequest());
+
+        // Zurück auf Einfachauswahl: „1, 2“ passt nicht mehr und fällt weg
+        interest.put("multiple", false);
+        b = body(putAs(teacher(), url + "/criteria/" + id, interest).andExpect(status().isOk()));
+        assertFalse(person(b, "mia").get("ratings").has(String.valueOf(id)));
+    }
+
+    @Test
     void readingAndExportingWriteNothing() throws Exception {
         Course course = course("8a");
         student("mia", course);

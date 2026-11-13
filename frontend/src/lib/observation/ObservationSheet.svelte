@@ -6,6 +6,8 @@
 		criterionHint,
 		optionLabel,
 		seatsInOrder,
+		splitValues,
+		toggleValue,
 		type CriterionView,
 		type PersonView,
 		type RoomLayout
@@ -47,7 +49,21 @@
 	);
 	/** Notizen, die gerade getippt und noch nicht bestätigt sind */
 	let drafts = $state<Record<number, string>>({});
+	/** Mehrfachauswahl: schon angeklickt, Antwort des Servers steht noch aus (schnelles Klicken) */
+	let pendingChoice = $state<Record<string, string>>({});
 	const timers = new SvelteMap<number, ReturnType<typeof setTimeout>>();
+
+	function chosen(person: PersonView, criterion: CriterionView): string[] {
+		const key = `${person.id}:${criterion.id}`;
+		return splitValues(pendingChoice[key] ?? person.ratings[criterion.id]);
+	}
+
+	function toggle(person: PersonView, criterion: CriterionView, value: string) {
+		const key = `${person.id}:${criterion.id}`;
+		const next = toggleValue(criterion, pendingChoice[key] ?? person.ratings[criterion.id], value);
+		pendingChoice[key] = next;
+		rate(person, criterion, next);
+	}
 
 	async function rate(person: PersonView, criterion: CriterionView, value: string) {
 		const key = `${person.id}:${criterion.id}`;
@@ -58,8 +74,10 @@
 				{ method: 'PUT', body: { value } }
 			);
 			onperson(updated);
+			if (pendingChoice[key] === value) delete pendingChoice[key];
 			status[key] = { state: 'saved' };
 		} catch (e) {
+			delete pendingChoice[key];
 			status[key] = { state: 'error', message: (e as Error).message };
 		}
 	}
@@ -172,7 +190,7 @@
 						</div>
 						<div class="text-[10px] font-normal text-slate-400">
 							{criterion.kind === 'CHOICE'
-								? `Auswahl · ${criterion.options.length} Optionen`
+								? `${criterion.multiple ? 'Mehrfachauswahl' : 'Auswahl'} · ${criterion.options.length} Optionen`
 								: criterionHint(criterion)}
 						</div>
 					</th>
@@ -222,7 +240,37 @@
 						{@const key = `${person.id}:${criterion.id}`}
 						{@const s = status[key]}
 						<td class="px-2 py-2">
-							{#if criterion.kind === 'CHOICE'}
+							{#if criterion.kind === 'CHOICE' && criterion.multiple}
+								{@const values = chosen(person, criterion)}
+								<div
+									class="flex flex-wrap gap-1"
+									role="group"
+									aria-label="{criterion.name} für {person.name}"
+								>
+									{#each criterion.options as o, i (o.value)}
+										{@const on = values.includes(o.value)}
+										<button
+											type="button"
+											class="h-11 min-w-11 border px-2 text-sm font-bold transition-colors disabled:opacity-60 {on
+												? 'border-institutional-navy bg-institutional-navy text-white'
+												: 'border-slate-200 bg-white text-slate-600 hover:border-institutional-navy'} {s?.state ===
+											'error'
+												? 'border-rose-500'
+												: ''}"
+											aria-pressed={on}
+											title={optionLabel(o)}
+											disabled={!editable}
+											data-cell={i === 0 ? `${row}:${col}` : undefined}
+											onclick={() => toggle(person, criterion, o.value)}>{o.value}</button
+										>
+									{/each}
+								</div>
+								{#each criterion.options.filter((o) => o.description && values.includes(o.value)) as o (o.value)}
+									<div class="mt-1 text-[11px] leading-tight text-slate-500">
+										{o.value} – {o.description}
+									</div>
+								{/each}
+							{:else if criterion.kind === 'CHOICE'}
 								{@const option = selectedOption(criterion, person)}
 								<select
 									class="h-11 w-full border bg-white px-2 text-sm {cellClass(key)}"

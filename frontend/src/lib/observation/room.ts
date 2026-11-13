@@ -21,6 +21,8 @@ export interface CriterionInput {
 	min: number | null;
 	max: number | null;
 	options: ObservationOption[];
+	/** Auswahlliste: mehrere Optionen gleichzeitig */
+	multiple: boolean;
 }
 
 export const ROOM_WIDTH = 1200;
@@ -200,7 +202,11 @@ export function optionLabel(option: ObservationOption): string {
 
 /** Erklärung eines Kriteriums für Tooltip und Kopfzeile. */
 export function criterionHint(criterion: CriterionView): string {
-	if (criterion.kind === 'CHOICE') return criterion.options.map(optionLabel).join('\n');
+	if (criterion.kind === 'CHOICE')
+		return (
+			(criterion.multiple ? 'Mehrere möglich:\n' : '') +
+			criterion.options.map(optionLabel).join('\n')
+		);
 	const min = criterion.min;
 	const max = criterion.max;
 	if (min != null && max != null) return `Zahl von ${min} bis ${max}`;
@@ -250,4 +256,27 @@ export function bounds(
 		width: maxX - minX + 2 * pad,
 		height: maxY - minY + 2 * pad
 	};
+}
+
+/** Gewählte Werte einer Mehrfachauswahl („1, 2“ → ["1", "2"]). */
+export function splitValues(value: string | null | undefined): string[] {
+	return (value ?? '')
+		.split(',')
+		.map((v) => v.trim())
+		.filter((v) => v !== '');
+}
+
+/** Option an- oder abwählen; Ergebnis in Reihenfolge der Optionen, wie es der Server speichert. */
+export function toggleValue(
+	criterion: CriterionView,
+	current: string | null | undefined,
+	value: string
+): string {
+	const chosen = new Set(splitValues(current));
+	if (chosen.has(value)) chosen.delete(value);
+	else chosen.add(value);
+	return criterion.options
+		.map((o) => o.value)
+		.filter((v) => chosen.has(v))
+		.join(', ');
 }

@@ -84,14 +84,14 @@ public class ObservationTransfer implements TransferSection {
         board.setLayout(objectMapper.writeValueAsString(layout));
         board.setUpdatedAt(LocalDateTime.now());
         boardRepository.save(board);
-        service.replaceCriteria(board, criteria.stream().map(c -> new ObservationService.CriterionRequest(c.name(), c.kind(), c.min(), c.max(), c.options())).toList());
+        service.replaceCriteria(board, criteria.stream().map(c -> new ObservationService.CriterionRequest(c.name(), c.kind(), c.min(), c.max(), c.options(), c.multiple())).toList());
         return existing.isPresent() ? TransferItem.Action.UPDATED : TransferItem.Action.CREATED;
     }
 
     private List<ObservationExchange.ExportCriterion> criteria(ObservationBoard board) {
         return criterionRepository.findByBoardIdOrderByPositionAscIdAsc(board.getId()).stream()
                 .map(service::criterionView)
-                .map(c -> new ObservationExchange.ExportCriterion(c.name(), c.kind(), c.min(), c.max(), c.options()))
+                .map(c -> new ObservationExchange.ExportCriterion(c.name(), c.kind(), c.min(), c.max(), c.options(), c.multiple()))
                 .toList();
     }
 
@@ -100,9 +100,9 @@ public class ObservationTransfer implements TransferSection {
         List<ObservationExchange.ExportCriterion> result = new ArrayList<>();
         for (ObservationExchange.ExportCriterion c : in) {
             ObservationCriterion probe = new ObservationCriterion();
-            service.apply(probe, new ObservationService.CriterionRequest(c.name(), c.kind(), c.min(), c.max(), c.options()));
+            service.apply(probe, new ObservationService.CriterionRequest(c.name(), c.kind(), c.min(), c.max(), c.options(), c.multiple()));
             ObservationService.CriterionView v = service.criterionView(probe);
-            result.add(new ObservationExchange.ExportCriterion(v.name(), v.kind(), v.min(), v.max(), v.options()));
+            result.add(new ObservationExchange.ExportCriterion(v.name(), v.kind(), v.min(), v.max(), v.options(), v.multiple()));
         }
         return result;
     }

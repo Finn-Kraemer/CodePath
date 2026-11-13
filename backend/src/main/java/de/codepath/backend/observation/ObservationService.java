@@ -48,11 +48,15 @@ public class ObservationService {
     }
 
     public record CriterionRequest(String name, ObservationCriterion.Kind kind, BigDecimal min, BigDecimal max,
-                                   List<ObservationOption> options) {
+                                   List<ObservationOption> options, Boolean multiple) {
+        /** Fehlt die Angabe (ältere Exporte), gilt Einfachauswahl */
+        public boolean isMultiple() {
+            return Boolean.TRUE.equals(multiple);
+        }
     }
 
     public record CriterionView(Long id, String name, ObservationCriterion.Kind kind, BigDecimal min, BigDecimal max,
-                                List<ObservationOption> options) {
+                                List<ObservationOption> options, boolean multiple) {
     }
 
     /**
@@ -242,10 +246,16 @@ public class ObservationService {
             criterion.setMinValue(min);
             criterion.setMaxValue(max);
             criterion.setOptions("[]");
+            criterion.setMultiple(false);
         } else {
+            List<ObservationOption> options = validOptions(request.options());
+            if (request.isMultiple() && options.stream().anyMatch(o -> o.value().contains(","))) {
+                throw ApiException.badRequest("Bei Mehrfachauswahl dürfen die Werte der Optionen kein Komma enthalten.");
+            }
             criterion.setMinValue(null);
             criterion.setMaxValue(null);
-            criterion.setOptions(objectMapper.writeValueAsString(validOptions(request.options())));
+            criterion.setOptions(objectMapper.writeValueAsString(options));
+            criterion.setMultiple(request.isMultiple());
         }
     }
 
@@ -381,10 +391,24 @@ public class ObservationService {
         if (raw == null || raw.isBlank()) return null;
         String value = raw.strip();
         if (criterion.getKind() == ObservationCriterion.Kind.CHOICE) {
-            if (options.stream().noneMatch(o -> o.value().equals(value))) {
-                throw ApiException.badRequest("„" + value + "“ ist keine Option von „" + criterion.getName() + "“.");
+            if (!criterion.isMultiple()) {
+                if (options.stream().noneMatch(o -> o.value().equals(value))) {
+                    throw ApiException.badRequest("„" + value + "“ ist keine Option von „" + criterion.getName() + "“.");
+                }
+                return value;
             }
-            return value;
+            // Mehrfachauswahl: „2,1“ → „1, 2“ (Reihenfolge der Optionen, ohne Doppelte)
+            Set<String> chosen = new HashSet<>();
+            for (String part : value.split(",")) {
+                String v = part.strip();
+                if (v.isEmpty()) continue;
+                if (options.stream().noneMatch(o -> o.value().equals(v))) {
+                    throw ApiException.badRequest("„" + v + "“ ist keine Option von „" + criterion.getName() + "“.");
+                }
+                chosen.add(v);
+            }
+            if (chosen.isEmpty()) return null;
+            return String.join(", ", options.stream().map(ObservationOption::value).filter(chosen::contains).toList());
         }
         BigDecimal number;
         try {
@@ -580,11 +604,11 @@ public class ObservationService {
     }
 
     CriterionView criterionView(ObservationCriterion c) {
-        return new CriterionView(c.getId(), c.getName(), c.getKind(), clean(c.getMinValue()), clean(c.getMaxValue()), options(c));
+        return new CriterionView(c.getId(), c.getName(), c.getKind(), clean(c.getMinValue()), clean(c.getMaxValue()), options(c), c.isMultiple());
     }
 
     CriterionRequest request(ObservationCriterion c) {
-        return new CriterionRequest(c.getName(), c.getKind(), clean(c.getMinValue()), clean(c.getMaxValue()), options(c));
+        return new CriterionRequest(c.getName(), c.getKind(), clean(c.getMinValue()), clean(c.getMaxValue()), options(c), c.isMultiple());
     }
 
     private ObservationCriterion criterion(ObservationBoard board, Long id) {

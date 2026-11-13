@@ -8299,6 +8299,9 @@
           "min" : {
             "type" : "number"
           },
+          "multiple" : {
+            "type" : "boolean"
+          },
           "name" : {
             "type" : "string"
           },
@@ -8363,6 +8366,9 @@
           "min" : {
             "type" : "number"
           },
+          "multiple" : {
+            "type" : "boolean"
+          },
           "name" : {
             "type" : "string"
           },
@@ -8373,7 +8379,7 @@
             }
           }
         },
-        "required" : [ "id", "kind", "max", "min", "name", "options" ]
+        "required" : [ "id", "kind", "max", "min", "multiple", "name", "options" ]
       },
       "DeleteImpact" : {
         "type" : "object",
@@ -8568,6 +8574,9 @@
           "min" : {
             "type" : "number"
           },
+          "multiple" : {
+            "type" : "boolean"
+          },
           "name" : {
             "type" : "string"
           },
@@ -8578,7 +8587,7 @@
             }
           }
         },
-        "required" : [ "kind", "max", "min", "name", "options" ]
+        "required" : [ "kind", "max", "min", "multiple", "name", "options" ]
       },
       "ExportPerson" : {
         "type" : "object",

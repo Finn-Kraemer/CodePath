@@ -21,6 +21,7 @@
 	const start = criterion;
 	let name = $state(start?.name ?? '');
 	let kind = $state<'NUMBER' | 'CHOICE'>(start?.kind ?? 'CHOICE');
+	let multiple = $state(start?.multiple ?? false);
 	let min = $state<string>(start?.min != null ? String(start.min) : '');
 	let max = $state<string>(start?.max != null ? String(start.max) : '');
 	let options = $state<ObservationOption[]>(
@@ -64,7 +65,8 @@
 							value: o.value.trim(),
 							description: o.description?.trim() ?? ''
 						}))
-					: []
+					: [],
+			multiple: kind === 'CHOICE' && multiple
 		});
 	}
 </script>
@@ -130,6 +132,10 @@
 		</div>
 	{:else}
 		<div class="flex flex-col gap-2">
+			<label class="flex items-center gap-2 text-sm">
+				<input type="checkbox" bind:checked={multiple} data-testid="criterion-multiple" />
+				Mehrfachauswahl – mehrere Optionen gleichzeitig ankreuzbar
+			</label>
 			<p class="text-xs text-slate-500">
 				Je Option ein kurzer Wert (der steht in der Tabelle) und eine Beschreibung (als Hilfe beim
 				Eintragen und im PDF).

@@ -3712,6 +3712,7 @@ export interface components {
 			kind?: 'NUMBER' | 'CHOICE';
 			max?: number;
 			min?: number;
+			multiple?: boolean;
 			name?: string;
 			options?: components['schemas']['ObservationOption'][];
 		};
@@ -3734,6 +3735,7 @@ export interface components {
 			kind: 'NUMBER' | 'CHOICE';
 			max: number;
 			min: number;
+			multiple: boolean;
 			name: string;
 			options: components['schemas']['ObservationOption'][];
 		};
@@ -3810,6 +3812,7 @@ export interface components {
 			kind: 'NUMBER' | 'CHOICE';
 			max: number;
 			min: number;
+			multiple: boolean;
 			name: string;
 			options: components['schemas']['ObservationOption'][];
 		};

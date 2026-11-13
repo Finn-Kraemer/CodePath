@@ -6,6 +6,12 @@ Vor jedem Update: Backup anlegen (`./deploy/backup.sh`) und die Hinweise unter *
 
 ## Unveröffentlicht
 
+### Verbessert
+- **Beobachtungsbogen: Mehrfachauswahl** (*Leitstand → Klassenraum*): Auswahllisten lassen sich auf „Mehrfachauswahl“ stellen – dann sind mehrere Optionen gleichzeitig ankreuzbar, z. B. bei *Interesse* sowohl „1 – Neugier durch Fragen zum Beruf“ als auch „2 – Wirkt motiviert und aufgeweckt“. Im Bogen erscheinen die Optionen als Schaltflächen zum An- und Abwählen, die Beschreibungen der gewählten stehen darunter. CSV, JSON und PDF zeigen alle gewählten Werte (z. B. „1, 2“).
+
+### Update
+- Migration V43 ergänzt `observation_criteria` um `multiple` und verlängert `observation_ratings.value`. Bestehende Kriterien bleiben Einfachauswahl.
+
 ## 2.5.0
 
 ### Neu

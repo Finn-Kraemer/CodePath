@@ -27,7 +27,7 @@ public class ObservationExchange {
     private final AuditService auditService;
 
     public record ExportCriterion(String name, ObservationCriterion.Kind kind, BigDecimal min, BigDecimal max,
-                                  List<ObservationService.ObservationOption> options) {
+                                  List<ObservationService.ObservationOption> options, Boolean multiple) {
     }
 
     /**
@@ -53,7 +53,7 @@ public class ObservationExchange {
         List<ExportCriterion> criteria = new ArrayList<>();
         for (ObservationService.CriterionView c : view.criteria()) {
             names.put(c.id(), c.name());
-            criteria.add(new ExportCriterion(c.name(), c.kind(), c.min(), c.max(), c.options()));
+            criteria.add(new ExportCriterion(c.name(), c.kind(), c.min(), c.max(), c.options(), c.multiple()));
         }
         List<ExportPerson> people = new ArrayList<>();
         for (ObservationService.PersonView p : ordered(view)) {
@@ -89,7 +89,7 @@ public class ObservationExchange {
         int criteriaCount = 0;
         for (ExportCriterion in : Optional.ofNullable(data.criteria()).orElse(List.of())) {
             if (in == null || in.name() == null) continue;
-            ObservationService.CriterionRequest request = new ObservationService.CriterionRequest(in.name(), in.kind(), in.min(), in.max(), in.options());
+            ObservationService.CriterionRequest request = new ObservationService.CriterionRequest(in.name(), in.kind(), in.min(), in.max(), in.options(), in.multiple());
             ObservationCriterion existing = criteria.get(in.name().strip().toLowerCase(Locale.ROOT));
             try {
                 if (existing != null) {

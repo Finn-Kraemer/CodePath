@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-/** Eine Spalte im Beobachtungsbogen: Zahl (optional mit Bereich) oder Auswahlliste (Optionen als JSON). */
+/** Eine Spalte im Beobachtungsbogen: Zahl (optional mit Bereich) oder Auswahlliste (Optionen als JSON, optional Mehrfachauswahl). */
 @Entity
 @Table(name = "observation_criteria")
 @Getter @Setter @NoArgsConstructor
@@ -40,4 +40,8 @@ public class ObservationCriterion {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String options = "[]";
+
+    /** Auswahlliste: mehrere Optionen gleichzeitig wählbar */
+    @Column(nullable = false)
+    private boolean multiple;
 }

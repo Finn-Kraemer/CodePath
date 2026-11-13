@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
 	newItem,
+	splitValues,
+	toggleValue,
+	type CriterionView,
 	seatCenter,
 	seatCounts,
 	seatsInOrder,
@@ -75,5 +78,17 @@ describe('Klassenraum', () => {
 		const people = [person(1, 'Zoe', 'a'), person(2, 'Anna', null), person(3, 'mia', 'b')];
 		expect(sortPeople(people, layout, 'seat').map((p) => p.name)).toEqual(['Zoe', 'mia', 'Anna']);
 		expect(sortPeople(people, layout, 'name').map((p) => p.name)).toEqual(['Anna', 'mia', 'Zoe']);
+	});
+
+	it('schaltet Optionen einer Mehrfachauswahl in Optionsreihenfolge', () => {
+		const c = {
+			options: [{ value: '1' }, { value: '2' }, { value: '3' }],
+			multiple: true
+		} as unknown as CriterionView;
+		expect(toggleValue(c, '', '2')).toBe('2');
+		expect(toggleValue(c, '2', '1')).toBe('1, 2');
+		expect(toggleValue(c, '1, 2', '2')).toBe('1');
+		expect(toggleValue(c, '1', '1')).toBe('');
+		expect(splitValues(' 1,  3 ,')).toEqual(['1', '3']);
 	});
 });
